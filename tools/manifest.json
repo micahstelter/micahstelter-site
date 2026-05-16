@@ -1,0 +1,9 @@
+[
+  {
+    "slug": "site-status",
+    "name": "Site Status",
+    "description": "Live infrastructure checks for micahstelter.ai",
+    "icon": "&#10003;",
+    "published": "2026-05-16T00:00:00Z"
+  }
+]
