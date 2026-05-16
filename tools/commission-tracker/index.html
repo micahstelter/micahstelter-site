@@ -163,13 +163,16 @@ function simpleHash(s) {
   for (let i = 0; i < s.length; i++) { h = ((h << 5) - h + s.charCodeAt(i)) | 0; }
   return (h >>> 0).toString(16);
 }
+function unlock() {
+  document.getElementById('gate').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.body.classList.remove('locked');
+  sessionStorage.setItem('ct_auth', '1');
+}
 function tryUnlock() {
   const input = document.getElementById('pw');
   if (simpleHash(input.value) === PASS_HASH) {
-    document.getElementById('gate').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
-    document.body.classList.remove('locked');
-    sessionStorage.setItem('ct_auth', '1');
+    unlock();
     initDashboard();
   } else {
     input.classList.add('error');
@@ -177,18 +180,9 @@ function tryUnlock() {
     setTimeout(() => input.classList.remove('error'), 500);
   }
 }
-document.addEventListener('DOMContentLoaded', function() {
-  const input = document.getElementById('pw');
-  if (input) input.addEventListener('keydown', function(e) { if (e.key === 'Enter') tryUnlock(); });
-  if (sessionStorage.getItem('ct_auth') === '1') {
-    document.getElementById('gate').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
-    document.body.classList.remove('locked');
-    initDashboard();
-  }
-});
-  if (window._dashReady) window._dashReady();
-  else window._dashInit = true;
+document.getElementById('pw').addEventListener('keydown', function(e) { if (e.key === 'Enter') tryUnlock(); });
+if (sessionStorage.getItem('ct_auth') === '1') {
+  unlock();
 }
 </script>
 
@@ -367,15 +361,17 @@ function renderMonth(monthKey) {
   }).join('');
 }
 
-function startDashboard() {
+function initDashboard() {
   populateMonthPicker();
   renderAllMonths();
   renderTrend();
   document.getElementById('last-scan').textContent = 'Data as of: May 16, 2026';
 }
 
-window._dashReady = startDashboard;
-if (window._dashInit) startDashboard();
+// Auto-init if already authenticated (session restore)
+if (sessionStorage.getItem('ct_auth') === '1') {
+  initDashboard();
+}
 </script>
 </body>
 </html>
