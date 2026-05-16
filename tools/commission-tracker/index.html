@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Commission Tracker — Paris Brands</title>
+<style>
+:root { color-scheme: light; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; background: #f8f9fa; color: #212223; line-height: 1.5; }
+.header { background: #212223; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; }
+.header h1 { font-size: 18px; font-weight: 300; color: #fff; letter-spacing: 0.5px; }
+.header h1 span { color: #E89528; }
+.header .subtitle { font-size: 12px; color: #A47338; }
+.container { padding: 20px 24px; max-width: 960px; }
+.cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+.card { background: #fff; border-radius: 10px; padding: 16px; border: 1px solid #e5e7eb; }
+.card .label { font-size: 11px; color: #A47338; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 4px; }
+.card .value { font-size: 24px; font-weight: 500; }
+.card .value.green { color: #15803d; }
+.card .value.orange { color: #E89528; }
+.card .value.blue { color: #1d4ed8; }
+.card .sub { font-size: 12px; color: #888; margin-top: 2px; }
+.section-title { font-size: 13px; font-weight: 500; color: #A47338; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 2px solid #E89528; }
+.month-select { margin-bottom: 20px; }
+.month-select select { padding: 6px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; background: #fff; cursor: pointer; }
+table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden; border: 1px solid #e5e7eb; margin-bottom: 24px; }
+th { text-align: left; padding: 10px 14px; font-size: 12px; font-weight: 500; color: #A47338; text-transform: uppercase; letter-spacing: 0.5px; background: #fafafa; border-bottom: 1px solid #e5e7eb; }
+th.right { text-align: right; }
+td { padding: 10px 14px; font-size: 14px; border-bottom: 1px solid #f3f4f6; }
+td.right { text-align: right; font-variant-numeric: tabular-nums; }
+tr:last-child td { border-bottom: none; }
+.badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+.badge.approved { background: #dcfce7; color: #166534; }
+.badge.pending { background: #FFF8F0; color: #92400e; }
+.badge.disputed { background: #fee2e2; color: #991b1b; }
+.note-icon { cursor: help; color: #A47338; font-size: 14px; margin-left: 4px; }
+.scanning { font-size: 13px; color: #A47338; padding: 8px 14px; background: #FFF8F0; border-radius: 8px; margin-bottom: 16px; display: none; }
+.scanning.active { display: block; }
+.progress-bar { height: 3px; background: #f0f0f0; border-radius: 2px; margin-bottom: 24px; overflow: hidden; }
+.progress-fill { height: 100%; background: #E89528; border-radius: 2px; transition: width 0.3s; }
+.trend { margin-bottom: 24px; }
+.trend-row { display: flex; gap: 8px; align-items: end; margin-bottom: 4px; }
+.trend-bar { background: #E89528; border-radius: 3px 3px 0 0; min-width: 40px; display: flex; align-items: end; justify-content: center; color: #fff; font-size: 10px; font-weight: 500; padding: 4px 2px; }
+.trend-label { font-size: 11px; color: #888; text-align: center; min-width: 40px; }
+.trend-labels { display: flex; gap: 8px; }
+.footer { text-align: center; padding: 16px; font-size: 11px; color: #A47338; }
+.all-table th, .all-table td { padding: 8px 10px; font-size: 13px; }
+.all-table td.month-cell { font-variant-numeric: tabular-nums; text-align: right; }
+.all-table td.month-cell.zero { color: #ccc; }
+.all-table td.ytd { font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; color: #1d4ed8; }
+.all-table tr.totals-row td { border-top: 2px solid #E89528; font-weight: 600; background: #fafafa; }
+.back-link { display: inline-block; font-size: 12px; color: #A47338; text-decoration: none; padding: 8px 0; }
+.back-link:hover { color: #E89528; }
+@media (max-width: 700px) {
+  .cards { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+<div class="header">
+  <div>
+    <h1>PARIS <span>BRANDS</span></h1>
+    <div class="subtitle">Commission tracker</div>
+  </div>
+  <div style="font-size: 12px; color: #666;" id="last-scan"></div>
+</div>
+
+<div class="container">
+  <a class="back-link" href="/">&larr; micahstelter.ai</a>
+  <div class="month-select">
+    <select id="month-picker" onchange="handlePickerChange(this.value)"></select>
+  </div>
+
+  <div class="cards" id="summary-cards"></div>
+  <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+
+  <div class="section-title">Monthly trend</div>
+  <div class="trend" id="trend-chart"></div>
+
+  <div class="section-title" id="table-title">Approval status</div>
+  <div id="table-container">
+  <table>
+    <thead id="table-head">
+      <tr>
+        <th>Rep</th>
+        <th class="right">Payout</th>
+        <th class="right">Rate</th>
+        <th>Status</th>
+        <th>Date</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="rep-table"></tbody>
+  </table>
+  </div>
+</div>
+
+<div class="footer">Aleph Sales Management</div>
+
+<script>
+const ledger = {"months": {"April 2026": {"run_date": "2026-05-15", "grand_total": 40753.53, "reps": {"Ben Rangel": {"rate": 0.15, "pp_margin": 8258.32, "pp_commission": 1238.75, "phe_margin": 4024.09, "phe_commission": 603.61, "pp_sg_bids": 8, "phe_sg_bids": 9, "total_sg_pay": 1700, "total_payout": 3542.36, "email": "benrangel@parishomeexteriors.com", "approval_status": "pending", "approval_date": null}, "Brandon Stahnke": {"rate": 0.11, "pp_margin": 56062.79, "pp_commission": 6166.91, "phe_margin": 0.0, "phe_commission": 0.0, "pp_sg_bids": 7, "phe_sg_bids": 3, "total_sg_pay": 1000, "total_payout": 7166.91, "email": "brandon@paris-painting.com", "approval_status": "pending", "approval_date": null}, "Chris Sidla": {"rate": 0.08, "pp_margin": 38576.86, "pp_commission": 3086.15, "phe_margin": 0.0, "phe_commission": 0.0, "pp_sg_bids": 2, "phe_sg_bids": 1, "total_sg_pay": 300, "total_payout": 3386.15, "email": "chrissidla@paris-painting.com", "approval_status": "pending", "approval_date": null}, "Grant Herbert": {"rate": 0.045, "pp_margin": 373.15, "pp_commission": 16.79, "phe_margin": 0.0, "phe_commission": 0.0, "pp_sg_bids": 0, "phe_sg_bids": 1, "total_sg_pay": 100, "total_payout": 116.79, "email": "grant@paris-painting.com", "approval_status": "approved", "approval_date": "2026-05-16"}, "Justin Satterberg": {"rate": 0.095, "pp_margin": 17248.31, "pp_commission": 1638.59, "phe_margin": 797.15, "phe_commission": 75.73, "pp_sg_bids": 5, "phe_sg_bids": 0, "total_sg_pay": 500, "total_payout": 2214.32, "email": "justin@paris-painting.com", "approval_status": "pending", "approval_date": null}, "Matt Rawski": {"rate": 0.165, "pp_margin": 38725.73, "pp_commission": 6389.75, "phe_margin": 0.0, "phe_commission": 0.0, "pp_sg_bids": 11, "phe_sg_bids": 0, "total_sg_pay": 1100, "total_payout": 7489.75, "email": "matt@paris-painting.com", "approval_status": "pending", "approval_date": null}, "Mike O'Meara": {"rate": 0.1, "pp_margin": -434.86, "pp_commission": 0.0, "phe_margin": 0.0, "phe_commission": 0.0, "pp_sg_bids": 15, "phe_sg_bids": 2, "total_sg_pay": 1700, "total_payout": 1700.0, "email": "mike@paris-painting.com", "approval_status": "pending", "approval_date": null}, "Nick Brattin": {"rate": 0.045, "pp_margin": 9402.23, "pp_commission": 423.1, "phe_margin": 0.0, "phe_commission": 0.0, "pp_sg_bids": 1, "phe_sg_bids": 0, "total_sg_pay": 100, "total_payout": 523.1, "email": "nickbrattin@paris-painting.com", "approval_status": "approved", "approval_date": "2026-05-16"}, "Nick Lane": {"rate": 0.1, "pp_margin": 27589.82, "pp_commission": 2758.98, "phe_margin": 0.0, "phe_commission": 0.0, "pp_sg_bids": 12, "phe_sg_bids": 0, "total_sg_pay": 1200, "total_payout": 3958.98, "email": "nick@paris-painting.com", "approval_status": "pending", "approval_date": null}, "Noah Franzen": {"rate": 0.0625, "pp_margin": 5842.7, "pp_commission": 365.17, "phe_margin": 0.0, "phe_commission": 0.0, "pp_sg_bids": 2, "phe_sg_bids": 4, "total_sg_pay": 600, "total_payout": 965.17, "email": "noahfranzen@paris-painting.com", "approval_status": "pending", "approval_date": null}, "Noah Ondrusik": {"rate": 0.078, "pp_margin": 35168.07, "pp_commission": 2743.11, "phe_margin": 0.0, "phe_commission": 0.0, "pp_sg_bids": 5, "phe_sg_bids": 1, "total_sg_pay": 600, "total_payout": 3343.11, "email": "noah@paris-painting.com", "approval_status": "approved", "approval_date": "2026-05-16"}, "Seth Bostrom": {"rate": 0.045, "pp_margin": 3413.36, "pp_commission": 153.6, "phe_margin": 0.0, "phe_commission": 0.0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 153.6, "email": "seth@paris-painting.com", "approval_status": "pending", "approval_date": null}, "Seyf Topal": {"rate": 0.035, "pp_margin": 8555.51, "pp_commission": 299.44, "phe_margin": 0.0, "phe_commission": 0.0, "pp_sg_bids": 2, "phe_sg_bids": 0, "total_sg_pay": 200, "total_payout": 499.44, "email": "seyf@paris-painting.com", "approval_status": "pending", "approval_date": null}, "Stephen Bacon": {"rate": 0.13, "pp_margin": 34568.04, "pp_commission": 4493.85, "phe_margin": 0.0, "phe_commission": 0.0, "pp_sg_bids": 11, "phe_sg_bids": 1, "total_sg_pay": 1200, "total_payout": 5693.85, "email": "stephen@paris-painting.com", "approval_status": "pending", "approval_date": null}}}, "January 2026": {"run_date": "2026-02-25", "grand_total": 4567, "reps": {"Ben Rangel": {"rate": 0.15, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 80, "email": "benrangel@paris-painting.com", "approval_status": "approved", "approval_date": "2026-02-25", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Chris Sidla": {"rate": 0.08, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 380, "email": "chrissidla@paris-painting.com", "approval_status": "approved", "approval_date": "2026-02-26", "note": "Disputed: 3 self-gens missing from original $80. Revised to $380. Confirmed by Katelynn."}, "Justin Satterberg": {"rate": 0.095, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 211, "email": "justin@paris-painting.com", "approval_status": "approved", "approval_date": "2026-03-02", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Matt Rawski": {"rate": 0.165, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 1742, "email": "matt@paris-painting.com", "approval_status": "approved", "approval_date": "2026-02-27", "note": "Disputed: 4 PP self-gens not 2. Revised from $1542 to $1742. Matt approved."}, "Mike O'Meara": {"rate": 0.23, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 0, "email": "mike@paris-painting.com", "approval_status": "pending", "approval_date": null, "note": "NEEDS REVIEW: Original amount in screenshot only. Micah adjusted for 2 self-gens but no approval reply or confirmed total found in email text."}, "Nick Lane": {"rate": 0.1, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 317, "email": "nick@paris-painting.com", "approval_status": "approved", "approval_date": "2026-02-25", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Noah Ondrusik": {"rate": 0.0775, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 1064, "email": "noah@paris-painting.com", "approval_status": "approved", "approval_date": "2026-02-25", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Stephen Bacon": {"rate": 0.13, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 773, "email": "stephen@paris-painting.com", "approval_status": "approved", "approval_date": "2026-02-25", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}}}, "February 2026": {"run_date": "2026-03-25", "grand_total": 14822, "reps": {"Ben Rangel": {"rate": 0.15, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 2404, "email": "benrangel@paris-painting.com", "approval_status": "approved", "approval_date": "2026-03-25", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Brandon Stahnke": {"rate": 0.11, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 579, "email": "brandon@paris-painting.com", "approval_status": "approved", "approval_date": "2026-03-25", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Chris Sidla": {"rate": 0.08, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 465, "email": "chrissidla@paris-painting.com", "approval_status": "approved", "approval_date": "2026-03-26", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Justin Satterberg": {"rate": 0.095, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 1688, "email": "justin@paris-painting.com", "approval_status": "approved", "approval_date": "2026-03-26", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Matt Rawski": {"rate": 0.165, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 2819, "email": "matt@paris-painting.com", "approval_status": "approved", "approval_date": "2026-03-25", "note": "Disputed: Matt noted $8 rounding difference. Micah: 'Run it as stated.' Original $2819 stands."}, "Mike O'Meara": {"rate": 0.23, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 1444, "email": "mike@paris-painting.com", "approval_status": "approved", "approval_date": "2026-03-25", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Nick Lane": {"rate": 0.1, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 2715, "email": "nick@paris-painting.com", "approval_status": "approved", "approval_date": "2026-03-25", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Noah Franzen": {"rate": 0.0625, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 200, "email": "noahfranzen@paris-painting.com", "approval_status": "approved", "approval_date": "2026-03-25", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Noah Ondrusik": {"rate": 0.0775, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 785, "email": "noah@paris-painting.com", "approval_status": "approved", "approval_date": "2026-03-27", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Patrick Darlington": {"rate": 0.05, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 300, "email": "patrick@paris-roofing.com", "approval_status": "approved", "approval_date": "2026-03-25", "note": "Patrick Darlington was on team in Feb 2026 but not in later months."}, "Stephen Bacon": {"rate": 0.13, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 1423, "email": "stephen@paris-painting.com", "approval_status": "approved", "approval_date": "2026-03-27", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}}}, "March 2026": {"run_date": "2026-04-09", "grand_total": 17654, "reps": {"Ben Rangel": {"rate": 0.15, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 1496, "email": "benrangel@paris-painting.com", "approval_status": "approved", "approval_date": "2026-04-09", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Brandon Stahnke": {"rate": 0.11, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 1719, "email": "brandon@paris-painting.com", "approval_status": "approved", "approval_date": "2026-04-09", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Chris Sidla": {"rate": 0.08, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 865, "email": "chrissidla@paris-painting.com", "approval_status": "approved", "approval_date": "2026-04-13", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Grant Herbert": {"rate": 0.045, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 100, "email": "grant@paris-painting.com", "approval_status": "approved", "approval_date": "2026-04-09", "note": "Approved but questioned exterior self-gen count."}, "Justin Satterberg": {"rate": 0.095, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 1935, "email": "justin@paris-painting.com", "approval_status": "approved", "approval_date": "2026-04-10", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Matt Rawski": {"rate": 0.165, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 2541, "email": "matt@paris-painting.com", "approval_status": "approved", "approval_date": "2026-04-09", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Mike O'Meara": {"rate": 0.23, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 1190, "email": "mike@paris-painting.com", "approval_status": "approved", "approval_date": "2026-04-10", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Nick Brattin": {"rate": 0.045, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 200, "email": "nickbrattin@paris-painting.com", "approval_status": "approved", "approval_date": "2026-04-09", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Nick Lane": {"rate": 0.1, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 2604, "email": "nick@paris-painting.com", "approval_status": "approved", "approval_date": "2026-04-09", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Noah Franzen": {"rate": 0.0625, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 800, "email": "noahfranzen@paris-painting.com", "approval_status": "approved", "approval_date": "2026-04-10", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Noah Ondrusik": {"rate": 0.0775, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 1074, "email": "noah@paris-painting.com", "approval_status": "approved", "approval_date": "2026-04-09", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Seyf Topal": {"rate": 0.035, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 300, "email": "seyf@paris-painting.com", "approval_status": "approved", "approval_date": "2026-04-13", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Stephen Bacon": {"rate": 0.13, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 2830, "email": "stephen@paris-painting.com", "approval_status": "pending", "approval_date": null, "note": "Email sent 4/9 but no approval reply found in Gmail."}}}}};
+
+const monthOrder = ['January 2026','February 2026','March 2026','April 2026'];
+
+function fmt(v) {
+  if (v < 0) return '-$' + Math.abs(v).toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:0});
+  return '$' + v.toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:0});
+}
+function fmtDec(v) {
+  if (v < 0) return '-$' + Math.abs(v).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+  return '$' + v.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+function populateMonthPicker() {
+  const picker = document.getElementById('month-picker');
+  const allOpt = document.createElement('option');
+  allOpt.value = '__all__';
+  allOpt.textContent = 'All Months';
+  picker.appendChild(allOpt);
+  const available = monthOrder.filter(m => ledger.months[m]).reverse();
+  available.forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m;
+    opt.textContent = m;
+    picker.appendChild(opt);
+  });
+}
+
+function handlePickerChange(val) {
+  if (val === '__all__') renderAllMonths();
+  else renderMonth(val);
+}
+
+function renderAllMonths() {
+  const available = monthOrder.filter(m => ledger.months[m]);
+  const shortNames = available.map(m => m.split(' ')[0].substring(0, 3));
+  const allReps = new Set();
+  available.forEach(m => Object.keys(ledger.months[m].reps).forEach(r => allReps.add(r)));
+
+  const rows = [];
+  allReps.forEach(name => {
+    const monthPayouts = available.map(m => {
+      const r = ledger.months[m].reps[name];
+      return r ? r.total_payout : null;
+    });
+    const ytd = monthPayouts.reduce((s, v) => s + (v || 0), 0);
+    const pendingCount = available.filter(m => {
+      const r = ledger.months[m].reps[name];
+      return r && r.approval_status === 'pending';
+    }).length;
+    rows.push({ name, monthPayouts, ytd, pendingCount });
+  });
+  rows.sort((a, b) => b.ytd - a.ytd);
+
+  const monthTotals = available.map(m => ledger.months[m].grand_total);
+  const grandYtd = monthTotals.reduce((s, v) => s + v, 0);
+  const runningTotals = [];
+  let running = 0;
+  monthTotals.forEach(v => { running += v; runningTotals.push(running); });
+
+  const totalApproved = available.reduce((s, m) => {
+    return s + Object.values(ledger.months[m].reps)
+      .filter(r => r.approval_status === 'approved')
+      .reduce((ss, r) => ss + r.total_payout, 0);
+  }, 0);
+  const totalPending = grandYtd - totalApproved;
+  const pendingRepCount = available.reduce((s, m) => {
+    return s + Object.values(ledger.months[m].reps).filter(r => r.approval_status === 'pending').length;
+  }, 0);
+
+  document.getElementById('summary-cards').innerHTML =
+    '<div class="card"><div class="label">YTD total</div><div class="value blue">' + fmtDec(grandYtd) + '</div><div class="sub">' + available.length + ' months</div></div>' +
+    '<div class="card"><div class="label">YTD approved</div><div class="value green">' + fmtDec(totalApproved) + '</div><div class="sub">' + allReps.size + ' reps total</div></div>' +
+    '<div class="card"><div class="label">YTD outstanding</div><div class="value orange">' + fmtDec(totalPending) + '</div><div class="sub">' + pendingRepCount + ' approvals pending</div></div>' +
+    '<div class="card"><div class="label">Avg monthly</div><div class="value">' + fmtDec(grandYtd / available.length) + '</div><div class="sub">per month</div></div>';
+
+  document.getElementById('progress').style.width = Math.round(totalApproved / grandYtd * 100) + '%';
+  document.getElementById('table-title').textContent = 'All months — per rep';
+
+  const thead = document.getElementById('table-head');
+  thead.innerHTML = '<tr><th>Rep</th>' +
+    shortNames.map(s => '<th class="right">' + s + '</th>').join('') +
+    '<th class="right">YTD</th><th></th></tr>';
+
+  const tbody = document.getElementById('rep-table');
+  let tbodyHtml = rows.map(row => {
+    const cells = row.monthPayouts.map(v => {
+      if (v === null) return '<td class="month-cell zero">—</td>';
+      if (v === 0) return '<td class="month-cell zero">$0</td>';
+      return '<td class="month-cell">' + fmtDec(v) + '</td>';
+    }).join('');
+    const statusIcon = row.pendingCount > 0
+      ? '<span class="badge pending" style="font-size:11px;">' + row.pendingCount + ' pending</span>'
+      : '<span style="color:#15803d;font-size:13px;">✓</span>';
+    return '<tr><td>' + row.name + '</td>' + cells +
+      '<td class="ytd">' + fmtDec(row.ytd) + '</td>' +
+      '<td style="text-align:center;">' + statusIcon + '</td></tr>';
+  }).join('');
+
+  tbodyHtml += '<tr class="totals-row"><td style="color:#A47338;">Running total</td>' +
+    runningTotals.map(v => '<td class="month-cell" style="font-weight:600;">' + fmtDec(v) + '</td>').join('') +
+    '<td class="ytd" style="color:#E89528;">' + fmtDec(grandYtd) + '</td><td></td></tr>';
+
+  tbodyHtml += '<tr class="totals-row" style="border-top:none;"><td style="color:#A47338;">Month total</td>' +
+    monthTotals.map(v => '<td class="month-cell">' + fmtDec(v) + '</td>').join('') +
+    '<td class="ytd">' + fmtDec(grandYtd) + '</td><td></td></tr>';
+
+  tbody.innerHTML = tbodyHtml;
+}
+
+function renderTrend() {
+  const container = document.getElementById('trend-chart');
+  const available = monthOrder.filter(m => ledger.months[m]);
+  const maxTotal = Math.max(...available.map(m => ledger.months[m].grand_total));
+
+  let barsHtml = '<div class="trend-row">';
+  let labelsHtml = '<div class="trend-labels">';
+
+  available.forEach(m => {
+    const data = ledger.months[m];
+    const height = Math.max(20, (data.grand_total / maxTotal) * 120);
+    const approvedPct = Object.values(data.reps).filter(r => r.approval_status === 'approved').length / Object.keys(data.reps).length;
+    const color = approvedPct === 1 ? '#15803d' : '#E89528';
+    const label = m.split(' ')[0].substring(0, 3);
+    barsHtml += '<div class="trend-bar" style="height:' + height + 'px;background:' + color + ';">' + fmt(data.grand_total) + '</div>';
+    labelsHtml += '<div class="trend-label">' + label + '</div>';
+  });
+
+  barsHtml += '</div>';
+  labelsHtml += '</div>';
+  container.innerHTML = barsHtml + labelsHtml;
+}
+
+function renderMonth(monthKey) {
+  const month = ledger.months[monthKey];
+  if (!month) return;
+
+  document.getElementById('table-title').textContent = 'Approval status';
+  document.getElementById('table-head').innerHTML = '<tr><th>Rep</th><th class="right">Payout</th><th class="right">Rate</th><th>Status</th><th>Date</th><th></th></tr>';
+
+  const reps = month.reps;
+  const entries = Object.entries(reps).sort((a,b) => b[1].total_payout - a[1].total_payout);
+  const approved = entries.filter(([,r]) => r.approval_status === 'approved');
+  const pending = entries.filter(([,r]) => r.approval_status === 'pending');
+  const approvedTotal = approved.reduce((s,[,r]) => s + r.total_payout, 0);
+  const pendingTotal = pending.reduce((s,[,r]) => s + r.total_payout, 0);
+  const pct = entries.length ? Math.round(approved.length / entries.length * 100) : 0;
+
+  document.getElementById('summary-cards').innerHTML =
+    '<div class="card"><div class="label">Grand total</div><div class="value blue">' + fmtDec(month.grand_total) + '</div><div class="sub">' + entries.length + ' reps</div></div>' +
+    '<div class="card"><div class="label">Approved</div><div class="value green">' + fmtDec(approvedTotal) + '</div><div class="sub">' + approved.length + ' of ' + entries.length + ' reps</div></div>' +
+    '<div class="card"><div class="label">Outstanding</div><div class="value orange">' + fmtDec(pendingTotal) + '</div><div class="sub">' + pending.length + ' reps pending</div></div>' +
+    '<div class="card"><div class="label">Approval rate</div><div class="value">' + pct + '%</div><div class="sub">' + (pending.length ? pending.length + ' outstanding' : 'Fully approved') + '</div></div>';
+
+  document.getElementById('progress').style.width = pct + '%';
+
+  const tbody = document.getElementById('rep-table');
+  tbody.innerHTML = entries.map(([name, r]) => {
+    const statusClass = r.approval_status;
+    const statusLabel = r.approval_status.charAt(0).toUpperCase() + r.approval_status.slice(1);
+    const dateStr = r.approval_date || '—';
+    const rateStr = (r.rate * 100).toFixed(1) + '%';
+    const noteHtml = r.note ? '<span class="note-icon" title="' + r.note.replace(/"/g, '&quot;') + '">ℹ</span>' : '';
+    return '<tr>' +
+      '<td>' + name + '</td>' +
+      '<td class="right" style="font-weight:500;">' + fmtDec(r.total_payout) + '</td>' +
+      '<td class="right" style="color:#888;">' + rateStr + '</td>' +
+      '<td><span class="badge ' + statusClass + '">' + statusLabel + '</span></td>' +
+      '<td style="color:#888; font-size:13px;">' + dateStr + '</td>' +
+      '<td>' + noteHtml + '</td>' +
+    '</tr>';
+  }).join('');
+}
+
+populateMonthPicker();
+renderAllMonths();
+renderTrend();
+document.getElementById('last-scan').textContent = 'Data as of: May 16, 2026';
+</script>
+</body>
+</html>

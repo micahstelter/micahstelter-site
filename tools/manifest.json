@@ -1,1 +1,9 @@
-[]
+[
+  {
+    "slug": "commission-tracker",
+    "name": "Commission Tracker",
+    "description": "Paris Brands — per-rep payouts, approval status, YTD trends",
+    "icon": "&#9670;",
+    "published": "2026-05-16T00:00:00Z"
+  }
+]
