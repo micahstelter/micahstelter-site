@@ -4,10 +4,54 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Commission Tracker — Paris Brands</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;1,300&display=swap" rel="stylesheet" />
 <style>
 :root { color-scheme: light; }
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; background: #f8f9fa; color: #212223; line-height: 1.5; }
+body.locked { background: #faf9f7; }
+#gate {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  padding: 2rem; font-family: 'Cormorant Garamond', Georgia, serif;
+}
+#gate .gate-card {
+  max-width: 360px; width: 100%; text-align: center;
+  animation: fadeUp 0.8s ease forwards;
+}
+#gate h2 {
+  font-size: 2rem; font-weight: 300; margin-bottom: 0.3rem; color: #1a1a18;
+}
+#gate h2 em { font-style: italic; color: #2a4a3e; }
+#gate .gate-sub {
+  font-size: 0.95rem; color: #6b6b67; margin-bottom: 2rem;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+}
+#gate input[type="password"] {
+  width: 100%; padding: 10px 14px; font-size: 15px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  border: 1px solid rgba(0,0,0,0.12); border-radius: 8px; background: #fff;
+  outline: none; text-align: center; letter-spacing: 0.1em;
+  transition: border-color 0.2s;
+}
+#gate input[type="password"]:focus { border-color: #2a4a3e; }
+#gate input[type="password"].error { border-color: #c84a4a; animation: shake 0.4s ease; }
+#gate .gate-btn {
+  display: inline-block; margin-top: 1rem; padding: 8px 28px;
+  font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  color: #1a1a18; background: none; border: 1px solid rgba(0,0,0,0.12);
+  border-radius: 6px; cursor: pointer; transition: all 0.2s;
+}
+#gate .gate-btn:hover { border-color: #2a4a3e; color: #2a4a3e; }
+#gate .gate-home {
+  display: block; margin-top: 1.5rem; font-size: 0.75rem;
+  color: #a0a09a; text-decoration: none;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+}
+#gate .gate-home:hover { color: #2a4a3e; }
+#app { display: none; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
 .header { background: #212223; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; }
 .header h1 { font-size: 18px; font-weight: 300; color: #fff; letter-spacing: 0.5px; }
 .header h1 span { color: #E89528; }
@@ -57,7 +101,20 @@ tr:last-child td { border-bottom: none; }
 }
 </style>
 </head>
-<body>
+<body class="locked">
+
+<div id="gate">
+  <div class="gate-card">
+    <h2>Paris <em>Brands</em></h2>
+    <p class="gate-sub">Commission Tracker</p>
+    <input type="password" id="pw" placeholder="Enter password" autocomplete="off" />
+    <br>
+    <button class="gate-btn" onclick="tryUnlock()">Unlock</button>
+    <a class="gate-home" href="/">micahstelter.ai</a>
+  </div>
+</div>
+
+<div id="app">
 <div class="header">
   <div>
     <h1>PARIS <span>BRANDS</span></h1>
@@ -97,6 +154,43 @@ tr:last-child td { border-bottom: none; }
 </div>
 
 <div class="footer">Aleph Sales Management</div>
+</div><!-- end #app -->
+
+<script>
+const PASS_HASH = '8261d10d';
+function simpleHash(s) {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) { h = ((h << 5) - h + s.charCodeAt(i)) | 0; }
+  return (h >>> 0).toString(16);
+}
+function tryUnlock() {
+  const input = document.getElementById('pw');
+  if (simpleHash(input.value) === PASS_HASH) {
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.body.classList.remove('locked');
+    sessionStorage.setItem('ct_auth', '1');
+    initDashboard();
+  } else {
+    input.classList.add('error');
+    input.value = '';
+    setTimeout(() => input.classList.remove('error'), 500);
+  }
+}
+document.addEventListener('DOMContentLoaded', function() {
+  const input = document.getElementById('pw');
+  if (input) input.addEventListener('keydown', function(e) { if (e.key === 'Enter') tryUnlock(); });
+  if (sessionStorage.getItem('ct_auth') === '1') {
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.body.classList.remove('locked');
+    initDashboard();
+  }
+});
+  if (window._dashReady) window._dashReady();
+  else window._dashInit = true;
+}
+</script>
 
 <script>
 const ledger = {"months": {"April 2026": {"run_date": "2026-05-15", "grand_total": 40753.53, "reps": {"Ben Rangel": {"rate": 0.15, "pp_margin": 8258.32, "pp_commission": 1238.75, "phe_margin": 4024.09, "phe_commission": 603.61, "pp_sg_bids": 8, "phe_sg_bids": 9, "total_sg_pay": 1700, "total_payout": 3542.36, "email": "benrangel@parishomeexteriors.com", "approval_status": "pending", "approval_date": null}, "Brandon Stahnke": {"rate": 0.11, "pp_margin": 56062.79, "pp_commission": 6166.91, "phe_margin": 0.0, "phe_commission": 0.0, "pp_sg_bids": 7, "phe_sg_bids": 3, "total_sg_pay": 1000, "total_payout": 7166.91, "email": "brandon@paris-painting.com", "approval_status": "pending", "approval_date": null}, "Chris Sidla": {"rate": 0.08, "pp_margin": 38576.86, "pp_commission": 3086.15, "phe_margin": 0.0, "phe_commission": 0.0, "pp_sg_bids": 2, "phe_sg_bids": 1, "total_sg_pay": 300, "total_payout": 3386.15, "email": "chrissidla@paris-painting.com", "approval_status": "pending", "approval_date": null}, "Grant Herbert": {"rate": 0.045, "pp_margin": 373.15, "pp_commission": 16.79, "phe_margin": 0.0, "phe_commission": 0.0, "pp_sg_bids": 0, "phe_sg_bids": 1, "total_sg_pay": 100, "total_payout": 116.79, "email": "grant@paris-painting.com", "approval_status": "approved", "approval_date": "2026-05-16"}, "Justin Satterberg": {"rate": 0.095, "pp_margin": 17248.31, "pp_commission": 1638.59, "phe_margin": 797.15, "phe_commission": 75.73, "pp_sg_bids": 5, "phe_sg_bids": 0, "total_sg_pay": 500, "total_payout": 2214.32, "email": "justin@paris-painting.com", "approval_status": "pending", "approval_date": null}, "Matt Rawski": {"rate": 0.165, "pp_margin": 38725.73, "pp_commission": 6389.75, "phe_margin": 0.0, "phe_commission": 0.0, "pp_sg_bids": 11, "phe_sg_bids": 0, "total_sg_pay": 1100, "total_payout": 7489.75, "email": "matt@paris-painting.com", "approval_status": "pending", "approval_date": null}, "Mike O'Meara": {"rate": 0.1, "pp_margin": -434.86, "pp_commission": 0.0, "phe_margin": 0.0, "phe_commission": 0.0, "pp_sg_bids": 15, "phe_sg_bids": 2, "total_sg_pay": 1700, "total_payout": 1700.0, "email": "mike@paris-painting.com", "approval_status": "pending", "approval_date": null}, "Nick Brattin": {"rate": 0.045, "pp_margin": 9402.23, "pp_commission": 423.1, "phe_margin": 0.0, "phe_commission": 0.0, "pp_sg_bids": 1, "phe_sg_bids": 0, "total_sg_pay": 100, "total_payout": 523.1, "email": "nickbrattin@paris-painting.com", "approval_status": "approved", "approval_date": "2026-05-16"}, "Nick Lane": {"rate": 0.1, "pp_margin": 27589.82, "pp_commission": 2758.98, "phe_margin": 0.0, "phe_commission": 0.0, "pp_sg_bids": 12, "phe_sg_bids": 0, "total_sg_pay": 1200, "total_payout": 3958.98, "email": "nick@paris-painting.com", "approval_status": "pending", "approval_date": null}, "Noah Franzen": {"rate": 0.0625, "pp_margin": 5842.7, "pp_commission": 365.17, "phe_margin": 0.0, "phe_commission": 0.0, "pp_sg_bids": 2, "phe_sg_bids": 4, "total_sg_pay": 600, "total_payout": 965.17, "email": "noahfranzen@paris-painting.com", "approval_status": "pending", "approval_date": null}, "Noah Ondrusik": {"rate": 0.078, "pp_margin": 35168.07, "pp_commission": 2743.11, "phe_margin": 0.0, "phe_commission": 0.0, "pp_sg_bids": 5, "phe_sg_bids": 1, "total_sg_pay": 600, "total_payout": 3343.11, "email": "noah@paris-painting.com", "approval_status": "approved", "approval_date": "2026-05-16"}, "Seth Bostrom": {"rate": 0.045, "pp_margin": 3413.36, "pp_commission": 153.6, "phe_margin": 0.0, "phe_commission": 0.0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 153.6, "email": "seth@paris-painting.com", "approval_status": "pending", "approval_date": null}, "Seyf Topal": {"rate": 0.035, "pp_margin": 8555.51, "pp_commission": 299.44, "phe_margin": 0.0, "phe_commission": 0.0, "pp_sg_bids": 2, "phe_sg_bids": 0, "total_sg_pay": 200, "total_payout": 499.44, "email": "seyf@paris-painting.com", "approval_status": "pending", "approval_date": null}, "Stephen Bacon": {"rate": 0.13, "pp_margin": 34568.04, "pp_commission": 4493.85, "phe_margin": 0.0, "phe_commission": 0.0, "pp_sg_bids": 11, "phe_sg_bids": 1, "total_sg_pay": 1200, "total_payout": 5693.85, "email": "stephen@paris-painting.com", "approval_status": "pending", "approval_date": null}}}, "January 2026": {"run_date": "2026-02-25", "grand_total": 4567, "reps": {"Ben Rangel": {"rate": 0.15, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 80, "email": "benrangel@paris-painting.com", "approval_status": "approved", "approval_date": "2026-02-25", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Chris Sidla": {"rate": 0.08, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 380, "email": "chrissidla@paris-painting.com", "approval_status": "approved", "approval_date": "2026-02-26", "note": "Disputed: 3 self-gens missing from original $80. Revised to $380. Confirmed by Katelynn."}, "Justin Satterberg": {"rate": 0.095, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 211, "email": "justin@paris-painting.com", "approval_status": "approved", "approval_date": "2026-03-02", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Matt Rawski": {"rate": 0.165, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 1742, "email": "matt@paris-painting.com", "approval_status": "approved", "approval_date": "2026-02-27", "note": "Disputed: 4 PP self-gens not 2. Revised from $1542 to $1742. Matt approved."}, "Mike O'Meara": {"rate": 0.23, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 0, "email": "mike@paris-painting.com", "approval_status": "pending", "approval_date": null, "note": "NEEDS REVIEW: Original amount in screenshot only. Micah adjusted for 2 self-gens but no approval reply or confirmed total found in email text."}, "Nick Lane": {"rate": 0.1, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 317, "email": "nick@paris-painting.com", "approval_status": "approved", "approval_date": "2026-02-25", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Noah Ondrusik": {"rate": 0.0775, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 1064, "email": "noah@paris-painting.com", "approval_status": "approved", "approval_date": "2026-02-25", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Stephen Bacon": {"rate": 0.13, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 773, "email": "stephen@paris-painting.com", "approval_status": "approved", "approval_date": "2026-02-25", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}}}, "February 2026": {"run_date": "2026-03-25", "grand_total": 14822, "reps": {"Ben Rangel": {"rate": 0.15, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 2404, "email": "benrangel@paris-painting.com", "approval_status": "approved", "approval_date": "2026-03-25", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Brandon Stahnke": {"rate": 0.11, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 579, "email": "brandon@paris-painting.com", "approval_status": "approved", "approval_date": "2026-03-25", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Chris Sidla": {"rate": 0.08, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 465, "email": "chrissidla@paris-painting.com", "approval_status": "approved", "approval_date": "2026-03-26", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Justin Satterberg": {"rate": 0.095, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 1688, "email": "justin@paris-painting.com", "approval_status": "approved", "approval_date": "2026-03-26", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Matt Rawski": {"rate": 0.165, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 2819, "email": "matt@paris-painting.com", "approval_status": "approved", "approval_date": "2026-03-25", "note": "Disputed: Matt noted $8 rounding difference. Micah: 'Run it as stated.' Original $2819 stands."}, "Mike O'Meara": {"rate": 0.23, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 1444, "email": "mike@paris-painting.com", "approval_status": "approved", "approval_date": "2026-03-25", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Nick Lane": {"rate": 0.1, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 2715, "email": "nick@paris-painting.com", "approval_status": "approved", "approval_date": "2026-03-25", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Noah Franzen": {"rate": 0.0625, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 200, "email": "noahfranzen@paris-painting.com", "approval_status": "approved", "approval_date": "2026-03-25", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Noah Ondrusik": {"rate": 0.0775, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 785, "email": "noah@paris-painting.com", "approval_status": "approved", "approval_date": "2026-03-27", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Patrick Darlington": {"rate": 0.05, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 300, "email": "patrick@paris-roofing.com", "approval_status": "approved", "approval_date": "2026-03-25", "note": "Patrick Darlington was on team in Feb 2026 but not in later months."}, "Stephen Bacon": {"rate": 0.13, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 1423, "email": "stephen@paris-painting.com", "approval_status": "approved", "approval_date": "2026-03-27", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}}}, "March 2026": {"run_date": "2026-04-09", "grand_total": 17654, "reps": {"Ben Rangel": {"rate": 0.15, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 1496, "email": "benrangel@paris-painting.com", "approval_status": "approved", "approval_date": "2026-04-09", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Brandon Stahnke": {"rate": 0.11, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 1719, "email": "brandon@paris-painting.com", "approval_status": "approved", "approval_date": "2026-04-09", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Chris Sidla": {"rate": 0.08, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 865, "email": "chrissidla@paris-painting.com", "approval_status": "approved", "approval_date": "2026-04-13", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Grant Herbert": {"rate": 0.045, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 100, "email": "grant@paris-painting.com", "approval_status": "approved", "approval_date": "2026-04-09", "note": "Approved but questioned exterior self-gen count."}, "Justin Satterberg": {"rate": 0.095, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 1935, "email": "justin@paris-painting.com", "approval_status": "approved", "approval_date": "2026-04-10", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Matt Rawski": {"rate": 0.165, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 2541, "email": "matt@paris-painting.com", "approval_status": "approved", "approval_date": "2026-04-09", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Mike O'Meara": {"rate": 0.23, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 1190, "email": "mike@paris-painting.com", "approval_status": "approved", "approval_date": "2026-04-10", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Nick Brattin": {"rate": 0.045, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 200, "email": "nickbrattin@paris-painting.com", "approval_status": "approved", "approval_date": "2026-04-09", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Nick Lane": {"rate": 0.1, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 2604, "email": "nick@paris-painting.com", "approval_status": "approved", "approval_date": "2026-04-09", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Noah Franzen": {"rate": 0.0625, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 800, "email": "noahfranzen@paris-painting.com", "approval_status": "approved", "approval_date": "2026-04-10", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Noah Ondrusik": {"rate": 0.0775, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 1074, "email": "noah@paris-painting.com", "approval_status": "approved", "approval_date": "2026-04-09", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Seyf Topal": {"rate": 0.035, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 300, "email": "seyf@paris-painting.com", "approval_status": "approved", "approval_date": "2026-04-13", "note": "Reconstructed from Gmail — detailed breakdown unavailable (screenshots)"}, "Stephen Bacon": {"rate": 0.13, "pp_margin": 0, "pp_commission": 0, "phe_margin": 0, "phe_commission": 0, "pp_sg_bids": 0, "phe_sg_bids": 0, "total_sg_pay": 0, "total_payout": 2830, "email": "stephen@paris-painting.com", "approval_status": "pending", "approval_date": null, "note": "Email sent 4/9 but no approval reply found in Gmail."}}}}};
@@ -273,10 +367,15 @@ function renderMonth(monthKey) {
   }).join('');
 }
 
-populateMonthPicker();
-renderAllMonths();
-renderTrend();
-document.getElementById('last-scan').textContent = 'Data as of: May 16, 2026';
+function startDashboard() {
+  populateMonthPicker();
+  renderAllMonths();
+  renderTrend();
+  document.getElementById('last-scan').textContent = 'Data as of: May 16, 2026';
+}
+
+window._dashReady = startDashboard;
+if (window._dashInit) startDashboard();
 </script>
 </body>
 </html>
