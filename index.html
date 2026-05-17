@@ -47,7 +47,6 @@
       margin-bottom: 2.5rem;
     }
 
-    /* Pre-auth: just the button */
     #pre-auth { display: block; }
     #auth-form { display: none; }
 
@@ -68,7 +67,6 @@
     .go-btn:hover { background: #1d3a30; }
     .go-btn:active { transform: scale(0.97); }
 
-    /* Post-click: password form */
     #auth-form input[type="password"] {
       width: 100%;
       padding: 12px 16px;
@@ -106,7 +104,7 @@
     }
 
     /* ══════════════════════════════════
-       DASHBOARD — Hidden until auth
+       DASHBOARD
        ══════════════════════════════════ */
     #dashboard { display: none; }
 
@@ -200,6 +198,8 @@
       align-items: center;
       justify-content: space-between;
       margin-bottom: 0.7rem;
+      flex-wrap: wrap;
+      gap: 0.3rem;
     }
     .attention-label {
       font-size: 0.58rem;
@@ -212,6 +212,23 @@
       font-size: 0.6rem;
       color: #a0a09a;
     }
+    .attn-progress {
+      font-size: 0.58rem;
+      color: #2a4a3e;
+      font-weight: 600;
+      margin-left: 0.4rem;
+    }
+    .attn-show-all {
+      font-size: 0.58rem;
+      color: #3a5a9e;
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-decoration: underline;
+      margin-left: 0.4rem;
+      font-family: inherit;
+    }
+    .attn-show-all:hover { color: #2a4a3e; }
     .attn-list {
       display: flex;
       flex-direction: column;
@@ -225,22 +242,53 @@
       background: rgba(0,0,0,0.015);
       border: 1px solid rgba(0,0,0,0.04);
       border-radius: 7px;
-      transition: background 0.2s;
+      transition: background 0.2s, opacity 0.4s ease, transform 0.4s ease, max-height 0.4s ease, padding 0.4s ease, margin 0.4s ease;
+      max-height: 200px;
+      overflow: hidden;
     }
     .attn-item:hover { background: rgba(0,0,0,0.03); }
     .attn-item.urgent { border-left: 3px solid #c84a4a; }
     .attn-item.normal { border-left: 3px solid #8a6a1a; }
     .attn-item.low { border-left: 3px solid #a0a09a; }
+    .attn-item.triage-done {
+      background: rgba(42,74,62,0.08);
+      transform: translateX(40px);
+      opacity: 0;
+      max-height: 0;
+      padding-top: 0; padding-bottom: 0;
+      margin-bottom: -0.4rem;
+      border-color: transparent;
+    }
+    .attn-item.triage-snooze {
+      background: rgba(138,106,26,0.08);
+      transform: translateX(40px);
+      opacity: 0;
+      max-height: 0;
+      padding-top: 0; padding-bottom: 0;
+      margin-bottom: -0.4rem;
+      border-color: transparent;
+    }
+    .attn-item.triage-dismiss {
+      opacity: 0;
+      max-height: 0;
+      padding-top: 0; padding-bottom: 0;
+      margin-bottom: -0.4rem;
+      border-color: transparent;
+    }
+    .attn-item.triage-hidden { display: none; }
     .attn-source {
       flex-shrink: 0;
       width: 20px; height: 20px;
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       font-size: 0.55rem; font-weight: 700; color: #fff;
+      margin-top: 2px;
     }
     .attn-source.imessage { background: #34c759; }
     .attn-source.gmail { background: #4285f4; }
     .attn-source.note { background: #8a6a1a; }
+    .attn-source.plaud { background: #9b59b6; }
+    .attn-source.calendar { background: #e67e22; }
     .attn-content { flex: 1; min-width: 0; }
     .attn-from {
       font-size: 0.78rem; font-weight: 600; color: #1a1a18;
@@ -251,10 +299,24 @@
       overflow: hidden; text-overflow: ellipsis;
       display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
     }
-    .attn-meta {
-      flex-shrink: 0;
-      text-align: right;
+    .attn-action-chip {
+      display: inline-block;
+      margin-top: 0.35rem;
+      padding: 0.2rem 0.55rem;
+      font-size: 0.6rem;
+      color: #3a5a9e;
+      background: rgba(58,90,158,0.08);
+      border-radius: 4px;
+      font-weight: 500;
     }
+    .attn-right {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.4rem;
+    }
+    .attn-meta { text-align: right; }
     .attn-time {
       font-size: 0.58rem; color: #a0a09a;
       font-variant-numeric: tabular-nums;
@@ -273,98 +335,289 @@
     .attn-priority-tag.health { background: rgba(26,122,82,0.1); color: #1a7a52; }
     .attn-priority-tag.business { background: rgba(138,106,26,0.1); color: #8a6a1a; }
     .attn-priority-tag.fun { background: rgba(58,90,158,0.1); color: #3a5a9e; }
+    .attn-triage-btns {
+      display: flex;
+      gap: 0.3rem;
+    }
+    .triage-btn {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      border: 1px solid rgba(0,0,0,0.08);
+      background: #fff;
+      cursor: pointer;
+      font-size: 0.65rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+      color: #a0a09a;
+      line-height: 1;
+      padding: 0;
+    }
+    .triage-btn.done:hover { background: #2a4a3e; color: #fff; border-color: #2a4a3e; }
+    .triage-btn.snooze:hover { background: #8a6a1a; color: #fff; border-color: #8a6a1a; }
+    .triage-btn.dismiss:hover { background: #a0a09a; color: #fff; border-color: #a0a09a; }
     .attn-empty {
       text-align: center; padding: 1rem;
       font-size: 0.78rem; color: #b8b8b2;
       font-style: italic;
     }
 
-    /* ── Upcoming events / prep ── */
-    .upcoming {
+    /* ── Upcoming Events ── */
+    .events-section {
       max-width: 720px;
       margin: 0 auto;
       padding: 0.75rem 2rem 0;
     }
-    .upcoming-card {
+    .events-card {
       background: #fff;
       border: 1px solid rgba(0,0,0,0.06);
       border-radius: 10px;
       padding: 1.1rem 1.3rem;
     }
-    .upcoming-header {
+    .events-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.7rem;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+    .events-label {
+      font-size: 0.58rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #e67e22;
+      font-weight: 600;
+    }
+    .day-filter {
+      display: flex;
+      gap: 0.25rem;
+      flex-wrap: wrap;
+    }
+    .day-pill {
+      padding: 0.2rem 0.5rem;
+      font-size: 0.55rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 12px;
+      background: #fff;
+      color: #a0a09a;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 500;
+      font-family: inherit;
+    }
+    .day-pill:hover { border-color: #e67e22; color: #e67e22; }
+    .day-pill.active { background: #e67e22; color: #fff; border-color: #e67e22; }
+    .events-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .event-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.7rem;
+      padding: 0.6rem 0.7rem;
+      background: rgba(0,0,0,0.015);
+      border: 1px solid rgba(0,0,0,0.04);
+      border-radius: 7px;
+      transition: background 0.2s, opacity 0.4s ease, max-height 0.4s ease, padding 0.4s ease, margin 0.4s ease;
+      max-height: 300px;
+      overflow: hidden;
+    }
+    .event-item:hover { background: rgba(0,0,0,0.03); }
+    .event-item.event-hidden { display: none; }
+    .event-item.event-prepped {
+      opacity: 0;
+      max-height: 0;
+      padding-top: 0; padding-bottom: 0;
+      margin-bottom: -0.4rem;
+      border-color: transparent;
+    }
+    .event-date-col {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 42px;
+    }
+    .event-day-pill {
+      display: inline-block;
+      padding: 0.15rem 0.45rem;
+      font-size: 0.55rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      background: #e67e22;
+      color: #fff;
+      border-radius: 4px;
+      margin-bottom: 0.15rem;
+    }
+    .event-time {
+      font-size: 0.55rem;
+      color: #a0a09a;
+      font-variant-numeric: tabular-nums;
+    }
+    .event-content { flex: 1; min-width: 0; }
+    .event-title {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #1a1a18;
+      margin-bottom: 0.1rem;
+    }
+    .event-attendees {
+      font-size: 0.65rem;
+      color: #a0a09a;
+      margin-bottom: 0.2rem;
+    }
+    .event-type-badge {
+      display: inline-block;
+      font-size: 0.5rem;
+      padding: 0.12rem 0.4rem;
+      border-radius: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 600;
+    }
+    .event-type-badge.gam { background: rgba(42,74,62,0.1); color: #2a4a3e; }
+    .event-type-badge.one-on-one { background: rgba(107,74,94,0.1); color: #6b4a5e; }
+    .event-type-badge.team { background: rgba(58,90,158,0.1); color: #3a5a9e; }
+    .event-type-badge.external { background: rgba(138,106,26,0.1); color: #8a6a1a; }
+    .event-type-badge.default { background: rgba(160,160,154,0.15); color: #6b6b67; }
+    .event-prep-hint {
+      font-size: 0.68rem;
+      font-style: italic;
+      color: #6b6b67;
+      line-height: 1.4;
+      margin-top: 0.35rem;
+      padding-top: 0.35rem;
+      border-top: 1px solid rgba(0,0,0,0.04);
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      transition: max-height 0.3s ease, opacity 0.3s ease;
+    }
+    .event-prep-hint.expanded {
+      max-height: 120px;
+      opacity: 1;
+    }
+    .event-right {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.3rem;
+    }
+    .event-btn {
+      padding: 0.25rem 0.55rem;
+      font-size: 0.55rem;
+      letter-spacing: 0.04em;
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 5px;
+      background: #fff;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+      font-family: inherit;
+    }
+    .event-btn.prep-btn { color: #e67e22; }
+    .event-btn.prep-btn:hover { background: #e67e22; color: #fff; border-color: #e67e22; }
+    .event-btn.no-prep-btn { color: #a0a09a; }
+    .event-btn.no-prep-btn:hover { background: #a0a09a; color: #fff; border-color: #a0a09a; }
+
+    /* ── Open Loops ── */
+    .loops-section {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0.75rem 2rem 0;
+    }
+    .loops-card {
+      background: #fff;
+      border: 1px solid rgba(0,0,0,0.06);
+      border-radius: 10px;
+      padding: 1.1rem 1.3rem;
+    }
+    .loops-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
       margin-bottom: 0.7rem;
     }
-    .upcoming-label {
+    .loops-label {
       font-size: 0.58rem;
       letter-spacing: 0.16em;
       text-transform: uppercase;
+      color: #9b59b6;
+      font-weight: 600;
+    }
+    .loops-count {
+      font-size: 0.6rem;
       color: #a0a09a;
     }
-    .day-group-label {
-      font-size: 0.58rem;
-      font-weight: 600;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: #6b6b67;
-      margin-top: 0.6rem;
-      margin-bottom: 0.35rem;
-      padding-bottom: 0.25rem;
-      border-bottom: 1px solid rgba(0,0,0,0.04);
-    }
-    .day-group-label:first-child { margin-top: 0; }
-    .evt-list {
+    .loops-list {
       display: flex;
       flex-direction: column;
-      gap: 0.35rem;
+      gap: 0.4rem;
     }
-    .evt-item {
+    .loop-item {
       display: flex;
       align-items: center;
       gap: 0.7rem;
-      padding: 0.55rem 0.65rem;
-      background: rgba(0,0,0,0.012);
+      padding: 0.5rem 0.7rem;
+      background: rgba(0,0,0,0.015);
       border: 1px solid rgba(0,0,0,0.04);
+      border-left: 3px solid #9b59b6;
       border-radius: 7px;
-    }
-    .evt-time {
-      font-size: 0.7rem;
-      font-weight: 600;
-      color: #1a1a18;
-      font-variant-numeric: tabular-nums;
-      min-width: 65px;
-      flex-shrink: 0;
-    }
-    .evt-title {
-      font-size: 0.78rem;
-      color: #3a3a38;
-      flex: 1;
-      min-width: 0;
+      transition: background 0.2s, opacity 0.4s ease, transform 0.4s ease, max-height 0.4s ease, padding 0.4s ease, margin 0.4s ease;
+      max-height: 120px;
       overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
     }
-    .evt-prep {
+    .loop-item:hover { background: rgba(0,0,0,0.03); }
+    .loop-item.triage-done {
+      background: rgba(42,74,62,0.08);
+      transform: translateX(40px);
+      opacity: 0;
+      max-height: 0;
+      padding-top: 0; padding-bottom: 0;
+      margin-bottom: -0.4rem;
+      border-color: transparent;
+    }
+    .loop-item.triage-snooze {
+      background: rgba(138,106,26,0.08);
+      transform: translateX(40px);
+      opacity: 0;
+      max-height: 0;
+      padding-top: 0; padding-bottom: 0;
+      margin-bottom: -0.4rem;
+      border-color: transparent;
+    }
+    .loop-item.triage-dismiss {
+      opacity: 0;
+      max-height: 0;
+      padding-top: 0; padding-bottom: 0;
+      margin-bottom: -0.4rem;
+      border-color: transparent;
+    }
+    .loop-item.triage-hidden { display: none; }
+    .loop-type-icon {
       flex-shrink: 0;
-      font-size: 0.52rem;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      padding: 0.2rem 0.5rem;
-      border-radius: 4px;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: #9b59b6;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.55rem; font-weight: 700; color: #fff;
     }
-    .evt-prep.suggested {
-      background: rgba(42,74,62,0.1);
-      color: #2a4a3e;
+    .loop-text {
+      flex: 1;
+      font-size: 0.72rem;
+      color: #3a3a38;
+      line-height: 1.4;
     }
-    .evt-prep.ready {
-      background: rgba(26,122,82,0.08);
-      color: #1a7a52;
-    }
-    .evt-prep.none {
-      color: #c8c7c2;
+    .loop-triage-btns {
+      flex-shrink: 0;
+      display: flex;
+      gap: 0.3rem;
     }
 
     /* ── Priority stack ── */
@@ -453,6 +706,57 @@
     .amber { color: #8a6a1a; }
     .blue  { color: #3a5a9e; }
     .muted { color: #6b6b67; }
+    /* ── Health card ── */
+    .health-draw-info {
+      font-size: 0.68rem; color: #a0a09a; margin-bottom: 0.75rem;
+      display: flex; gap: 1rem; flex-wrap: wrap;
+    }
+    .health-draw-info span { white-space: nowrap; }
+    .health-summary {
+      font-size: 0.82rem; color: #1a1a18; line-height: 1.55;
+      margin-bottom: 1rem; padding: 0.75rem 1rem;
+      background: rgba(42,74,62,0.04); border-radius: 8px;
+      border-left: 3px solid #2a4a3e;
+    }
+    .health-flags { margin-bottom: 1.25rem; }
+    .health-flag {
+      display: flex; align-items: flex-start; gap: 0.6rem;
+      padding: 0.6rem 0; border-bottom: 1px solid rgba(0,0,0,0.04);
+    }
+    .health-flag:last-child { border-bottom: none; }
+    .hf-badge {
+      font-size: 0.55rem; font-weight: 700; letter-spacing: 0.06em;
+      padding: 0.15rem 0.45rem; border-radius: 4px; flex-shrink: 0; margin-top: 0.1rem;
+    }
+    .hf-badge.high { background: rgba(200,74,74,0.12); color: #943030; }
+    .hf-badge.low  { background: rgba(200,168,50,0.12); color: #8a7020; }
+    .hf-body { flex: 1; }
+    .hf-name { font-size: 0.78rem; font-weight: 600; color: #1a1a18; }
+    .hf-detail { font-size: 0.68rem; color: #6b6b67; margin-top: 0.15rem; }
+    .hf-trend {
+      font-size: 0.6rem; font-weight: 500; margin-left: 0.4rem;
+    }
+    .hf-trend.improving { color: #1a7a52; }
+    .hf-trend.worsening { color: #943030; }
+    .health-categories { display: flex; flex-direction: column; gap: 1rem; }
+    .hc-group {}
+    .hc-label {
+      font-size: 0.55rem; letter-spacing: 0.14em; text-transform: uppercase;
+      color: #a0a09a; margin-bottom: 0.4rem;
+    }
+    .hc-markers { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+    .hc-chip {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      padding: 0.3rem 0.6rem; border-radius: 6px; font-size: 0.68rem;
+      background: rgba(0,0,0,0.025); border: 1px solid rgba(0,0,0,0.05);
+    }
+    .hc-chip .hc-val { font-weight: 600; }
+    .hc-chip.optimal .hc-val { color: #1a7a52; }
+    .hc-chip.normal .hc-val { color: #3a5a9e; }
+    .hc-chip .hc-arrow { font-size: 0.58rem; }
+    .hc-chip .hc-arrow.up { color: #1a7a52; }
+    .hc-chip .hc-arrow.down { color: #943030; }
+
     .children-row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.5rem; }
     .child-chip {
       padding: 0.35rem 0.7rem;
@@ -500,8 +804,13 @@
     .d7 { animation-delay: 0.7s; }
 
     @media (max-width: 600px) {
-      .header, .briefing, .attention, .upcoming, .priorities, .footer { padding-left: 1.25rem; padding-right: 1.25rem; }
+      .header, .briefing, .attention, .events-section, .loops-section, .priorities, .footer { padding-left: 1.25rem; padding-right: 1.25rem; }
       .pri-body { flex-direction: column; }
+      .attn-item { flex-wrap: wrap; }
+      .attn-right { flex-direction: row; align-items: center; width: 100%; justify-content: space-between; margin-top: 0.3rem; }
+      .day-filter { gap: 0.15rem; }
+      .event-item { flex-wrap: wrap; }
+      .event-right { flex-direction: row; width: 100%; margin-top: 0.3rem; gap: 0.4rem; }
     }
   </style>
 </head>
@@ -558,25 +867,39 @@
         <div class="attention-header">
           <span class="attention-label">Needs Your Attention</span>
           <span class="attention-count" id="attn-count"></span>
+          <span class="attn-progress" id="attn-progress"></span>
+          <button class="attn-show-all" id="attn-show-all" style="display:none;" onclick="toggleShowAll()">Show all</button>
         </div>
         <div class="attn-list" id="attn-list"></div>
       </div>
     </div>
 
-    <!-- ── Upcoming events / prep ── -->
-    <div class="upcoming fade-in d2" id="upcoming-section" style="display:none;">
-      <div class="upcoming-card">
-        <div class="upcoming-header">
-          <span class="upcoming-label">Upcoming Events</span>
+    <!-- ── Upcoming Events ── -->
+    <div class="events-section fade-in d3" id="events-section" style="display:none;">
+      <div class="events-card">
+        <div class="events-header">
+          <span class="events-label">This Week</span>
+          <div class="day-filter" id="day-filter"></div>
         </div>
-        <div id="upcoming-events"></div>
+        <div class="events-list" id="events-list"></div>
+      </div>
+    </div>
+
+    <!-- ── Open Loops ── -->
+    <div class="loops-section fade-in d3" id="loops-section" style="display:none;">
+      <div class="loops-card">
+        <div class="loops-header">
+          <span class="loops-label">Open Loops</span>
+          <span class="loops-count" id="loops-count"></span>
+        </div>
+        <div class="loops-list" id="loops-list"></div>
       </div>
     </div>
 
     <main class="priorities">
 
       <!-- 1. Faith -->
-      <div class="priority fade-in d3" id="pri-faith">
+      <div class="priority fade-in d4" id="pri-faith">
         <div class="pri-header">
           <div class="pri-rank r1">1</div>
           <span class="pri-title">Faith & Spirituality</span>
@@ -591,7 +914,7 @@
       </div>
 
       <!-- 2. Marriage -->
-      <div class="priority fade-in d4" id="pri-marriage">
+      <div class="priority fade-in d5" id="pri-marriage">
         <div class="pri-header">
           <div class="pri-rank r2">2</div>
           <span class="pri-title">Marriage</span>
@@ -607,7 +930,7 @@
       </div>
 
       <!-- 3. Health -->
-      <div class="priority fade-in d5" id="pri-health">
+      <div class="priority fade-in d6" id="pri-health">
         <div class="pri-header">
           <div class="pri-rank r3">3</div>
           <span class="pri-title">Health</span>
@@ -615,14 +938,17 @@
         </div>
         <div class="pri-body">
           <div class="pri-insight">
-            <div class="pri-metrics" id="health-metrics"></div>
+            <div class="health-draw-info" id="health-draw-info"></div>
+            <div class="health-summary" id="health-summary"></div>
+            <div class="health-flags" id="health-flags"></div>
+            <div class="health-categories" id="health-categories"></div>
           </div>
           <div class="pri-tools" id="health-tools"></div>
         </div>
       </div>
 
       <!-- 4. Business -->
-      <div class="priority fade-in d6" id="pri-business">
+      <div class="priority fade-in d7" id="pri-business">
         <div class="pri-header">
           <div class="pri-rank r4">4</div>
           <span class="pri-title">Business</span>
@@ -665,20 +991,20 @@
        ══════════════════════════════════ -->
   <script>
     // ── Auth ──
-    const PASS_HASH = '8750688d';
+    var PASS_HASH = '8750688d';
     function simpleHash(s) {
-      let h = 0;
-      for (let i = 0; i < s.length; i++) { h = ((h << 5) - h + s.charCodeAt(i)) | 0; }
+      var h = 0;
+      for (var i = 0; i < s.length; i++) { h = ((h << 5) - h + s.charCodeAt(i)) | 0; }
       return (h >>> 0).toString(16);
     }
 
     function showAuth() {
       document.getElementById('pre-auth').style.display = 'none';
-      const form = document.getElementById('auth-form');
+      var form = document.getElementById('auth-form');
       form.style.display = 'block';
       form.style.opacity = '0';
       form.style.animation = 'up 0.5s ease forwards';
-      setTimeout(() => document.getElementById('pw').focus(), 100);
+      setTimeout(function() { document.getElementById('pw').focus(); }, 100);
     }
 
     function unlock() {
@@ -689,13 +1015,13 @@
     }
 
     function tryUnlock() {
-      const input = document.getElementById('pw');
+      var input = document.getElementById('pw');
       if (simpleHash(input.value) === PASS_HASH) {
         unlock();
       } else {
         input.classList.add('error');
         input.value = '';
-        setTimeout(() => input.classList.remove('error'), 500);
+        setTimeout(function() { input.classList.remove('error'); }, 500);
       }
     }
 
@@ -707,125 +1033,390 @@
       document.getElementById('auth-form').style.display = 'none';
     }
 
-    document.getElementById('pw').addEventListener('keydown', e => {
+    document.getElementById('pw').addEventListener('keydown', function(e) {
       if (e.key === 'Enter') tryUnlock();
     });
 
-    // Auto-restore session
     if (sessionStorage.getItem('ms_auth') === '1') {
       unlock();
     }
 
-    // ── Dashboard init ──
+    // ══════════════════════════════════
+    // Helpers
+    // ══════════════════════════════════
+    function escHtml(str) {
+      var d = document.createElement('div');
+      d.textContent = str;
+      return d.innerHTML;
+    }
+
+    function triageKey(str) {
+      var h = 0;
+      for (var i = 0; i < str.length; i++) { h = ((h << 5) - h + str.charCodeAt(i)) | 0; }
+      return 'triage_' + (h >>> 0).toString(16);
+    }
+
+    function todayStr() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    function getTriageState(key) {
+      try {
+        var raw = localStorage.getItem(key);
+        if (!raw) return null;
+        return JSON.parse(raw);
+      } catch(e) { return null; }
+    }
+
+    function setTriageState(key, status) {
+      localStorage.setItem(key, JSON.stringify({ status: status, date: todayStr() }));
+    }
+
+    function shouldHideItem(key) {
+      var state = getTriageState(key);
+      if (!state) return false;
+      var today = todayStr();
+      if (state.status === 'done' && state.date === today) return true;
+      if (state.status === 'dismissed' && state.date === today) return true;
+      if (state.status === 'snoozed' && state.date === today) return true;
+      return false;
+    }
+
+    function triageItem(el, key, status) {
+      setTriageState(key, status);
+      var cssClass = status === 'done' ? 'triage-done' : status === 'snoozed' ? 'triage-snooze' : 'triage-dismiss';
+      el.classList.add(cssClass);
+      setTimeout(function() {
+        el.classList.add('triage-hidden');
+        updateAttnProgress();
+        updateLoopsCount();
+      }, 450);
+    }
+
+    var showAllMode = false;
+    function toggleShowAll() {
+      showAllMode = !showAllMode;
+      var btn = document.getElementById('attn-show-all');
+      btn.textContent = showAllMode ? 'Hide processed' : 'Show all';
+      var items = document.querySelectorAll('#attn-list .attn-item.triage-hidden');
+      for (var i = 0; i < items.length; i++) {
+        items[i].style.display = showAllMode ? 'flex' : 'none';
+        items[i].style.opacity = showAllMode ? '0.45' : '';
+      }
+    }
+
+    function updateAttnProgress() {
+      var all = document.querySelectorAll('#attn-list .attn-item');
+      var hidden = document.querySelectorAll('#attn-list .attn-item.triage-hidden');
+      var total = all.length;
+      var processed = hidden.length;
+      var el = document.getElementById('attn-progress');
+      var showAllBtn = document.getElementById('attn-show-all');
+      if (total > 0 && processed > 0) {
+        el.textContent = processed + ' of ' + total + ' processed';
+        showAllBtn.style.display = 'inline';
+      } else {
+        el.textContent = '';
+        showAllBtn.style.display = 'none';
+      }
+    }
+
+    function updateLoopsCount() {
+      var all = document.querySelectorAll('#loops-list .loop-item');
+      var visible = document.querySelectorAll('#loops-list .loop-item:not(.triage-hidden)');
+      var el = document.getElementById('loops-count');
+      if (all.length > 0) {
+        el.textContent = visible.length + ' remaining';
+      }
+    }
+
+    // ── Events helpers ──
+    function eventKey(ev) {
+      return triageKey('evt_' + ev.title + '_' + ev.date + '_' + ev.time);
+    }
+
+    function parseDayFromDate(dateStr) {
+      var parts = (dateStr || '').trim().split(' ');
+      return parts[0].toLowerCase();
+    }
+
+    var activeDay = 'all';
+    function filterEvents(day) {
+      activeDay = day;
+      var pills = document.querySelectorAll('.day-pill');
+      for (var i = 0; i < pills.length; i++) {
+        pills[i].classList.toggle('active', pills[i].dataset.day === day);
+      }
+      var items = document.querySelectorAll('#events-list .event-item');
+      for (var j = 0; j < items.length; j++) {
+        var el = items[j];
+        var evDay = el.dataset.day;
+        if (day === 'all') {
+          el.style.display = el.classList.contains('event-hidden') ? 'none' : 'flex';
+        } else {
+          el.style.display = (evDay === day && !el.classList.contains('event-hidden')) ? 'flex' : 'none';
+        }
+      }
+    }
+
+    // ══════════════════════════════════
+    // Dashboard init
+    // ══════════════════════════════════
     function initDashboard() {
-      // Date
-      const now = new Date();
+      var now = new Date();
       document.getElementById('date-line').textContent =
         now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }).toUpperCase();
 
       // Load manifest
       fetch('/tools/manifest.json')
-        .then(r => r.ok ? r.json() : [])
-        .then(tools => {
-          const map = { health: [], business: [], fun: [] };
-          tools.forEach(t => {
-            const cat = t.category || 'business';
+        .then(function(r) { return r.ok ? r.json() : []; })
+        .then(function(tools) {
+          var map = { health: [], business: [], fun: [] };
+          tools.forEach(function(t) {
+            var cat = t.category || 'business';
             if (map[cat]) map[cat].push(t);
           });
-          Object.entries(map).forEach(([cat, items]) => {
-            const el = document.getElementById(cat + '-tools');
+          Object.entries(map).forEach(function(entry) {
+            var cat = entry[0], items = entry[1];
+            var el = document.getElementById(cat + '-tools');
             if (!el || !items.length) return;
-            el.innerHTML = items.map(t => {
-              const ext = t.url && t.url.startsWith('http');
-              const href = ext ? t.url : '/tools/' + t.slug + '/';
-              const target = ext ? ' target="_blank" rel="noopener"' : '';
-              const badge = ext ? '<span class="ext">ext</span>' : '';
+            el.innerHTML = items.map(function(t) {
+              var ext = t.url && t.url.startsWith('http');
+              var href = ext ? t.url : '/tools/' + t.slug + '/';
+              var target = ext ? ' target="_blank" rel="noopener"' : '';
+              var badge = ext ? '<span class="ext">ext</span>' : '';
               return '<a class="pri-link" href="' + href + '"' + target + '>' +
                 '<span class="pri-link-icon">' + (t.icon || '&#9670;') + '</span>' +
                 t.name + badge + '</a>';
             }).join('');
           });
-        }).catch(() => {});
+        }).catch(function() {});
 
       // Load context
       fetch('/tools/context.json')
-        .then(r => r.ok ? r.json() : null)
-        .then(ctx => {
+        .then(function(r) { return r.ok ? r.json() : null; })
+        .then(function(ctx) {
           if (!ctx) return;
 
-          // Attention feed
+          // ── Attention feed ──
           if (ctx.attention && ctx.attention.length) {
-            const section = document.getElementById('attention-section');
+            var section = document.getElementById('attention-section');
             section.style.display = 'block';
             document.getElementById('attn-count').textContent = ctx.attention.length + ' item' + (ctx.attention.length === 1 ? '' : 's');
 
-            const sourceIcons = { imessage: 'iM', gmail: 'G', note: 'N' };
-            document.getElementById('attn-list').innerHTML = ctx.attention.map(a => {
-              const urgency = a.urgency || 'normal';
-              const src = a.source || 'gmail';
-              const pri = a.priority_area || 'business';
-              return '<div class="attn-item ' + urgency + '">' +
+            var sourceIcons = { imessage: 'iM', gmail: 'G', note: 'N', plaud: 'P', calendar: 'C' };
+            var listEl = document.getElementById('attn-list');
+            listEl.innerHTML = '';
+
+            ctx.attention.forEach(function(a) {
+              var urgency = a.urgency || 'normal';
+              var src = a.source || 'gmail';
+              var pri = a.priority_area || 'business';
+              var key = triageKey((a.source || '') + (a.from || '') + (a.summary || ''));
+              var hidden = shouldHideItem(key);
+
+              var div = document.createElement('div');
+              div.className = 'attn-item ' + urgency + (hidden ? ' triage-hidden' : '');
+              div.dataset.triageKey = key;
+
+              var actionChip = a.suggested_action
+                ? '<div class="attn-action-chip">' + escHtml(a.suggested_action) + '</div>'
+                : '';
+
+              div.innerHTML =
                 '<div class="attn-source ' + src + '">' + (sourceIcons[src] || '?') + '</div>' +
                 '<div class="attn-content">' +
-                  '<div class="attn-from">' + (a.from || '') + '</div>' +
-                  '<div class="attn-summary">' + (a.summary || '') + '</div>' +
+                  '<div class="attn-from">' + escHtml(a.from || '') + '</div>' +
+                  '<div class="attn-summary">' + escHtml(a.summary || '') + '</div>' +
+                  actionChip +
                 '</div>' +
-                '<div class="attn-meta">' +
-                  '<div class="attn-time">' + (a.time || '') + '</div>' +
-                  '<div class="attn-priority-tag ' + pri + '">' + pri + '</div>' +
+                '<div class="attn-right">' +
+                  '<div class="attn-meta">' +
+                    '<div class="attn-time">' + escHtml(a.time || '') + '</div>' +
+                    '<div class="attn-priority-tag ' + pri + '">' + pri + '</div>' +
+                  '</div>' +
+                  '<div class="attn-triage-btns">' +
+                    '<button class="triage-btn done" title="Done" data-action="done">&#10003;</button>' +
+                    '<button class="triage-btn snooze" title="Snooze" data-action="snoozed">&#8594;</button>' +
+                    '<button class="triage-btn dismiss" title="Dismiss" data-action="dismissed">&#10005;</button>' +
+                  '</div>' +
+                '</div>';
+
+              (function(myDiv, myKey) {
+                var btns = myDiv.querySelectorAll('.triage-btn');
+                for (var b = 0; b < btns.length; b++) {
+                  btns[b].addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    triageItem(myDiv, myKey, this.dataset.action);
+                  });
+                }
+              })(div, key);
+
+              listEl.appendChild(div);
+            });
+
+            updateAttnProgress();
+          }
+
+          // ── Upcoming Events ──
+          if (ctx.upcoming_events && ctx.upcoming_events.length) {
+            var evSection = document.getElementById('events-section');
+            evSection.style.display = 'block';
+
+            var dayOrder = ['all', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+            var dayLabels = { all: 'All', mon: 'Mon', tue: 'Tue', wed: 'Wed', thu: 'Thu', fri: 'Fri', sat: 'Sat', sun: 'Sun' };
+            var eventDays = {};
+            ctx.upcoming_events.forEach(function(e) { eventDays[parseDayFromDate(e.date)] = true; });
+            var filterEl = document.getElementById('day-filter');
+            filterEl.innerHTML = '';
+            dayOrder.forEach(function(d) {
+              if (d !== 'all' && !eventDays[d]) return;
+              var pill = document.createElement('button');
+              pill.className = 'day-pill' + (d === 'all' ? ' active' : '');
+              pill.textContent = dayLabels[d] || d;
+              pill.dataset.day = d;
+              pill.addEventListener('click', function() { filterEvents(d); });
+              filterEl.appendChild(pill);
+            });
+
+            var evListEl = document.getElementById('events-list');
+            evListEl.innerHTML = '';
+
+            var typeLabels = { gam: 'GAM', '1v1': '1v1', 'one-on-one': '1v1', team: 'Team', external: 'External' };
+            var typeCls = { gam: 'gam', '1v1': 'one-on-one', 'one-on-one': 'one-on-one', team: 'team', external: 'external' };
+
+            ctx.upcoming_events.forEach(function(ev) {
+              var key = eventKey(ev);
+              var state = getTriageState(key);
+              var hidden = state && (state.status === 'prepped' || state.status === 'no-prep') && state.date === todayStr();
+              var dayAbbr = parseDayFromDate(ev.date);
+
+              var div = document.createElement('div');
+              div.className = 'event-item' + (hidden ? ' event-hidden' : '');
+              div.dataset.day = dayAbbr;
+              div.dataset.eventKey = key;
+
+              var tLabel = typeLabels[ev.type] || ev.type || '';
+              var tCls = typeCls[ev.type] || 'default';
+
+              var prepHintHtml = ev.prep_hint
+                ? '<div class="event-prep-hint">' + escHtml(ev.prep_hint) + '</div>'
+                : '';
+
+              var prepBtns = ev.prep_eligible !== false
+                ? '<button class="event-btn prep-btn">Prep</button>' +
+                  '<button class="event-btn no-prep-btn">No prep needed</button>'
+                : '';
+
+              div.innerHTML =
+                '<div class="event-date-col">' +
+                  '<span class="event-day-pill">' + dayAbbr.toUpperCase() + '</span>' +
+                  '<span class="event-time">' + escHtml(ev.time || '') + '</span>' +
                 '</div>' +
-              '</div>';
+                '<div class="event-content">' +
+                  '<div class="event-title">' + escHtml(ev.title || '') + '</div>' +
+                  (ev.attendees ? '<div class="event-attendees">' + escHtml(ev.attendees) + '</div>' : '') +
+                  (tLabel ? '<span class="event-type-badge ' + tCls + '">' + tLabel + '</span>' : '') +
+                  prepHintHtml +
+                '</div>' +
+                '<div class="event-right">' + prepBtns + '</div>';
+
+              // Wire prep buttons with IIFE for closure
+              (function(myDiv, myKey) {
+                var prepBtn = myDiv.querySelector('.prep-btn');
+                var noPrepBtn = myDiv.querySelector('.no-prep-btn');
+                var hintEl = myDiv.querySelector('.event-prep-hint');
+                var expanded = false;
+
+                if (prepBtn) {
+                  prepBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    if (hintEl && !expanded) {
+                      hintEl.classList.add('expanded');
+                      expanded = true;
+                      prepBtn.textContent = 'Done prepping';
+                    } else {
+                      setTriageState(myKey, 'prepped');
+                      myDiv.classList.add('event-prepped');
+                      setTimeout(function() { myDiv.classList.add('event-hidden'); }, 450);
+                    }
+                  });
+                }
+                if (noPrepBtn) {
+                  noPrepBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    setTriageState(myKey, 'no-prep');
+                    myDiv.classList.add('event-prepped');
+                    setTimeout(function() { myDiv.classList.add('event-hidden'); }, 450);
+                  });
+                }
+              })(div, key);
+
+              evListEl.appendChild(div);
+            });
+          }
+
+          // ── Open Loops + Todos ──
+          var loops = [];
+          if (ctx.plaud) {
+            if (ctx.plaud.open_loops) {
+              ctx.plaud.open_loops.forEach(function(t) { loops.push({ text: t, type: 'loop' }); });
+            }
+            if (ctx.plaud.todos) {
+              ctx.plaud.todos.forEach(function(t) { loops.push({ text: t, type: 'todo' }); });
+            }
+          }
+          if (loops.length) {
+            var loopSection = document.getElementById('loops-section');
+            loopSection.style.display = 'block';
+
+            var loopListEl = document.getElementById('loops-list');
+            loopListEl.innerHTML = '';
+
+            loops.forEach(function(item) {
+              var key = triageKey('loop_' + item.text);
+              var hidden = shouldHideItem(key);
+
+              var div = document.createElement('div');
+              div.className = 'loop-item' + (hidden ? ' triage-hidden' : '');
+              div.dataset.triageKey = key;
+
+              var icon = item.type === 'todo' ? 'T' : 'L';
+
+              div.innerHTML =
+                '<div class="loop-type-icon">' + icon + '</div>' +
+                '<div class="loop-text">' + escHtml(item.text) + '</div>' +
+                '<div class="loop-triage-btns">' +
+                  '<button class="triage-btn done" title="Done" data-action="done">&#10003;</button>' +
+                  '<button class="triage-btn snooze" title="Snooze" data-action="snoozed">&#8594;</button>' +
+                  '<button class="triage-btn dismiss" title="Dismiss" data-action="dismissed">&#10005;</button>' +
+                '</div>';
+
+              (function(myDiv, myKey) {
+                var btns = myDiv.querySelectorAll('.triage-btn');
+                for (var b = 0; b < btns.length; b++) {
+                  btns[b].addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    triageItem(myDiv, myKey, this.dataset.action);
+                  });
+                }
+              })(div, key);
+
+              loopListEl.appendChild(div);
+            });
+
+            updateLoopsCount();
+          }
+
+          // ── Briefing ──
+          if (ctx.briefing && ctx.briefing.length) {
+            document.getElementById('briefing-items').innerHTML = ctx.briefing.map(function(b) {
+              return '<div class="briefing-item"><span class="time">' + (b.time || '') + '</span> ' +
+              '<strong>' + b.title + '</strong></div>';
             }).join('');
           }
 
-          // Upcoming events with prep indicators
-          if (ctx.upcoming && ctx.upcoming.length) {
-            const section = document.getElementById('upcoming-section');
-            section.style.display = 'block';
-            const container = document.getElementById('upcoming-events');
-
-            // Group by day
-            const days = {};
-            ctx.upcoming.forEach(e => {
-              const day = e.day || 'Today';
-              if (!days[day]) days[day] = [];
-              days[day].push(e);
-            });
-
-            let html = '';
-            Object.entries(days).forEach(([day, events]) => {
-              html += '<div class="day-group-label">' + day + '</div>';
-              html += '<div class="evt-list">';
-              html += events.map(e => {
-                let prepHtml = '';
-                if (e.prep === 'suggested') {
-                  prepHtml = '<span class="evt-prep suggested">Prep suggested</span>';
-                } else if (e.prep === 'ready') {
-                  prepHtml = '<span class="evt-prep ready">Prepped</span>';
-                } else {
-                  prepHtml = '<span class="evt-prep none">—</span>';
-                }
-                return '<div class="evt-item">' +
-                  '<span class="evt-time">' + (e.time || '') + '</span>' +
-                  '<span class="evt-title">' + (e.title || '') + '</span>' +
-                  prepHtml +
-                '</div>';
-              }).join('');
-              html += '</div>';
-            });
-
-            container.innerHTML = html;
-          }
-
-          // Briefing
-          if (ctx.briefing && ctx.briefing.length) {
-            document.getElementById('briefing-items').innerHTML = ctx.briefing.map(b =>
-              '<div class="briefing-item"><span class="time">' + (b.time || '') + '</span> ' +
-              '<strong>' + b.title + '</strong></div>'
-            ).join('');
-          }
-
-          // Faith
+          // ── Faith ──
           if (ctx.faith) {
             if (ctx.faith.note) {
               document.getElementById('faith-note').textContent = ctx.faith.note;
@@ -834,76 +1425,112 @@
             if (ctx.faith.status) document.getElementById('faith-status').textContent = ctx.faith.status;
           }
 
-          // Marriage
+          // ── Marriage ──
           if (ctx.marriage) {
-            const m = ctx.marriage;
-            const metrics = [];
-            if (m.last_date) metrics.push({ label: 'Last date night', value: m.last_date, cls: 'muted' });
-            if (m.next_date) metrics.push({ label: 'Next planned', value: m.next_date, cls: 'blue' });
-            if (metrics.length) {
-              document.getElementById('marriage-metrics').innerHTML = metrics.map(x =>
-                '<div class="pri-metric"><div class="pri-metric-label">' + x.label +
-                '</div><div class="pri-metric-value ' + x.cls + '">' + x.value + '</div></div>'
-              ).join('');
+            var m = ctx.marriage;
+            var mMetrics = [];
+            if (m.last_date) mMetrics.push({ label: 'Last date night', value: m.last_date, cls: 'muted' });
+            if (m.next_date) mMetrics.push({ label: 'Next planned', value: m.next_date, cls: 'blue' });
+            if (mMetrics.length) {
+              document.getElementById('marriage-metrics').innerHTML = mMetrics.map(function(x) {
+                return '<div class="pri-metric"><div class="pri-metric-label">' + x.label +
+                '</div><div class="pri-metric-value ' + x.cls + '">' + x.value + '</div></div>';
+              }).join('');
             }
             if (m.note) document.getElementById('marriage-note').textContent = m.note;
             if (m.status) document.getElementById('marriage-status').textContent = m.status;
           }
 
-          // Health
+          // ── Health ──
           if (ctx.health) {
-            const h = ctx.health;
-            const metrics = [];
-            if (h.calories) metrics.push({ label: 'Calories', value: h.calories, cls: 'green' });
-            if (h.protein)  metrics.push({ label: 'Protein',  value: h.protein,  cls: 'green' });
-            if (h.steps)    metrics.push({ label: 'Steps',    value: h.steps,    cls: 'muted' });
-            if (h.sleep)    metrics.push({ label: 'Sleep',    value: h.sleep,    cls: 'blue'  });
-            if (h.weight)   metrics.push({ label: 'Weight',   value: h.weight,   cls: 'muted' });
-            if (metrics.length) {
-              document.getElementById('health-metrics').innerHTML = metrics.map(x =>
-                '<div class="pri-metric"><div class="pri-metric-label">' + x.label +
-                '</div><div class="pri-metric-value ' + x.cls + '">' + x.value + '</div></div>'
-              ).join('');
-            }
+            var h = ctx.health;
             if (h.status) document.getElementById('health-status').textContent = h.status;
-          }
 
-          // Business
-          if (ctx.business) {
-            const b = ctx.business;
-            const metrics = [];
-            if (b.pipeline)       metrics.push({ label: 'Pipeline',       value: b.pipeline,       cls: 'green' });
-            if (b.ytd_commission) metrics.push({ label: 'YTD Commission', value: b.ytd_commission, cls: 'amber' });
-            if (b.team_size)      metrics.push({ label: 'Team',           value: b.team_size,      cls: 'muted' });
-            if (b.open_items)     metrics.push({ label: 'Open items',     value: b.open_items,     cls: 'amber' });
-            if (metrics.length) {
-              document.getElementById('business-metrics').innerHTML = metrics.map(x =>
-                '<div class="pri-metric"><div class="pri-metric-label">' + x.label +
-                '</div><div class="pri-metric-value ' + x.cls + '">' + x.value + '</div></div>'
-              ).join('');
+            // Draw info bar
+            if (h.last_draw || h.next_draw) {
+              var drawParts = [];
+              if (h.last_draw) drawParts.push('<span>Last draw: <strong>' + h.last_draw + '</strong></span>');
+              if (h.previous_draw) drawParts.push('<span>Previous: ' + h.previous_draw + '</span>');
+              if (h.next_draw) drawParts.push('<span>Next: ' + h.next_draw + '</span>');
+              document.getElementById('health-draw-info').innerHTML = drawParts.join('');
             }
-            if (b.status) document.getElementById('business-status').textContent = b.status;
+
+            // Summary
+            if (h.summary) {
+              document.getElementById('health-summary').textContent = h.summary;
+            }
+
+            // Flags
+            if (h.flags && h.flags.length) {
+              document.getElementById('health-flags').innerHTML =
+                '<div class="hc-label">Flags to watch</div>' +
+                h.flags.map(function(f) {
+                  var badge = f.flag === 'HIGH' ? 'high' : 'low';
+                  var trendCls = f.trend === 'improving' ? 'improving' : 'worsening';
+                  var trendArrow = f.trend === 'improving' ? '&#9650;' : '&#9660;';
+                  return '<div class="health-flag">' +
+                    '<span class="hf-badge ' + badge + '">' + f.flag + '</span>' +
+                    '<div class="hf-body">' +
+                      '<div class="hf-name">' + f.marker + ' — ' + f.value +
+                        '<span class="hf-trend ' + trendCls + '">' + trendArrow + ' ' + f.trend + '</span>' +
+                      '</div>' +
+                      '<div class="hf-detail">' + f.note + ' (ref: ' + f.ref + ')</div>' +
+                    '</div>' +
+                  '</div>';
+                }).join('');
+            }
+
+            // Category chips
+            if (h.highlights && h.highlights.length) {
+              document.getElementById('health-categories').innerHTML = h.highlights.map(function(cat) {
+                var chips = cat.markers.map(function(mk) {
+                  var cls = mk.status === 'optimal' ? 'optimal' : 'normal';
+                  var arrow = '';
+                  if (mk.trend === 'improving') arrow = ' <span class="hc-arrow up">&#9650;</span>';
+                  else if (mk.trend === 'worsening') arrow = ' <span class="hc-arrow down">&#9660;</span>';
+                  return '<span class="hc-chip ' + cls + '">' + mk.name + ' <span class="hc-val">' + mk.value + '</span>' + arrow + '</span>';
+                }).join('');
+                return '<div class="hc-group"><div class="hc-label">' + cat.category + '</div><div class="hc-markers">' + chips + '</div></div>';
+              }).join('');
+            }
           }
 
-          // Fun
+          // ── Business ──
+          if (ctx.business) {
+            var biz = ctx.business;
+            var bMetrics = [];
+            if (biz.pipeline)       bMetrics.push({ label: 'Pipeline',       value: biz.pipeline,       cls: 'green' });
+            if (biz.ytd_commission) bMetrics.push({ label: 'YTD Commission', value: biz.ytd_commission, cls: 'amber' });
+            if (biz.team_size)      bMetrics.push({ label: 'Team',           value: biz.team_size,      cls: 'muted' });
+            if (biz.open_items)     bMetrics.push({ label: 'Open items',     value: biz.open_items,     cls: 'amber' });
+            if (bMetrics.length) {
+              document.getElementById('business-metrics').innerHTML = bMetrics.map(function(x) {
+                return '<div class="pri-metric"><div class="pri-metric-label">' + x.label +
+                '</div><div class="pri-metric-value ' + x.cls + '">' + x.value + '</div></div>';
+              }).join('');
+            }
+            if (biz.status) document.getElementById('business-status').textContent = biz.status;
+          }
+
+          // ── Fun ──
           if (ctx.fun) {
-            const f = ctx.fun;
+            var f = ctx.fun;
             if (f.children && f.children.length) {
-              document.getElementById('children-row').innerHTML = f.children.map(c =>
-                '<div class="child-chip">' + c.name +
+              document.getElementById('children-row').innerHTML = f.children.map(function(c) {
+                return '<div class="child-chip">' + c.name +
                 (c.last_moment ? '<span class="ago">' + c.last_moment + '</span>' : '') +
-                '</div>'
-              ).join('');
+                '</div>';
+              }).join('');
             }
             if (f.note) document.getElementById('fun-note').textContent = f.note;
             if (f.status) document.getElementById('fun-status').textContent = f.status;
           }
 
-          // Footer
+          // ── Footer ──
           if (ctx.updated) {
             document.getElementById('footer-updated').textContent = 'Last refreshed ' + ctx.updated;
           }
-        }).catch(() => {});
+        }).catch(function() {});
     }
   </script>
 </body>

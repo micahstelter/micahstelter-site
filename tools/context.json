@@ -74,7 +74,59 @@
     "next_date": "—",
     "status": "Set an intention"
   },
-  "health": {},
+  "health": {
+    "last_draw": "Apr 28, 2026",
+    "previous_draw": "Dec 30, 2025",
+    "next_draw": "~Oct 2026",
+    "status": "Mostly optimal — 3 flags to watch",
+    "flags": [
+      { "marker": "Estradiol", "value": "46 pg/mL", "ref": "≤39", "flag": "HIGH", "prev": "53", "trend": "improving", "note": "Slightly elevated for males — down from 53" },
+      { "marker": "Omega-3 (EPA+DPA+DHA)", "value": "4.7%", "ref": ">5.4%", "flag": "LOW", "prev": "3.8%", "trend": "improving", "note": "Up from 3.8% — keep supplementing, target >5.5%" },
+      { "marker": "LDL Particle Number", "value": "1277 nmol/L", "ref": "<1138", "flag": "HIGH", "prev": "1377", "trend": "improving", "note": "Down from 1377 — moving toward optimal" },
+      { "marker": "LDL Small", "value": "299 nmol/L", "ref": "<142", "flag": "HIGH", "prev": "221", "trend": "worsening", "note": "Small dense LDL increased — discuss with provider" },
+      { "marker": "Magnesium RBC", "value": "3.7 mg/dL", "ref": "4.0-6.4", "flag": "LOW", "prev": "4.4", "trend": "worsening", "note": "Dropped below range — consider supplementation" }
+    ],
+    "highlights": [
+      { "category": "Cardiovascular", "markers": [
+        { "name": "Total Cholesterol", "value": "170", "ref": "<200", "status": "optimal" },
+        { "name": "HDL", "value": "59", "ref": "≥40", "status": "optimal" },
+        { "name": "LDL-C", "value": "92", "ref": "<100", "status": "optimal" },
+        { "name": "Triglycerides", "value": "96", "ref": "<150", "status": "optimal" },
+        { "name": "ApoB", "value": "84", "ref": "<90", "status": "optimal" },
+        { "name": "Lp(a)", "value": "<10", "ref": "<75", "status": "optimal" },
+        { "name": "hs-CRP", "value": "0.7", "ref": "<1.0", "status": "optimal" }
+      ]},
+      { "category": "Hormones", "markers": [
+        { "name": "Testosterone Total", "value": "564 ng/dL", "prev": "481", "status": "optimal", "trend": "improving" },
+        { "name": "Testosterone Free", "value": "89.9 pg/mL", "prev": "73.0", "status": "optimal", "trend": "improving" },
+        { "name": "DHEA-S", "value": "291 mcg/dL", "prev": "180", "status": "optimal", "trend": "improving" },
+        { "name": "Cortisol", "value": "9.4 mcg/dL", "status": "normal" },
+        { "name": "TSH", "value": "1.60", "ref": "0.40-4.50", "status": "optimal" },
+        { "name": "Free T4", "value": "1.7", "ref": "0.8-1.8", "status": "optimal" },
+        { "name": "Free T3", "value": "3.7", "ref": "2.3-4.2", "status": "optimal" }
+      ]},
+      { "category": "Metabolic", "markers": [
+        { "name": "Glucose (fasting)", "value": "85", "ref": "65-99", "status": "optimal" },
+        { "name": "HbA1c", "value": "5.1%", "ref": "<5.7%", "status": "optimal" },
+        { "name": "Insulin", "value": "≤18.4", "status": "optimal" },
+        { "name": "Uric Acid", "value": "5.6", "ref": "4.0-8.0", "status": "optimal" }
+      ]},
+      { "category": "Nutrients", "markers": [
+        { "name": "Vitamin D", "value": "52 ng/mL", "prev": "30", "status": "optimal", "trend": "improving" },
+        { "name": "Ferritin", "value": "59", "ref": "38-380", "status": "normal" },
+        { "name": "Zinc", "value": "83", "ref": "60-130", "status": "normal" },
+        { "name": "Homocysteine", "value": "8.9", "ref": "≤13.5", "status": "optimal" },
+        { "name": "B12 (MMA)", "value": "115 nmol/L", "ref": "55-335", "status": "optimal" }
+      ]},
+      { "category": "Organ Function", "markers": [
+        { "name": "AST", "value": "19", "ref": "10-40", "status": "optimal" },
+        { "name": "ALT", "value": "28", "ref": "9-46", "status": "optimal" },
+        { "name": "eGFR", "value": "98", "ref": "≥60", "status": "optimal" },
+        { "name": "PSA", "value": "0.3", "ref": "≤4.0", "status": "optimal" }
+      ]}
+    ],
+    "summary": "Strong overall panel. Testosterone up 17% (481→564). Vitamin D jumped from 30→52. Omega-3 improving but still below optimal. Watch LDL particle count and small LDL — trending opposite directions. Magnesium RBC dropped below range."
+  },
   "business": {
     "ytd_commission": "$77,796",
     "team_size": "14 reps",
