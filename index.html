@@ -104,6 +104,85 @@
     }
 
     /* ══════════════════════════════════
+       PATH CHOOSER
+       ══════════════════════════════════ */
+    #path-chooser { display: none; min-height: 100vh; padding: 2rem; }
+    .path-inner {
+      max-width: 520px; margin: 0 auto;
+      display: flex; flex-direction: column; align-items: center;
+      padding-top: 15vh;
+    }
+    .path-greeting {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 5vw, 2.8rem);
+      font-weight: 300; line-height: 1.05;
+      margin-bottom: 0.3rem; text-align: center;
+    }
+    .path-greeting em { font-style: italic; color: #2a4a3e; }
+    .path-sub {
+      font-size: 0.82rem; color: #6b6b67; margin-bottom: 2.5rem; text-align: center;
+    }
+    .path-cards { display: flex; gap: 1.25rem; width: 100%; }
+    .path-card {
+      flex: 1; padding: 2.5rem 1.5rem; text-align: center;
+      background: #fff; border: 1px solid rgba(0,0,0,0.06);
+      border-radius: 12px; cursor: pointer;
+      transition: all 0.25s ease;
+    }
+    .path-card:hover {
+      border-color: #2a4a3e; transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+    }
+    .path-icon { font-size: 2.2rem; margin-bottom: 0.75rem; display: block; }
+    .path-label {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.5rem; font-weight: 400; margin-bottom: 0.5rem;
+    }
+    .path-desc { font-size: 0.72rem; color: #6b6b67; line-height: 1.5; }
+    .path-chooser-footer {
+      margin-top: 2.5rem;
+    }
+    .path-chooser-footer .logout-btn {
+      font-size: 0.6rem; color: #b8b8b2; background: none;
+      border: 1px solid rgba(0,0,0,0.06); padding: 0.3rem 0.6rem;
+      border-radius: 4px; cursor: pointer;
+      letter-spacing: 0.08em; text-transform: uppercase; transition: all 0.2s;
+    }
+    .path-chooser-footer .logout-btn:hover { color: #c84a4a; border-color: #c84a4a; }
+
+    .back-btn {
+      font-size: 0.62rem; color: #a0a09a; background: none;
+      border: 1px solid rgba(0,0,0,0.06); padding: 0.3rem 0.7rem;
+      border-radius: 4px; cursor: pointer;
+      letter-spacing: 0.06em; text-transform: uppercase; transition: all 0.2s;
+      margin-right: 0.5rem;
+    }
+    .back-btn:hover { color: #2a4a3e; border-color: #2a4a3e; }
+
+    .work-tools-grid {
+      display: flex; flex-wrap: wrap; gap: 0.5rem; padding-bottom: 1rem;
+    }
+    .work-tool-card {
+      flex: 1 1 calc(50% - 0.5rem); min-width: 200px;
+      padding: 1.1rem 1.25rem;
+      background: #fff; border: 1px solid rgba(0,0,0,0.06);
+      border-radius: 10px; text-decoration: none; color: inherit;
+      transition: all 0.2s;
+    }
+    .work-tool-card:hover {
+      border-color: #2a4a3e; transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+    }
+    .work-tool-icon { font-size: 1.2rem; margin-bottom: 0.4rem; display: block; }
+    .work-tool-name { font-size: 0.85rem; font-weight: 600; margin-bottom: 0.2rem; }
+    .work-tool-desc { font-size: 0.68rem; color: #6b6b67; }
+
+    @media (max-width: 600px) {
+      .path-cards { flex-direction: column; }
+      .path-inner { padding-top: 8vh; }
+    }
+
+    /* ══════════════════════════════════
        DASHBOARD
        ══════════════════════════════════ */
     #dashboard { display: none; }
@@ -873,19 +952,47 @@
   </div>
 
   <!-- ══════════════════════════════════
-       DASHBOARD
+       PATH CHOOSER
        ══════════════════════════════════ -->
-  <div id="dashboard">
-
-    <header class="header fade-in d1">
-      <div class="header-top">
-        <h1>Micah <em>Stelter</em></h1>
-        <span class="date-line" id="date-line"></span>
+  <div id="path-chooser">
+    <div class="path-inner">
+      <h1 class="path-greeting fade-in">Good to see you, <em>Micah</em></h1>
+      <p class="path-sub fade-in d1">Where are you headed?</p>
+      <div class="path-cards fade-in d2">
+        <div class="path-card" onclick="enterPath('personal')">
+          <span class="path-icon">&#9673;</span>
+          <div class="path-label">Personal</div>
+          <p class="path-desc">Faith, marriage, health, fun — your attention feed and life priorities</p>
+        </div>
+        <div class="path-card" onclick="enterPath('work')">
+          <span class="path-icon">&#9670;</span>
+          <div class="path-label">Work</div>
+          <p class="path-desc">Commission tracker, pipeline, team tools — your business command center</p>
+        </div>
       </div>
-      <div style="margin-top: 0.5rem;">
+      <div class="path-chooser-footer fade-in d3">
         <button class="logout-btn" onclick="lockOut()">Lock</button>
       </div>
-    </header>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       DASHBOARD
+       ══════════════════════════════════ -->
+  <div id="dashboard" style="display:none;">
+
+    <!-- ── PERSONAL VIEW ── -->
+    <div id="personal-view" style="display:none;">
+      <header class="header fade-in d1">
+        <div class="header-top">
+          <div><button class="back-btn" onclick="backToChooser()">&#8592; Back</button></div>
+          <h1>Micah <em>Stelter</em></h1>
+          <span class="date-line" id="date-line-personal"></span>
+        </div>
+        <div style="margin-top: 0.5rem;">
+          <button class="logout-btn" onclick="lockOut()">Lock</button>
+        </div>
+      </header>
 
     <div class="briefing fade-in d2">
       <div class="briefing-card">
@@ -906,28 +1013,6 @@
           <button class="attn-show-all" id="attn-show-all" style="display:none;" onclick="toggleShowAll()">Show all</button>
         </div>
         <div class="attn-list" id="attn-list"></div>
-      </div>
-    </div>
-
-    <!-- ── Upcoming Events ── -->
-    <div class="events-section fade-in d3" id="events-section" style="display:none;">
-      <div class="events-card">
-        <div class="events-header">
-          <span class="events-label">This Week</span>
-          <div class="day-filter" id="day-filter"></div>
-        </div>
-        <div class="events-list" id="events-list"></div>
-      </div>
-    </div>
-
-    <!-- ── Open Loops ── -->
-    <div class="loops-section fade-in d3" id="loops-section" style="display:none;">
-      <div class="loops-card">
-        <div class="loops-header">
-          <span class="loops-label">Open Loops</span>
-          <span class="loops-count" id="loops-count"></span>
-        </div>
-        <div class="loops-list" id="loops-list"></div>
       </div>
     </div>
 
@@ -984,21 +1069,6 @@
         </div>
       </div>
 
-      <!-- 4. Business -->
-      <div class="priority fade-in d7" id="pri-business">
-        <div class="pri-header">
-          <div class="pri-rank r4">4</div>
-          <span class="pri-title">Business</span>
-          <span class="pri-status" id="business-status"></span>
-        </div>
-        <div class="pri-body">
-          <div class="pri-insight">
-            <div class="pri-metrics" id="business-metrics"></div>
-          </div>
-          <div class="pri-tools" id="business-tools"></div>
-        </div>
-      </div>
-
       <!-- 5. Fun -->
       <div class="priority fade-in d7" id="pri-fun">
         <div class="pri-header">
@@ -1019,8 +1089,73 @@
 
     <footer class="footer fade-in d7">
       <a class="footer-link" href="mailto:contact@micahstelter.ai">contact@micahstelter.ai</a>
-      <span class="footer-meta" id="footer-updated"></span>
+      <span class="footer-meta" id="footer-updated-personal"></span>
     </footer>
+    </div>
+
+    <!-- ── WORK VIEW ── -->
+    <div id="work-view" style="display:none;">
+      <header class="header fade-in d1">
+        <div class="header-top">
+          <div><button class="back-btn" onclick="backToChooser()">&#8592; Back</button></div>
+          <h1>Work <em>Dashboard</em></h1>
+          <span class="date-line" id="date-line-work"></span>
+        </div>
+        <div style="margin-top: 0.5rem;">
+          <button class="logout-btn" onclick="lockOut()">Lock</button>
+        </div>
+      </header>
+
+    <!-- ── Upcoming Events ── -->
+    <div class="events-section fade-in d3" id="events-section" style="display:none;">
+      <div class="events-card">
+        <div class="events-header">
+          <span class="events-label">This Week</span>
+          <div class="day-filter" id="day-filter"></div>
+        </div>
+        <div class="events-list" id="events-list"></div>
+      </div>
+    </div>
+
+    <!-- ── Open Loops ── -->
+    <div class="loops-section fade-in d3" id="loops-section" style="display:none;">
+      <div class="loops-card">
+        <div class="loops-header">
+          <span class="loops-label">Open Loops</span>
+          <span class="loops-count" id="loops-count"></span>
+        </div>
+        <div class="loops-list" id="loops-list"></div>
+      </div>
+    </div>
+
+    <main class="priorities">
+
+      <!-- 4. Business -->
+      <div class="priority fade-in d7" id="pri-business">
+        <div class="pri-header">
+          <div class="pri-rank r4">4</div>
+          <span class="pri-title">Business</span>
+          <span class="pri-status" id="business-status"></span>
+        </div>
+        <div class="pri-body">
+          <div class="pri-insight">
+            <div class="pri-metrics" id="business-metrics"></div>
+          </div>
+          <div class="pri-tools" id="business-tools"></div>
+        </div>
+      </div>
+
+    </main>
+
+    <div class="work-tools-grid" id="work-tools-section" style="max-width:720px;margin:0 auto;padding:0.75rem 2rem;">
+    </div>
+
+    <footer class="footer fade-in d7">
+      <a class="footer-link" href="mailto:contact@micahstelter.ai">contact@micahstelter.ai</a>
+      <span class="footer-meta" id="footer-updated-work"></span>
+    </footer>
+    </div>
+
   </div>
 
   <!-- ══════════════════════════════════
@@ -1046,9 +1181,30 @@
 
     function unlock() {
       document.getElementById('gate').style.display = 'none';
-      document.getElementById('dashboard').style.display = 'block';
+      document.getElementById('path-chooser').style.display = 'block';
       sessionStorage.setItem('ms_auth', '1');
+    }
+
+    function enterPath(path) {
+      document.getElementById('path-chooser').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      if (path === 'personal') {
+        document.getElementById('personal-view').style.display = 'block';
+        document.getElementById('work-view').style.display = 'none';
+      } else {
+        document.getElementById('personal-view').style.display = 'none';
+        document.getElementById('work-view').style.display = 'block';
+      }
+      sessionStorage.setItem('ms_path', path);
       initDashboard();
+    }
+
+    function backToChooser() {
+      document.getElementById('dashboard').style.display = 'none';
+      document.getElementById('personal-view').style.display = 'none';
+      document.getElementById('work-view').style.display = 'none';
+      document.getElementById('path-chooser').style.display = 'block';
+      sessionStorage.removeItem('ms_path');
     }
 
     function tryUnlock() {
@@ -1064,7 +1220,11 @@
 
     function lockOut() {
       sessionStorage.removeItem('ms_auth');
+      sessionStorage.removeItem('ms_path');
       document.getElementById('dashboard').style.display = 'none';
+      document.getElementById('personal-view').style.display = 'none';
+      document.getElementById('work-view').style.display = 'none';
+      document.getElementById('path-chooser').style.display = 'none';
       document.getElementById('gate').style.display = 'flex';
       document.getElementById('pre-auth').style.display = 'block';
       document.getElementById('auth-form').style.display = 'none';
@@ -1075,7 +1235,13 @@
     });
 
     if (sessionStorage.getItem('ms_auth') === '1') {
-      unlock();
+      var savedPath = sessionStorage.getItem('ms_path');
+      if (savedPath) {
+        document.getElementById('gate').style.display = 'none';
+        enterPath(savedPath);
+      } else {
+        unlock();
+      }
     }
 
     // ══════════════════════════════════
@@ -1201,8 +1367,11 @@
     // ══════════════════════════════════
     function initDashboard() {
       var now = new Date();
-      document.getElementById('date-line').textContent =
-        now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }).toUpperCase();
+      var dateText = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }).toUpperCase();
+      var dlp = document.getElementById('date-line-personal');
+      var dlw = document.getElementById('date-line-work');
+      if (dlp) dlp.textContent = dateText;
+      if (dlw) dlw.textContent = dateText;
 
       // Load manifest
       fetch('/tools/manifest.json')
@@ -1227,6 +1396,21 @@
                 t.name + badge + '</a>';
             }).join('');
           });
+
+          // Render work tools as cards
+          var workToolsEl = document.getElementById('work-tools-section');
+          if (workToolsEl && map.business && map.business.length) {
+            workToolsEl.innerHTML = '<div class="section-label" style="font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;color:#a0a09a;margin-bottom:0.75rem;width:100%;">Tools</div>' +
+              map.business.map(function(t) {
+                var href = t.slug ? '/tools/' + t.slug + '/' : (t.url || '#');
+                var target = t.url ? ' target="_blank"' : '';
+                return '<a class="work-tool-card" href="' + href + '"' + target + '>' +
+                  '<span class="work-tool-icon">' + (t.icon || '&#9670;') + '</span>' +
+                  '<div class="work-tool-name">' + escHtml(t.name) + '</div>' +
+                  '<div class="work-tool-desc">' + escHtml(t.description || '') + '</div>' +
+                '</a>';
+              }).join('');
+          }
         }).catch(function() {});
 
       // Load context
@@ -1595,7 +1779,10 @@
 
           // ── Footer ──
           if (ctx.updated) {
-            document.getElementById('footer-updated').textContent = 'Last refreshed ' + ctx.updated;
+            var fp = document.getElementById('footer-updated-personal');
+            var fw = document.getElementById('footer-updated-work');
+            if (fp) fp.textContent = 'Last refreshed ' + ctx.updated;
+            if (fw) fw.textContent = 'Last refreshed ' + ctx.updated;
           }
         }).catch(function() {});
     }
