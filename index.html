@@ -279,6 +279,94 @@
       font-style: italic;
     }
 
+    /* ── Upcoming events / prep ── */
+    .upcoming {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0.75rem 2rem 0;
+    }
+    .upcoming-card {
+      background: #fff;
+      border: 1px solid rgba(0,0,0,0.06);
+      border-radius: 10px;
+      padding: 1.1rem 1.3rem;
+    }
+    .upcoming-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.7rem;
+    }
+    .upcoming-label {
+      font-size: 0.58rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #a0a09a;
+    }
+    .day-group-label {
+      font-size: 0.58rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #6b6b67;
+      margin-top: 0.6rem;
+      margin-bottom: 0.35rem;
+      padding-bottom: 0.25rem;
+      border-bottom: 1px solid rgba(0,0,0,0.04);
+    }
+    .day-group-label:first-child { margin-top: 0; }
+    .evt-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+    .evt-item {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      padding: 0.55rem 0.65rem;
+      background: rgba(0,0,0,0.012);
+      border: 1px solid rgba(0,0,0,0.04);
+      border-radius: 7px;
+    }
+    .evt-time {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #1a1a18;
+      font-variant-numeric: tabular-nums;
+      min-width: 65px;
+      flex-shrink: 0;
+    }
+    .evt-title {
+      font-size: 0.78rem;
+      color: #3a3a38;
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .evt-prep {
+      flex-shrink: 0;
+      font-size: 0.52rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+    }
+    .evt-prep.suggested {
+      background: rgba(42,74,62,0.1);
+      color: #2a4a3e;
+    }
+    .evt-prep.ready {
+      background: rgba(26,122,82,0.08);
+      color: #1a7a52;
+    }
+    .evt-prep.none {
+      color: #c8c7c2;
+    }
+
     /* ── Priority stack ── */
     .priorities {
       max-width: 720px;
@@ -412,7 +500,7 @@
     .d7 { animation-delay: 0.7s; }
 
     @media (max-width: 600px) {
-      .header, .briefing, .attention, .priorities, .footer { padding-left: 1.25rem; padding-right: 1.25rem; }
+      .header, .briefing, .attention, .upcoming, .priorities, .footer { padding-left: 1.25rem; padding-right: 1.25rem; }
       .pri-body { flex-direction: column; }
     }
   </style>
@@ -472,6 +560,16 @@
           <span class="attention-count" id="attn-count"></span>
         </div>
         <div class="attn-list" id="attn-list"></div>
+      </div>
+    </div>
+
+    <!-- ── Upcoming events / prep ── -->
+    <div class="upcoming fade-in d2" id="upcoming-section" style="display:none;">
+      <div class="upcoming-card">
+        <div class="upcoming-header">
+          <span class="upcoming-label">Upcoming Events</span>
+        </div>
+        <div id="upcoming-events"></div>
       </div>
     </div>
 
@@ -678,6 +776,45 @@
                 '</div>' +
               '</div>';
             }).join('');
+          }
+
+          // Upcoming events with prep indicators
+          if (ctx.upcoming && ctx.upcoming.length) {
+            const section = document.getElementById('upcoming-section');
+            section.style.display = 'block';
+            const container = document.getElementById('upcoming-events');
+
+            // Group by day
+            const days = {};
+            ctx.upcoming.forEach(e => {
+              const day = e.day || 'Today';
+              if (!days[day]) days[day] = [];
+              days[day].push(e);
+            });
+
+            let html = '';
+            Object.entries(days).forEach(([day, events]) => {
+              html += '<div class="day-group-label">' + day + '</div>';
+              html += '<div class="evt-list">';
+              html += events.map(e => {
+                let prepHtml = '';
+                if (e.prep === 'suggested') {
+                  prepHtml = '<span class="evt-prep suggested">Prep suggested</span>';
+                } else if (e.prep === 'ready') {
+                  prepHtml = '<span class="evt-prep ready">Prepped</span>';
+                } else {
+                  prepHtml = '<span class="evt-prep none">—</span>';
+                }
+                return '<div class="evt-item">' +
+                  '<span class="evt-time">' + (e.time || '') + '</span>' +
+                  '<span class="evt-title">' + (e.title || '') + '</span>' +
+                  prepHtml +
+                '</div>';
+              }).join('');
+              html += '</div>';
+            });
+
+            container.innerHTML = html;
           }
 
           // Briefing

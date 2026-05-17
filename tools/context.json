@@ -19,6 +19,14 @@
     },
     {
       "source": "gmail",
+      "from": "Verizon",
+      "summary": "Unrecognized device login and SIM/device change on your account — verify if expected",
+      "priority_area": "business",
+      "urgency": "normal",
+      "time": "Yesterday afternoon"
+    },
+    {
+      "source": "gmail",
       "from": "Eric Bockelman",
       "summary": "Accepted your meeting — Fri May 22 at 1:30 PM CDT via Google Meet",
       "priority_area": "business",
@@ -32,14 +40,26 @@
       "priority_area": "business",
       "urgency": "low",
       "time": "Yesterday"
+    }
+  ],
+  "upcoming": [
+    {
+      "day": "Today — Sunday",
+      "time": "",
+      "title": "PGA Championship & family time",
+      "prep": null
     },
     {
-      "source": "gmail",
-      "from": "Verizon",
-      "summary": "Unrecognized device login and SIM/device change on your account — verify if expected",
-      "priority_area": "business",
-      "urgency": "normal",
-      "time": "Yesterday afternoon"
+      "day": "Monday",
+      "time": "TBD",
+      "title": "Weekly team schedule — check calendar in morning refresh",
+      "prep": null
+    },
+    {
+      "day": "Friday, May 22",
+      "time": "1:30 PM",
+      "title": "Meeting with Eric Bockelman (Google Meet)",
+      "prep": "suggested"
     }
   ],
   "briefing": [],
