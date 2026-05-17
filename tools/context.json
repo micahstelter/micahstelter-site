@@ -1,6 +1,47 @@
 {
-  "updated": "May 17, 2026",
-  "attention": [],
+  "updated": "May 17, 2026 — 2:00 PM",
+  "attention": [
+    {
+      "source": "gmail",
+      "from": "6 reps (Stephen, Chris, Seth, Ben, Nick B., Grant)",
+      "summary": "All 6 April commission approvals received — ready to process payroll",
+      "priority_area": "business",
+      "urgency": "urgent",
+      "time": "Yesterday–Today"
+    },
+    {
+      "source": "gmail",
+      "from": "Jason Paris (Agentic Arrow)",
+      "summary": "Sent FieldPulse hierarchical views video — Portfolio/Ox/Biz/Team/Rep views",
+      "priority_area": "business",
+      "urgency": "normal",
+      "time": "Yesterday evening"
+    },
+    {
+      "source": "gmail",
+      "from": "Eric Bockelman",
+      "summary": "Accepted your meeting — Fri May 22 at 1:30 PM CDT via Google Meet",
+      "priority_area": "business",
+      "urgency": "low",
+      "time": "This afternoon"
+    },
+    {
+      "source": "gmail",
+      "from": "Cloudflare",
+      "summary": "Domain vested-agentics.com registered; invoice $10.46 due",
+      "priority_area": "business",
+      "urgency": "low",
+      "time": "Yesterday"
+    },
+    {
+      "source": "gmail",
+      "from": "Verizon",
+      "summary": "Unrecognized device login and SIM/device change on your account — verify if expected",
+      "priority_area": "business",
+      "urgency": "normal",
+      "time": "Yesterday afternoon"
+    }
+  ],
   "briefing": [],
   "faith": {
     "note": "Walk the land of your God-sized dream. Stop praying small, safe prayers — God's capacity is infinite. Identify one unreasonable prayer and commit to it daily.",
@@ -17,7 +58,8 @@
   "business": {
     "ytd_commission": "$77,796",
     "team_size": "14 reps",
-    "status": "Season in full swing"
+    "status": "Season in full swing — all 6 April commission approvals in, ready for payroll",
+    "pending_review": "FieldPulse hierarchical views from Jason (Agentic Arrow)"
   },
   "fun": {
     "children": [
@@ -27,7 +69,7 @@
       { "name": "Benji" },
       { "name": "Will" }
     ],
-    "note": "",
-    "status": ""
+    "note": "PGA Championship Sunday — starting times announced",
+    "status": "Sunday with the family"
   }
 }
