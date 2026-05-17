@@ -183,6 +183,102 @@
     .briefing-item .time { color: #a0a09a; font-size: 0.72rem; font-variant-numeric: tabular-nums; }
     .no-data { color: #c0c0ba; font-style: italic; font-size: 0.78rem; }
 
+    /* ── Attention feed ── */
+    .attention {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0.75rem 2rem 0;
+    }
+    .attention-card {
+      background: #fff;
+      border: 1px solid rgba(0,0,0,0.06);
+      border-radius: 10px;
+      padding: 1.1rem 1.3rem;
+    }
+    .attention-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.7rem;
+    }
+    .attention-label {
+      font-size: 0.58rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #c84a4a;
+      font-weight: 600;
+    }
+    .attention-count {
+      font-size: 0.6rem;
+      color: #a0a09a;
+    }
+    .attn-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .attn-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.7rem;
+      padding: 0.6rem 0.7rem;
+      background: rgba(0,0,0,0.015);
+      border: 1px solid rgba(0,0,0,0.04);
+      border-radius: 7px;
+      transition: background 0.2s;
+    }
+    .attn-item:hover { background: rgba(0,0,0,0.03); }
+    .attn-item.urgent { border-left: 3px solid #c84a4a; }
+    .attn-item.normal { border-left: 3px solid #8a6a1a; }
+    .attn-item.low { border-left: 3px solid #a0a09a; }
+    .attn-source {
+      flex-shrink: 0;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.55rem; font-weight: 700; color: #fff;
+    }
+    .attn-source.imessage { background: #34c759; }
+    .attn-source.gmail { background: #4285f4; }
+    .attn-source.note { background: #8a6a1a; }
+    .attn-content { flex: 1; min-width: 0; }
+    .attn-from {
+      font-size: 0.78rem; font-weight: 600; color: #1a1a18;
+      margin-bottom: 0.1rem;
+    }
+    .attn-summary {
+      font-size: 0.72rem; color: #6b6b67; line-height: 1.4;
+      overflow: hidden; text-overflow: ellipsis;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    }
+    .attn-meta {
+      flex-shrink: 0;
+      text-align: right;
+    }
+    .attn-time {
+      font-size: 0.58rem; color: #a0a09a;
+      font-variant-numeric: tabular-nums;
+    }
+    .attn-priority-tag {
+      display: inline-block;
+      font-size: 0.5rem;
+      padding: 0.15rem 0.4rem;
+      border-radius: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-top: 0.2rem;
+    }
+    .attn-priority-tag.faith { background: rgba(42,74,62,0.1); color: #2a4a3e; }
+    .attn-priority-tag.marriage { background: rgba(107,74,94,0.1); color: #6b4a5e; }
+    .attn-priority-tag.health { background: rgba(26,122,82,0.1); color: #1a7a52; }
+    .attn-priority-tag.business { background: rgba(138,106,26,0.1); color: #8a6a1a; }
+    .attn-priority-tag.fun { background: rgba(58,90,158,0.1); color: #3a5a9e; }
+    .attn-empty {
+      text-align: center; padding: 1rem;
+      font-size: 0.78rem; color: #b8b8b2;
+      font-style: italic;
+    }
+
     /* ── Priority stack ── */
     .priorities {
       max-width: 720px;
@@ -316,7 +412,7 @@
     .d7 { animation-delay: 0.7s; }
 
     @media (max-width: 600px) {
-      .header, .briefing, .priorities, .footer { padding-left: 1.25rem; padding-right: 1.25rem; }
+      .header, .briefing, .attention, .priorities, .footer { padding-left: 1.25rem; padding-right: 1.25rem; }
       .pri-body { flex-direction: column; }
     }
   </style>
@@ -365,6 +461,17 @@
         <div class="briefing-items" id="briefing-items">
           <span class="no-data">No briefing data yet — daily agent will populate this.</span>
         </div>
+      </div>
+    </div>
+
+    <!-- ── Attention feed ── -->
+    <div class="attention fade-in d2" id="attention-section" style="display:none;">
+      <div class="attention-card">
+        <div class="attention-header">
+          <span class="attention-label">Needs Your Attention</span>
+          <span class="attention-count" id="attn-count"></span>
+        </div>
+        <div class="attn-list" id="attn-list"></div>
       </div>
     </div>
 
@@ -547,6 +654,31 @@
         .then(r => r.ok ? r.json() : null)
         .then(ctx => {
           if (!ctx) return;
+
+          // Attention feed
+          if (ctx.attention && ctx.attention.length) {
+            const section = document.getElementById('attention-section');
+            section.style.display = 'block';
+            document.getElementById('attn-count').textContent = ctx.attention.length + ' item' + (ctx.attention.length === 1 ? '' : 's');
+
+            const sourceIcons = { imessage: 'iM', gmail: 'G', note: 'N' };
+            document.getElementById('attn-list').innerHTML = ctx.attention.map(a => {
+              const urgency = a.urgency || 'normal';
+              const src = a.source || 'gmail';
+              const pri = a.priority_area || 'business';
+              return '<div class="attn-item ' + urgency + '">' +
+                '<div class="attn-source ' + src + '">' + (sourceIcons[src] || '?') + '</div>' +
+                '<div class="attn-content">' +
+                  '<div class="attn-from">' + (a.from || '') + '</div>' +
+                  '<div class="attn-summary">' + (a.summary || '') + '</div>' +
+                '</div>' +
+                '<div class="attn-meta">' +
+                  '<div class="attn-time">' + (a.time || '') + '</div>' +
+                  '<div class="attn-priority-tag ' + pri + '">' + pri + '</div>' +
+                '</div>' +
+              '</div>';
+            }).join('');
+          }
 
           // Briefing
           if (ctx.briefing && ctx.briefing.length) {
