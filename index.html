@@ -738,6 +738,41 @@
     }
     .hf-trend.improving { color: #1a7a52; }
     .hf-trend.worsening { color: #943030; }
+    .health-wins { margin-bottom: 1.25rem; }
+    .hw-item {
+      display: flex; align-items: flex-start; gap: 0.5rem;
+      padding: 0.4rem 0;
+    }
+    .hw-check { color: #1a7a52; font-size: 0.75rem; flex-shrink: 0; margin-top: 0.1rem; }
+    .hw-title { font-size: 0.78rem; font-weight: 600; color: #1a7a52; }
+    .hw-detail { font-size: 0.68rem; color: #6b6b67; margin-top: 0.1rem; }
+    .health-recs { margin-bottom: 1.25rem; }
+    .hr-item {
+      padding: 0.75rem 0.9rem; margin-bottom: 0.5rem;
+      background: rgba(0,0,0,0.015); border: 1px solid rgba(0,0,0,0.05);
+      border-radius: 8px;
+    }
+    .hr-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem; }
+    .hr-num {
+      width: 20px; height: 20px; border-radius: 50%;
+      background: #2a4a3e; color: #faf9f7;
+      font-size: 0.58rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .hr-title { font-size: 0.82rem; font-weight: 600; color: #1a1a18; }
+    .hr-cat {
+      font-size: 0.52rem; letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 0.12rem 0.4rem; border-radius: 3px; font-weight: 600; margin-left: auto;
+    }
+    .hr-cat.supplement { background: rgba(58,90,158,0.1); color: #3a5a9e; }
+    .hr-cat.diet { background: rgba(138,106,26,0.1); color: #8a7020; }
+    .hr-cat.maintain { background: rgba(26,122,82,0.1); color: #1a7a52; }
+    .hr-why { font-size: 0.72rem; color: #6b6b67; line-height: 1.5; margin-bottom: 0.35rem; }
+    .hr-action {
+      font-size: 0.72rem; color: #1a1a18; line-height: 1.5;
+      padding: 0.5rem 0.7rem; background: rgba(42,74,62,0.05); border-radius: 6px;
+      border-left: 2px solid #2a4a3e;
+    }
     .health-categories { display: flex; flex-direction: column; gap: 1rem; }
     .hc-group {}
     .hc-label {
@@ -940,6 +975,8 @@
           <div class="pri-insight">
             <div class="health-draw-info" id="health-draw-info"></div>
             <div class="health-summary" id="health-summary"></div>
+            <div class="health-wins" id="health-wins"></div>
+            <div class="health-recs" id="health-recs"></div>
             <div class="health-flags" id="health-flags"></div>
             <div class="health-categories" id="health-categories"></div>
           </div>
@@ -1458,6 +1495,36 @@
             // Summary
             if (h.summary) {
               document.getElementById('health-summary').textContent = h.summary;
+            }
+
+            // Wins
+            if (h.wins && h.wins.length) {
+              document.getElementById('health-wins').innerHTML =
+                '<div class="hc-label">Wins since last draw</div>' +
+                h.wins.map(function(w) {
+                  return '<div class="hw-item">' +
+                    '<span class="hw-check">&#10003;</span>' +
+                    '<div><div class="hw-title">' + w.title + '</div>' +
+                    '<div class="hw-detail">' + w.detail + '</div></div>' +
+                  '</div>';
+                }).join('');
+            }
+
+            // Recommendations
+            if (h.recommendations && h.recommendations.length) {
+              document.getElementById('health-recs').innerHTML =
+                '<div class="hc-label">Recommendations</div>' +
+                h.recommendations.map(function(r) {
+                  return '<div class="hr-item">' +
+                    '<div class="hr-header">' +
+                      '<div class="hr-num">' + r.priority + '</div>' +
+                      '<div class="hr-title">' + r.title + '</div>' +
+                      '<span class="hr-cat ' + r.category + '">' + r.category + '</span>' +
+                    '</div>' +
+                    '<div class="hr-why">' + r.why + '</div>' +
+                    '<div class="hr-action">' + r.action + '</div>' +
+                  '</div>';
+                }).join('');
             }
 
             // Flags

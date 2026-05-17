@@ -125,7 +125,51 @@
         { "name": "PSA", "value": "0.3", "ref": "≤4.0", "status": "optimal" }
       ]}
     ],
-    "summary": "Strong overall panel. Testosterone up 17% (481→564). Vitamin D jumped from 30→52. Omega-3 improving but still below optimal. Watch LDL particle count and small LDL — trending opposite directions. Magnesium RBC dropped below range."
+    "summary": "Your bloodwork is strong overall — 90%+ of markers in optimal range. Big wins: testosterone jumped 17% and Vitamin D nearly doubled. Five things need attention, and three of them are already trending the right direction.",
+    "wins": [
+      { "title": "Testosterone surging", "detail": "Up 17% from 481 to 564 ng/dL. Free T up 23% too. Whatever you're doing — keep doing it." },
+      { "title": "Vitamin D dialed in", "detail": "Jumped from 30 to 52. You were borderline insufficient, now you're solidly optimal." },
+      { "title": "DHEA-S up 62%", "detail": "180 to 291. This is your body's hormone building block — strong recovery." },
+      { "title": "Heart inflammation low", "detail": "hs-CRP at 0.7 — puts you in the lowest cardiovascular risk category." },
+      { "title": "Blood sugar excellent", "detail": "Fasting glucose 85, A1c 5.1% — no insulin resistance anywhere in sight." }
+    ],
+    "recommendations": [
+      {
+        "priority": 1,
+        "title": "Start magnesium supplementation",
+        "why": "Your RBC magnesium dropped from 4.4 to 3.7 — now below the healthy range. Magnesium affects sleep, muscle recovery, stress response, and heart rhythm.",
+        "action": "Take 400mg magnesium glycinate or threonate before bed. Glycinate is better for sleep, threonate crosses the blood-brain barrier. Retest in 3 months.",
+        "category": "supplement"
+      },
+      {
+        "priority": 2,
+        "title": "Increase omega-3 dose",
+        "why": "You went from 3.8% to 4.7% — great progress, but still below the 5.5% optimal target. Low omega-3 is tied to higher cardiac risk and inflammation.",
+        "action": "Bump fish oil to 3g combined EPA+DHA daily (most capsules are 1g, so 3 caps/day). Or eat fatty fish 3-4x per week. This should push you over 5.5% by next draw.",
+        "category": "supplement"
+      },
+      {
+        "priority": 3,
+        "title": "Address small dense LDL",
+        "why": "Your overall LDL particle count improved, but the small dense particles (the dangerous kind) went from 221 to 299. These are more likely to lodge in artery walls.",
+        "action": "Cut refined carbs and added sugar — these are the #1 driver of small dense LDL (not dietary fat). Consider adding citrus bergamot or berberine. Increase soluble fiber (oats, beans, psyllium). Discuss with your provider at next visit.",
+        "category": "diet"
+      },
+      {
+        "priority": 4,
+        "title": "Keep estradiol trending down",
+        "why": "At 46 (ref ≤39), it's mildly elevated for a male. It dropped from 53, so the trend is right. High estradiol in men can mean excess aromatase activity — your body converting testosterone to estrogen.",
+        "action": "Eat more cruciferous vegetables (broccoli, cauliflower, Brussels sprouts) — they contain DIM which helps metabolize estrogen. Limit alcohol. Maintain healthy body fat %. No action needed if it keeps dropping.",
+        "category": "diet"
+      },
+      {
+        "priority": 5,
+        "title": "Maintain your current protocol",
+        "why": "Testosterone, Vitamin D, and DHEA-S all made huge jumps. Your cardiovascular markers, metabolic panel, liver, kidneys, thyroid, and PSA are all textbook optimal.",
+        "action": "Don't change what's working. Keep your current Vitamin D and any testosterone-support supplements. Next Function Health draw around October — we'll track whether these trends hold.",
+        "category": "maintain"
+      }
+    ]
   },
   "business": {
     "ytd_commission": "$77,796",
