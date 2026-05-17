@@ -4,7 +4,7 @@
     "name": "Commission Tracker",
     "description": "Paris Brands — per-rep payouts, approval status, YTD trends",
     "icon": "&#9670;",
-    "category": "work",
+    "category": "business",
     "published": "2026-05-16T00:00:00Z"
   },
   {
@@ -12,7 +12,7 @@
     "name": "Site Status",
     "description": "Endpoint health & uptime monitor",
     "icon": "&#9673;",
-    "category": "work",
+    "category": "business",
     "published": "2026-05-16T00:00:00Z"
   },
   {
@@ -24,10 +24,18 @@
     "published": "2026-05-17T00:00:00Z"
   },
   {
+    "name": "Wallogy CRM",
+    "description": "Sales pipeline, leads & estimates",
+    "icon": "&#9656;",
+    "category": "business",
+    "url": "https://app.wallogy.com",
+    "published": "2026-05-17T00:00:00Z"
+  },
+  {
     "name": "Google Calendar",
     "description": "Schedule, events & meetings",
     "icon": "&#9635;",
-    "category": "personal",
+    "category": "business",
     "url": "https://calendar.google.com",
     "published": "2026-05-17T00:00:00Z"
   },
@@ -35,16 +43,8 @@
     "name": "Gmail",
     "description": "Email — micah@aleph-mgmt.com",
     "icon": "&#9993;",
-    "category": "personal",
+    "category": "business",
     "url": "https://mail.google.com",
-    "published": "2026-05-17T00:00:00Z"
-  },
-  {
-    "name": "Wallogy CRM",
-    "description": "Sales pipeline, leads & estimates",
-    "icon": "&#9656;",
-    "category": "work",
-    "url": "https://app.wallogy.com",
     "published": "2026-05-17T00:00:00Z"
   }
 ]

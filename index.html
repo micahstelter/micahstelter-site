@@ -5,27 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Micah Stelter</title>
   <link rel="icon" href="/favicon.ico" />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
       background: #faf9f7;
       color: #1a1a18;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
       min-height: 100vh;
-      padding: 0;
     }
 
     /* ── Header ── */
-    .site-header {
-      padding: 2.5rem 2rem 2rem;
-      max-width: 960px;
+    .header {
+      max-width: 720px;
       margin: 0 auto;
+      padding: 2.5rem 2rem 1rem;
       opacity: 0;
-      animation: appear 1s ease forwards 0.15s;
+      animation: up 0.8s ease forwards 0.1s;
     }
-    .header-row {
+    .header-top {
       display: flex;
       align-items: baseline;
       justify-content: space-between;
@@ -34,185 +32,238 @@
     }
     h1 {
       font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(2.2rem, 5vw, 3.2rem);
+      font-size: clamp(2rem, 5vw, 2.8rem);
       font-weight: 300;
       line-height: 1;
-      letter-spacing: -0.01em;
     }
     h1 em { font-style: italic; color: #2a4a3e; }
-    .header-date {
-      font-size: 0.72rem;
+    .date-line {
+      font-size: 0.68rem;
       color: #a0a09a;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
     }
-    .header-tagline {
-      margin-top: 0.6rem;
-      font-size: 0.92rem;
-      color: #6b6b67;
-      line-height: 1.5;
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.15rem;
-    }
 
-    /* ── Dashboard grid ── */
-    .dashboard {
-      max-width: 960px;
+    /* ── Morning briefing bar ── */
+    .briefing {
+      max-width: 720px;
       margin: 0 auto;
-      padding: 0.5rem 2rem 3rem;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.5rem;
+      padding: 0 2rem;
       opacity: 0;
-      animation: appear 1s ease forwards 0.4s;
+      animation: up 0.8s ease forwards 0.25s;
     }
-
-    /* ── Section cards ── */
-    .section {
+    .briefing-card {
       background: #fff;
       border: 1px solid rgba(0,0,0,0.06);
-      border-radius: 12px;
-      padding: 1.5rem;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      border-radius: 10px;
+      padding: 1.1rem 1.3rem;
+      margin-bottom: 0.25rem;
     }
-    .section:hover {
-      border-color: rgba(0,0,0,0.1);
-      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    .briefing-label {
+      font-size: 0.58rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #a0a09a;
+      margin-bottom: 0.6rem;
+    }
+    .briefing-items {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .briefing-item {
+      font-size: 0.82rem;
+      color: #3a3a38;
+      line-height: 1.45;
+    }
+    .briefing-item strong {
+      font-weight: 600;
+      color: #1a1a18;
+    }
+    .briefing-item .time {
+      color: #a0a09a;
+      font-size: 0.72rem;
+      font-variant-numeric: tabular-nums;
+    }
+    .no-data { color: #c0c0ba; font-style: italic; font-size: 0.78rem; }
+
+    /* ── Priority stack ── */
+    .priorities {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 1.25rem 2rem 2.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      opacity: 0;
+      animation: up 0.8s ease forwards 0.4s;
     }
 
-    .section-header {
+    .priority {
+      background: #fff;
+      border: 1px solid rgba(0,0,0,0.06);
+      border-radius: 10px;
+      padding: 1.25rem 1.4rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .priority:hover {
+      border-color: rgba(0,0,0,0.1);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.035);
+    }
+
+    .pri-header {
       display: flex;
       align-items: center;
-      gap: 0.55rem;
-      margin-bottom: 1.1rem;
-      padding-bottom: 0.75rem;
-      border-bottom: 1px solid rgba(0,0,0,0.05);
+      gap: 0.6rem;
+      margin-bottom: 0.75rem;
     }
-    .section-icon {
-      width: 28px;
-      height: 28px;
-      border-radius: 7px;
+    .pri-rank {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.85rem;
+      font-size: 0.6rem;
+      font-weight: 700;
       flex-shrink: 0;
+      color: #fff;
     }
-    .section-icon.health { background: rgba(42,157,106,0.1); color: #1a7a52; }
-    .section-icon.personal { background: rgba(82,100,174,0.1); color: #4a5a9e; }
-    .section-icon.work { background: rgba(200,140,40,0.1); color: #8a6a1a; }
-    .section-icon.financial { background: rgba(42,74,62,0.1); color: #2a4a3e; }
+    .pri-rank.r1 { background: #2a4a3e; }
+    .pri-rank.r2 { background: #6b4a5e; }
+    .pri-rank.r3 { background: #1a7a52; }
+    .pri-rank.r4 { background: #8a6a1a; }
+    .pri-rank.r5 { background: #3a5a9e; }
 
-    .section-title {
-      font-size: 0.65rem;
+    .pri-title {
+      font-size: 0.68rem;
       font-weight: 600;
-      letter-spacing: 0.16em;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
       color: #1a1a18;
     }
-
-    /* ── Metric pills inside sections ── */
-    .metrics {
-      display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-      margin-bottom: 1rem;
-    }
-    .metric {
-      background: rgba(0,0,0,0.025);
-      border-radius: 8px;
-      padding: 0.6rem 0.8rem;
-      flex: 1;
-      min-width: 100px;
-    }
-    .metric-label {
+    .pri-status {
+      margin-left: auto;
       font-size: 0.62rem;
       color: #a0a09a;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      margin-bottom: 0.2rem;
+      font-style: italic;
     }
-    .metric-value {
-      font-size: 1.1rem;
-      font-weight: 600;
-      font-variant-numeric: tabular-nums;
-    }
-    .metric-value.green { color: #1a7a52; }
-    .metric-value.amber { color: #8a6a1a; }
-    .metric-value.blue { color: #3a5a9e; }
-    .metric-value.muted { color: #6b6b67; }
 
-    /* ── Tool links inside sections ── */
-    .tool-list {
+    .pri-body {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    /* Insight / note column */
+    .pri-insight {
+      flex: 1;
+      min-width: 200px;
+    }
+    .insight-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.05rem;
+      font-style: italic;
+      color: #4a4a46;
+      line-height: 1.55;
+      margin-bottom: 0.4rem;
+    }
+    .insight-meta {
+      font-size: 0.62rem;
+      color: #b0b0a8;
+    }
+
+    /* Tools / links column */
+    .pri-tools {
       display: flex;
       flex-direction: column;
-      gap: 0.4rem;
+      gap: 0.35rem;
+      min-width: 180px;
     }
-    .tool-link {
+    .pri-link {
       display: flex;
       align-items: center;
-      gap: 0.7rem;
-      padding: 0.6rem 0.75rem;
-      background: rgba(0,0,0,0.015);
+      gap: 0.55rem;
+      padding: 0.45rem 0.6rem;
+      background: rgba(0,0,0,0.018);
       border: 1px solid rgba(0,0,0,0.04);
-      border-radius: 8px;
+      border-radius: 6px;
       text-decoration: none;
       color: #1a1a18;
+      font-size: 0.76rem;
       transition: background 0.2s, border-color 0.2s;
     }
-    .tool-link:hover {
+    .pri-link:hover {
       background: rgba(0,0,0,0.04);
       border-color: rgba(0,0,0,0.1);
     }
-    .tool-link-icon {
-      font-size: 0.9rem;
-      width: 1.4rem;
-      text-align: center;
-      flex-shrink: 0;
-    }
-    .tool-link-info h3 {
-      font-size: 0.8rem;
-      font-weight: 600;
-      margin-bottom: 0.05rem;
-    }
-    .tool-link-info p {
-      font-size: 0.68rem;
-      color: #6b6b67;
-    }
-    .tool-link .external-badge {
-      margin-left: auto;
-      font-size: 0.58rem;
-      color: #a0a09a;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      flex-shrink: 0;
-    }
+    .pri-link-icon { font-size: 0.8rem; width: 1.2rem; text-align: center; flex-shrink: 0; }
+    .pri-link .ext { margin-left: auto; font-size: 0.52rem; color: #b0b0a8; text-transform: uppercase; letter-spacing: 0.06em; }
 
-    /* ── Empty / placeholder state ── */
-    .placeholder {
-      padding: 0.8rem;
-      text-align: center;
-      color: #b8b8b2;
-      font-size: 0.75rem;
-      background: rgba(0,0,0,0.015);
-      border: 1px dashed rgba(0,0,0,0.07);
-      border-radius: 8px;
+    /* Metrics row inside a priority */
+    .pri-metrics {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.6rem;
+    }
+    .pri-metric {
+      background: rgba(0,0,0,0.022);
+      border-radius: 6px;
+      padding: 0.45rem 0.65rem;
+    }
+    .pri-metric-label {
+      font-size: 0.55rem;
+      color: #a0a09a;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .pri-metric-value {
+      font-size: 0.95rem;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+    .green { color: #1a7a52; }
+    .amber { color: #8a6a1a; }
+    .blue  { color: #3a5a9e; }
+    .muted { color: #6b6b67; }
+
+    /* Children list for Fun section */
+    .children-row {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.5rem;
+    }
+    .child-chip {
+      padding: 0.35rem 0.7rem;
+      background: rgba(58,90,158,0.06);
+      border-radius: 20px;
+      font-size: 0.7rem;
+      color: #3a5a9e;
+      font-weight: 500;
+    }
+    .child-chip .ago {
+      font-weight: 400;
+      color: #a0a09a;
+      margin-left: 0.3rem;
+      font-size: 0.6rem;
     }
 
     /* ── Footer ── */
-    .site-footer {
-      max-width: 960px;
+    .footer {
+      max-width: 720px;
       margin: 0 auto;
       padding: 0 2rem 2.5rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
       opacity: 0;
-      animation: appear 1s ease forwards 0.6s;
+      animation: up 0.8s ease forwards 0.55s;
     }
     .footer-link {
-      font-size: 0.7rem;
-      letter-spacing: 0.14em;
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
       color: #1a1a18;
       text-decoration: none;
@@ -222,215 +273,251 @@
     }
     .footer-link:hover { color: #2a4a3e; border-color: #2a4a3e; }
     .footer-meta {
-      font-size: 0.62rem;
+      font-size: 0.6rem;
       color: #b8b8b2;
-      letter-spacing: 0.06em;
     }
 
-    @keyframes appear {
-      from { opacity: 0; transform: translateY(10px); }
+    @keyframes up {
+      from { opacity: 0; transform: translateY(8px); }
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* ── Responsive ── */
-    @media (max-width: 680px) {
-      .dashboard { grid-template-columns: 1fr; }
-      .site-header { padding: 2rem 1.25rem 1.5rem; }
-      .dashboard { padding: 0.5rem 1.25rem 2.5rem; }
-      .site-footer { padding: 0 1.25rem 2rem; }
+    @media (max-width: 600px) {
+      .header, .briefing, .priorities, .footer { padding-left: 1.25rem; padding-right: 1.25rem; }
+      .pri-body { flex-direction: column; }
     }
   </style>
 </head>
 <body>
 
-  <header class="site-header">
-    <div class="header-row">
+  <!-- ── Header ── -->
+  <header class="header">
+    <div class="header-top">
       <h1>Micah <em>Stelter</em></h1>
-      <span class="header-date" id="header-date"></span>
+      <span class="date-line" id="date-line"></span>
     </div>
-    <p class="header-tagline">CEO of Paris Brands. Shareholder and builder across Aleph Holdings, Aleph Ventures, and Aleph Capital.</p>
   </header>
 
-  <main class="dashboard" id="dashboard">
+  <!-- ── Morning briefing ── -->
+  <div class="briefing">
+    <div class="briefing-card">
+      <div class="briefing-label">Today</div>
+      <div class="briefing-items" id="briefing-items">
+        <span class="no-data">No briefing data yet — daily agent will populate this.</span>
+      </div>
+    </div>
+  </div>
 
-    <!-- ── Health & Fitness ── -->
-    <div class="section" id="section-health">
-      <div class="section-header">
-        <div class="section-icon health">&#9829;</div>
-        <span class="section-title">Health & Fitness</span>
+  <!-- ── Priority stack ── -->
+  <main class="priorities" id="priorities">
+
+    <!-- 1. Faith / Spirituality -->
+    <div class="priority" id="pri-faith">
+      <div class="pri-header">
+        <div class="pri-rank r1">1</div>
+        <span class="pri-title">Faith & Spirituality</span>
+        <span class="pri-status" id="faith-status"></span>
       </div>
-      <div class="metrics" id="health-metrics">
-        <!-- Populated by JS or daily agent -->
+      <div class="pri-body">
+        <div class="pri-insight" id="faith-insight">
+          <div class="insight-text" id="faith-note">No sermon notes or prayer moments captured yet.</div>
+          <div class="insight-meta" id="faith-meta"></div>
+        </div>
       </div>
-      <div class="tool-list" id="health-tools"></div>
     </div>
 
-    <!-- ── Personal ── -->
-    <div class="section" id="section-personal">
-      <div class="section-header">
-        <div class="section-icon personal">&#9733;</div>
-        <span class="section-title">Personal</span>
+    <!-- 2. Marriage -->
+    <div class="priority" id="pri-marriage">
+      <div class="pri-header">
+        <div class="pri-rank r2">2</div>
+        <span class="pri-title">Marriage</span>
+        <span class="pri-status" id="marriage-status"></span>
       </div>
-      <div class="metrics" id="personal-metrics"></div>
-      <div class="tool-list" id="personal-tools"></div>
+      <div class="pri-body">
+        <div class="pri-insight" id="marriage-insight">
+          <div class="pri-metrics" id="marriage-metrics"></div>
+          <div class="insight-text" id="marriage-note"></div>
+          <div class="insight-meta" id="marriage-meta"></div>
+        </div>
+      </div>
     </div>
 
-    <!-- ── Work ── -->
-    <div class="section" id="section-work">
-      <div class="section-header">
-        <div class="section-icon work">&#9670;</div>
-        <span class="section-title">Work</span>
+    <!-- 3. Health -->
+    <div class="priority" id="pri-health">
+      <div class="pri-header">
+        <div class="pri-rank r3">3</div>
+        <span class="pri-title">Health</span>
+        <span class="pri-status" id="health-status"></span>
       </div>
-      <div class="metrics" id="work-metrics"></div>
-      <div class="tool-list" id="work-tools"></div>
+      <div class="pri-body">
+        <div class="pri-insight">
+          <div class="pri-metrics" id="health-metrics"></div>
+        </div>
+        <div class="pri-tools" id="health-tools"></div>
+      </div>
     </div>
 
-    <!-- ── Financial ── -->
-    <div class="section" id="section-financial">
-      <div class="section-header">
-        <div class="section-icon financial">&#9651;</div>
-        <span class="section-title">Financial</span>
+    <!-- 4. Business -->
+    <div class="priority" id="pri-business">
+      <div class="pri-header">
+        <div class="pri-rank r4">4</div>
+        <span class="pri-title">Business</span>
+        <span class="pri-status" id="business-status"></span>
       </div>
-      <div class="metrics" id="financial-metrics"></div>
-      <div class="tool-list" id="financial-tools"></div>
+      <div class="pri-body">
+        <div class="pri-insight">
+          <div class="pri-metrics" id="business-metrics"></div>
+        </div>
+        <div class="pri-tools" id="business-tools"></div>
+      </div>
+    </div>
+
+    <!-- 5. Fun / Hobbies / Relationships -->
+    <div class="priority" id="pri-fun">
+      <div class="pri-header">
+        <div class="pri-rank r5">5</div>
+        <span class="pri-title">Fun, Hobbies & Relationships</span>
+        <span class="pri-status" id="fun-status"></span>
+      </div>
+      <div class="pri-body">
+        <div class="pri-insight" id="fun-insight">
+          <div class="children-row" id="children-row"></div>
+          <div class="insight-text" id="fun-note"></div>
+        </div>
+        <div class="pri-tools" id="fun-tools"></div>
+      </div>
     </div>
 
   </main>
 
-  <footer class="site-footer">
+  <footer class="footer">
     <a class="footer-link" href="mailto:contact@micahstelter.ai">contact@micahstelter.ai</a>
     <span class="footer-meta" id="footer-updated"></span>
   </footer>
 
   <script>
-    // ── Date display ──
+    // ── Date ──
     const now = new Date();
-    const opts = { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' };
-    document.getElementById('header-date').textContent = now.toLocaleDateString('en-US', opts);
+    document.getElementById('date-line').textContent =
+      now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }).toUpperCase();
 
-    // ── Manifest-driven tool population ──
+    // ── Load manifest for tool links ──
     fetch('/tools/manifest.json')
       .then(r => r.ok ? r.json() : [])
       .then(tools => {
-        const buckets = { health: [], personal: [], work: [], financial: [] };
-
+        const map = { health: [], business: [], fun: [] };
         tools.forEach(t => {
-          const cat = t.category || 'work'; // default to work
-          if (buckets[cat]) buckets[cat].push(t);
-          else buckets.work.push(t);
+          const cat = t.category || 'business';
+          if (map[cat]) map[cat].push(t);
         });
-
-        Object.entries(buckets).forEach(([cat, items]) => {
-          const container = document.getElementById(cat + '-tools');
-          if (!container) return;
-
-          if (items.length === 0) {
-            container.innerHTML = '<div class="placeholder">No tools yet</div>';
-            return;
-          }
-
-          container.innerHTML = items.map(t => {
-            const isExternal = t.url && t.url.startsWith('http');
-            const href = isExternal ? t.url : '/tools/' + t.slug + '/';
-            const target = isExternal ? ' target="_blank" rel="noopener"' : '';
-            const badge = isExternal ? '<span class="external-badge">External</span>' : '';
-            const icon = t.icon || '&#9670;';
-
-            return '<a class="tool-link" href="' + href + '"' + target + '>' +
-              '<div class="tool-link-icon">' + icon + '</div>' +
-              '<div class="tool-link-info">' +
-                '<h3>' + t.name + '</h3>' +
-                '<p>' + (t.description || '') + '</p>' +
-              '</div>' +
-              badge +
-            '</a>';
+        Object.entries(map).forEach(([cat, items]) => {
+          const el = document.getElementById(cat + '-tools');
+          if (!el || !items.length) return;
+          el.innerHTML = items.map(t => {
+            const ext = t.url && t.url.startsWith('http');
+            const href = ext ? t.url : '/tools/' + t.slug + '/';
+            const target = ext ? ' target="_blank" rel="noopener"' : '';
+            const badge = ext ? '<span class="ext">ext</span>' : '';
+            return '<a class="pri-link" href="' + href + '"' + target + '>' +
+              '<span class="pri-link-icon">' + (t.icon || '&#9670;') + '</span>' +
+              t.name + badge + '</a>';
           }).join('');
         });
+      }).catch(() => {});
 
-        // Show metrics from manifest context data if present
-        renderMetrics(tools);
-      })
-      .catch(() => {
-        ['health', 'personal', 'work', 'financial'].forEach(cat => {
-          const el = document.getElementById(cat + '-tools');
-          if (el) el.innerHTML = '<div class="placeholder">No tools yet</div>';
-        });
-      });
-
-    // ── Context data (updated by daily agent or manual push) ──
+    // ── Load context data (populated by daily agent) ──
     fetch('/tools/context.json')
       .then(r => r.ok ? r.json() : null)
       .then(ctx => {
         if (!ctx) return;
 
-        // Health metrics
+        // Briefing
+        if (ctx.briefing && ctx.briefing.length) {
+          document.getElementById('briefing-items').innerHTML = ctx.briefing.map(b =>
+            '<div class="briefing-item"><span class="time">' + (b.time || '') + '</span> ' +
+            '<strong>' + b.title + '</strong></div>'
+          ).join('');
+        }
+
+        // Faith
+        if (ctx.faith) {
+          if (ctx.faith.note) {
+            document.getElementById('faith-note').textContent = ctx.faith.note;
+            document.getElementById('faith-meta').textContent = ctx.faith.source || '';
+          }
+          if (ctx.faith.status) document.getElementById('faith-status').textContent = ctx.faith.status;
+        }
+
+        // Marriage
+        if (ctx.marriage) {
+          const m = ctx.marriage;
+          const metrics = [];
+          if (m.last_date) metrics.push({ label: 'Last date night', value: m.last_date, cls: 'muted' });
+          if (m.next_date) metrics.push({ label: 'Next planned', value: m.next_date, cls: 'blue' });
+          if (metrics.length) {
+            document.getElementById('marriage-metrics').innerHTML = metrics.map(x =>
+              '<div class="pri-metric"><div class="pri-metric-label">' + x.label +
+              '</div><div class="pri-metric-value ' + x.cls + '">' + x.value + '</div></div>'
+            ).join('');
+          }
+          if (m.note) document.getElementById('marriage-note').textContent = m.note;
+          if (m.status) document.getElementById('marriage-status').textContent = m.status;
+        }
+
+        // Health
         if (ctx.health) {
-          const el = document.getElementById('health-metrics');
           const h = ctx.health;
-          el.innerHTML = buildMetrics([
-            h.calories   ? { label: 'Calories', value: h.calories, cls: 'green' } : null,
-            h.protein    ? { label: 'Protein',  value: h.protein,  cls: 'green' } : null,
-            h.steps      ? { label: 'Steps',    value: h.steps,    cls: 'muted' } : null,
-            h.sleep      ? { label: 'Sleep',    value: h.sleep,    cls: 'blue'  } : null,
-          ].filter(Boolean));
+          const metrics = [];
+          if (h.calories) metrics.push({ label: 'Calories', value: h.calories, cls: 'green' });
+          if (h.protein)  metrics.push({ label: 'Protein',  value: h.protein,  cls: 'green' });
+          if (h.steps)    metrics.push({ label: 'Steps',    value: h.steps,    cls: 'muted' });
+          if (h.sleep)    metrics.push({ label: 'Sleep',    value: h.sleep,    cls: 'blue'  });
+          if (h.weight)   metrics.push({ label: 'Weight',   value: h.weight,   cls: 'muted' });
+          if (metrics.length) {
+            document.getElementById('health-metrics').innerHTML = metrics.map(x =>
+              '<div class="pri-metric"><div class="pri-metric-label">' + x.label +
+              '</div><div class="pri-metric-value ' + x.cls + '">' + x.value + '</div></div>'
+            ).join('');
+          }
+          if (h.status) document.getElementById('health-status').textContent = h.status;
         }
 
-        // Personal metrics
-        if (ctx.personal) {
-          const el = document.getElementById('personal-metrics');
-          const p = ctx.personal;
-          el.innerHTML = buildMetrics([
-            p.events_today ? { label: 'Today',      value: p.events_today + ' events', cls: 'blue'  } : null,
-            p.focus        ? { label: 'Focus',       value: p.focus,                    cls: 'muted' } : null,
-          ].filter(Boolean));
+        // Business
+        if (ctx.business) {
+          const b = ctx.business;
+          const metrics = [];
+          if (b.pipeline)       metrics.push({ label: 'Pipeline',       value: b.pipeline,       cls: 'green' });
+          if (b.ytd_commission) metrics.push({ label: 'YTD Commission', value: b.ytd_commission, cls: 'amber' });
+          if (b.team_size)      metrics.push({ label: 'Team',           value: b.team_size,      cls: 'muted' });
+          if (b.open_items)     metrics.push({ label: 'Open items',     value: b.open_items,     cls: 'amber' });
+          if (metrics.length) {
+            document.getElementById('business-metrics').innerHTML = metrics.map(x =>
+              '<div class="pri-metric"><div class="pri-metric-label">' + x.label +
+              '</div><div class="pri-metric-value ' + x.cls + '">' + x.value + '</div></div>'
+            ).join('');
+          }
+          if (b.status) document.getElementById('business-status').textContent = b.status;
         }
 
-        // Work metrics
-        if (ctx.work) {
-          const el = document.getElementById('work-metrics');
-          const w = ctx.work;
-          el.innerHTML = buildMetrics([
-            w.pipeline     ? { label: 'Pipeline',    value: w.pipeline,    cls: 'green' } : null,
-            w.open_items   ? { label: 'Open items',  value: w.open_items,  cls: 'amber' } : null,
-            w.team_size    ? { label: 'Team',         value: w.team_size,   cls: 'muted' } : null,
-          ].filter(Boolean));
+        // Fun / Relationships
+        if (ctx.fun) {
+          const f = ctx.fun;
+          if (f.children && f.children.length) {
+            document.getElementById('children-row').innerHTML = f.children.map(c =>
+              '<div class="child-chip">' + c.name +
+              (c.last_moment ? '<span class="ago">' + c.last_moment + '</span>' : '') +
+              '</div>'
+            ).join('');
+          }
+          if (f.note) document.getElementById('fun-note').textContent = f.note;
+          if (f.status) document.getElementById('fun-status').textContent = f.status;
         }
 
-        // Financial metrics
-        if (ctx.financial) {
-          const el = document.getElementById('financial-metrics');
-          const f = ctx.financial;
-          el.innerHTML = buildMetrics([
-            f.ytd_revenue  ? { label: 'YTD Revenue',     value: f.ytd_revenue,  cls: 'green' } : null,
-            f.ytd_commission ? { label: 'YTD Commissions', value: f.ytd_commission, cls: 'amber' } : null,
-            f.cashflow     ? { label: 'Cash flow',        value: f.cashflow,     cls: 'blue'  } : null,
-          ].filter(Boolean));
-        }
-
-        // Footer updated timestamp
+        // Footer
         if (ctx.updated) {
           document.getElementById('footer-updated').textContent = 'Last refreshed ' + ctx.updated;
         }
-      })
-      .catch(() => {});
-
-    function buildMetrics(items) {
-      if (!items.length) return '';
-      return '<div class="metrics">' + items.map(m =>
-        '<div class="metric">' +
-          '<div class="metric-label">' + m.label + '</div>' +
-          '<div class="metric-value ' + m.cls + '">' + m.value + '</div>' +
-        '</div>'
-      ).join('') + '</div>';
-    }
-
-    function renderMetrics(tools) {
-      // If no context.json yet, hide empty metric rows
-      ['health', 'personal', 'work', 'financial'].forEach(cat => {
-        const el = document.getElementById(cat + '-metrics');
-        if (el && !el.innerHTML.trim()) el.style.display = 'none';
-      });
-    }
+      }).catch(() => {});
   </script>
 </body>
 </html>

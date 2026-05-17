@@ -1,12 +1,32 @@
 {
   "updated": "May 17, 2026",
-  "health": {},
-  "personal": {},
-  "work": {
-    "open_items": "—",
-    "team_size": "14 reps"
+  "briefing": [],
+  "faith": {
+    "note": "Walk the land of your God-sized dream. Stop praying small, safe prayers — God's capacity is infinite. Identify one unreasonable prayer and commit to it daily.",
+    "source": "Sermon — The Power of Team and God-Sized Dreams (May 17)",
+    "status": "Genesis 13:14-18"
   },
-  "financial": {
-    "ytd_commission": "$77,796"
+  "marriage": {
+    "note": "Peace in my home — authority over the chaos. Boldness to hold the line and have heavenly eyes for Lizzie and the kids.",
+    "last_date": "—",
+    "next_date": "—",
+    "status": "Set an intention"
+  },
+  "health": {},
+  "business": {
+    "ytd_commission": "$77,796",
+    "team_size": "14 reps",
+    "status": "Season in full swing"
+  },
+  "fun": {
+    "children": [
+      { "name": "Jude" },
+      { "name": "Child 2" },
+      { "name": "Child 3" },
+      { "name": "Child 4" },
+      { "name": "Child 5" }
+    ],
+    "note": "",
+    "status": ""
   }
 }
