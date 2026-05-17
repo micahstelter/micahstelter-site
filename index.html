@@ -15,13 +15,105 @@
       min-height: 100vh;
     }
 
-    /* ── Header ── */
+    /* ══════════════════════════════════
+       GATE — Landing / Auth
+       ══════════════════════════════════ */
+    #gate {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .gate-card {
+      max-width: 380px;
+      width: 100%;
+      text-align: center;
+      opacity: 0;
+      animation: up 1s ease forwards 0.15s;
+    }
+    .gate-card h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.4rem, 6vw, 3.4rem);
+      font-weight: 300;
+      line-height: 1.05;
+      margin-bottom: 0.3rem;
+    }
+    .gate-card h1 em { font-style: italic; color: #2a4a3e; }
+    .gate-sub {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.1rem;
+      color: #6b6b67;
+      margin-bottom: 2.5rem;
+    }
+
+    /* Pre-auth: just the button */
+    #pre-auth { display: block; }
+    #auth-form { display: none; }
+
+    .go-btn {
+      display: inline-block;
+      padding: 14px 48px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #fff;
+      background: #2a4a3e;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.25s, transform 0.15s;
+    }
+    .go-btn:hover { background: #1d3a30; }
+    .go-btn:active { transform: scale(0.97); }
+
+    /* Post-click: password form */
+    #auth-form input[type="password"] {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 15px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      border: 1px solid rgba(0,0,0,0.12);
+      border-radius: 8px;
+      background: #fff;
+      outline: none;
+      text-align: center;
+      letter-spacing: 0.1em;
+      transition: border-color 0.2s;
+    }
+    #auth-form input:focus { border-color: #2a4a3e; }
+    #auth-form input.error { border-color: #c84a4a; animation: shake 0.4s ease; }
+    .auth-submit {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 10px 36px;
+      font-size: 0.7rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #1a1a18;
+      background: none;
+      border: 1px solid rgba(0,0,0,0.12);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .auth-submit:hover { border-color: #2a4a3e; color: #2a4a3e; }
+    .auth-hint {
+      margin-top: 1.2rem;
+      font-size: 0.68rem;
+      color: #b8b8b2;
+    }
+
+    /* ══════════════════════════════════
+       DASHBOARD — Hidden until auth
+       ══════════════════════════════════ */
+    #dashboard { display: none; }
+
     .header {
       max-width: 720px;
       margin: 0 auto;
       padding: 2.5rem 2rem 1rem;
-      opacity: 0;
-      animation: up 0.8s ease forwards 0.1s;
     }
     .header-top {
       display: flex;
@@ -30,27 +122,38 @@
       flex-wrap: wrap;
       gap: 0.5rem;
     }
-    h1 {
+    .header h1 {
       font-family: 'Cormorant Garamond', serif;
       font-size: clamp(2rem, 5vw, 2.8rem);
       font-weight: 300;
       line-height: 1;
     }
-    h1 em { font-style: italic; color: #2a4a3e; }
+    .header h1 em { font-style: italic; color: #2a4a3e; }
     .date-line {
       font-size: 0.68rem;
       color: #a0a09a;
       letter-spacing: 0.1em;
       text-transform: uppercase;
     }
+    .logout-btn {
+      font-size: 0.6rem;
+      color: #b8b8b2;
+      background: none;
+      border: 1px solid rgba(0,0,0,0.06);
+      padding: 0.3rem 0.6rem;
+      border-radius: 4px;
+      cursor: pointer;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: all 0.2s;
+    }
+    .logout-btn:hover { color: #c84a4a; border-color: #c84a4a; }
 
-    /* ── Morning briefing bar ── */
+    /* ── Morning briefing ── */
     .briefing {
       max-width: 720px;
       margin: 0 auto;
       padding: 0 2rem;
-      opacity: 0;
-      animation: up 0.8s ease forwards 0.25s;
     }
     .briefing-card {
       background: #fff;
@@ -76,15 +179,8 @@
       color: #3a3a38;
       line-height: 1.45;
     }
-    .briefing-item strong {
-      font-weight: 600;
-      color: #1a1a18;
-    }
-    .briefing-item .time {
-      color: #a0a09a;
-      font-size: 0.72rem;
-      font-variant-numeric: tabular-nums;
-    }
+    .briefing-item strong { font-weight: 600; color: #1a1a18; }
+    .briefing-item .time { color: #a0a09a; font-size: 0.72rem; font-variant-numeric: tabular-nums; }
     .no-data { color: #c0c0ba; font-style: italic; font-size: 0.78rem; }
 
     /* ── Priority stack ── */
@@ -95,10 +191,7 @@
       display: flex;
       flex-direction: column;
       gap: 0.75rem;
-      opacity: 0;
-      animation: up 0.8s ease forwards 0.4s;
     }
-
     .priority {
       background: #fff;
       border: 1px solid rgba(0,0,0,0.06);
@@ -110,7 +203,6 @@
       border-color: rgba(0,0,0,0.1);
       box-shadow: 0 2px 12px rgba(0,0,0,0.035);
     }
-
     .pri-header {
       display: flex;
       align-items: center;
@@ -118,136 +210,74 @@
       margin-bottom: 0.75rem;
     }
     .pri-rank {
-      width: 22px;
-      height: 22px;
+      width: 22px; height: 22px;
       border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.6rem;
-      font-weight: 700;
-      flex-shrink: 0;
-      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.6rem; font-weight: 700;
+      flex-shrink: 0; color: #fff;
     }
     .pri-rank.r1 { background: #2a4a3e; }
     .pri-rank.r2 { background: #6b4a5e; }
     .pri-rank.r3 { background: #1a7a52; }
     .pri-rank.r4 { background: #8a6a1a; }
     .pri-rank.r5 { background: #3a5a9e; }
-
     .pri-title {
-      font-size: 0.68rem;
-      font-weight: 600;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: #1a1a18;
+      font-size: 0.68rem; font-weight: 600;
+      letter-spacing: 0.14em; text-transform: uppercase; color: #1a1a18;
     }
     .pri-status {
       margin-left: auto;
-      font-size: 0.62rem;
-      color: #a0a09a;
-      font-style: italic;
+      font-size: 0.62rem; color: #a0a09a; font-style: italic;
     }
-
     .pri-body {
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
+      display: flex; gap: 1rem; flex-wrap: wrap;
     }
-
-    /* Insight / note column */
-    .pri-insight {
-      flex: 1;
-      min-width: 200px;
-    }
+    .pri-insight { flex: 1; min-width: 200px; }
     .insight-text {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 1.05rem;
-      font-style: italic;
-      color: #4a4a46;
-      line-height: 1.55;
-      margin-bottom: 0.4rem;
+      font-size: 1.05rem; font-style: italic;
+      color: #4a4a46; line-height: 1.55; margin-bottom: 0.4rem;
     }
-    .insight-meta {
-      font-size: 0.62rem;
-      color: #b0b0a8;
-    }
-
-    /* Tools / links column */
+    .insight-meta { font-size: 0.62rem; color: #b0b0a8; }
     .pri-tools {
-      display: flex;
-      flex-direction: column;
-      gap: 0.35rem;
-      min-width: 180px;
+      display: flex; flex-direction: column; gap: 0.35rem; min-width: 180px;
     }
     .pri-link {
-      display: flex;
-      align-items: center;
-      gap: 0.55rem;
+      display: flex; align-items: center; gap: 0.55rem;
       padding: 0.45rem 0.6rem;
       background: rgba(0,0,0,0.018);
       border: 1px solid rgba(0,0,0,0.04);
       border-radius: 6px;
-      text-decoration: none;
-      color: #1a1a18;
-      font-size: 0.76rem;
+      text-decoration: none; color: #1a1a18; font-size: 0.76rem;
       transition: background 0.2s, border-color 0.2s;
     }
-    .pri-link:hover {
-      background: rgba(0,0,0,0.04);
-      border-color: rgba(0,0,0,0.1);
-    }
+    .pri-link:hover { background: rgba(0,0,0,0.04); border-color: rgba(0,0,0,0.1); }
     .pri-link-icon { font-size: 0.8rem; width: 1.2rem; text-align: center; flex-shrink: 0; }
-    .pri-link .ext { margin-left: auto; font-size: 0.52rem; color: #b0b0a8; text-transform: uppercase; letter-spacing: 0.06em; }
-
-    /* Metrics row inside a priority */
-    .pri-metrics {
-      display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-      margin-bottom: 0.6rem;
+    .pri-link .ext {
+      margin-left: auto; font-size: 0.52rem; color: #b0b0a8;
+      text-transform: uppercase; letter-spacing: 0.06em;
     }
+    .pri-metrics { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.6rem; }
     .pri-metric {
-      background: rgba(0,0,0,0.022);
-      border-radius: 6px;
-      padding: 0.45rem 0.65rem;
+      background: rgba(0,0,0,0.022); border-radius: 6px; padding: 0.45rem 0.65rem;
     }
     .pri-metric-label {
-      font-size: 0.55rem;
-      color: #a0a09a;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
+      font-size: 0.55rem; color: #a0a09a; text-transform: uppercase; letter-spacing: 0.08em;
     }
-    .pri-metric-value {
-      font-size: 0.95rem;
-      font-weight: 600;
-      font-variant-numeric: tabular-nums;
-    }
+    .pri-metric-value { font-size: 0.95rem; font-weight: 600; font-variant-numeric: tabular-nums; }
     .green { color: #1a7a52; }
     .amber { color: #8a6a1a; }
     .blue  { color: #3a5a9e; }
     .muted { color: #6b6b67; }
-
-    /* Children list for Fun section */
-    .children-row {
-      display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-      margin-bottom: 0.5rem;
-    }
+    .children-row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.5rem; }
     .child-chip {
       padding: 0.35rem 0.7rem;
       background: rgba(58,90,158,0.06);
-      border-radius: 20px;
-      font-size: 0.7rem;
-      color: #3a5a9e;
-      font-weight: 500;
+      border-radius: 20px; font-size: 0.7rem;
+      color: #3a5a9e; font-weight: 500;
     }
     .child-chip .ago {
-      font-weight: 400;
-      color: #a0a09a;
-      margin-left: 0.3rem;
-      font-size: 0.6rem;
+      font-weight: 400; color: #a0a09a; margin-left: 0.3rem; font-size: 0.6rem;
     }
 
     /* ── Footer ── */
@@ -255,32 +285,35 @@
       max-width: 720px;
       margin: 0 auto;
       padding: 0 2rem 2.5rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      opacity: 0;
-      animation: up 0.8s ease forwards 0.55s;
+      display: flex; justify-content: space-between; align-items: center;
     }
     .footer-link {
-      font-size: 0.68rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: #1a1a18;
-      text-decoration: none;
-      border-bottom: 1px solid #c8c7c2;
-      padding-bottom: 1px;
+      font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase;
+      color: #1a1a18; text-decoration: none;
+      border-bottom: 1px solid #c8c7c2; padding-bottom: 1px;
       transition: border-color 0.2s, color 0.2s;
     }
     .footer-link:hover { color: #2a4a3e; border-color: #2a4a3e; }
-    .footer-meta {
-      font-size: 0.6rem;
-      color: #b8b8b2;
-    }
+    .footer-meta { font-size: 0.6rem; color: #b8b8b2; }
 
+    /* ── Animations ── */
     @keyframes up {
       from { opacity: 0; transform: translateY(8px); }
       to   { opacity: 1; transform: translateY(0); }
     }
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
+    }
+    .fade-in { opacity: 0; animation: up 0.7s ease forwards; }
+    .d1 { animation-delay: 0.1s; }
+    .d2 { animation-delay: 0.2s; }
+    .d3 { animation-delay: 0.3s; }
+    .d4 { animation-delay: 0.4s; }
+    .d5 { animation-delay: 0.5s; }
+    .d6 { animation-delay: 0.6s; }
+    .d7 { animation-delay: 0.7s; }
 
     @media (max-width: 600px) {
       .header, .briefing, .priorities, .footer { padding-left: 1.25rem; padding-right: 1.25rem; }
@@ -290,234 +323,319 @@
 </head>
 <body>
 
-  <!-- ── Header ── -->
-  <header class="header">
-    <div class="header-top">
+  <!-- ══════════════════════════════════
+       GATE
+       ══════════════════════════════════ -->
+  <div id="gate">
+    <div class="gate-card">
       <h1>Micah <em>Stelter</em></h1>
-      <span class="date-line" id="date-line"></span>
-    </div>
-  </header>
+      <p class="gate-sub">Optimization Portal</p>
 
-  <!-- ── Morning briefing ── -->
-  <div class="briefing">
-    <div class="briefing-card">
-      <div class="briefing-label">Today</div>
-      <div class="briefing-items" id="briefing-items">
-        <span class="no-data">No briefing data yet — daily agent will populate this.</span>
+      <div id="pre-auth">
+        <button class="go-btn" onclick="showAuth()">Let's Go!</button>
+      </div>
+
+      <div id="auth-form">
+        <input type="password" id="pw" placeholder="Enter password" autocomplete="off" />
+        <br>
+        <button class="auth-submit" onclick="tryUnlock()">Unlock</button>
+        <div class="auth-hint">Private dashboard — authorized access only.</div>
       </div>
     </div>
   </div>
 
-  <!-- ── Priority stack ── -->
-  <main class="priorities" id="priorities">
+  <!-- ══════════════════════════════════
+       DASHBOARD
+       ══════════════════════════════════ -->
+  <div id="dashboard">
 
-    <!-- 1. Faith / Spirituality -->
-    <div class="priority" id="pri-faith">
-      <div class="pri-header">
-        <div class="pri-rank r1">1</div>
-        <span class="pri-title">Faith & Spirituality</span>
-        <span class="pri-status" id="faith-status"></span>
+    <header class="header fade-in d1">
+      <div class="header-top">
+        <h1>Micah <em>Stelter</em></h1>
+        <span class="date-line" id="date-line"></span>
       </div>
-      <div class="pri-body">
-        <div class="pri-insight" id="faith-insight">
-          <div class="insight-text" id="faith-note">No sermon notes or prayer moments captured yet.</div>
-          <div class="insight-meta" id="faith-meta"></div>
+      <div style="margin-top: 0.5rem;">
+        <button class="logout-btn" onclick="lockOut()">Lock</button>
+      </div>
+    </header>
+
+    <div class="briefing fade-in d2">
+      <div class="briefing-card">
+        <div class="briefing-label">Today</div>
+        <div class="briefing-items" id="briefing-items">
+          <span class="no-data">No briefing data yet — daily agent will populate this.</span>
         </div>
       </div>
     </div>
 
-    <!-- 2. Marriage -->
-    <div class="priority" id="pri-marriage">
-      <div class="pri-header">
-        <div class="pri-rank r2">2</div>
-        <span class="pri-title">Marriage</span>
-        <span class="pri-status" id="marriage-status"></span>
-      </div>
-      <div class="pri-body">
-        <div class="pri-insight" id="marriage-insight">
-          <div class="pri-metrics" id="marriage-metrics"></div>
-          <div class="insight-text" id="marriage-note"></div>
-          <div class="insight-meta" id="marriage-meta"></div>
+    <main class="priorities">
+
+      <!-- 1. Faith -->
+      <div class="priority fade-in d3" id="pri-faith">
+        <div class="pri-header">
+          <div class="pri-rank r1">1</div>
+          <span class="pri-title">Faith & Spirituality</span>
+          <span class="pri-status" id="faith-status"></span>
+        </div>
+        <div class="pri-body">
+          <div class="pri-insight">
+            <div class="insight-text" id="faith-note">No sermon notes or prayer moments captured yet.</div>
+            <div class="insight-meta" id="faith-meta"></div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- 3. Health -->
-    <div class="priority" id="pri-health">
-      <div class="pri-header">
-        <div class="pri-rank r3">3</div>
-        <span class="pri-title">Health</span>
-        <span class="pri-status" id="health-status"></span>
-      </div>
-      <div class="pri-body">
-        <div class="pri-insight">
-          <div class="pri-metrics" id="health-metrics"></div>
+      <!-- 2. Marriage -->
+      <div class="priority fade-in d4" id="pri-marriage">
+        <div class="pri-header">
+          <div class="pri-rank r2">2</div>
+          <span class="pri-title">Marriage</span>
+          <span class="pri-status" id="marriage-status"></span>
         </div>
-        <div class="pri-tools" id="health-tools"></div>
-      </div>
-    </div>
-
-    <!-- 4. Business -->
-    <div class="priority" id="pri-business">
-      <div class="pri-header">
-        <div class="pri-rank r4">4</div>
-        <span class="pri-title">Business</span>
-        <span class="pri-status" id="business-status"></span>
-      </div>
-      <div class="pri-body">
-        <div class="pri-insight">
-          <div class="pri-metrics" id="business-metrics"></div>
+        <div class="pri-body">
+          <div class="pri-insight">
+            <div class="pri-metrics" id="marriage-metrics"></div>
+            <div class="insight-text" id="marriage-note"></div>
+            <div class="insight-meta" id="marriage-meta"></div>
+          </div>
         </div>
-        <div class="pri-tools" id="business-tools"></div>
       </div>
-    </div>
 
-    <!-- 5. Fun / Hobbies / Relationships -->
-    <div class="priority" id="pri-fun">
-      <div class="pri-header">
-        <div class="pri-rank r5">5</div>
-        <span class="pri-title">Fun, Hobbies & Relationships</span>
-        <span class="pri-status" id="fun-status"></span>
-      </div>
-      <div class="pri-body">
-        <div class="pri-insight" id="fun-insight">
-          <div class="children-row" id="children-row"></div>
-          <div class="insight-text" id="fun-note"></div>
+      <!-- 3. Health -->
+      <div class="priority fade-in d5" id="pri-health">
+        <div class="pri-header">
+          <div class="pri-rank r3">3</div>
+          <span class="pri-title">Health</span>
+          <span class="pri-status" id="health-status"></span>
         </div>
-        <div class="pri-tools" id="fun-tools"></div>
+        <div class="pri-body">
+          <div class="pri-insight">
+            <div class="pri-metrics" id="health-metrics"></div>
+          </div>
+          <div class="pri-tools" id="health-tools"></div>
+        </div>
       </div>
-    </div>
 
-  </main>
+      <!-- 4. Business -->
+      <div class="priority fade-in d6" id="pri-business">
+        <div class="pri-header">
+          <div class="pri-rank r4">4</div>
+          <span class="pri-title">Business</span>
+          <span class="pri-status" id="business-status"></span>
+        </div>
+        <div class="pri-body">
+          <div class="pri-insight">
+            <div class="pri-metrics" id="business-metrics"></div>
+          </div>
+          <div class="pri-tools" id="business-tools"></div>
+        </div>
+      </div>
 
-  <footer class="footer">
-    <a class="footer-link" href="mailto:contact@micahstelter.ai">contact@micahstelter.ai</a>
-    <span class="footer-meta" id="footer-updated"></span>
-  </footer>
+      <!-- 5. Fun -->
+      <div class="priority fade-in d7" id="pri-fun">
+        <div class="pri-header">
+          <div class="pri-rank r5">5</div>
+          <span class="pri-title">Fun, Hobbies & Relationships</span>
+          <span class="pri-status" id="fun-status"></span>
+        </div>
+        <div class="pri-body">
+          <div class="pri-insight" id="fun-insight">
+            <div class="children-row" id="children-row"></div>
+            <div class="insight-text" id="fun-note"></div>
+          </div>
+          <div class="pri-tools" id="fun-tools"></div>
+        </div>
+      </div>
 
+    </main>
+
+    <footer class="footer fade-in d7">
+      <a class="footer-link" href="mailto:contact@micahstelter.ai">contact@micahstelter.ai</a>
+      <span class="footer-meta" id="footer-updated"></span>
+    </footer>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SCRIPTS
+       ══════════════════════════════════ -->
   <script>
-    // ── Date ──
-    const now = new Date();
-    document.getElementById('date-line').textContent =
-      now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }).toUpperCase();
+    // ── Auth ──
+    const PASS_HASH = '8750688d';
+    function simpleHash(s) {
+      let h = 0;
+      for (let i = 0; i < s.length; i++) { h = ((h << 5) - h + s.charCodeAt(i)) | 0; }
+      return (h >>> 0).toString(16);
+    }
 
-    // ── Load manifest for tool links ──
-    fetch('/tools/manifest.json')
-      .then(r => r.ok ? r.json() : [])
-      .then(tools => {
-        const map = { health: [], business: [], fun: [] };
-        tools.forEach(t => {
-          const cat = t.category || 'business';
-          if (map[cat]) map[cat].push(t);
-        });
-        Object.entries(map).forEach(([cat, items]) => {
-          const el = document.getElementById(cat + '-tools');
-          if (!el || !items.length) return;
-          el.innerHTML = items.map(t => {
-            const ext = t.url && t.url.startsWith('http');
-            const href = ext ? t.url : '/tools/' + t.slug + '/';
-            const target = ext ? ' target="_blank" rel="noopener"' : '';
-            const badge = ext ? '<span class="ext">ext</span>' : '';
-            return '<a class="pri-link" href="' + href + '"' + target + '>' +
-              '<span class="pri-link-icon">' + (t.icon || '&#9670;') + '</span>' +
-              t.name + badge + '</a>';
-          }).join('');
-        });
-      }).catch(() => {});
+    function showAuth() {
+      document.getElementById('pre-auth').style.display = 'none';
+      const form = document.getElementById('auth-form');
+      form.style.display = 'block';
+      form.style.opacity = '0';
+      form.style.animation = 'up 0.5s ease forwards';
+      setTimeout(() => document.getElementById('pw').focus(), 100);
+    }
 
-    // ── Load context data (populated by daily agent) ──
-    fetch('/tools/context.json')
-      .then(r => r.ok ? r.json() : null)
-      .then(ctx => {
-        if (!ctx) return;
+    function unlock() {
+      document.getElementById('gate').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      sessionStorage.setItem('ms_auth', '1');
+      initDashboard();
+    }
 
-        // Briefing
-        if (ctx.briefing && ctx.briefing.length) {
-          document.getElementById('briefing-items').innerHTML = ctx.briefing.map(b =>
-            '<div class="briefing-item"><span class="time">' + (b.time || '') + '</span> ' +
-            '<strong>' + b.title + '</strong></div>'
-          ).join('');
-        }
+    function tryUnlock() {
+      const input = document.getElementById('pw');
+      if (simpleHash(input.value) === PASS_HASH) {
+        unlock();
+      } else {
+        input.classList.add('error');
+        input.value = '';
+        setTimeout(() => input.classList.remove('error'), 500);
+      }
+    }
 
-        // Faith
-        if (ctx.faith) {
-          if (ctx.faith.note) {
-            document.getElementById('faith-note').textContent = ctx.faith.note;
-            document.getElementById('faith-meta').textContent = ctx.faith.source || '';
-          }
-          if (ctx.faith.status) document.getElementById('faith-status').textContent = ctx.faith.status;
-        }
+    function lockOut() {
+      sessionStorage.removeItem('ms_auth');
+      document.getElementById('dashboard').style.display = 'none';
+      document.getElementById('gate').style.display = 'flex';
+      document.getElementById('pre-auth').style.display = 'block';
+      document.getElementById('auth-form').style.display = 'none';
+    }
 
-        // Marriage
-        if (ctx.marriage) {
-          const m = ctx.marriage;
-          const metrics = [];
-          if (m.last_date) metrics.push({ label: 'Last date night', value: m.last_date, cls: 'muted' });
-          if (m.next_date) metrics.push({ label: 'Next planned', value: m.next_date, cls: 'blue' });
-          if (metrics.length) {
-            document.getElementById('marriage-metrics').innerHTML = metrics.map(x =>
-              '<div class="pri-metric"><div class="pri-metric-label">' + x.label +
-              '</div><div class="pri-metric-value ' + x.cls + '">' + x.value + '</div></div>'
+    document.getElementById('pw').addEventListener('keydown', e => {
+      if (e.key === 'Enter') tryUnlock();
+    });
+
+    // Auto-restore session
+    if (sessionStorage.getItem('ms_auth') === '1') {
+      unlock();
+    }
+
+    // ── Dashboard init ──
+    function initDashboard() {
+      // Date
+      const now = new Date();
+      document.getElementById('date-line').textContent =
+        now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }).toUpperCase();
+
+      // Load manifest
+      fetch('/tools/manifest.json')
+        .then(r => r.ok ? r.json() : [])
+        .then(tools => {
+          const map = { health: [], business: [], fun: [] };
+          tools.forEach(t => {
+            const cat = t.category || 'business';
+            if (map[cat]) map[cat].push(t);
+          });
+          Object.entries(map).forEach(([cat, items]) => {
+            const el = document.getElementById(cat + '-tools');
+            if (!el || !items.length) return;
+            el.innerHTML = items.map(t => {
+              const ext = t.url && t.url.startsWith('http');
+              const href = ext ? t.url : '/tools/' + t.slug + '/';
+              const target = ext ? ' target="_blank" rel="noopener"' : '';
+              const badge = ext ? '<span class="ext">ext</span>' : '';
+              return '<a class="pri-link" href="' + href + '"' + target + '>' +
+                '<span class="pri-link-icon">' + (t.icon || '&#9670;') + '</span>' +
+                t.name + badge + '</a>';
+            }).join('');
+          });
+        }).catch(() => {});
+
+      // Load context
+      fetch('/tools/context.json')
+        .then(r => r.ok ? r.json() : null)
+        .then(ctx => {
+          if (!ctx) return;
+
+          // Briefing
+          if (ctx.briefing && ctx.briefing.length) {
+            document.getElementById('briefing-items').innerHTML = ctx.briefing.map(b =>
+              '<div class="briefing-item"><span class="time">' + (b.time || '') + '</span> ' +
+              '<strong>' + b.title + '</strong></div>'
             ).join('');
           }
-          if (m.note) document.getElementById('marriage-note').textContent = m.note;
-          if (m.status) document.getElementById('marriage-status').textContent = m.status;
-        }
 
-        // Health
-        if (ctx.health) {
-          const h = ctx.health;
-          const metrics = [];
-          if (h.calories) metrics.push({ label: 'Calories', value: h.calories, cls: 'green' });
-          if (h.protein)  metrics.push({ label: 'Protein',  value: h.protein,  cls: 'green' });
-          if (h.steps)    metrics.push({ label: 'Steps',    value: h.steps,    cls: 'muted' });
-          if (h.sleep)    metrics.push({ label: 'Sleep',    value: h.sleep,    cls: 'blue'  });
-          if (h.weight)   metrics.push({ label: 'Weight',   value: h.weight,   cls: 'muted' });
-          if (metrics.length) {
-            document.getElementById('health-metrics').innerHTML = metrics.map(x =>
-              '<div class="pri-metric"><div class="pri-metric-label">' + x.label +
-              '</div><div class="pri-metric-value ' + x.cls + '">' + x.value + '</div></div>'
-            ).join('');
+          // Faith
+          if (ctx.faith) {
+            if (ctx.faith.note) {
+              document.getElementById('faith-note').textContent = ctx.faith.note;
+              document.getElementById('faith-meta').textContent = ctx.faith.source || '';
+            }
+            if (ctx.faith.status) document.getElementById('faith-status').textContent = ctx.faith.status;
           }
-          if (h.status) document.getElementById('health-status').textContent = h.status;
-        }
 
-        // Business
-        if (ctx.business) {
-          const b = ctx.business;
-          const metrics = [];
-          if (b.pipeline)       metrics.push({ label: 'Pipeline',       value: b.pipeline,       cls: 'green' });
-          if (b.ytd_commission) metrics.push({ label: 'YTD Commission', value: b.ytd_commission, cls: 'amber' });
-          if (b.team_size)      metrics.push({ label: 'Team',           value: b.team_size,      cls: 'muted' });
-          if (b.open_items)     metrics.push({ label: 'Open items',     value: b.open_items,     cls: 'amber' });
-          if (metrics.length) {
-            document.getElementById('business-metrics').innerHTML = metrics.map(x =>
-              '<div class="pri-metric"><div class="pri-metric-label">' + x.label +
-              '</div><div class="pri-metric-value ' + x.cls + '">' + x.value + '</div></div>'
-            ).join('');
+          // Marriage
+          if (ctx.marriage) {
+            const m = ctx.marriage;
+            const metrics = [];
+            if (m.last_date) metrics.push({ label: 'Last date night', value: m.last_date, cls: 'muted' });
+            if (m.next_date) metrics.push({ label: 'Next planned', value: m.next_date, cls: 'blue' });
+            if (metrics.length) {
+              document.getElementById('marriage-metrics').innerHTML = metrics.map(x =>
+                '<div class="pri-metric"><div class="pri-metric-label">' + x.label +
+                '</div><div class="pri-metric-value ' + x.cls + '">' + x.value + '</div></div>'
+              ).join('');
+            }
+            if (m.note) document.getElementById('marriage-note').textContent = m.note;
+            if (m.status) document.getElementById('marriage-status').textContent = m.status;
           }
-          if (b.status) document.getElementById('business-status').textContent = b.status;
-        }
 
-        // Fun / Relationships
-        if (ctx.fun) {
-          const f = ctx.fun;
-          if (f.children && f.children.length) {
-            document.getElementById('children-row').innerHTML = f.children.map(c =>
-              '<div class="child-chip">' + c.name +
-              (c.last_moment ? '<span class="ago">' + c.last_moment + '</span>' : '') +
-              '</div>'
-            ).join('');
+          // Health
+          if (ctx.health) {
+            const h = ctx.health;
+            const metrics = [];
+            if (h.calories) metrics.push({ label: 'Calories', value: h.calories, cls: 'green' });
+            if (h.protein)  metrics.push({ label: 'Protein',  value: h.protein,  cls: 'green' });
+            if (h.steps)    metrics.push({ label: 'Steps',    value: h.steps,    cls: 'muted' });
+            if (h.sleep)    metrics.push({ label: 'Sleep',    value: h.sleep,    cls: 'blue'  });
+            if (h.weight)   metrics.push({ label: 'Weight',   value: h.weight,   cls: 'muted' });
+            if (metrics.length) {
+              document.getElementById('health-metrics').innerHTML = metrics.map(x =>
+                '<div class="pri-metric"><div class="pri-metric-label">' + x.label +
+                '</div><div class="pri-metric-value ' + x.cls + '">' + x.value + '</div></div>'
+              ).join('');
+            }
+            if (h.status) document.getElementById('health-status').textContent = h.status;
           }
-          if (f.note) document.getElementById('fun-note').textContent = f.note;
-          if (f.status) document.getElementById('fun-status').textContent = f.status;
-        }
 
-        // Footer
-        if (ctx.updated) {
-          document.getElementById('footer-updated').textContent = 'Last refreshed ' + ctx.updated;
-        }
-      }).catch(() => {});
+          // Business
+          if (ctx.business) {
+            const b = ctx.business;
+            const metrics = [];
+            if (b.pipeline)       metrics.push({ label: 'Pipeline',       value: b.pipeline,       cls: 'green' });
+            if (b.ytd_commission) metrics.push({ label: 'YTD Commission', value: b.ytd_commission, cls: 'amber' });
+            if (b.team_size)      metrics.push({ label: 'Team',           value: b.team_size,      cls: 'muted' });
+            if (b.open_items)     metrics.push({ label: 'Open items',     value: b.open_items,     cls: 'amber' });
+            if (metrics.length) {
+              document.getElementById('business-metrics').innerHTML = metrics.map(x =>
+                '<div class="pri-metric"><div class="pri-metric-label">' + x.label +
+                '</div><div class="pri-metric-value ' + x.cls + '">' + x.value + '</div></div>'
+              ).join('');
+            }
+            if (b.status) document.getElementById('business-status').textContent = b.status;
+          }
+
+          // Fun
+          if (ctx.fun) {
+            const f = ctx.fun;
+            if (f.children && f.children.length) {
+              document.getElementById('children-row').innerHTML = f.children.map(c =>
+                '<div class="child-chip">' + c.name +
+                (c.last_moment ? '<span class="ago">' + c.last_moment + '</span>' : '') +
+                '</div>'
+              ).join('');
+            }
+            if (f.note) document.getElementById('fun-note').textContent = f.note;
+            if (f.status) document.getElementById('fun-status').textContent = f.status;
+          }
+
+          // Footer
+          if (ctx.updated) {
+            document.getElementById('footer-updated').textContent = 'Last refreshed ' + ctx.updated;
+          }
+        }).catch(() => {});
+    }
   </script>
 </body>
 </html>
