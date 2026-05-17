@@ -7,7 +7,8 @@
       "summary": "All 6 April commission approvals received — ready to process payroll",
       "priority_area": "business",
       "urgency": "urgent",
-      "time": "Yesterday–Today"
+      "time": "Yesterday–Today",
+      "suggested_action": "Forward all 6 approvals to Katelynn/Machaela for payroll processing"
     },
     {
       "source": "gmail",
@@ -15,15 +16,8 @@
       "summary": "Sent FieldPulse hierarchical views video — Portfolio/Ox/Biz/Team/Rep views",
       "priority_area": "business",
       "urgency": "normal",
-      "time": "Yesterday evening"
-    },
-    {
-      "source": "gmail",
-      "from": "Verizon",
-      "summary": "Unrecognized device login and SIM/device change on your account — verify if expected",
-      "priority_area": "business",
-      "urgency": "normal",
-      "time": "Yesterday afternoon"
+      "time": "Yesterday evening",
+      "suggested_action": "Watch the video and share with Chet, Alex, and Erich"
     },
     {
       "source": "gmail",
@@ -31,7 +25,8 @@
       "summary": "Accepted your meeting — Fri May 22 at 1:30 PM CDT via Google Meet",
       "priority_area": "business",
       "urgency": "low",
-      "time": "This afternoon"
+      "time": "This afternoon",
+      "suggested_action": "No action needed — meeting confirmed"
     },
     {
       "source": "gmail",
@@ -39,30 +34,221 @@
       "summary": "Domain vested-agentics.com registered; invoice $10.46 due",
       "priority_area": "business",
       "urgency": "low",
-      "time": "Yesterday"
-    }
-  ],
-  "upcoming": [
-    {
-      "day": "Today — Sunday",
-      "time": "",
-      "title": "PGA Championship & family time",
-      "prep": null
-    },
-    {
-      "day": "Monday",
-      "time": "TBD",
-      "title": "Weekly team schedule — check calendar in morning refresh",
-      "prep": null
-    },
-    {
-      "day": "Friday, May 22",
-      "time": "1:30 PM",
-      "title": "Meeting with Eric Bockelman (Google Meet)",
-      "prep": "suggested"
+      "time": "Yesterday",
+      "suggested_action": "Verify auto-pay is set up for Cloudflare billing"
     }
   ],
   "briefing": [],
+  "upcoming_events": [
+    {
+      "date": "Mon May 18",
+      "time": "9:00 AM",
+      "title": "Matt GAM",
+      "attendees": "Matt Rawski",
+      "type": "gam",
+      "prep_eligible": true,
+      "prep_hint": "Review Matt's reps' pipeline numbers and any open coaching items from last week"
+    },
+    {
+      "date": "Mon May 18",
+      "time": "10:15 AM",
+      "title": "Brandon Sales MGMT GAM",
+      "attendees": "Brandon Stahnke",
+      "type": "gam",
+      "prep_eligible": true,
+      "prep_hint": "Review Brandon's coaching sessions and rep performance"
+    },
+    {
+      "date": "Mon May 18",
+      "time": "11:30 AM",
+      "title": "Christian & Micah - 1v1",
+      "attendees": "Christian Kullman",
+      "type": "one_on_one",
+      "prep_eligible": true,
+      "prep_hint": "Check Plaud open loops involving Christian; review his GAM coaching progress"
+    },
+    {
+      "date": "Mon May 18",
+      "time": "12:45 PM",
+      "title": "GAM w/ Christian's Reps Shawn/Josh",
+      "attendees": "Christian Kullman, Shawn, Josh",
+      "type": "gam_coaching",
+      "prep_eligible": true,
+      "prep_hint": "Send Christian a pre-read or reminder of focus areas; review coaching themes from Plaud — spirit > letter of model, adapt to client profile"
+    },
+    {
+      "date": "Mon May 18",
+      "time": "3:00 PM",
+      "title": "GAM coaching with Christian - Carter GAM",
+      "attendees": "Christian Kullman, Carter Nielsen",
+      "type": "gam_coaching",
+      "prep_eligible": true,
+      "prep_hint": "Same coaching observation session — note if Christian applies the 'same-week decision' theme with Carter"
+    },
+    {
+      "date": "Tue May 19",
+      "time": "9:00 AM",
+      "title": "Paris Painting L10",
+      "attendees": "Brandon, Matt, Mark, + team",
+      "type": "team_meeting",
+      "prep_eligible": true,
+      "prep_hint": "Review agenda; prepare commission approval update and any team announcements"
+    },
+    {
+      "date": "Tue May 19",
+      "time": "11:00 AM",
+      "title": "Paris Home Exteriors L10",
+      "attendees": "Christian, Ben, Patrick, Mark, + team",
+      "type": "team_meeting",
+      "prep_eligible": true,
+      "prep_hint": "Ben pipeline: Megan Clark $12.8K, Marty fence $17.5K, Cousins ~$30K, Samson $32K"
+    },
+    {
+      "date": "Tue May 19",
+      "time": "12:45 PM",
+      "title": "Caleb GAM - Marketing",
+      "attendees": "Caleb, Mark",
+      "type": "gam",
+      "prep_eligible": true,
+      "prep_hint": "Review marketing mix — Patrick at 60% door-knock, target 20-30%. Push Caleb on direct mail volume"
+    },
+    {
+      "date": "Tue May 19",
+      "time": "2:00 PM",
+      "title": "Haakon GAM",
+      "attendees": "Haakon, Chet",
+      "type": "gam",
+      "prep_eligible": true,
+      "prep_hint": "Check recent activity and any open items with Haakon"
+    },
+    {
+      "date": "Tue May 19",
+      "time": "3:30 PM",
+      "title": "Seth / Micah - Happy Hour Connect",
+      "attendees": "Seth Bostrom",
+      "type": "social",
+      "prep_eligible": false,
+      "prep_hint": "No formal prep — relational connect, you're buying"
+    },
+    {
+      "date": "Tue May 19",
+      "time": "5:30 PM",
+      "title": "Doug Caris Dinner",
+      "attendees": "Haakon, Chet, Erich, Alex",
+      "type": "external",
+      "prep_eligible": true,
+      "prep_hint": "Research Doug Caris; clarify meeting purpose with Haakon"
+    },
+    {
+      "date": "Wed May 20",
+      "time": "9:00 AM",
+      "title": "Ben GAM",
+      "attendees": "Ben Rangel",
+      "type": "gam",
+      "prep_eligible": true,
+      "prep_hint": "Ben pipeline this week: Megan Clark $12.8K Sat, Marty fence $17.5K, Bill Cousins ~$30K (promo Fri), Samson $32K Thu/Fri, Ryan Fletcher ~$30K, Jackie Hayden ~$50K. Target: $85K closed"
+    },
+    {
+      "date": "Wed May 20",
+      "time": "10:00 AM",
+      "title": "Patrick GAM",
+      "attendees": "Patrick",
+      "type": "gam",
+      "prep_eligible": true,
+      "prep_hint": "Plaud: Patrick hire — health insurance only hangup, lean W2 + Aleph plan. Also 60% door-knock mix, target 20-30%"
+    },
+    {
+      "date": "Wed May 20",
+      "time": "11:00 AM",
+      "title": "Younglife Golf Event",
+      "attendees": "Erich, Chet, Alex",
+      "type": "social",
+      "prep_eligible": false,
+      "prep_hint": "No formal prep — enjoy the golf"
+    },
+    {
+      "date": "Thu May 21",
+      "time": "9:00 AM",
+      "title": "Paris Painting Sales Team Meeting",
+      "attendees": "Full team",
+      "type": "team_meeting",
+      "prep_eligible": true,
+      "prep_hint": "Mark joining to discuss: Lead, Accessibility, Scraping and priming"
+    },
+    {
+      "date": "Thu May 21",
+      "time": "12:45 PM",
+      "title": "2nd Interview With Spencer / Mark",
+      "attendees": "Spencer, Mark",
+      "type": "interview",
+      "prep_eligible": true,
+      "prep_hint": "Production Manager candidate — in-person at 3515 48th Ave N. Review candidate materials and prepare questions"
+    },
+    {
+      "date": "Fri May 22",
+      "time": "9:30 AM",
+      "title": "Aleph Exec L10",
+      "attendees": "Chet, Erich, Alex, Mark",
+      "type": "team_meeting",
+      "prep_eligible": true,
+      "prep_hint": "Prep in Exec L10 Doc — review agenda and prepare updates"
+    },
+    {
+      "date": "Fri May 22",
+      "time": "1:30 PM",
+      "title": "Eric / Micah",
+      "attendees": "Eric Bockelman",
+      "type": "one_on_one",
+      "prep_eligible": true,
+      "prep_hint": "Research Eric Bockelman; clarify meeting purpose"
+    },
+    {
+      "date": "Fri May 22",
+      "time": "3:00 PM",
+      "title": "Happy Hour - SRS / Paris Brands",
+      "attendees": "Mark, Erich, Brad Holden, Jake Raether (SRS)",
+      "type": "external",
+      "prep_eligible": true,
+      "prep_hint": "SRS Building Products partnership — know current volume and relationship status"
+    }
+  ],
+  "plaud": {
+    "last_scraped": "May 17, 2026",
+    "date_range": "May 12–14, 2026",
+    "open_loops": [
+      "Schindle job — Noah O underbid; Micah needs to fall on sword, drop interior, ~17% margin. Loop Mark.",
+      "Patrick (hire) — health insurance only hangup; lean W2 + Aleph plan to start. Bo Anderson interview today.",
+      "Megan Clark contract — Saturday 2pm in-person. Husband alignment is the only remaining variable.",
+      "Bill Cousins — promo expiring Friday; send contract NOW. Sign on vacation, deposit later.",
+      "Samson + McCoy — Samson decision Thu/Fri at $32K terrain; McCoy needs the breakup email."
+    ],
+    "todos": [
+      "Send Cousins updated bid + contract; ask Friday yes/no.",
+      "Send McCoy breakup email — yes/no required this week.",
+      "Loop Mark on Schindle scope reduction + $500 off + ~17% margin.",
+      "Mac Mini setup → Cloudflare domain → first HTML page via Claude.",
+      "Finish re-running eval feedback with updated email format before next batch.",
+      "Get Plaud pins to Seyf + Ben (Brandon already running).",
+      "Pray for Beza's family gathering (May 14 noon, Ethiopia)."
+    ],
+    "themes": [
+      "Same-week decisions — stop 'follow-up,' ask for the decision; get verbal commit.",
+      "Spirit > letter of sales model — Ben hit substance out-of-order; AI evaluator should reward that.",
+      "Adapt to client profile — Megan (engaged) and Roberta (vulnerable adult) needed different flows.",
+      "Marketing mix — Patrick at 60% door-knock; target 20–30%. Push Caleb on direct mail volume.",
+      "'Wealth gain hastily' — Beza's caution over Aleph's Q1 4-company acquisition pace."
+    ],
+    "pipeline": {
+      "Ben Rangel": [
+        { "deal": "Megan Clark", "amount": "$12,800" },
+        { "deal": "Marty fence", "amount": "$17,476" },
+        { "deal": "Bill Cousins", "amount": "~$30,000" },
+        { "deal": "Samson", "amount": "$32,000" },
+        { "deal": "Ryan Fletcher", "amount": "~$30,000" },
+        { "deal": "Jackie Hayden", "amount": "~$50,000" }
+      ]
+    }
+  },
   "faith": {
     "note": "Walk the land of your God-sized dream. Stop praying small, safe prayers — God's capacity is infinite. Identify one unreasonable prayer and commit to it daily.",
     "source": "Sermon — The Power of Team and God-Sized Dreams (May 17)",
@@ -86,89 +272,13 @@
       { "marker": "LDL Small", "value": "299 nmol/L", "ref": "<142", "flag": "HIGH", "prev": "221", "trend": "worsening", "note": "Small dense LDL increased — discuss with provider" },
       { "marker": "Magnesium RBC", "value": "3.7 mg/dL", "ref": "4.0-6.4", "flag": "LOW", "prev": "4.4", "trend": "worsening", "note": "Dropped below range — consider supplementation" }
     ],
-    "highlights": [
-      { "category": "Cardiovascular", "markers": [
-        { "name": "Total Cholesterol", "value": "170", "ref": "<200", "status": "optimal" },
-        { "name": "HDL", "value": "59", "ref": "≥40", "status": "optimal" },
-        { "name": "LDL-C", "value": "92", "ref": "<100", "status": "optimal" },
-        { "name": "Triglycerides", "value": "96", "ref": "<150", "status": "optimal" },
-        { "name": "ApoB", "value": "84", "ref": "<90", "status": "optimal" },
-        { "name": "Lp(a)", "value": "<10", "ref": "<75", "status": "optimal" },
-        { "name": "hs-CRP", "value": "0.7", "ref": "<1.0", "status": "optimal" }
-      ]},
-      { "category": "Hormones", "markers": [
-        { "name": "Testosterone Total", "value": "564 ng/dL", "prev": "481", "status": "optimal", "trend": "improving" },
-        { "name": "Testosterone Free", "value": "89.9 pg/mL", "prev": "73.0", "status": "optimal", "trend": "improving" },
-        { "name": "DHEA-S", "value": "291 mcg/dL", "prev": "180", "status": "optimal", "trend": "improving" },
-        { "name": "Cortisol", "value": "9.4 mcg/dL", "status": "normal" },
-        { "name": "TSH", "value": "1.60", "ref": "0.40-4.50", "status": "optimal" },
-        { "name": "Free T4", "value": "1.7", "ref": "0.8-1.8", "status": "optimal" },
-        { "name": "Free T3", "value": "3.7", "ref": "2.3-4.2", "status": "optimal" }
-      ]},
-      { "category": "Metabolic", "markers": [
-        { "name": "Glucose (fasting)", "value": "85", "ref": "65-99", "status": "optimal" },
-        { "name": "HbA1c", "value": "5.1%", "ref": "<5.7%", "status": "optimal" },
-        { "name": "Insulin", "value": "≤18.4", "status": "optimal" },
-        { "name": "Uric Acid", "value": "5.6", "ref": "4.0-8.0", "status": "optimal" }
-      ]},
-      { "category": "Nutrients", "markers": [
-        { "name": "Vitamin D", "value": "52 ng/mL", "prev": "30", "status": "optimal", "trend": "improving" },
-        { "name": "Ferritin", "value": "59", "ref": "38-380", "status": "normal" },
-        { "name": "Zinc", "value": "83", "ref": "60-130", "status": "normal" },
-        { "name": "Homocysteine", "value": "8.9", "ref": "≤13.5", "status": "optimal" },
-        { "name": "B12 (MMA)", "value": "115 nmol/L", "ref": "55-335", "status": "optimal" }
-      ]},
-      { "category": "Organ Function", "markers": [
-        { "name": "AST", "value": "19", "ref": "10-40", "status": "optimal" },
-        { "name": "ALT", "value": "28", "ref": "9-46", "status": "optimal" },
-        { "name": "eGFR", "value": "98", "ref": "≥60", "status": "optimal" },
-        { "name": "PSA", "value": "0.3", "ref": "≤4.0", "status": "optimal" }
-      ]}
-    ],
     "summary": "Your bloodwork is strong overall — 90%+ of markers in optimal range. Big wins: testosterone jumped 17% and Vitamin D nearly doubled. Five things need attention, and three of them are already trending the right direction.",
     "wins": [
-      { "title": "Testosterone surging", "detail": "Up 17% from 481 to 564 ng/dL. Free T up 23% too. Whatever you're doing — keep doing it." },
-      { "title": "Vitamin D dialed in", "detail": "Jumped from 30 to 52. You were borderline insufficient, now you're solidly optimal." },
-      { "title": "DHEA-S up 62%", "detail": "180 to 291. This is your body's hormone building block — strong recovery." },
-      { "title": "Heart inflammation low", "detail": "hs-CRP at 0.7 — puts you in the lowest cardiovascular risk category." },
-      { "title": "Blood sugar excellent", "detail": "Fasting glucose 85, A1c 5.1% — no insulin resistance anywhere in sight." }
-    ],
-    "recommendations": [
-      {
-        "priority": 1,
-        "title": "Start magnesium supplementation",
-        "why": "Your RBC magnesium dropped from 4.4 to 3.7 — now below the healthy range. Magnesium affects sleep, muscle recovery, stress response, and heart rhythm.",
-        "action": "Take 400mg magnesium glycinate or threonate before bed. Glycinate is better for sleep, threonate crosses the blood-brain barrier. Retest in 3 months.",
-        "category": "supplement"
-      },
-      {
-        "priority": 2,
-        "title": "Increase omega-3 dose",
-        "why": "You went from 3.8% to 4.7% — great progress, but still below the 5.5% optimal target. Low omega-3 is tied to higher cardiac risk and inflammation.",
-        "action": "Bump fish oil to 3g combined EPA+DHA daily (most capsules are 1g, so 3 caps/day). Or eat fatty fish 3-4x per week. This should push you over 5.5% by next draw.",
-        "category": "supplement"
-      },
-      {
-        "priority": 3,
-        "title": "Address small dense LDL",
-        "why": "Your overall LDL particle count improved, but the small dense particles (the dangerous kind) went from 221 to 299. These are more likely to lodge in artery walls.",
-        "action": "Cut refined carbs and added sugar — these are the #1 driver of small dense LDL (not dietary fat). Consider adding citrus bergamot or berberine. Increase soluble fiber (oats, beans, psyllium). Discuss with your provider at next visit.",
-        "category": "diet"
-      },
-      {
-        "priority": 4,
-        "title": "Keep estradiol trending down",
-        "why": "At 46 (ref ≤39), it's mildly elevated for a male. It dropped from 53, so the trend is right. High estradiol in men can mean excess aromatase activity — your body converting testosterone to estrogen.",
-        "action": "Eat more cruciferous vegetables (broccoli, cauliflower, Brussels sprouts) — they contain DIM which helps metabolize estrogen. Limit alcohol. Maintain healthy body fat %. No action needed if it keeps dropping.",
-        "category": "diet"
-      },
-      {
-        "priority": 5,
-        "title": "Maintain your current protocol",
-        "why": "Testosterone, Vitamin D, and DHEA-S all made huge jumps. Your cardiovascular markers, metabolic panel, liver, kidneys, thyroid, and PSA are all textbook optimal.",
-        "action": "Don't change what's working. Keep your current Vitamin D and any testosterone-support supplements. Next Function Health draw around October — we'll track whether these trends hold.",
-        "category": "maintain"
-      }
+      { "title": "Testosterone surging", "detail": "Up 17% from 481 to 564 ng/dL. Free T up 23% too." },
+      { "title": "Vitamin D dialed in", "detail": "Jumped from 30 to 52." },
+      { "title": "DHEA-S up 62%", "detail": "180 to 291." },
+      { "title": "Heart inflammation low", "detail": "hs-CRP at 0.7." },
+      { "title": "Blood sugar excellent", "detail": "Fasting glucose 85, A1c 5.1%." }
     ]
   },
   "business": {
