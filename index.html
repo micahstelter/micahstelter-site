@@ -900,6 +900,70 @@
       font-weight: 400; color: #a0a09a; margin-left: 0.3rem; font-size: 0.6rem;
     }
 
+    /* ── Work view: metrics bar ── */
+    .work-metrics-bar {
+      max-width: 720px; margin: 0 auto;
+      padding: 0 2rem 0.75rem;
+    }
+    .work-metrics-inner {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 0.75rem 1.2rem;
+      background: #fff; border: 1px solid rgba(0,0,0,0.06);
+      border-radius: 10px; flex-wrap: wrap;
+    }
+    .work-metrics-row {
+      display: flex; gap: 1.25rem; flex-wrap: wrap; flex: 1;
+    }
+    .work-metrics-row .pri-metric { background: none; padding: 0; }
+    .work-metrics-status {
+      font-size: 0.62rem; color: #a0a09a; font-style: italic; white-space: nowrap;
+    }
+
+    /* ── Work view: collapsible sections ── */
+    .work-collapse-section {
+      max-width: 720px; margin: 0 auto;
+      padding: 0 2rem 0.5rem;
+    }
+    .work-collapse-toggle {
+      display: flex; align-items: center; gap: 0.5rem;
+      width: 100%; padding: 0.7rem 1rem;
+      background: #fff; border: 1px solid rgba(0,0,0,0.06);
+      border-radius: 10px; cursor: pointer;
+      font-family: inherit; text-align: left;
+      transition: all 0.2s;
+    }
+    .work-collapse-toggle:hover {
+      border-color: rgba(0,0,0,0.12);
+      box-shadow: 0 1px 6px rgba(0,0,0,0.03);
+    }
+    .wct-icon {
+      font-size: 0.7rem; color: #a0a09a;
+      transition: transform 0.25s ease;
+      flex-shrink: 0; width: 12px; text-align: center;
+    }
+    .wct-icon.open { transform: rotate(90deg); }
+    .wct-label {
+      font-size: 0.58rem; letter-spacing: 0.16em;
+      text-transform: uppercase; font-weight: 600;
+    }
+    .wct-label.events-color { color: #e67e22; }
+    .wct-label.loops-color { color: #9b59b6; }
+    .wct-count {
+      font-size: 0.6rem; color: #a0a09a; font-weight: 400;
+    }
+    .wct-spacer { flex: 1; }
+    .work-collapse-body {
+      padding: 0.5rem 0 0;
+    }
+    .work-collapse-section .events-list,
+    .work-collapse-section .loops-list {
+      display: flex; flex-direction: column; gap: 0.4rem;
+    }
+    /* day filter inside collapse toggle */
+    .work-collapse-toggle .day-filter {
+      display: flex; gap: 0.25rem; flex-wrap: wrap;
+    }
+
     /* ── Footer ── */
     .footer {
       max-width: 720px;
@@ -936,13 +1000,16 @@
     .d7 { animation-delay: 0.7s; }
 
     @media (max-width: 600px) {
-      .header, .briefing, .attention, .events-section, .loops-section, .priorities, .footer { padding-left: 1.25rem; padding-right: 1.25rem; }
+      .header, .briefing, .attention, .events-section, .loops-section, .priorities, .footer,
+      .work-collapse-section, .work-metrics-bar, .work-tools-wrap { padding-left: 1.25rem; padding-right: 1.25rem; }
       .pri-body { flex-direction: column; }
       .attn-item { flex-wrap: wrap; }
       .attn-right { flex-direction: row; align-items: center; width: 100%; justify-content: space-between; margin-top: 0.3rem; }
       .day-filter { gap: 0.15rem; }
       .event-item { flex-wrap: wrap; }
       .event-right { flex-direction: row; width: 100%; margin-top: 0.3rem; gap: 0.4rem; }
+      .work-metrics-row { gap: 0.75rem; }
+      .work-collapse-toggle .day-filter { display: none; }
     }
   </style>
 </head>
@@ -1124,51 +1191,46 @@
         </div>
       </header>
 
-    <!-- ── Upcoming Events ── -->
-    <div class="events-section fade-in d3" id="events-section" style="display:none;">
-      <div class="events-card">
-        <div class="events-header">
-          <span class="events-label">This Week</span>
-          <div class="day-filter" id="day-filter"></div>
-        </div>
+    <!-- ── Dashboards & Quick Links (top priority) ── -->
+    <div class="work-tools-wrap fade-in d2" id="work-tools-section">
+    </div>
+
+    <!-- ── Business Metrics (compact bar) ── -->
+    <div class="work-metrics-bar fade-in d3" id="work-metrics-bar" style="display:none;">
+      <div class="work-metrics-inner">
+        <div class="work-metrics-row" id="business-metrics"></div>
+        <span class="work-metrics-status" id="business-status"></span>
+      </div>
+    </div>
+    <div id="business-tools" style="display:none;"></div>
+
+    <!-- ── Collapsible: Upcoming Events ── -->
+    <div class="work-collapse-section fade-in d4" id="events-section" style="display:none;">
+      <button class="work-collapse-toggle" onclick="toggleWorkSection('events')">
+        <span class="wct-icon" id="events-chevron">&#9656;</span>
+        <span class="wct-label events-color">This Week</span>
+        <span class="wct-count" id="events-count"></span>
+        <span class="wct-spacer"></span>
+        <div class="day-filter" id="day-filter"></div>
+      </button>
+      <div class="work-collapse-body" id="events-body" style="display:none;">
         <div class="events-list" id="events-list"></div>
       </div>
     </div>
 
-    <!-- ── Open Loops ── -->
-    <div class="loops-section fade-in d3" id="loops-section" style="display:none;">
-      <div class="loops-card">
-        <div class="loops-header">
-          <span class="loops-label">Open Loops</span>
-          <span class="loops-count" id="loops-count"></span>
-        </div>
+    <!-- ── Collapsible: Open Loops ── -->
+    <div class="work-collapse-section fade-in d4" id="loops-section" style="display:none;">
+      <button class="work-collapse-toggle" onclick="toggleWorkSection('loops')">
+        <span class="wct-icon" id="loops-chevron">&#9656;</span>
+        <span class="wct-label loops-color">Open Loops</span>
+        <span class="wct-count" id="loops-count"></span>
+      </button>
+      <div class="work-collapse-body" id="loops-body" style="display:none;">
         <div class="loops-list" id="loops-list"></div>
       </div>
     </div>
 
-    <main class="priorities">
-
-      <!-- 4. Business -->
-      <div class="priority fade-in d7" id="pri-business">
-        <div class="pri-header">
-          <div class="pri-rank r4">4</div>
-          <span class="pri-title">Business</span>
-          <span class="pri-status" id="business-status"></span>
-        </div>
-        <div class="pri-body">
-          <div class="pri-insight">
-            <div class="pri-metrics" id="business-metrics"></div>
-          </div>
-          <div class="pri-tools" id="business-tools"></div>
-        </div>
-      </div>
-
-    </main>
-
-    <div class="work-tools-wrap" id="work-tools-section">
-    </div>
-
-    <footer class="footer fade-in d7">
+    <footer class="footer fade-in d5">
       <a class="footer-link" href="mailto:contact@micahstelter.ai">contact@micahstelter.ai</a>
       <span class="footer-meta" id="footer-updated-work"></span>
     </footer>
@@ -1361,6 +1423,16 @@
       return parts[0].toLowerCase();
     }
 
+    // ── Work section collapse ──
+    function toggleWorkSection(section) {
+      var body = document.getElementById(section + '-body');
+      var chevron = document.getElementById(section + '-chevron');
+      if (!body) return;
+      var isOpen = body.style.display !== 'none';
+      body.style.display = isOpen ? 'none' : 'block';
+      if (chevron) chevron.classList.toggle('open', !isOpen);
+    }
+
     var activeDay = 'all';
     function filterEvents(day) {
       activeDay = day;
@@ -1517,6 +1589,8 @@
           if (ctx.upcoming_events && ctx.upcoming_events.length) {
             var evSection = document.getElementById('events-section');
             evSection.style.display = 'block';
+            var evCountEl = document.getElementById('events-count');
+            if (evCountEl) evCountEl.textContent = ctx.upcoming_events.length + ' event' + (ctx.upcoming_events.length === 1 ? '' : 's');
 
             var dayOrder = ['all', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
             var dayLabels = { all: 'All', mon: 'Mon', tue: 'Tue', wed: 'Wed', thu: 'Thu', fri: 'Fri', sat: 'Sat', sun: 'Sun' };
@@ -1530,7 +1604,7 @@
               pill.className = 'day-pill' + (d === 'all' ? ' active' : '');
               pill.textContent = dayLabels[d] || d;
               pill.dataset.day = d;
-              pill.addEventListener('click', function() { filterEvents(d); });
+              pill.addEventListener('click', function(e) { e.stopPropagation(); filterEvents(d); });
               filterEl.appendChild(pill);
             });
 
@@ -1789,6 +1863,7 @@
             if (biz.team_size)      bMetrics.push({ label: 'Team',           value: biz.team_size,      cls: 'muted' });
             if (biz.open_items)     bMetrics.push({ label: 'Open items',     value: biz.open_items,     cls: 'amber' });
             if (bMetrics.length) {
+              document.getElementById('work-metrics-bar').style.display = 'block';
               document.getElementById('business-metrics').innerHTML = bMetrics.map(function(x) {
                 return '<div class="pri-metric"><div class="pri-metric-label">' + x.label +
                 '</div><div class="pri-metric-value ' + x.cls + '">' + x.value + '</div></div>';
