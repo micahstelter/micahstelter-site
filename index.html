@@ -159,23 +159,41 @@
     }
     .back-btn:hover { color: #2a4a3e; border-color: #2a4a3e; }
 
-    .work-tools-grid {
-      display: flex; flex-wrap: wrap; gap: 0.5rem; padding-bottom: 1rem;
+    .work-tools-wrap {
+      max-width: 720px; margin: 0 auto; padding: 0.75rem 2rem 1rem;
     }
-    .work-tool-card {
-      flex: 1 1 calc(50% - 0.5rem); min-width: 200px;
-      padding: 1.1rem 1.25rem;
+    .work-tools-label {
+      font-size: 0.62rem; letter-spacing: 0.16em; text-transform: uppercase;
+      color: #a0a09a; margin-bottom: 0.75rem;
+    }
+    .work-dashboards {
+      display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 1rem;
+    }
+    .work-dash-link {
+      display: flex; align-items: center; gap: 0.65rem;
+      padding: 0.7rem 1rem;
       background: #fff; border: 1px solid rgba(0,0,0,0.06);
-      border-radius: 10px; text-decoration: none; color: inherit;
+      border-radius: 8px; text-decoration: none; color: inherit;
       transition: all 0.2s;
     }
-    .work-tool-card:hover {
-      border-color: #2a4a3e; transform: translateY(-2px);
-      box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+    .work-dash-link:hover {
+      border-color: #2a4a3e; transform: translateX(3px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     }
-    .work-tool-icon { font-size: 1.2rem; margin-bottom: 0.4rem; display: block; }
-    .work-tool-name { font-size: 0.85rem; font-weight: 600; margin-bottom: 0.2rem; }
-    .work-tool-desc { font-size: 0.68rem; color: #6b6b67; }
+    .work-dash-icon { font-size: 1rem; flex-shrink: 0; width: 24px; text-align: center; }
+    .work-dash-name { font-size: 0.82rem; font-weight: 600; }
+    .work-dash-desc { font-size: 0.65rem; color: #6b6b67; margin-left: auto; }
+    .work-dash-arrow { font-size: 0.7rem; color: #c0c0ba; margin-left: 0.5rem; }
+    .work-ext-links {
+      display: flex; flex-wrap: wrap; gap: 0.5rem 1.2rem;
+    }
+    .work-ext-link {
+      font-size: 0.72rem; color: #6b6b67; text-decoration: none;
+      display: flex; align-items: center; gap: 0.3rem;
+      transition: color 0.2s;
+    }
+    .work-ext-link:hover { color: #2a4a3e; }
+    .work-ext-link .ext-icon { font-size: 0.8rem; }
 
     @media (max-width: 600px) {
       .path-cards { flex-direction: column; }
@@ -1147,7 +1165,7 @@
 
     </main>
 
-    <div class="work-tools-grid" id="work-tools-section" style="max-width:720px;margin:0 auto;padding:0.75rem 2rem;">
+    <div class="work-tools-wrap" id="work-tools-section">
     </div>
 
     <footer class="footer fade-in d7">
@@ -1397,19 +1415,35 @@
             }).join('');
           });
 
-          // Render work tools as cards
+          // Render work tools — dashboards as links, external as compact row
           var workToolsEl = document.getElementById('work-tools-section');
           if (workToolsEl && map.business && map.business.length) {
-            workToolsEl.innerHTML = '<div class="section-label" style="font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;color:#a0a09a;margin-bottom:0.75rem;width:100%;">Tools</div>' +
-              map.business.map(function(t) {
-                var href = t.slug ? '/tools/' + t.slug + '/' : (t.url || '#');
-                var target = t.url ? ' target="_blank"' : '';
-                return '<a class="work-tool-card" href="' + href + '"' + target + '>' +
-                  '<span class="work-tool-icon">' + (t.icon || '&#9670;') + '</span>' +
-                  '<div class="work-tool-name">' + escHtml(t.name) + '</div>' +
-                  '<div class="work-tool-desc">' + escHtml(t.description || '') + '</div>' +
-                '</a>';
-              }).join('');
+            var dashboards = map.business.filter(function(t) { return t.slug; });
+            var externals = map.business.filter(function(t) { return !t.slug && t.url; });
+            var html = '';
+            if (dashboards.length) {
+              html += '<div class="work-tools-label">Dashboards</div>' +
+                '<div class="work-dashboards">' +
+                dashboards.map(function(t) {
+                  return '<a class="work-dash-link" href="/tools/' + t.slug + '/">' +
+                    '<span class="work-dash-icon">' + (t.icon || '&#9670;') + '</span>' +
+                    '<span class="work-dash-name">' + escHtml(t.name) + '</span>' +
+                    '<span class="work-dash-desc">' + escHtml(t.description || '') + '</span>' +
+                    '<span class="work-dash-arrow">&rsaquo;</span>' +
+                  '</a>';
+                }).join('') + '</div>';
+            }
+            if (externals.length) {
+              html += '<div class="work-tools-label">Quick Links</div>' +
+                '<div class="work-ext-links">' +
+                externals.map(function(t) {
+                  return '<a class="work-ext-link" href="' + t.url + '" target="_blank" rel="noopener">' +
+                    '<span class="ext-icon">' + (t.icon || '&#9670;') + '</span>' +
+                    escHtml(t.name) +
+                  '</a>';
+                }).join('') + '</div>';
+            }
+            workToolsEl.innerHTML = html;
           }
         }).catch(function() {});
 

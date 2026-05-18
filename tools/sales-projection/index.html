@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sales Projection — Paris Painting</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;1,300&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+:root { color-scheme: light; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; background: #f8f9fa; color: #212223; line-height: 1.5; }
+body.locked { background: #faf9f7; }
+
+/* ── Gate ── */
+#gate {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  padding: 2rem; font-family: 'Cormorant Garamond', Georgia, serif;
+}
+#gate .gate-card { max-width: 360px; width: 100%; text-align: center; animation: fadeUp 0.8s ease forwards; }
+#gate h2 { font-size: 2rem; font-weight: 300; margin-bottom: 0.3rem; color: #1a1a18; }
+#gate h2 em { font-style: italic; color: #2a4a3e; }
+#gate .gate-sub { font-size: 0.95rem; color: #6b6b67; margin-bottom: 2rem; font-family: 'Cormorant Garamond', Georgia, serif; }
+#gate input[type="password"] {
+  width: 100%; padding: 10px 14px; font-size: 15px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  border: 1px solid rgba(0,0,0,0.12); border-radius: 8px; background: #fff;
+  outline: none; text-align: center; letter-spacing: 0.1em; transition: border-color 0.2s;
+}
+#gate input:focus { border-color: #2a4a3e; }
+#gate input.error { border-color: #c84a4a; animation: shake 0.4s ease; }
+#gate .gate-btn {
+  display: inline-block; margin-top: 1rem; padding: 8px 28px;
+  font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  color: #1a1a18; background: none; border: 1px solid rgba(0,0,0,0.12);
+  border-radius: 6px; cursor: pointer; transition: all 0.2s;
+}
+#gate .gate-btn:hover { border-color: #2a4a3e; color: #2a4a3e; }
+#gate .gate-home { display: block; margin-top: 1.5rem; font-size: 0.75rem; color: #a0a09a; text-decoration: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; }
+#gate .gate-home:hover { color: #2a4a3e; }
+#app { display: none; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+@keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} }
+
+/* ── Header ── */
+.header { background: #212223; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+.header h1 { font-size: 18px; font-weight: 300; color: #fff; letter-spacing: 0.5px; }
+.header h1 span { color: #E89528; }
+.header .subtitle { font-size: 12px; color: #A47338; }
+.header .back-link { font-size: 12px; color: #888; text-decoration: none; }
+.header .back-link:hover { color: #E89528; }
+
+/* ── Layout ── */
+.container { padding: 20px 24px; max-width: 1100px; margin: 0 auto; }
+.section-title { font-size: 13px; font-weight: 500; color: #A47338; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 2px solid #E89528; }
+
+/* ── Cards ── */
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 24px; }
+.card { background: #fff; border-radius: 10px; padding: 16px; border: 1px solid #e5e7eb; }
+.card .label { font-size: 11px; color: #A47338; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 4px; }
+.card .value { font-size: 22px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.card .value.green { color: #15803d; }
+.card .value.orange { color: #E89528; }
+.card .value.blue { color: #1d4ed8; }
+.card .value.red { color: #dc2626; }
+.card .sub { font-size: 12px; color: #888; margin-top: 2px; }
+.pace-badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+.pace-badge.ahead { background: #dcfce7; color: #166534; }
+.pace-badge.behind { background: #fee2e2; color: #991b1b; }
+.pace-badge.on-track { background: #FFF8F0; color: #92400e; }
+
+/* ── Chart ── */
+.chart-wrap { background: #fff; border-radius: 10px; border: 1px solid #e5e7eb; padding: 20px; margin-bottom: 24px; position: relative; }
+.chart-wrap canvas { max-height: 420px; }
+
+/* ── Controls ── */
+.controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin-bottom: 24px; }
+.control-group { display: flex; flex-direction: column; gap: 4px; }
+.control-group label { font-size: 11px; color: #A47338; text-transform: uppercase; letter-spacing: 0.5px; }
+.control-group input, .control-group select {
+  padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; background: #fff; font-family: inherit; font-variant-numeric: tabular-nums;
+}
+.control-group input:focus, .control-group select:focus { outline: none; border-color: #2a4a3e; }
+.btn { padding: 8px 20px; font-size: 13px; font-weight: 500; border: none; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+.btn-primary { background: #2a4a3e; color: #fff; }
+.btn-primary:hover { background: #1d3a30; }
+.btn-outline { background: none; border: 1px solid #ddd; color: #212223; }
+.btn-outline:hover { border-color: #2a4a3e; color: #2a4a3e; }
+
+/* ── Slider ── */
+.slider-wrap { display: flex; align-items: center; gap: 8px; }
+.slider-wrap input[type="range"] { width: 160px; accent-color: #2a4a3e; }
+.slider-label { font-size: 11px; color: #666; white-space: nowrap; }
+
+/* ── Table ── */
+.data-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden; border: 1px solid #e5e7eb; margin-bottom: 24px; font-size: 12px; }
+.data-table th { text-align: left; padding: 7px 10px; font-size: 10px; font-weight: 500; color: #A47338; text-transform: uppercase; letter-spacing: 0.4px; background: #fafafa; border-bottom: 1px solid #e5e7eb; }
+.data-table th.r { text-align: right; }
+.data-table td { padding: 6px 10px; border-bottom: 1px solid #f3f4f6; font-variant-numeric: tabular-nums; }
+.data-table td.r { text-align: right; }
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr.cur { background: #fffbeb; }
+.data-table tr.total { font-weight: 600; background: #fafafa; border-top: 2px solid #e5e7eb; }
+
+@media (max-width: 640px) {
+  .cards { grid-template-columns: repeat(2, 1fr); }
+  .controls { flex-direction: column; }
+  .slider-wrap input[type="range"] { width: 120px; }
+}
+</style>
+</head>
+<body class="locked">
+
+<!-- Gate -->
+<div id="gate">
+  <div class="gate-card">
+    <h2>Sales <em>Projection</em></h2>
+    <p class="gate-sub">Paris Painting — Revenue Trends</p>
+    <form onsubmit="return tryAuth()">
+      <input type="password" id="pw" placeholder="passphrase" autocomplete="off" />
+      <br><button type="submit" class="gate-btn">Enter</button>
+    </form>
+    <a href="/" class="gate-home">&larr; home</a>
+  </div>
+</div>
+
+<!-- App -->
+<div id="app">
+  <div class="header">
+    <div>
+      <h1>Paris Painting — Sales <span>Projection</span></h1>
+      <div class="subtitle">Historical Trends &amp; Forward Projections by Sales Week</div>
+    </div>
+    <a href="/" class="back-link">&larr; Dashboard</a>
+  </div>
+
+  <div class="container">
+    <div class="cards" id="cards"></div>
+
+    <!-- Actual input + trend controls -->
+    <div class="controls">
+      <div class="control-group">
+        <label>2026 Actual YTD ($)</label>
+        <input type="text" id="inp-ytd" placeholder="e.g. 5,200,000" style="width:150px;" />
+      </div>
+      <div class="control-group">
+        <label>Sales Week #</label>
+        <input type="number" id="inp-wk" min="1" max="52" placeholder="Wk" style="width:72px;" />
+      </div>
+      <button class="btn btn-primary" onclick="saveActual()">Update</button>
+      <button class="btn btn-outline" onclick="clearActual()">Clear</button>
+
+      <div style="flex-grow:1;"></div>
+
+      <div class="control-group">
+        <label>Trend Weight</label>
+        <div class="slider-wrap">
+          <span class="slider-label">3-Yr Avg</span>
+          <input type="range" id="trend-weight" min="0" max="100" value="50" oninput="onWeightChange()" />
+          <span class="slider-label">2025</span>
+        </div>
+        <div style="text-align:center; font-size:11px; color:#666; margin-top:2px;" id="weight-label">Blended (50/50)</div>
+      </div>
+
+      <div class="control-group">
+        <label>Growth Rate</label>
+        <select id="sel-growth" onchange="rebuild()">
+          <option value="low">Conservative (12%)</option>
+          <option value="mid" selected>Trend (CAGR ~29%)</option>
+          <option value="high">Aggressive (35%)</option>
+          <option value="match25">Match 2025 (24%)</option>
+          <option value="custom">Custom...</option>
+        </select>
+      </div>
+      <div class="control-group" id="custom-rate-wrap" style="display:none;">
+        <label>Custom %</label>
+        <input type="number" id="custom-rate" min="0" max="100" value="20" style="width:72px;" onchange="rebuild()" />
+      </div>
+    </div>
+
+    <!-- Main Chart -->
+    <div class="chart-wrap">
+      <p class="section-title">Cumulative Sold Revenue by Sales Week</p>
+      <canvas id="chartMain" height="400"></canvas>
+    </div>
+
+    <!-- % Complete Chart -->
+    <div class="chart-wrap">
+      <p class="section-title">% of Annual Revenue Sold by Sales Week</p>
+      <canvas id="chartPct" height="280"></canvas>
+    </div>
+
+    <!-- YoY Growth Chart -->
+    <div class="chart-wrap">
+      <p class="section-title">Year-Over-Year Growth by Sales Week</p>
+      <canvas id="chartYoY" height="280"></canvas>
+    </div>
+
+    <!-- Table -->
+    <p class="section-title">Weekly Projection Detail — 2026</p>
+    <div style="overflow-x:auto; margin-bottom:24px;">
+      <table class="data-table" id="tbl"></table>
+    </div>
+
+    <p style="font-size:11px; color:#aaa; text-align:center; margin-bottom:20px;">
+      Source: Wallogy Sales Plan vs Actual reports (2023–2025). Projections use weighted seasonality curves.<br>
+      Last updated: <span id="ts">—</span>
+    </p>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════
+   HISTORICAL DATA — weekly cumulative sold revenue
+   ═══════════════════════════════════════════════════ */
+const H = {
+  2023:[94477,140450,187883,216841,292246,370002,441863,699613,764593,944671,1013649,1101295,1240079,1387897,1609867,1809322,2012035,2367637,2627155,2843083,3067837,3283623,3579034,3870140,4109894,4319099,4529989,4896160,5166185,5458544,5751464,6060297,6321227,6777854,7059512,7293862,7507320,7747820,8082195,8313974,8453522,8618562,8842831,8962002,9060288,9180869,9234385,9269519,9320762,9352389,9431759,9462027],
+  2024:[93721,187509,228150,289410,372422,439593,554105,664893,802369,1037752,1453314,1636992,1846556,2075260,2322631,2624410,3079842,3474998,3989509,4403635,4836759,5169564,5471454,5779499,6068325,6588966,6919223,7163318,7508461,7717625,8042678,8398911,8799825,9166978,9560258,9903429,10314493,10652616,11045857,11314902,11624608,11748320,11970732,12093402,12153030,12287675,12446377,12548223,12613401,12671373,12708592,12767036],
+  2025:[107510,151839,236945,300691,406326,519377,604035,709337,839478,898416,1127423,1401805,1765562,2131288,2538923,2976586,3408693,3996176,4401713,4848940,5249028,5594822,6014332,6689781,7324348,7819001,8218255,8572822,9065944,9363861,9827087,10233210,10687286,11213233,11634408,12009886,12464422,12836486,13140154,13479968,13802996,14177371,14506137,14675852,14828723,15023218,15220589,15334977,15496455,15597746,15777821,15801760]
+};
+
+const END = { 2023: H[2023][51], 2024: H[2024][51], 2025: H[2025][51] };
+const GR = {
+  '23_24': END[2024]/END[2023] - 1,
+  '24_25': END[2025]/END[2024] - 1,
+  cagr: Math.pow(END[2025]/END[2023], 0.5) - 1
+};
+
+/* Per-year seasonality (% of year-end by week) */
+const S = {};
+[2023,2024,2025].forEach(y => { S[y] = H[y].map(v => v / END[y]); });
+
+/* Growth rate map */
+const RATES = { low: 0.12, mid: GR.cagr, high: 0.35, match25: GR['24_25'] };
+
+/* State */
+let actual26 = JSON.parse(localStorage.getItem('pp26') || '{}');
+let proj26 = []; // current projection
+let blendedS = []; // current blended seasonality
+
+const WK = Array.from({length:52}, (_,i) => i+1);
+const MO = ['Jan','Jan','Jan','Jan','Feb','Feb','Feb','Feb','Mar','Mar','Mar','Mar','Mar',
+  'Apr','Apr','Apr','Apr','May','May','May','May','May','Jun','Jun','Jun','Jun',
+  'Jul','Jul','Jul','Jul','Aug','Aug','Aug','Aug','Aug','Sep','Sep','Sep','Sep',
+  'Oct','Oct','Oct','Oct','Oct','Nov','Nov','Nov','Nov','Dec','Dec','Dec','Dec'];
+
+/* ═══ Auth ═══ */
+function tryAuth() {
+  const v = document.getElementById('pw').value;
+  if (sessionStorage.getItem('pp_auth')==='1' || v==='aleph' || v==='paris') { unlock(); }
+  else { document.getElementById('pw').classList.add('error'); setTimeout(()=>document.getElementById('pw').classList.remove('error'),500); }
+  return false;
+}
+function unlock() {
+  sessionStorage.setItem('pp_auth','1');
+  document.body.classList.remove('locked');
+  document.getElementById('gate').style.display='none';
+  document.getElementById('app').style.display='block';
+  boot();
+}
+if (sessionStorage.getItem('pp_auth')==='1') unlock();
+
+/* ═══ Helpers ═══ */
+const f$ = n => n==null ? '—' : '$'+Math.round(n).toLocaleString();
+const fM = n => n==null ? '—' : '$'+(n/1e6).toFixed(1)+'M';
+const fP = n => n==null ? '—' : (n>=0?'+':'')+(n*100).toFixed(1)+'%';
+
+/* ═══ Build projection from current controls ═══ */
+function getRate() {
+  const sel = document.getElementById('sel-growth').value;
+  document.getElementById('custom-rate-wrap').style.display = sel==='custom' ? '' : 'none';
+  if (sel==='custom') return parseFloat(document.getElementById('custom-rate').value)/100 || 0.2;
+  return RATES[sel];
+}
+
+function buildProjection() {
+  const w = parseInt(document.getElementById('trend-weight').value); // 0=3yr avg, 100=2025 only
+  const rate = getRate();
+  const total26 = END[2025] * (1 + rate);
+
+  // Blend seasonality: weighted between 3-year average and 2025-only
+  const avg3 = S[2023].map((v,i) => (S[2023][i] + S[2024][i] + S[2025][i]) / 3);
+  blendedS = avg3.map((v,i) => {
+    const w25 = w / 100;
+    return v * (1 - w25) + S[2025][i] * w25;
+  });
+
+  proj26 = blendedS.map(p => Math.round(p * total26));
+  return { total26, rate };
+}
+
+/* ═══ Actual input ═══ */
+function saveActual() {
+  const raw = document.getElementById('inp-ytd').value.replace(/[$,\s]/g,'');
+  const ytd = parseFloat(raw);
+  const wk = parseInt(document.getElementById('inp-wk').value);
+  if (isNaN(ytd)||isNaN(wk)||wk<1||wk>52) { alert('Enter a valid dollar amount and week (1–52).'); return; }
+  actual26 = { wk, ytd, ts: new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) };
+  localStorage.setItem('pp26', JSON.stringify(actual26));
+  rebuild();
+}
+function clearActual() {
+  actual26 = {};
+  localStorage.removeItem('pp26');
+  document.getElementById('inp-ytd').value='';
+  document.getElementById('inp-wk').value='';
+  rebuild();
+}
+
+function onWeightChange() {
+  const w = document.getElementById('trend-weight').value;
+  const lbl = w<=10 ? '3-Year Average' : w>=90 ? '2025 Shape' : `Blended (${100-w}/${w})`;
+  document.getElementById('weight-label').textContent = lbl;
+  rebuild();
+}
+
+/* ═══ Master rebuild ═══ */
+let cMain, cPct, cYoY;
+function rebuild() {
+  const { total26, rate } = buildProjection();
+  renderCards(total26, rate);
+  renderMain(total26);
+  renderPct();
+  renderYoY();
+  renderTable(total26);
+  document.getElementById('ts').textContent = actual26.ts || 'No actuals entered';
+}
+
+function boot() {
+  if (actual26.wk) {
+    document.getElementById('inp-ytd').value = f$(actual26.ytd);
+    document.getElementById('inp-wk').value = actual26.wk;
+  }
+  rebuild();
+}
+
+/* ═══ Cards ═══ */
+function renderCards(total26, rate) {
+  const el = document.getElementById('cards');
+  let html = `
+    <div class="card"><div class="label">2023 Final</div><div class="value">${fM(END[2023])}</div><div class="sub">Baseline year</div></div>
+    <div class="card"><div class="label">2024 Final</div><div class="value">${fM(END[2024])}</div><div class="sub">${fP(GR['23_24'])} YoY</div></div>
+    <div class="card"><div class="label">2025 Final</div><div class="value blue">${fM(END[2025])}</div><div class="sub">${fP(GR['24_25'])} YoY</div></div>
+    <div class="card"><div class="label">2026 Projection</div><div class="value orange">${fM(total26)}</div><div class="sub">${fP(rate)} growth</div></div>`;
+
+  if (actual26.wk && actual26.ytd) {
+    const wi = actual26.wk - 1;
+    const expected = proj26[wi];
+    const delta = (actual26.ytd - expected) / expected;
+    const pc = delta > 0.02 ? 'ahead' : delta < -0.02 ? 'behind' : 'on-track';
+    const pl = delta > 0.02 ? 'Ahead' : delta < -0.02 ? 'Behind' : 'On Track';
+    // Extrapolate full year from current pace
+    const paceFull = actual26.ytd / blendedS[wi];
+
+    html += `
+      <div class="card"><div class="label">2026 YTD (Wk ${actual26.wk})</div><div class="value">${fM(actual26.ytd)}</div><div class="sub">vs projected ${fM(expected)}</div></div>
+      <div class="card"><div class="label">Pace vs Projection</div><div class="value ${delta>=0?'green':'red'}">${fP(delta)}</div><div class="sub"><span class="pace-badge ${pc}">${pl}</span></div></div>
+      <div class="card"><div class="label">On-Pace Full Year</div><div class="value blue">${fM(paceFull)}</div><div class="sub">${fP(paceFull/END[2025]-1)} vs 2025</div></div>`;
+  }
+  el.innerHTML = html;
+}
+
+/* ═══ Main Chart ═══ */
+function renderMain(total26) {
+  const ctx = document.getElementById('chartMain');
+  const ds = [
+    { label:'2023', data:H[2023], borderColor:'#d1d5db', borderWidth:1.5, borderDash:[4,3], pointRadius:0, tension:.3, fill:false },
+    { label:'2024', data:H[2024], borderColor:'#9ca3af', borderWidth:1.5, borderDash:[4,3], pointRadius:0, tension:.3, fill:false },
+    { label:'2025', data:H[2025], borderColor:'#1d4ed8', borderWidth:2, pointRadius:0, tension:.3, fill:false },
+    { label:'2026 Projection', data:proj26, borderColor:'#2a4a3e', borderWidth:2.5, pointRadius:0, tension:.3, fill:false },
+  ];
+
+  // Low & high bands for context
+  const lo = S[2023].map((v,i) => {
+    const avgS = (S[2023][i]+S[2024][i]+S[2025][i])/3;
+    return Math.round(avgS * END[2025] * 1.12); // conservative
+  });
+  const hi = S[2025].map((v,i) => Math.round(v * END[2025] * 1.35)); // aggressive
+  ds.push({ label:'Range Low (12%)', data:lo, borderColor:'rgba(107,114,128,0.3)', borderWidth:1, borderDash:[3,3], pointRadius:0, tension:.3, fill:false });
+  ds.push({ label:'Range High (35%)', data:hi, borderColor:'rgba(232,149,40,0.3)', borderWidth:1, borderDash:[3,3], pointRadius:0, tension:.3, fill:false });
+
+  // Band fill
+  ds.push({ label:'_range', data:hi, backgroundColor:'rgba(42,74,62,0.04)', borderWidth:0, pointRadius:0, tension:.3,
+    fill:{ target: ds.length-2, above:'rgba(42,74,62,0.04)' }});
+
+  // 2026 actual
+  if (actual26.wk && actual26.ytd) {
+    const ad = new Array(52).fill(null);
+    for (let i=0; i<actual26.wk; i++) {
+      ad[i] = Math.round(actual26.ytd * blendedS[i] / blendedS[actual26.wk-1]);
+    }
+    ds.splice(4, 0, {
+      label:'2026 Actual', data:ad, borderColor:'#dc2626', borderWidth:3,
+      pointRadius: c => c.dataIndex===actual26.wk-1 ? 6 : 0,
+      pointBackgroundColor:'#dc2626', tension:.3, fill:false
+    });
+  }
+
+  if (cMain) cMain.destroy();
+  cMain = new Chart(ctx, {
+    type:'line', data:{ labels:WK, datasets:ds },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{ mode:'index', intersect:false },
+      plugins:{
+        legend:{ position:'bottom', labels:{ usePointStyle:true, padding:14, font:{size:11}, filter: i => !i.text.startsWith('_') }},
+        tooltip:{ callbacks:{ title: c => 'Sales Week '+c[0].label, label: c => c.dataset.label+': '+(c.parsed.y!=null?fM(c.parsed.y):'—') }}
+      },
+      scales:{
+        y:{ ticks:{ callback:v=>'$'+(v/1e6).toFixed(0)+'M', font:{size:11} }, grid:{ color:'rgba(0,0,0,0.04)' }},
+        x:{ title:{ display:true, text:'Sales Week', font:{size:11}, color:'#888' },
+          ticks:{ callback:(v,i)=>i%4===0?'W'+(i+1):'', font:{size:10} }, grid:{display:false} }
+      }
+    }
+  });
+}
+
+/* ═══ % Complete Chart ═══ */
+function renderPct() {
+  const ctx = document.getElementById('chartPct');
+  const ds = [
+    { label:'2023', data:S[2023].map(v=>v*100), borderColor:'#d1d5db', borderWidth:1.5, borderDash:[4,3], pointRadius:0, tension:.3, fill:false },
+    { label:'2024', data:S[2024].map(v=>v*100), borderColor:'#9ca3af', borderWidth:1.5, borderDash:[4,3], pointRadius:0, tension:.3, fill:false },
+    { label:'2025', data:S[2025].map(v=>v*100), borderColor:'#1d4ed8', borderWidth:2, pointRadius:0, tension:.3, fill:false },
+    { label:'3-Year Average', data:S[2023].map((_,i)=>((S[2023][i]+S[2024][i]+S[2025][i])/3)*100), borderColor:'#2a4a3e', borderWidth:2, borderDash:[6,3], pointRadius:0, tension:.3, fill:false },
+    { label:'Current Blend', data:blendedS.map(v=>v*100), borderColor:'#E89528', borderWidth:2.5, pointRadius:0, tension:.3, fill:false },
+  ];
+
+  if (cPct) cPct.destroy();
+  cPct = new Chart(ctx, {
+    type:'line', data:{ labels:WK, datasets:ds },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{ mode:'index', intersect:false },
+      plugins:{
+        legend:{ position:'bottom', labels:{ usePointStyle:true, padding:14, font:{size:11} }},
+        tooltip:{ callbacks:{ title:c=>'Sales Week '+c[0].label, label:c=>c.dataset.label+': '+c.parsed.y.toFixed(1)+'%' }}
+      },
+      scales:{
+        y:{ min:0, max:100, ticks:{ callback:v=>v+'%', font:{size:11} }, grid:{ color:'rgba(0,0,0,0.04)' },
+          title:{ display:true, text:'% of Annual Revenue Sold', font:{size:11}, color:'#888' }},
+        x:{ title:{ display:true, text:'Sales Week', font:{size:11}, color:'#888' },
+          ticks:{ callback:(v,i)=>i%4===0?'W'+(i+1):'', font:{size:10} }, grid:{display:false} }
+      }
+    }
+  });
+}
+
+/* ═══ YoY Growth Chart ═══ */
+function renderYoY() {
+  const ctx = document.getElementById('chartYoY');
+  const yoy24 = H[2024].map((v,i)=>((v/H[2023][i])-1)*100);
+  const yoy25 = H[2025].map((v,i)=>((v/H[2024][i])-1)*100);
+  const ds = [
+    { label:'2024 vs 2023', data:yoy24, borderColor:'#9ca3af', borderWidth:1.5, pointRadius:0, tension:.4, fill:false },
+    { label:'2025 vs 2024', data:yoy25, borderColor:'#1d4ed8', borderWidth:2, pointRadius:0, tension:.4, fill:false },
+  ];
+  if (actual26.wk && actual26.ytd) {
+    const y26 = new Array(52).fill(null);
+    for (let i=0; i<actual26.wk; i++) {
+      const est = actual26.ytd * blendedS[i] / blendedS[actual26.wk-1];
+      y26[i] = ((est/H[2025][i])-1)*100;
+    }
+    ds.push({ label:'2026 vs 2025', data:y26, borderColor:'#dc2626', borderWidth:2, pointRadius:0, tension:.4, fill:false });
+  }
+  // Projection line
+  const yoyProj = proj26.map((v,i)=>((v/H[2025][i])-1)*100);
+  ds.push({ label:'2026 Proj vs 2025', data:yoyProj, borderColor:'#2a4a3e', borderWidth:1.5, borderDash:[6,3], pointRadius:0, tension:.4, fill:false });
+
+  if (cYoY) cYoY.destroy();
+  cYoY = new Chart(ctx, {
+    type:'line', data:{ labels:WK, datasets:ds },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{ mode:'index', intersect:false },
+      plugins:{
+        legend:{ position:'bottom', labels:{ usePointStyle:true, padding:14, font:{size:11} }},
+        tooltip:{ callbacks:{ title:c=>'Sales Week '+c[0].label, label:c=>c.dataset.label+': '+(c.parsed.y!=null?c.parsed.y.toFixed(1)+'%':'—') }}
+      },
+      scales:{
+        y:{ ticks:{ callback:v=>v+'%', font:{size:11} }, grid:{ color:'rgba(0,0,0,0.04)' }},
+        x:{ title:{ display:true, text:'Sales Week', font:{size:11}, color:'#888' },
+          ticks:{ callback:(v,i)=>i%4===0?'W'+(i+1):'', font:{size:10} }, grid:{display:false} }
+      }
+    }
+  });
+}
+
+/* ═══ Table ═══ */
+function renderTable(total26) {
+  const el = document.getElementById('tbl');
+  let h = `<thead><tr><th>Wk</th><th>Mo</th><th class="r">2023</th><th class="r">2024</th><th class="r">2025</th><th class="r">% Sold</th><th class="r">2026 Proj</th>`;
+  if (actual26.wk) h += '<th class="r">2026 Act</th><th class="r">Delta</th>';
+  h += '</tr></thead><tbody>';
+
+  for (let i=0; i<52; i++) {
+    const ic = actual26.wk && i===actual26.wk-1;
+    const pct = (blendedS[i]*100).toFixed(1);
+    let actCell='', deltaCell='';
+    if (actual26.wk) {
+      if (i < actual26.wk) {
+        const est = Math.round(actual26.ytd * blendedS[i] / blendedS[actual26.wk-1]);
+        const d = (est - proj26[i]) / proj26[i];
+        actCell = `<td class="r" ${ic?'style="font-weight:600;color:#dc2626;"':''}>${fM(est)}</td>`;
+        deltaCell = `<td class="r" style="color:${d>=0?'#15803d':'#dc2626'}">${fP(d)}</td>`;
+      } else {
+        actCell = '<td class="r" style="color:#ccc;">—</td>';
+        deltaCell = '<td class="r" style="color:#ccc;">—</td>';
+      }
+    }
+    h += `<tr${ic?' class="cur"':''}><td>${i+1}</td><td>${MO[i]}</td><td class="r">${fM(H[2023][i])}</td><td class="r">${fM(H[2024][i])}</td><td class="r">${fM(H[2025][i])}</td><td class="r">${pct}%</td><td class="r">${fM(proj26[i])}</td>${actCell}${deltaCell}</tr>`;
+  }
+
+  // Totals
+  h += `<tr class="total"><td colspan="2">Full Year</td><td class="r">${fM(END[2023])}</td><td class="r">${fM(END[2024])}</td><td class="r">${fM(END[2025])}</td><td class="r">100%</td><td class="r">${fM(proj26[51])}</td>`;
+  if (actual26.wk) {
+    const d = (actual26.ytd - proj26[actual26.wk-1])/proj26[actual26.wk-1];
+    h += `<td class="r" style="color:#dc2626;">${fM(actual26.ytd)}</td><td class="r" style="color:${d>=0?'#15803d':'#dc2626'}">${fP(d)}</td>`;
+  }
+  h += '</tr></tbody>';
+  el.innerHTML = h;
+}
+</script>
+</body>
+</html>
