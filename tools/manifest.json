@@ -54,5 +54,13 @@
     "icon": "&#9650;",
     "category": "business",
     "published": "2026-05-17T00:00:00Z"
+  },
+  {
+    "slug": "door-dashboard",
+    "name": "Door Knocking Dashboard",
+    "description": "Paris Home Exteriors — weekly rep activity, funnel metrics & inspection rates",
+    "icon": "&#9758;",
+    "category": "business",
+    "published": "2026-05-17T00:00:00Z"
   }
 ]
