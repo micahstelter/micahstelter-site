@@ -1018,7 +1018,7 @@
   <!-- ══════════════════════════════════
        GATE
        ══════════════════════════════════ -->
-  <div id="gate">
+  <div id="gate" style="display:none;">
     <div class="gate-card">
       <h1>Micah <em>Stelter</em></h1>
       <p class="gate-sub">Optimization Portal</p>
@@ -1039,7 +1039,7 @@
   <!-- ══════════════════════════════════
        PATH CHOOSER
        ══════════════════════════════════ -->
-  <div id="path-chooser">
+  <div id="path-chooser" style="display:block;">
     <div class="path-inner">
       <h1 class="path-greeting fade-in">Good to see you, <em>Micah</em></h1>
       <p class="path-sub fade-in d1">Where are you headed?</p>
@@ -1304,25 +1304,22 @@
       document.getElementById('dashboard').style.display = 'none';
       document.getElementById('personal-view').style.display = 'none';
       document.getElementById('work-view').style.display = 'none';
-      document.getElementById('path-chooser').style.display = 'none';
-      document.getElementById('gate').style.display = 'flex';
-      document.getElementById('pre-auth').style.display = 'block';
-      document.getElementById('auth-form').style.display = 'none';
+      document.getElementById('path-chooser').style.display = 'block';
     }
 
     document.getElementById('pw').addEventListener('keydown', function(e) {
       if (e.key === 'Enter') tryUnlock();
     });
 
-    if (sessionStorage.getItem('ms_auth') === '1') {
+    // Skip auth gate — go straight to path chooser or remembered path
+    (function() {
       var savedPath = sessionStorage.getItem('ms_path');
       if (savedPath) {
-        document.getElementById('gate').style.display = 'none';
+        document.getElementById('path-chooser').style.display = 'none';
         enterPath(savedPath);
-      } else {
-        unlock();
       }
-    }
+      // Otherwise path-chooser is already visible by default
+    })();
 
     // ══════════════════════════════════
     // Helpers
