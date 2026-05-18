@@ -101,20 +101,9 @@ tr:last-child td { border-bottom: none; }
 }
 </style>
 </head>
-<body class="locked">
+<body>
 
-<div id="gate">
-  <div class="gate-card">
-    <h2>Paris <em>Brands</em></h2>
-    <p class="gate-sub">Commission Tracker</p>
-    <input type="password" id="pw" placeholder="Enter password" autocomplete="off" />
-    <br>
-    <button class="gate-btn" onclick="tryUnlock()">Unlock</button>
-    <a class="gate-home" href="/">micahstelter.ai</a>
-  </div>
-</div>
-
-<div id="app">
+<div id="app" style="display:block;">
 <div class="header">
   <div>
     <h1>PARIS <span>BRANDS</span></h1>
@@ -157,33 +146,7 @@ tr:last-child td { border-bottom: none; }
 </div><!-- end #app -->
 
 <script>
-const PASS_HASH = '8261d10d';
-function simpleHash(s) {
-  let h = 0;
-  for (let i = 0; i < s.length; i++) { h = ((h << 5) - h + s.charCodeAt(i)) | 0; }
-  return (h >>> 0).toString(16);
-}
-function unlock() {
-  document.getElementById('gate').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
-  document.body.classList.remove('locked');
-  sessionStorage.setItem('ct_auth', '1');
-}
-function tryUnlock() {
-  const input = document.getElementById('pw');
-  if (simpleHash(input.value) === PASS_HASH) {
-    unlock();
-    initDashboard();
-  } else {
-    input.classList.add('error');
-    input.value = '';
-    setTimeout(() => input.classList.remove('error'), 500);
-  }
-}
-document.getElementById('pw').addEventListener('keydown', function(e) { if (e.key === 'Enter') tryUnlock(); });
-if (sessionStorage.getItem('ct_auth') === '1') {
-  unlock();
-}
+/* No gate — auto-init */
 </script>
 
 <script>
@@ -368,10 +331,8 @@ function initDashboard() {
   document.getElementById('last-scan').textContent = 'Data as of: May 16, 2026';
 }
 
-// Auto-init if already authenticated (session restore)
-if (sessionStorage.getItem('ct_auth') === '1') {
-  initDashboard();
-}
+// Auto-init (no gate)
+initDashboard();
 </script>
 </body>
 </html>

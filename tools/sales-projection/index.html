@@ -110,23 +110,10 @@ body.locked { background: #faf9f7; }
 }
 </style>
 </head>
-<body class="locked">
-
-<!-- Gate -->
-<div id="gate">
-  <div class="gate-card">
-    <h2>Sales <em>Projection</em></h2>
-    <p class="gate-sub">Paris Painting — Revenue Trends</p>
-    <form onsubmit="return tryAuth()">
-      <input type="password" id="pw" placeholder="passphrase" autocomplete="off" />
-      <br><button type="submit" class="gate-btn">Enter</button>
-    </form>
-    <a href="/" class="gate-home">&larr; home</a>
-  </div>
-</div>
+<body>
 
 <!-- App -->
-<div id="app">
+<div id="app" style="display:block;">
   <div class="header">
     <div>
       <h1>Paris Painting — Sales <span>Projection</span></h1>
@@ -245,21 +232,8 @@ const MO = ['Jan','Jan','Jan','Jan','Feb','Feb','Feb','Feb','Mar','Mar','Mar','M
   'Jul','Jul','Jul','Jul','Aug','Aug','Aug','Aug','Aug','Sep','Sep','Sep','Sep',
   'Oct','Oct','Oct','Oct','Oct','Nov','Nov','Nov','Nov','Dec','Dec','Dec','Dec'];
 
-/* ═══ Auth ═══ */
-function tryAuth() {
-  const v = document.getElementById('pw').value;
-  if (sessionStorage.getItem('pp_auth')==='1' || v==='aleph' || v==='paris') { unlock(); }
-  else { document.getElementById('pw').classList.add('error'); setTimeout(()=>document.getElementById('pw').classList.remove('error'),500); }
-  return false;
-}
-function unlock() {
-  sessionStorage.setItem('pp_auth','1');
-  document.body.classList.remove('locked');
-  document.getElementById('gate').style.display='none';
-  document.getElementById('app').style.display='block';
-  boot();
-}
-if (sessionStorage.getItem('pp_auth')==='1') unlock();
+/* ═══ Auto-boot (no gate) ═══ */
+boot();
 
 /* ═══ Helpers ═══ */
 const f$ = n => n==null ? '—' : '$'+Math.round(n).toLocaleString();
