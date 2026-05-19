@@ -1,142 +1,119 @@
 {
-  "updated": "May 19, 2026 — 6:00 AM",
+  "updated": "May 19, 2026 — 2:00 PM",
   "attention": [
+    {
+      "source": "calendar",
+      "from": "Haakon Hansen",
+      "summary": "Haakon DECLINED the 2 PM GAM today. Your 2:00–3:00 PM slot is now open before Seth happy hour at 3:30.",
+      "priority_area": "business",
+      "urgency": "urgent",
+      "time": "1:18 PM",
+      "suggested_action": "Use freed time for Cousins contract follow-up, McCoy breakup email, or Schindle/Mark loop — all overdue Plaud items."
+    },
     {
       "source": "gmail",
       "from": "Commission approvals — still 13/14",
-      "summary": "No new approvals overnight. 13 of 14 April commission approvals received. Only Matt Rawski ($7,489.75) still pending. Forward the 13 approved to Katelynn/payroll.",
+      "summary": "No new approvals since morning. 13 of 14 April commission approvals received. Only Matt Rawski ($7,489.75) still pending. PP L10 is done — did Matt approve?",
       "priority_area": "business",
       "urgency": "urgent",
       "time": "Ongoing",
-      "suggested_action": "Forward all 13 approvals to Katelynn/payroll for processing. Follow up with Matt Rawski at today's PP L10 for his approval."
+      "suggested_action": "If Matt approved at PP L10, forward all 14 to Katelynn/payroll. If not, text Matt directly. Payroll is Friday."
     },
     {
       "source": "plaud",
       "from": "Plaud Board (May 12–14)",
-      "summary": "Bill Cousins promo expired Friday — contract needed ASAP. McCoy needs breakup email. Schindle job needs Mark looped in on scope reduction.",
+      "summary": "Same open loops — Bill Cousins promo expired Friday, McCoy needs breakup email, Schindle needs Mark looped in. Use the freed 2 PM hour to knock these out.",
       "priority_area": "business",
       "urgency": "urgent",
       "time": "This week",
-      "suggested_action": "Confirm Bill Cousins contract was sent; if not, send today. Send McCoy breakup email. Loop Mark on Schindle scope reduction + $500 off + ~17% margin."
-    },
-    {
-      "source": "plaud",
-      "from": "Ben Rangel pipeline",
-      "summary": "Ben targeting $85K closed this week: Megan Clark $12.8K (contract was Sat 2pm), Marty fence $17.5K, Bill Cousins ~$30K, Samson $32K, Ryan Fletcher ~$30K, Jackie Hayden ~$50K.",
-      "priority_area": "business",
-      "urgency": "urgent",
-      "time": "This week",
-      "suggested_action": "Check in with Ben at PHE L10 on Megan Clark contract outcome from Saturday and Samson/Cousins decisions."
+      "suggested_action": "Send Cousins contract, McCoy breakup email, and loop Mark on Schindle scope reduction during the 2–3:30 PM window."
     },
     {
       "source": "gmail",
-      "from": "Jasmine @ PHE",
-      "summary": "Urgent issue on Suzi Scott project (PO 115347) — flat roofing scope dispute. Jasmine told Nick Brattin that Mark wants PP crew to handle it, not Tito's team.",
-      "priority_area": "business",
-      "urgency": "urgent",
-      "time": "Yesterday 11:07 AM",
-      "suggested_action": "Confirm with Mark at PHE L10 that Suzi Scott flat roofing is resolved."
-    },
-    {
-      "source": "gmail",
-      "from": "Jason @ Aleph",
-      "summary": "Field Pulse Week 1 Recap — successful alpha week with a few reps in Paris. Longer video update sent to the board.",
+      "from": "Jon Ray brand switch — full consensus",
+      "summary": "Alex and Nate both replied supporting Jon's PaintGreen → Peek Brothers rebrand. All board members now aligned. Nate suggests walking through timelines tomorrow.",
       "priority_area": "business",
       "urgency": "normal",
-      "time": "Today 3:47 AM",
-      "suggested_action": "Watch Jason's Field Pulse recap video before the AI Alignment meeting Friday."
+      "time": "Yesterday evening",
+      "suggested_action": "No action needed — consensus reached. Nate + Jon will discuss timelines. Track at Exec L10 Friday."
     },
     {
       "source": "gmail",
-      "from": "Dave @ Aleph (re: Rilla Demo)",
-      "summary": "Dave replied to Jonmarc's Rilla evaluation — sounds like internal tech (FieldPulse?) is close to accomplishing similar functionality. Holding off on Rilla for now.",
+      "from": "Bo Anderson",
+      "summary": "Bo accepted the Thursday 1:30 PM contract signing invite. Meeting confirmed via Google Meet.",
       "priority_area": "business",
       "urgency": "normal",
-      "time": "Yesterday",
-      "suggested_action": "Discuss FieldPulse vs Rilla at Friday AI Alignment with AJ, Jason, and the board."
+      "time": "Yesterday 9:25 PM",
+      "suggested_action": "Prep Bo's contract details before Thursday. Patrick hire health insurance plan (W2 + Aleph plan) should be finalized."
     },
     {
       "source": "gmail",
-      "from": "Christian Kullmann → Alex",
-      "summary": "Christian sent a grateful follow-up to Alex's Priority Management Recap — says the last week with Alex, Mark, and Micah has drastically helped him get aligned.",
+      "from": "360Learning",
+      "summary": "Three new users onboarded: Chrissy (Aleph), Carter Flack (Cloute/Aleph Ventures), Ethny Riggins (Riggins Painting).",
       "priority_area": "business",
-      "urgency": "normal",
-      "time": "Yesterday 9:29 PM",
-      "suggested_action": "Keep supporting Christian's onboarding momentum. Monitor at PHE L10 today."
-    },
-    {
-      "source": "gmail",
-      "from": "Amanda @ Buenly",
-      "summary": "Storm outreach (July 2025 hail, 500 past clients) wrapping first pass. ~10% connection rate, 7 not interested, 1 callback. Starting second call attempt.",
-      "priority_area": "business",
-      "urgency": "normal",
-      "time": "Yesterday 8:19 AM",
-      "suggested_action": "Discuss storm outreach results at PHE L10 — 10% connection rate may need strategy adjustment."
+      "urgency": "low",
+      "time": "Today",
+      "suggested_action": "No action needed — training platform growing. Note Cloute and Riggins are active."
     },
     {
       "source": "gmail",
       "from": "Ramp",
-      "summary": "2 new transactions require attention + Nick Lane reimbursement pending ($52.55 at The Lowry).",
+      "summary": "2 new transactions still require attention. Nick Lane reimbursement may still be pending.",
       "priority_area": "business",
       "urgency": "low",
       "time": "Yesterday",
-      "suggested_action": "Approve Nick Lane's $52.55 reimbursement and submit missing items for 2 transactions in Ramp."
+      "suggested_action": "Approve Nick Lane's reimbursement and submit missing items for 2 Ramp transactions when you have a moment."
     },
     {
-      "source": "gmail",
-      "from": "MN Valley Young Life",
-      "summary": "Golf tournament is TOMORROW (Wednesday May 20). Micah signed up for 1pm flight.",
-      "priority_area": "fun",
+      "source": "calendar",
+      "from": "Tomorrow's prep",
+      "summary": "Tomorrow: Ben GAM (9 AM), Patrick GAM (10 AM), then Younglife Golf (11 AM–5 PM). Ben and Patrick GAMs are back-to-back before golf.",
+      "priority_area": "business",
       "urgency": "normal",
-      "time": "Yesterday",
-      "suggested_action": "Confirm you have everything ready for YL Golf tomorrow — 1pm flight. Erich, Chet, Alex also attending."
+      "time": "Tomorrow",
+      "suggested_action": "Prep Ben GAM tonight or early AM — review $85K pipeline status (Megan Clark outcome from Saturday, Cousins, Samson). Patrick: marketing mix at 60% door-knock, health insurance hire update."
     },
     {
       "source": "gmail",
-      "from": "Google Docs — Mike Zalcman",
-      "summary": "Mike Zalcman added formatting suggestions to the Sales Rep Interior Sales & Estimating Development Path document.",
-      "priority_area": "business",
+      "from": "Grandma's Marathon",
+      "summary": "Race day prep email received — tips for during the race. Event is approaching.",
+      "priority_area": "health",
       "urgency": "low",
-      "time": "Yesterday 9:04 AM",
-      "suggested_action": "Review Mike Zalcman's suggestions in the Sales Rep Development Path doc when you have a moment."
+      "time": "Today 10:35 AM",
+      "suggested_action": "Review race day logistics when you have time. Keep training consistent."
     },
     {
       "source": "note",
       "from": "Hope Community Church",
-      "summary": "Saturday's sermon: The Power of Team and God-Sized Dreams — Genesis 13:14-18. Walk the land, dream bigger than you can accomplish alone, embrace the irritating but essential call to community.",
+      "summary": "Saturday's sermon: The Power of Team and God-Sized Dreams — Genesis 13:14-18. Walk the land, dream bigger, embrace community.",
       "priority_area": "faith",
       "urgency": "normal",
       "time": "May 17",
-      "suggested_action": "Identify one unreasonable prayer and commit to praying it daily. Consider prayer-walking your workplace this week."
+      "suggested_action": "Identify one unreasonable prayer and commit to praying it daily. Prayer-walk your workplace this week."
     }
   ],
   "briefing": [
-    { "time": "9:00 AM", "title": "PARIS PAINTING L10" },
-    { "time": "11:00 AM", "title": "PARIS HOME EXTERIORS L10" },
-    { "time": "12:45 PM", "title": "Caleb GAM - Marketing" },
-    { "time": "2:00 PM", "title": "Haakon GAM" },
+    { "time": "12:45 PM", "title": "Caleb GAM - Marketing (in progress or just wrapped)" },
+    { "time": "2:00 PM", "title": "OPEN — Haakon declined GAM" },
     { "time": "3:30 PM", "title": "Seth / Micah - Happy Hour Connect" },
     { "time": "5:30 PM", "title": "Doug Caris Dinner" }
   ],
   "upcoming_events": [
-    { "date": "Tue May 19", "time": "9:00 AM", "title": "PARIS PAINTING L10", "attendees": "Mark, Brandon, Matt, Alex, Cara, Darcy, Caleb, Angel, John, Chris McDaniel", "type": "team_meeting", "prep_eligible": true, "prep_hint": "Commissions 13/14 approved — only Matt pending (ask him today). Fence/deck bid allocation. Mark to address staining gap at Thu sales meeting." },
-    { "date": "Tue May 19", "time": "11:00 AM", "title": "PARIS HOME EXTERIORS L10", "attendees": "Mark, Christian, Caleb, Patrick, Ben Rangel, Tito, Jasmine", "type": "team_meeting", "prep_eligible": true, "prep_hint": "Ben pipeline hot ($85K target). Suzi Scott flat roofing issue. Storm outreach 10% connection rate. Christian's onboarding momentum — Alex recap." },
-    { "date": "Tue May 19", "time": "12:45 PM", "title": "Caleb GAM - Marketing", "attendees": "Caleb Svendsgaard, Mark", "type": "gam", "prep_eligible": true, "prep_hint": "Push Caleb on direct mail volume — Patrick at 60% door-knock, target 20-30%. Storm outreach results. Billboard options from Joel at Clear Channel." },
-    { "date": "Tue May 19", "time": "2:00 PM", "title": "Haakon GAM", "attendees": "Haakon, Chet", "type": "gam", "prep_eligible": true, "prep_hint": "Review Haakon pipeline. Prep for Doug Caris dinner context — ask Haakon about dinner purpose." },
-    { "date": "Tue May 19", "time": "3:30 PM", "title": "Seth / Micah - Happy Hour Connect", "attendees": "Seth Bostrom", "type": "social", "prep_eligible": false, "prep_hint": "Relational connect — Seth approved his commission ($153.60). No formal prep, enjoy it." },
-    { "date": "Tue May 19", "time": "5:30 PM", "title": "Doug Caris Dinner", "attendees": "Haakon, Chet, Erich, Alex, Jason", "type": "external", "prep_eligible": true, "prep_hint": "At Pig Ate My Pizza + Nouvelle Brewing, Robbinsdale. Clarify dinner purpose with Haakon at 2 PM GAM." },
-    { "date": "Wed May 20", "time": "9:00 AM", "title": "Ben GAM", "attendees": "Ben Rangel", "type": "gam", "prep_eligible": true, "prep_hint": "Ben pipeline: Megan $12.8K, Marty $17.5K, Cousins ~$30K, Samson $32K, Fletcher ~$30K, Hayden ~$50K. Target $85K. Same-week decisions coaching theme." },
-    { "date": "Wed May 20", "time": "10:00 AM", "title": "Patrick GAM", "attendees": "Patrick", "type": "gam", "prep_eligible": true, "prep_hint": "Review Patrick pipeline. Marketing mix at 60% door-knock, target 20-30%. Health insurance hire discussion." },
-    { "date": "Wed May 20", "time": "11:00 AM", "title": "Younglife Golf Event", "attendees": "Erich, Chet, Alex", "type": "external", "prep_eligible": false, "prep_hint": "YL Golf Classic — 1pm flight. Runs until 5 PM." },
+    { "date": "Tue May 19", "time": "12:45 PM", "title": "Caleb GAM - Marketing", "attendees": "Caleb Svendsgaard, Mark", "type": "gam", "prep_eligible": false, "prep_hint": "In progress or just wrapped. Push Caleb on direct mail volume, storm outreach results." },
+    { "date": "Tue May 19", "time": "2:00 PM", "title": "OPEN — Haakon declined", "attendees": "", "type": "external", "prep_eligible": false, "prep_hint": "Use for Plaud open loops: Cousins contract, McCoy breakup email, Schindle/Mark." },
+    { "date": "Tue May 19", "time": "3:30 PM", "title": "Seth / Micah - Happy Hour Connect", "attendees": "Seth Bostrom", "type": "social", "prep_eligible": false, "prep_hint": "Relational connect — Seth approved his commission ($153.60). Enjoy it." },
+    { "date": "Tue May 19", "time": "5:30 PM", "title": "Doug Caris Dinner", "attendees": "Haakon, Chet, Erich, Alex, Jason", "type": "external", "prep_eligible": false, "prep_hint": "Pig Ate My Pizza + Nouvelle Brewing, Robbinsdale. Haakon skipped GAM but dinner still on." },
+    { "date": "Wed May 20", "time": "9:00 AM", "title": "Ben GAM", "attendees": "Ben Rangel", "type": "gam", "prep_eligible": true, "prep_hint": "Ben pipeline: Megan $12.8K (contract was Sat 2pm — get outcome), Marty $17.5K, Cousins ~$30K (promo expired), Samson $32K, Fletcher ~$30K, Hayden ~$50K. Target $85K. Same-week decisions coaching." },
+    { "date": "Wed May 20", "time": "10:00 AM", "title": "Patrick GAM", "attendees": "Patrick", "type": "gam", "prep_eligible": true, "prep_hint": "Marketing mix at 60% door-knock, target 20-30%. Health insurance hire discussion. Bo contract signing Thursday." },
+    { "date": "Wed May 20", "time": "11:00 AM", "title": "Younglife Golf Event", "attendees": "Erich, Chet, Alex", "type": "external", "prep_eligible": false, "prep_hint": "YL Golf Classic — runs until 5 PM. Have fun." },
     { "date": "Thu May 21", "time": "9:00 AM", "title": "Paris Painting Sales Team Meeting", "attendees": "Full sales team + Brandon, Matt, Mark", "type": "team_meeting", "prep_eligible": true, "prep_hint": "Mark talking about: Sheens + Productions, Accessibility, Stains, Scraping + Priming." },
-    { "date": "Thu May 21", "time": "11:00 AM", "title": "National Sales Development Meeting", "attendees": "Brady + national portfolio companies", "type": "team_meeting", "prep_eligible": true, "prep_hint": "National meeting. Prep Paris Brands updates — Kathy's million dollar milestone, Field Pulse alpha." },
     { "date": "Thu May 21", "time": "12:45 PM", "title": "2nd Interview With Spencer / Mark", "attendees": "Spencer (candidate), Mark", "type": "interview", "prep_eligible": true, "prep_hint": "Production Manager candidate — in-person at 3515 48th Ave N, Minneapolis." },
-    { "date": "Thu May 21", "time": "1:30 PM", "title": "Bo/Micah - Contract sign", "attendees": "Bo Anderson", "type": "external", "prep_eligible": true, "prep_hint": "Bo Anderson contract signing. From Plaud: Patrick hire with health insurance hangup, lean W2 + Aleph plan." },
+    { "date": "Thu May 21", "time": "1:30 PM", "title": "Bo/Micah - Contract sign", "attendees": "Bo Anderson", "type": "external", "prep_eligible": true, "prep_hint": "Bo CONFIRMED. Patrick hire with health insurance hangup — lean W2 + Aleph plan." },
     { "date": "Thu May 21", "time": "2:30 PM", "title": "Meet with Micah (Grant Hawkes)", "attendees": "Grant Hawkes (Midway Painting)", "type": "external", "prep_eligible": true, "prep_hint": "Research Grant Hawkes / Midway Painting Company before meeting." },
     { "date": "Thu May 21", "time": "3:00 PM", "title": "Home", "attendees": "", "type": "social", "prep_eligible": false, "prep_hint": "Home block — family time." },
     { "date": "Fri May 22", "time": "7:00 AM", "title": "Bible Study", "attendees": "", "type": "social", "prep_eligible": false, "prep_hint": "Weekly Bible study at Paris Painting office." },
-    { "date": "Fri May 22", "time": "9:30 AM", "title": "Aleph Exec L10", "attendees": "Chet, Erich, Alex, Mark", "type": "team_meeting", "prep_eligible": true, "prep_hint": "Commission status (13/14), hiring updates (Bo signing Thu, Spencer 2nd interview Thu), Jon Ray brand switch. Field Pulse alpha recap." },
-    { "date": "Fri May 22", "time": "11:00 AM", "title": "AI Alignment", "attendees": "AJ (Larson Tech), Jason, Erich, Chet, Alex", "type": "external", "prep_eligible": true, "prep_hint": "Biweekly AI/Wallogy alignment. Watch Jason's Field Pulse recap. Rilla vs internal tech discussion." },
+    { "date": "Fri May 22", "time": "9:30 AM", "title": "Aleph Exec L10", "attendees": "Chet, Erich, Alex, Mark", "type": "team_meeting", "prep_eligible": true, "prep_hint": "Commission status (14/14 if Matt approves), Jon Ray brand switch consensus, Bo signing, Spencer interview, Field Pulse alpha." },
+    { "date": "Fri May 22", "time": "11:00 AM", "title": "AI Alignment", "attendees": "AJ (Larson Tech), Jason, Erich, Chet, Alex", "type": "external", "prep_eligible": true, "prep_hint": "Biweekly AI/Wallogy alignment. Watch Jason's Field Pulse recap. Rilla vs internal tech." },
     { "date": "Fri May 22", "time": "12:00 PM", "title": "John / Micah Time", "attendees": "John Juran", "type": "one_on_one", "prep_eligible": false, "prep_hint": "Lunch with John. Relational — grab lunch." },
     { "date": "Fri May 22", "time": "1:30 PM", "title": "Eric / Micah", "attendees": "Eric Bockelman", "type": "one_on_one", "prep_eligible": true, "prep_hint": "Research Eric Bockelman and clarify meeting purpose." },
     { "date": "Fri May 22", "time": "3:00 PM", "title": "Happy Hour - SRS / Paris Brands", "attendees": "Brad Holden, Jake Raether (SRS), Mark, Erich", "type": "external", "prep_eligible": true, "prep_hint": "Vendor happy hour with SRS Building Products." },
@@ -148,7 +125,7 @@
     "date_range": "May 12–14, 2026",
     "open_loops": [
       "Schindle job — Noah O underbid; drop interior, ~17% margin. Loop Mark.",
-      "Patrick (hire) — health insurance hangup; lean W2 + Aleph plan. Bo Anderson contract signing Thu 1:30 PM.",
+      "Patrick (hire) — health insurance hangup; lean W2 + Aleph plan. Bo Anderson contract signing Thu 1:30 PM (CONFIRMED).",
       "Megan Clark contract — Saturday 2pm in-person. Husband alignment only variable.",
       "Bill Cousins — promo expired Friday; send contract NOW.",
       "Samson + McCoy — Samson decision Thu/Fri at $32K; McCoy needs breakup email."
@@ -173,9 +150,9 @@
       "ben_rangel": {
         "target": "$85K closed this week",
         "deals": [
-          { "name": "Megan Clark", "amount": "$12,800", "status": "contract Sat 2pm" },
+          { "name": "Megan Clark", "amount": "$12,800", "status": "contract Sat 2pm — get outcome" },
           { "name": "Marty fence", "amount": "$17,476", "status": "contract going out" },
-          { "name": "Bill Cousins", "amount": "~$30,000", "status": "promo deadline Friday" },
+          { "name": "Bill Cousins", "amount": "~$30,000", "status": "promo expired — send contract" },
           { "name": "Samson", "amount": "$32,000", "status": "Thu/Fri decision" },
           { "name": "Ryan Fletcher", "amount": "~$30,000", "status": "projected" },
           { "name": "Jackie Hayden", "amount": "~$50,000", "status": "work-off, 1 roof approved" }
@@ -200,7 +177,7 @@
     "last_draw": "Apr 28, 2026",
     "next_draw": "~Oct 2026",
     "status": "Mostly optimal — 3 flags to watch",
-    "summary": "90%+ markers optimal. T up 17%, Vitamin D doubled. Five flags, three trending right.",
+    "summary": "90%+ markers optimal. T up 17%, Vitamin D doubled. Five flags, three trending right. Grandma's Half Marathon approaching — race day prep emails arriving.",
     "wins": [
       { "title": "Testosterone surging", "detail": "Up 17% to 564 ng/dL." },
       { "title": "Vitamin D dialed in", "detail": "30 to 52. Solidly optimal." },
@@ -219,19 +196,19 @@
   "business": {
     "ytd_commission": "$77,796",
     "team_size": "14 reps",
-    "status": "Tuesday — big day: PP L10, PHE L10, Caleb GAM, Haakon GAM, Seth happy hour, Doug Caris dinner. Commissions 13/14 approved (Matt Rawski last). Field Pulse alpha Week 1 successful. Christian onboarding momentum strong.",
+    "status": "Tuesday afternoon — Haakon declined 2 PM GAM (free hour). PP L10 and PHE L10 done. Caleb GAM wrapping. Seth happy hour 3:30, Doug Caris dinner 5:30. Commissions 13/14 (Matt still pending?). Jon Ray brand switch — full board consensus.",
     "commission_status": {
       "approved": ["Stephen Bacon ($5,693.85)", "Chris Sidla ($3,386.15)", "Seth Bostrom ($153.60)", "Ben Rangel ($3,642.36)", "Nick Brattin ($523.10)", "Grant Herbert ($116.79)", "Noah Ondrusik ($3,343.11)", "Seyf Topal ($499.44)", "Mike O'Meara ($1,265)", "Noah Franzen ($965.17)", "Nick Lane ($3,958.98)", "Justin Satterberg ($2,214.32)", "Brandon Stahnke (paid early)"],
       "pending": ["Matt Rawski ($7,489.75)"],
-      "note": "13/14 approved — forward batch to Katelynn for processing. Only Matt left — ask at PP L10 today."
+      "note": "13/14 approved. Matt was asked at PP L10 this morning — check if he approved. Payroll is Friday."
     },
-    "new_this_week": "Field Pulse Week 1 alpha successful. Jon Ray brand switch (PaintGreen → Peek Brothers) — consensus support. Dave says internal tech approaching Rilla functionality. Kathy at Parmer hit $1M YTD. Spencer Production Manager 2nd interview Thu. Bo Anderson contract signing Thu."
+    "new_this_week": "Field Pulse Week 1 alpha successful. Jon Ray brand switch full consensus (Alex + Nate confirmed). Bo Anderson confirmed Thu contract signing. Spencer Production Manager 2nd interview Thu. 360Learning: Chrissy (Aleph), Carter Flack (Cloute), Ethny Riggins onboarded. Haakon declined Tue GAM."
   },
   "fun": {
     "children": [
       { "name": "Jude" }, { "name": "Nori" }, { "name": "Mae" }, { "name": "Benji" }, { "name": "Will" }
     ],
-    "note": "Seth happy hour today after work. Doug Caris dinner tonight at Pig Ate My Pizza, Robbinsdale. Younglife Golf tomorrow. Davis Memorial Day event Saturday.",
+    "note": "Seth happy hour this afternoon (3:30). Doug Caris dinner tonight at Pig Ate My Pizza, Robbinsdale. Younglife Golf tomorrow. Davis Memorial Day event Saturday. Grandma's Half Marathon approaching.",
     "status": "Social-heavy week — enjoy it"
   }
 }
