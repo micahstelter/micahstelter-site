@@ -1,59 +1,41 @@
 {
-  "updated": "May 21, 2026 — 6:00 AM",
+  "updated": "May 21, 2026 — 2:00 PM",
   "attention": [
     {
-      "source": "gmail",
-      "from": "Darcy (Aleph)",
-      "summary": "Project Minimums thread — Darcy sent a suggested script for handling smaller projects: redirect to winter scheduling. Awaiting your reply on whether to adopt this language.",
+      "source": "calendar",
+      "from": "Today's remaining schedule",
+      "summary": "Spencer interview at 12:45, Bo contract signing at 1:30, Grant Hawkes at 2:30, then home at 3. Morning meetings (PP Sales Team, Patrick GAM) are done.",
       "priority_area": "business",
       "urgency": "urgent",
-      "time": "Yesterday evening",
-      "suggested_action": "Reply to Darcy with approval or edits on the winter-scheduling language for small project minimums."
+      "time": "Now",
+      "suggested_action": "Head to Spencer interview. Have Bo's contract ready for 1:30."
+    },
+    {
+      "source": "calendar",
+      "from": "Tomorrow — Friday May 22",
+      "summary": "Packed Friday: Aleph Exec L10 at 9:30 AM, AI Alignment at 11 AM, lunch with John Juran at noon, Eric Bockelman at 1:30, SRS Happy Hour at 3 PM. Payroll also due.",
+      "priority_area": "business",
+      "urgency": "normal",
+      "time": "Tomorrow",
+      "suggested_action": "Prep Exec L10 talking points tonight or early AM: Bo signing debrief, Spencer interview debrief, Darcy's project minimums, Katie Highberger, Matt commission status. Read Dev Capacity email thread before AI Alignment."
     },
     {
       "source": "gmail",
-      "from": "Brady Kelley (Aleph)",
-      "summary": "CVI Profile sent for your review — attachment included.",
+      "from": "Darcy (Aleph)",
+      "summary": "Project Minimums thread — Darcy sent a suggested script for handling smaller projects: redirect to winter scheduling. Still awaiting your reply.",
       "priority_area": "business",
-      "urgency": "normal",
-      "time": "This morning",
-      "suggested_action": "Review Brady's CVI Profile attachment and reply with any feedback."
+      "urgency": "urgent",
+      "time": "Yesterday evening",
+      "suggested_action": "Reply to Darcy with approval or edits on the winter-scheduling language before Exec L10 tomorrow."
     },
     {
       "source": "gmail",
       "from": "Jason / Kyle / Alex (Aleph Board)",
-      "summary": "Dev Capacity thread — Kyle proposed a Strategic Roadmap Allocation for development cycles. Alex aligned it with AI focus. Jason is syncing with AJ to coordinate strategies.",
+      "summary": "Dev Capacity thread — Kyle proposed a Strategic Roadmap Allocation for development cycles. Alex aligned it with AI focus. Jason syncing with AJ.",
       "priority_area": "business",
       "urgency": "normal",
       "time": "Yesterday",
-      "suggested_action": "Read the full thread before Friday's AI Alignment meeting. Reply with your position on the 80/20 allocation split."
-    },
-    {
-      "source": "gmail",
-      "from": "Mark / Christian (PHE)",
-      "summary": "Candidate Review — Christian flagged Katie Highberger (female sales rep candidate via Spark Hire). Mark says interview her regardless of timing.",
-      "priority_area": "business",
-      "urgency": "normal",
-      "time": "Yesterday",
-      "suggested_action": "Reply to confirm interview plan for Katie Highberger. Review her Spark Hire profile."
-    },
-    {
-      "source": "gmail",
-      "from": "Ramp alerts",
-      "summary": "Two Ramp items: Amazon $47.75 needs memo/receipt. Caleb Svendsgaard's $2,040 at Five Star Rated triggered an alert.",
-      "priority_area": "business",
-      "urgency": "normal",
-      "time": "Yesterday",
-      "suggested_action": "Submit Amazon receipt to Ramp. Review Caleb's $2,040 Five Star Rated charge — verify legitimacy."
-    },
-    {
-      "source": "gmail",
-      "from": "Otter.ai",
-      "summary": "6 new transcripts ready from May 18-19: Christian GAM (Micah leading), Christian GAM coaching with Carter, Shawn, and Josh (Micah coaching), plus debriefs, and Christian/Micah building PHE Insurance Rep sales plan.",
-      "priority_area": "business",
-      "urgency": "normal",
-      "time": "Yesterday",
-      "suggested_action": "Use these transcripts to build GAM coaching feedback for Christian's sessions with Carter, Shawn, and Josh."
+      "suggested_action": "Read the full Dev Capacity thread tonight. Be ready to discuss the 80/20 allocation at AI Alignment tomorrow at 11 AM."
     },
     {
       "source": "plaud",
@@ -62,64 +44,61 @@
       "priority_area": "business",
       "urgency": "urgent",
       "time": "This week",
-      "suggested_action": "At Patrick GAM today, check deal statuses. Loop Mark on Schindle. Send McCoy breakup email and Cousins contract."
+      "suggested_action": "Follow up on Cousins contract and McCoy breakup email before end of week. Check Samson decision status."
+    },
+    {
+      "source": "gmail",
+      "from": "Mark / Christian (PHE)",
+      "summary": "Candidate Review — Christian flagged Katie Highberger (female sales rep candidate via Spark Hire). Mark says interview her regardless of timing.",
+      "priority_area": "business",
+      "urgency": "normal",
+      "time": "Yesterday",
+      "suggested_action": "Bring Katie Highberger to Exec L10 tomorrow. Confirm interview plan with Christian."
+    },
+    {
+      "source": "gmail",
+      "from": "Ramp alerts",
+      "summary": "Amazon $47.75 needs memo/receipt. Caleb Svendsgaard's $2,040 at Five Star Rated triggered an alert.",
+      "priority_area": "business",
+      "urgency": "normal",
+      "time": "Yesterday",
+      "suggested_action": "Submit Amazon receipt to Ramp. Review Caleb's $2,040 charge."
     },
     {
       "source": "calendar",
-      "from": "Today's schedule",
-      "summary": "Packed day: PP Sales Team Meeting 9 AM, Patrick GAM 11 AM, Spencer interview 12:45 PM, Bo contract signing 1:30 PM, Grant Hawkes meeting 2:30 PM, then home at 3 PM.",
+      "from": "Monday May 26",
+      "summary": "Heavy Monday: PP L10 9 AM, PHE L10 11 AM, Christian GAM Coaching 12:30, Alex Cooper GAM 1 PM, Shawn GAM 2:15, Debrief 3:15, Baldamar Meet & Greet 4 PM, Jude & Micah Golf 7 PM.",
       "priority_area": "business",
       "urgency": "normal",
-      "time": "Today",
-      "suggested_action": "Prep Patrick GAM talking points during team meeting. Have contract ready for Bo at 1:30."
+      "time": "Monday",
+      "suggested_action": "Build GAM coaching feedback for Christian's sessions (Carter, Shawn, Josh) from Otter transcripts before Monday's coaching block."
     },
     {
       "source": "note",
       "from": "Hope Community Church",
-      "summary": "May 17 sermon: The Power of Team and God-Sized Dreams — Genesis 13:14-18. Walk the land, dream bigger, embrace community. Stop praying small prayers.",
+      "summary": "May 17 sermon: The Power of Team and God-Sized Dreams — Genesis 13:14-18. Walk the land, dream bigger, embrace community.",
       "priority_area": "faith",
       "urgency": "normal",
       "time": "May 17",
-      "suggested_action": "Identify one unreasonable prayer and commit to praying it daily. Prayer-walk your workplace this week."
+      "suggested_action": "Bible study tomorrow at 7 AM. Substance Church Saturday. Continue daily unreasonable prayer."
     },
     {
       "source": "gmail",
       "from": "Court Reserve",
-      "summary": "Summer League registration opens next week — Founding Members Tuesday May 26 at 9 AM.",
+      "summary": "Summer League registration — Founding Members Tuesday May 26 at 9 AM.",
       "priority_area": "fun",
       "urgency": "low",
       "time": "Yesterday",
-      "suggested_action": "Set a reminder for Tuesday May 26 at 9 AM to register for Summer League."
+      "suggested_action": "Set reminder for Tuesday May 26 at 9 AM to register for Summer League."
     }
   ],
   "briefing": [
-    { "time": "9:00 AM", "title": "Paris Painting Sales Team Meeting" },
-    { "time": "9:00 AM", "title": "Field Pulse Evals (parallel)" },
-    { "time": "11:00 AM", "title": "Call - Patrick GAM" },
     { "time": "12:45 PM", "title": "2nd Interview With Spencer / Mark" },
     { "time": "1:30 PM", "title": "Bo/Micah - Contract sign" },
     { "time": "2:30 PM", "title": "Meet with Micah (Grant Hawkes)" },
     { "time": "3:00 PM", "title": "Home" }
   ],
   "upcoming_events": [
-    {
-      "date": "Thu May 21",
-      "time": "9:00 AM",
-      "title": "Paris Painting Sales Team Meeting",
-      "attendees": "Full sales team, Brandon, Matt, Mark",
-      "type": "team_meeting",
-      "prep_eligible": true,
-      "prep_hint": "Mark talking about: Sheens + Productions, Accessibility, Stains, Scraping + Priming. Full team attendance."
-    },
-    {
-      "date": "Thu May 21",
-      "time": "11:00 AM",
-      "title": "Call - Patrick GAM",
-      "attendees": "Patrick Darlington",
-      "type": "gam",
-      "prep_eligible": true,
-      "prep_hint": "Plaud: Patrick marketing mix at 60% door-knock, target 20-30%. Health insurance hire hangup. Check Cousins/McCoy/Samson deal statuses."
-    },
     {
       "date": "Thu May 21",
       "time": "12:45 PM",
@@ -135,8 +114,8 @@
       "title": "Bo/Micah - Contract sign",
       "attendees": "Bo Anderson",
       "type": "external",
-      "prep_eligible": true,
-      "prep_hint": "Plaud: Bo Anderson interview led to hire. Contract signing today. Lean W2 + Aleph plan for health insurance."
+      "prep_eligible": false,
+      "prep_hint": "Contract signing. Bo accepted — lean W2 + Aleph health insurance plan."
     },
     {
       "date": "Thu May 21",
@@ -145,7 +124,16 @@
       "attendees": "Grant Hawkes (Midway Painting)",
       "type": "external",
       "prep_eligible": true,
-      "prep_hint": "Research Grant Hawkes / Midway Painting Company before meeting. 30-min slot."
+      "prep_hint": "30-min meeting. Research Grant Hawkes / Midway Painting Company."
+    },
+    {
+      "date": "Fri May 22",
+      "time": "All day",
+      "title": "Payroll",
+      "attendees": "",
+      "type": "external",
+      "prep_eligible": false,
+      "prep_hint": "Payroll processing day. Matt's commission still pending — needs approval before payroll runs."
     },
     {
       "date": "Fri May 22",
@@ -163,16 +151,16 @@
       "attendees": "Chet, Erich, Alex, Mark",
       "type": "team_meeting",
       "prep_eligible": true,
-      "prep_hint": "Topics: Dev capacity/roadmap allocation (Kyle's proposal), Bo signing debrief, Spencer interview debrief, Darcy's project minimums language, Katie Highberger candidate, storm outreach results, Matt commission status."
+      "prep_hint": "Topics: Bo signing debrief, Spencer interview debrief, Darcy's project minimums language, Katie Highberger candidate, Matt commission status, Dev Capacity roadmap. Bring outcomes from today's meetings."
     },
     {
       "date": "Fri May 22",
       "time": "11:00 AM",
       "title": "AI Alignment",
-      "attendees": "AJ (Larson Tech), Jason, Erich, Chet, Alex",
+      "attendees": "AJ (Larson Tech), Jason, Erich, Chet, Alex, Kyle",
       "type": "external",
       "prep_eligible": true,
-      "prep_hint": "Biweekly AI/Wallogy alignment. Kyle's roadmap proposal in play. Jason syncing with AJ on strategy. Read the Dev Capacity email thread before this."
+      "prep_hint": "Biweekly AI/Wallogy alignment. Kyle's 80/20 roadmap proposal in play. Jason syncing with AJ. Read Dev Capacity email thread before this."
     },
     {
       "date": "Fri May 22",
@@ -181,7 +169,7 @@
       "attendees": "John Juran",
       "type": "one_on_one",
       "prep_eligible": false,
-      "prep_hint": "Lunch with John. Relational — grab lunch."
+      "prep_hint": "Lunch with John at 2700 Annapolis Cir N, Plymouth. Relational."
     },
     {
       "date": "Fri May 22",
@@ -235,7 +223,7 @@
       "attendees": "Brandon, Cara, Darcy, Alex, Mark, Chris McDaniel, Caleb, Matt, Angel, John",
       "type": "team_meeting",
       "prep_eligible": true,
-      "prep_hint": "Weekly L10 — bring updates on project minimums language, Katie Highberger interview, storm outreach, Bo hire status."
+      "prep_hint": "Weekly L10 — bring updates on project minimums language, Katie Highberger interview, Bo hire status, Spencer interview outcome."
     },
     {
       "date": "Mon May 26",
@@ -244,7 +232,7 @@
       "attendees": "Caleb, Patrick (roofing), Mark, Patrick (Aleph), Jasmine, Tito, Ben Rangel, Christian",
       "type": "team_meeting",
       "prep_eligible": true,
-      "prep_hint": "PHE L10 — insurance rep sales plan update (Otter transcript from Christian/Micah ready), Bo hire status, deal pipeline review."
+      "prep_hint": "PHE L10 — insurance rep sales plan update, Bo hire status, deal pipeline review, Cousins/McCoy/Samson outcomes."
     },
     {
       "date": "Mon May 26",
@@ -253,16 +241,16 @@
       "attendees": "Christian Kullmann",
       "type": "gam_coaching",
       "prep_eligible": true,
-      "prep_hint": "Coaching Christian on running GAMs. Otter transcripts from May 18 ready (Carter, Shawn, Josh GAMs + debriefs). Build coaching feedback before this session. Two GAMs at 1pm (Alex/Shawn), one at 2:15pm."
+      "prep_hint": "Coaching Christian on running GAMs. Build feedback from Otter transcripts (May 18 Carter, Shawn, Josh sessions) before this. Two live GAMs follow at 1 PM and 2:15 PM."
     },
     {
       "date": "Mon May 26",
       "time": "1:00 PM",
-      "title": "GAM 1 - Alex Cooper / Christian",
+      "title": "Alex Cooper GAM / Christian",
       "attendees": "Alex Cooper, Christian",
       "type": "gam_coaching",
       "prep_eligible": true,
-      "prep_hint": "Micah coaching Christian running GAM with Alex Cooper. Review Christian's GAM coaching themes from Plaud."
+      "prep_hint": "Micah coaching Christian running GAM with Alex Cooper."
     },
     {
       "date": "Mon May 26",
@@ -298,7 +286,7 @@
       "attendees": "Jude",
       "type": "social",
       "prep_eligible": false,
-      "prep_hint": "Evening golf with Jude — father-son time. Enjoy it."
+      "prep_hint": "Evening golf with Jude — father-son time."
     }
   ],
   "plaud": {
@@ -346,13 +334,13 @@
     "source": "Sermon — The Power of Team and God-Sized Dreams (May 17, Hope Community Church)",
     "scripture": "Genesis 13:14-18",
     "call_to_action": "Identify one unreasonable prayer — something impossible without God's direct intervention. Write it down and pray it daily. Prayer-walk your workplace this week.",
-    "status": "Active — sermon notes from Saturday. Bible study Friday 7 AM. Substance Church Saturday."
+    "status": "Active — Bible study tomorrow 7 AM. Substance Church Saturday."
   },
   "marriage": {
     "note": "Peace in my home — authority over the chaos. Boldness to hold the line and have heavenly eyes for Lizzie and the kids.",
     "last_date": "—",
     "next_date": "—",
-    "status": "Set an intention"
+    "status": "Memorial Day weekend ahead — intentional family time. Davis event Saturday."
   },
   "health": {
     "last_draw": "Apr 28, 2026",
@@ -377,19 +365,19 @@
   "business": {
     "ytd_commission": "$77,796",
     "team_size": "14 reps",
-    "status": "Thursday — packed day. PP Sales Team Meeting 9 AM, Patrick GAM 11 AM, Spencer 2nd interview 12:45, Bo contract signing 1:30, Grant Hawkes 2:30. Dev Capacity roadmap proposal active on board email thread. 6 Otter transcripts ready for GAM coaching feedback.",
+    "status": "Thursday afternoon — Spencer interview 12:45, Bo contract signing 1:30, Grant Hawkes 2:30, then home. Morning meetings done. Tomorrow: Exec L10, AI Alignment, John lunch, Eric Bockelman, SRS Happy Hour. Payroll Friday — Matt commission still pending.",
     "commission_status": {
       "approved": ["Stephen Bacon ($5,693.85)", "Chris Sidla ($3,386.15)", "Seth Bostrom ($153.60)", "Ben Rangel ($3,642.36)", "Nick Brattin ($523.10)", "Grant Herbert ($116.79)", "Noah Ondrusik ($3,343.11)", "Seyf Topal ($499.44)", "Mike O'Meara ($1,265)", "Noah Franzen ($965.17)", "Nick Lane ($3,958.98)", "Justin Satterberg ($2,214.32)", "Brandon Stahnke (paid early)"],
       "pending": ["Matt Rawski ($7,489.75)"],
-      "note": "13/14 approved. Matt still pending — payroll is Friday."
+      "note": "13/14 approved. Matt still pending — payroll is TOMORROW."
     },
-    "new_this_week": "Dev Capacity roadmap proposal from Kyle — board discussing 80/20 allocation. Katie Highberger candidate flagged by Christian (PHE female sales rep). Darcy proposed winter-scheduling language for project minimums. 6 Otter transcripts ready from Christian GAM coaching sessions (May 18-19). Caleb $2,040 Ramp alert at Five Star Rated."
+    "new_this_week": "Dev Capacity roadmap proposal from Kyle — board discussing 80/20 allocation. Katie Highberger candidate flagged by Christian (PHE female sales rep). Darcy proposed winter-scheduling language for project minimums. 6 Otter transcripts ready from Christian GAM coaching sessions (May 18-19). Caleb $2,040 Ramp alert at Five Star Rated. Alex Calof scheduled Micah & Alex Check Point and Monthly Financial Meetings for early July."
   },
   "fun": {
     "children": [
       { "name": "Jude" }, { "name": "Nori" }, { "name": "Mae" }, { "name": "Benji" }, { "name": "Will" }
     ],
-    "note": "Davis Memorial Day event Saturday. Jude and Micah golf Monday evening. Summer League registration opens Tuesday May 26. Memorial Day weekend ahead.",
-    "status": "Long weekend coming — Memorial Day plans in place"
+    "note": "Davis Memorial Day event Saturday noon. Jude and Micah golf Monday 7 PM. Summer League registration Tuesday May 26 at 9 AM (Founding Members). Memorial Day weekend ahead.",
+    "status": "Long weekend coming — Memorial Day plans in place. Golf with Jude Monday evening."
   }
 }
