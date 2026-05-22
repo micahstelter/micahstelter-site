@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matt Rawski — Welcome</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FAF7F1;
+    --ink: #1E1C18;
+    --ink-soft: #3D3A34;
+    --muted: #8F8B81;
+    --muted-soft: #B5B0A4;
+    --rule: #E8E2D4;
+    --rule-soft: #EFEADC;
+    --accent: #B84A1C;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Geist', -apple-system, system-ui, sans-serif;
+    font-weight: 400;
+    font-size: 15px;
+    line-height: 1.55;
+    min-height: 100vh;
+    padding: 32px 20px 60px;
+  }
+
+  .page {
+    max-width: 640px;
+    margin: 0 auto;
+    opacity: 0;
+    animation: fade 0.6s ease-out 0.05s forwards;
+  }
+
+  @keyframes fade {
+    to { opacity: 1; }
+  }
+
+  /* Breadcrumb */
+  .crumb {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.02em;
+    margin-bottom: 28px;
+  }
+  .crumb span { color: var(--muted-soft); margin: 0 6px; }
+  .crumb b { font-weight: 400; color: var(--ink-soft); }
+
+  /* Identity row */
+  .who {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #D8C9A8, #A89878);
+    flex-shrink: 0;
+    overflow: hidden;
+    position: relative;
+  }
+  .avatar::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.3), transparent 50%);
+  }
+  .who-text { font-size: 14px; color: var(--muted); line-height: 1.5; }
+  .who-text strong { color: var(--ink); font-weight: 500; display: block; font-size: 15px; }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 24px;
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 44px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 0;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    font-size: 13px;
+    color: var(--muted);
+    padding: 0 0 12px;
+    position: relative;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+  .tab:hover { color: var(--ink-soft); }
+  .tab.active {
+    color: var(--ink);
+  }
+  .tab.active::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; bottom: -1px;
+    height: 1px;
+    background: var(--ink);
+  }
+  .tab-count {
+    font-size: 11px;
+    color: var(--muted-soft);
+    margin-left: 4px;
+  }
+
+  /* Headline */
+  h1.lede {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-weight: 400;
+    font-size: 26px;
+    line-height: 1.28;
+    letter-spacing: -0.005em;
+    color: var(--ink);
+    margin-bottom: 44px;
+    max-width: 36ch;
+  }
+  h1.lede .money {
+    color: var(--accent);
+    font-style: italic;
+  }
+
+  /* Stats row */
+  .stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0;
+    margin-bottom: 56px;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    padding: 22px 0;
+  }
+  .stat {
+    padding: 0 18px;
+    border-right: 1px solid var(--rule-soft);
+  }
+  .stat:first-child { padding-left: 0; }
+  .stat:last-child { border-right: none; padding-right: 0; }
+
+  .stat-label {
+    font-size: 10.5px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  .stat-value {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: 22px;
+    font-weight: 400;
+    line-height: 1.1;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+  .stat-value.featured { color: var(--accent); }
+  .stat-note {
+    font-size: 11.5px;
+    color: var(--muted);
+    line-height: 1.3;
+  }
+
+  /* Sections */
+  section { margin-bottom: 40px; }
+  section:last-of-type { margin-bottom: 0; }
+
+  .section-label {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-style: italic;
+    font-size: 15px;
+    color: var(--muted);
+    margin-bottom: 14px;
+    font-weight: 400;
+  }
+  .section-body {
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--ink-soft);
+    max-width: 60ch;
+  }
+  .section-body + .section-body { margin-top: 14px; }
+
+  /* Footer hint */
+  .hint {
+    margin-top: 56px;
+    padding-top: 24px;
+    border-top: 1px solid var(--rule-soft);
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-style: italic;
+    font-size: 13.5px;
+    color: var(--muted);
+  }
+
+  /* Responsive */
+  @media (max-width: 480px) {
+    body { padding: 24px 18px 50px; }
+    h1.lede { font-size: 22px; margin-bottom: 36px; }
+    .stats {
+      grid-template-columns: 1fr;
+      gap: 0;
+      padding: 0;
+    }
+    .stat {
+      padding: 18px 0;
+      border-right: none;
+      border-bottom: 1px solid var(--rule-soft);
+    }
+    .stat:last-child { border-bottom: none; }
+    .stat-value { font-size: 24px; }
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+
+    <!-- Quieter breadcrumb -->
+    <div class="crumb">
+      Portfolio <span>›</span> Mark Nelson <span>›</span> Paris Painting <span>›</span> Matt's Crew <span>›</span> <b>Matt Rawski</b>
+    </div>
+
+    <!-- Compressed identity -->
+    <div class="who">
+      <div class="avatar"></div>
+      <div class="who-text">
+        <strong>Matt Rawski</strong>
+        Lead · Player-Coach · 11 bids this week
+      </div>
+    </div>
+
+    <!-- Tabs: thin, single weight, underline only -->
+    <nav class="tabs" aria-label="Sections">
+      <div class="tab active">Welcome</div>
+      <div class="tab">Bids<span class="tab-count">11</span></div>
+      <div class="tab">Weekly Rollup</div>
+      <div class="tab">Field Intel</div>
+      <div class="tab">Coaching Push</div>
+      <div class="tab">Recordings</div>
+      <div class="tab">Adoption</div>
+    </nav>
+
+    <!-- Headline: serif, lighter, one accent moment -->
+    <h1 class="lede">
+      You closed Michelle Morales on the spot at <span class="money">$2,838</span> this week, with a homeowner who was nervous about the budget from her first phone call and signed anyway.
+    </h1>
+
+    <!-- Stats: stripped to bone, vertical rules only -->
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-label">Sold on the spot</div>
+        <div class="stat-value featured">$2,838</div>
+        <div class="stat-note">Michelle Morales</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Crushing the walk</div>
+        <div class="stat-value">3.05 <span style="font-size:13px;color:var(--muted);font-family:Geist;font-style:normal;">avg</span></div>
+        <div class="stat-note">last 7 days</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">On the board</div>
+        <div class="stat-value">11 <span style="font-size:13px;color:var(--muted);font-family:Geist;font-style:normal;">bids</span></div>
+        <div class="stat-note">recorded · last 7 days</div>
+      </div>
+    </div>
+
+    <!-- Sections: italic serif labels, prose front and center -->
+    <section>
+      <div class="section-label">What's going well</div>
+      <p class="section-body">Your technical walk is the strongest part of your game right now, and it holds up with the toughest audiences. You matched Carol Olyphant, a painter of 40 years, word for word on lead-safe prep and carpentry T&amp;M, and she handed you the close. When the budget anchor lands it lands clean — Emily Quigg's $6,000 to $7,000 range coming in at $6,100, and Carol's $4K gut ballpark landing at $5,186 with the add-ons that explained the gap.</p>
+    </section>
+
+    <section>
+      <div class="section-label">What to work on</div>
+      <p class="section-body">The one thing to tighten is the back half of the bid: run the Summary Before Break and the trial close before you leave to estimate, every appointment, so the ask for the job has a place to land instead of going soft at the price reveal. That section scored 2.14 this window and it was the gap on nearly every bid that didn't close on the spot, so ask yourself: what's it going to take this week to run that block as a habit, not a thing I remember only on the easy ones?</p>
+    </section>
+
+    <div class="hint">Want the detail? Your bids, field intel, and adoption are in the tabs above.</div>
+
+  </div>
+
+  <script>
+    // Light tab interaction so the prototype feels alive
+    document.querySelectorAll('.tab').forEach(t => {
+      t.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+        t.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>
