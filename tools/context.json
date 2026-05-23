@@ -1,150 +1,127 @@
 {
-  "updated": "May 22, 2026 — 6:00 AM",
+  "updated": "May 23, 2026 — 6:00 AM",
   "attention": [
-    {
-      "source": "gmail",
-      "from": "Jason (Aleph)",
-      "summary": "Two emails overnight: Field Pulse Sales 2 Scaling Learnings + Rep Welcome Page, and L10 Coach Day 1 (synergizing L10 feedback with agentic coaching). Both include video walkthroughs.",
-      "priority_area": "business",
-      "urgency": "urgent",
-      "time": "Early this morning",
-      "suggested_action": "Watch Jason's videos before AI Alignment at 11 AM. These feed directly into today's discussion with AJ."
-    },
-    {
-      "source": "calendar",
-      "from": "Today's schedule",
-      "summary": "Full Friday: Bible Study 7 AM, Exec L10 9:30, AI Alignment 11, lunch with John Juran noon, Eric Bockelman 1:30, SRS Happy Hour 3 PM. Payroll due today.",
-      "priority_area": "business",
-      "urgency": "urgent",
-      "time": "Today",
-      "suggested_action": "Prep Exec L10 talking points: Bo hire status, Spencer interview debrief, Darcy project minimums, Katie Highberger, Matt commission status. Confirm payroll is processing."
-    },
     {
       "source": "plaud",
       "from": "Plaud Board (May 12-14)",
-      "summary": "Open loops still active: Schindle job (loop Mark on scope reduction), Cousins promo (expired — need contract sent), McCoy breakup email, Samson decision. Ben pipeline was targeting $85K.",
+      "summary": "Open loops still active: Schindle job (loop Mark on scope reduction), Cousins promo (expired — contract needed), McCoy breakup email, Samson decision. Ben pipeline was targeting $85K closed.",
       "priority_area": "business",
       "urgency": "urgent",
       "time": "This week",
-      "suggested_action": "Check with Ben on Cousins contract, McCoy breakup email, and Samson/Megan outcomes. Loop Mark on Schindle before L10 Monday."
-    },
-    {
-      "source": "gmail",
-      "from": "Ramp",
-      "summary": "Weekly digest: 24 transactions with missing items requiring action, including $32.20 at Troy Burne Golf.",
-      "priority_area": "business",
-      "urgency": "normal",
-      "time": "This morning",
-      "suggested_action": "Block 15 minutes to clean up Ramp receipts/memos. Delegate what you can."
-    },
-    {
-      "source": "gmail",
-      "from": "Caleb / Amanda (Buenly)",
-      "summary": "Memorial Day Campaign 2026 is live. Amanda's team started dialing PHE list and has questions on 'No Contact' accounts and whether to skip reps recently in contact.",
-      "priority_area": "business",
-      "urgency": "normal",
-      "time": "Yesterday",
-      "suggested_action": "Confirm Caleb is handling Amanda's questions. No action needed unless Caleb escalates."
+      "suggested_action": "Follow up with Ben on Cousins contract, McCoy breakup email, and Samson/Megan outcomes. Loop Mark on Schindle before L10 Tuesday."
     },
     {
       "source": "calendar",
-      "from": "Monday May 26",
-      "summary": "Heavy Tuesday back from Memorial Day: PP L10 9 AM, PHE L10 11 AM, Christian GAM Coaching 12:30 (Alex Cooper GAM 1 PM, Shawn GAM 2:15), Debrief 3:15, Baldamar Meet & Greet 4 PM, Jude & Micah Golf 7 PM.",
+      "from": "Tuesday May 26",
+      "summary": "Heavy day back from Memorial Day: PP L10 9 AM, PHE L10 11 AM, Prep 12:30, Christian GAM Coaching 12:30-3:45 (Alex Cooper GAM 1 PM, Shawn GAM 2:15), Debrief 3:15, Baldamar Meet & Greet 4 PM, Jude & Micah Golf 7 PM.",
       "priority_area": "business",
-      "urgency": "normal",
+      "urgency": "urgent",
       "time": "Tuesday",
-      "suggested_action": "Prep GAM coaching feedback for Christian's sessions before Tuesday. Pull Otter transcripts this weekend if available."
+      "suggested_action": "Prep L10 talking points and GAM coaching themes over the weekend. Pull any available transcripts for Christian's coaching sessions."
     },
     {
       "source": "calendar",
       "from": "Wednesday May 27",
-      "summary": "PHE Candidate Review 9 AM (with Christian & Adrian/Mitsuoka), Ben GAM 9 AM, Patrick GAM 10:15, Retail Estimate Training 12:15, Coaching Block with Ben/Patrick 2:45-6 PM, Nathan's Bday Party 7 PM.",
+      "summary": "PHE Candidate Review 9 AM, Ben GAM 9 AM, Patrick GAM 10:15, Haakon & Micah 11:15, Retail Estimate Training 12:15, Coaching Block 2:45-6 PM, Nathan's Bday Party 7 PM.",
+      "priority_area": "business",
+      "urgency": "urgent",
+      "time": "Wednesday",
+      "suggested_action": "Prepare for Ben and Patrick GAMs — review pipeline data from Plaud. Prep Retail Estimate Training materials."
+    },
+    {
+      "source": "gmail",
+      "from": "Ramp",
+      "summary": "Caleb Svendsgaard's $1,195.45 transaction at 4over, Inc. triggered an alert. Also: weekly digest shows 24 transactions with missing items needing action.",
+      "priority_area": "business",
+      "urgency": "normal",
+      "time": "Yesterday",
+      "suggested_action": "Review the 4over alert — check if expected. Block 15 minutes to clean up Ramp receipts/memos next week."
+    },
+    {
+      "source": "gmail",
+      "from": "Gusto",
+      "summary": "Payroll processed: Stelter Solutions received $8,948.02 (79.2 hrs) + $384.62 (reimbursement) from Aleph Holdings on 5/22.",
+      "priority_area": "business",
+      "urgency": "normal",
+      "time": "Yesterday",
+      "suggested_action": "Payroll confirmed — no action needed."
+    },
+    {
+      "source": "gmail",
+      "from": "Ramp",
+      "summary": "1 reimbursement approved — $500 payment heading to bank account ending 0199, arriving by 5/27.",
+      "priority_area": "business",
+      "urgency": "low",
+      "time": "Yesterday",
+      "suggested_action": "No action — reimbursement is processing."
+    },
+    {
+      "source": "gmail",
+      "from": "LiveFlow",
+      "summary": "Update on Transaction Detail Report Availability — changes to the report and recommended path forward.",
       "priority_area": "business",
       "urgency": "normal",
       "time": "Wednesday",
-      "suggested_action": "Prepare for Ben and Patrick GAMs. Review pipeline data from Plaud. Retail Estimate Training prep needed."
+      "suggested_action": "Review LiveFlow update when back in office Tuesday. Check if it affects month-end reporting."
+    },
+    {
+      "source": "gmail",
+      "from": "360Learning",
+      "summary": "New user robert@prestopaintingservices.com joined training spaces: Aleph Ventures, Sales, Wallogy, Presto Painting.",
+      "priority_area": "business",
+      "urgency": "low",
+      "time": "Wednesday",
+      "suggested_action": "Confirm Robert's onboarding is on track with Presto team."
+    },
+    {
+      "source": "gmail",
+      "from": "CompanyCam",
+      "summary": "CompanyCam updated Terms and Conditions, Privacy Notice, and Data Processing Addendum.",
+      "priority_area": "business",
+      "urgency": "low",
+      "time": "Wednesday",
+      "suggested_action": "Review updated terms when convenient — no immediate action."
+    },
+    {
+      "source": "gmail",
+      "from": "MN Valley Young Life",
+      "summary": "Thank you from the Crystal Lake golf event — great turnout and sponsor support.",
+      "priority_area": "fun",
+      "urgency": "low",
+      "time": "Yesterday",
+      "suggested_action": "Enjoy the recap. No action needed."
     },
     {
       "source": "note",
       "from": "Hope Community Church",
-      "summary": "May 17 sermon: The Power of Team and God-Sized Dreams — Genesis 13:14-18. Walk the land, dream bigger, embrace community. Hudson Taylor: raise the cost, don't lower it.",
+      "summary": "May 17 sermon: The Power of Team and God-Sized Dreams — Genesis 13:14-18. Walk the land, dream bigger, embrace community. Hudson Taylor: raised the cost to see who would surrender.",
       "priority_area": "faith",
       "urgency": "normal",
       "time": "May 17",
-      "suggested_action": "Bible study this morning at 7 AM. Substance Church Sunday. Continue daily unreasonable prayer."
+      "suggested_action": "Substance Church tomorrow morning. Continue daily unreasonable prayer. Prayer-walk your workplace this week."
     },
     {
-      "source": "gmail",
-      "from": "Court Reserve",
-      "summary": "CT Tournament THIS WEEKEND at Chip's — events start today at noon through Monday 6 PM. Paddle trade-in event all weekend.",
+      "source": "calendar",
+      "from": "This weekend",
+      "summary": "Saturday: YMCA 10:30 AM. Sunday: Substance Church 9 AM, Davis Memorial Day event noon-5 PM. Monday: Memorial Day — family time.",
       "priority_area": "fun",
-      "urgency": "low",
-      "time": "Yesterday",
-      "suggested_action": "Check if you want to catch any tournament action this weekend between family plans."
+      "urgency": "normal",
+      "time": "This weekend",
+      "suggested_action": "Rest, recharge, be present with family. Enjoy the Davis event and Memorial Day."
     }
   ],
   "briefing": [
-    { "time": "7:00 AM", "title": "Bible Study" },
-    { "time": "9:30 AM", "title": "Aleph Exec L10" },
-    { "time": "11:00 AM", "title": "AI Alignment" },
-    { "time": "12:00 PM", "title": "John / Micah Time (lunch)" },
-    { "time": "1:30 PM", "title": "Eric / Micah" },
-    { "time": "3:00 PM", "title": "Happy Hour - SRS / Paris Brands" }
+    { "time": "10:30 AM", "title": "YMCA" }
   ],
   "upcoming_events": [
     {
-      "date": "Fri May 22",
-      "time": "7:00 AM",
-      "title": "Bible Study",
+      "date": "Sat May 23",
+      "time": "10:30 AM",
+      "title": "YMCA",
       "attendees": "",
       "type": "social",
       "prep_eligible": false,
-      "prep_hint": "Weekly Bible study at Paris Painting office. Sermon reflection: God-sized dreams and community."
-    },
-    {
-      "date": "Fri May 22",
-      "time": "9:30 AM",
-      "title": "Aleph Exec L10",
-      "attendees": "Chet, Erich, Alex, Mark",
-      "type": "team_meeting",
-      "prep_eligible": true,
-      "prep_hint": "Topics: Bo hire status, Spencer interview debrief, Darcy's project minimums, Katie Highberger candidate, Matt commission/payroll, Dev Capacity roadmap, Jason's Field Pulse + L10 Coach videos."
-    },
-    {
-      "date": "Fri May 22",
-      "time": "11:00 AM",
-      "title": "AI Alignment",
-      "attendees": "AJ (Larson Tech), Jason, Erich, Chet, Alex, Kyle",
-      "type": "external",
-      "prep_eligible": true,
-      "prep_hint": "Biweekly AI/Wallogy alignment. Watch Jason's overnight videos (Field Pulse scaling + L10 Coach). Kyle's 80/20 roadmap proposal. Dev Capacity thread."
-    },
-    {
-      "date": "Fri May 22",
-      "time": "12:00 PM",
-      "title": "John / Micah Time",
-      "attendees": "John Juran",
-      "type": "one_on_one",
-      "prep_eligible": false,
-      "prep_hint": "Lunch at 2700 Annapolis Cir N, Plymouth. Relational — grab lunch."
-    },
-    {
-      "date": "Fri May 22",
-      "time": "1:30 PM",
-      "title": "Eric / Micah",
-      "attendees": "Eric Bockelman",
-      "type": "one_on_one",
-      "prep_eligible": true,
-      "prep_hint": "At Paris Painting office (3515 48th Ave N). Clarify meeting purpose."
-    },
-    {
-      "date": "Fri May 22",
-      "time": "3:00 PM",
-      "title": "Happy Hour - SRS / Paris Brands",
-      "attendees": "Brad Holden, Jake Raether (SRS), Mark, Erich",
-      "type": "external",
-      "prep_eligible": false,
-      "prep_hint": "Vendor relationship building with SRS Building Products."
+      "prep_hint": "Workout — no prep needed."
     },
     {
       "date": "Sun May 24",
@@ -158,7 +135,7 @@
     {
       "date": "Sun May 24",
       "time": "12:00 PM",
-      "title": "Davis Memorial Day event",
+      "title": "Davis Memorial Day Event",
       "attendees": "Family",
       "type": "social",
       "prep_eligible": false,
@@ -180,7 +157,7 @@
       "attendees": "Brandon, Cara, Darcy, Alex, Mark, Chris McDaniel, Caleb, Matt, Angel, John",
       "type": "team_meeting",
       "prep_eligible": true,
-      "prep_hint": "Weekly L10 — bring updates on project minimums, Katie Highberger, Bo hire, Spencer outcome, Memorial Day campaign results."
+      "prep_hint": "Weekly L10 — bring updates on Schindle scope reduction, Cousins/McCoy/Samson outcomes, Memorial Day campaign results, new Presto user onboarded."
     },
     {
       "date": "Tue May 26",
@@ -189,16 +166,16 @@
       "attendees": "Caleb, Patrick, Mark, Patrick (Aleph), Jasmine, Tito, Ben Rangel, Christian",
       "type": "team_meeting",
       "prep_eligible": true,
-      "prep_hint": "PHE L10 — deal pipeline review, Cousins/McCoy/Samson outcomes, Bo hire update, insurance rep sales plan."
+      "prep_hint": "PHE L10 — Ben's pipeline outcomes, insurance rep plan, 4over alert follow-up with Caleb."
     },
     {
       "date": "Tue May 26",
       "time": "12:30 PM",
-      "title": "Christian GAM Coaching",
+      "title": "Prep + Christian GAM Coaching",
       "attendees": "Christian Kullmann",
       "type": "gam_coaching",
       "prep_eligible": true,
-      "prep_hint": "Coaching Christian on running GAMs. Two live GAMs follow (Alex Cooper 1 PM, Shawn 2:15 PM). Prep with Plaud coaching themes: same-week decisions, adapt to client profile."
+      "prep_hint": "Coaching Christian on running GAMs. Two live GAMs follow (Alex Cooper 1 PM, Shawn 2:15 PM). Plaud themes: same-week decisions, adapt to client profile, spirit > letter of sales model."
     },
     {
       "date": "Tue May 26",
@@ -252,7 +229,7 @@
       "attendees": "Christian, Adrian (Mitsuoka)",
       "type": "interview",
       "prep_eligible": true,
-      "prep_hint": "Recurring candidate review with Mitsuoka recruiter. Katie Highberger update. Via RingCentral."
+      "prep_hint": "Recurring candidate review with Mitsuoka recruiter. Via RingCentral."
     },
     {
       "date": "Wed May 27",
@@ -261,7 +238,7 @@
       "attendees": "Ben Rangel",
       "type": "gam",
       "prep_eligible": true,
-      "prep_hint": "Plaud pipeline: Megan Clark $12.8K, Marty fence $17.5K, Cousins ~$30K, Samson $32K, Fletcher ~$30K, Hayden ~$50K. Get outcomes on all open deals."
+      "prep_hint": "Plaud pipeline: Megan Clark $12.8K, Marty fence $17.5K, Cousins ~$30K, Samson $32K, Fletcher ~$30K, Hayden ~$50K. Get outcomes on all open deals. Target was $85K."
     },
     {
       "date": "Wed May 27",
@@ -271,6 +248,15 @@
       "type": "gam",
       "prep_eligible": true,
       "prep_hint": "Review Patrick's pipeline. Plaud theme: marketing mix — Patrick at 60% door-knock, target 20-30%."
+    },
+    {
+      "date": "Wed May 27",
+      "time": "11:15 AM",
+      "title": "Haakon & Micah",
+      "attendees": "Haakon Hansen",
+      "type": "one_on_one",
+      "prep_eligible": true,
+      "prep_hint": "New meeting with Haakon — clarify agenda. Haakon accepted yesterday."
     },
     {
       "date": "Wed May 27",
@@ -298,14 +284,50 @@
       "type": "social",
       "prep_eligible": false,
       "prep_hint": "Birthday celebration — enjoy it."
+    },
+    {
+      "date": "Thu May 28",
+      "time": "9:00 AM",
+      "title": "Micah & Alex Check Point",
+      "attendees": "Alex Calof",
+      "type": "one_on_one",
+      "prep_eligible": true,
+      "prep_hint": "PHE priorities / check point, Paris priorities / check point. Weekly sync with Alex."
+    },
+    {
+      "date": "Thu May 28",
+      "time": "11:00 AM",
+      "title": "Block Calendar / Sales Plan for Energy",
+      "attendees": "Seth Bostrom",
+      "type": "one_on_one",
+      "prep_eligible": true,
+      "prep_hint": "Work with Seth on blocking calendar and sales planning for energy and focus."
+    },
+    {
+      "date": "Thu May 28",
+      "time": "12:30 PM",
+      "title": "Coaching Block - Ben / Patrick",
+      "attendees": "Ben Rangel, Patrick Darlington",
+      "type": "gam_coaching",
+      "prep_eligible": true,
+      "prep_hint": "Second coaching block of the week. Build on Tuesday/Wednesday insights."
+    },
+    {
+      "date": "Thu May 28",
+      "time": "7:00 PM",
+      "title": "Dinner Event",
+      "attendees": "",
+      "type": "social",
+      "prep_eligible": false,
+      "prep_hint": "Evening dinner — enjoy it."
     }
   ],
   "plaud": {
-    "last_scraped": "May 22, 2026",
+    "last_scraped": "May 23, 2026",
     "date_range": "May 12-14, 2026",
     "open_loops": [
       "Schindle job — Noah O underbid; drop interior, ~17% margin. Loop Mark.",
-      "Patrick (hire) — health insurance hangup; lean W2 + Aleph plan. Bo Anderson hired — contract signed yesterday.",
+      "Patrick (hire) — health insurance hangup; lean W2 + Aleph plan. Bo Anderson hired.",
       "Megan Clark contract — was Saturday 2pm in-person. Get outcome from Ben.",
       "Bill Cousins — promo expired; send contract NOW, ask yes/no.",
       "Samson + McCoy — Samson decision at $32K; McCoy needs breakup email."
@@ -345,7 +367,7 @@
     "source": "Sermon — The Power of Team and God-Sized Dreams (May 17, Hope Community Church)",
     "scripture": "Genesis 13:14-18",
     "call_to_action": "Identify one unreasonable prayer — something impossible without God's direct intervention. Write it down and pray it daily. Prayer-walk your workplace this week.",
-    "status": "Active — Bible study this morning 7 AM. Substance Church Sunday."
+    "status": "Substance Church tomorrow morning 9 AM. Continue daily unreasonable prayer."
   },
   "marriage": {
     "note": "Peace in my home — authority over the chaos. Boldness to hold the line and have heavenly eyes for Lizzie and the kids.",
@@ -376,19 +398,19 @@
   "business": {
     "ytd_commission": "$77,796",
     "team_size": "14 reps",
-    "status": "Friday — Exec L10 9:30, AI Alignment 11, lunch with John noon, Eric Bockelman 1:30, SRS Happy Hour 3. Payroll due today. Jason sent overnight videos on Field Pulse scaling and L10 Coach agentic coaching. Memorial Day weekend ahead, then heavy Tuesday/Wednesday with L10s, GAM coaching, and training.",
+    "status": "Saturday — Memorial Day weekend. Payroll processed yesterday ($8,948.02 + $384.62 reimbursement). Ramp alert on Caleb's $1,195 4over transaction. 24 Ramp transactions need cleanup. Heavy Tuesday-Thursday ahead with L10s, GAM coaching, training, and coaching blocks.",
     "commission_status": {
       "approved": ["Stephen Bacon ($5,693.85)", "Chris Sidla ($3,386.15)", "Seth Bostrom ($153.60)", "Ben Rangel ($3,642.36)", "Nick Brattin ($523.10)", "Grant Herbert ($116.79)", "Noah Ondrusik ($3,343.11)", "Seyf Topal ($499.44)", "Mike O'Meara ($1,265)", "Noah Franzen ($965.17)", "Nick Lane ($3,958.98)", "Justin Satterberg ($2,214.32)", "Brandon Stahnke (paid early)"],
       "pending": ["Matt Rawski ($7,489.75)"],
-      "note": "13/14 approved. Matt still pending — payroll is TODAY."
+      "note": "13/14 approved. Matt still pending."
     },
-    "new_this_week": "Jason overnight: Field Pulse Sales 2 Scaling + Rep Welcome Page, L10 Coach Day 1 (agentic coaching). Memorial Day Campaign launched (Caleb + Buenly). 360Learning: new Presto Painting user onboarded. LiveFlow Transaction Detail report update. CompanyCam terms updated. Ramp: 24 transactions need cleanup."
+    "new_this_week": "Payroll confirmed 5/22. Ramp: Caleb $1,195.45 at 4over alert + 24 missing items. $500 reimbursement approved. LiveFlow transaction detail report update. CompanyCam updated terms. 360Learning: Presto Painting user onboarded. Haakon accepted Wed 5/27 meeting."
   },
   "fun": {
     "children": [
       { "name": "Jude" }, { "name": "Nori" }, { "name": "Mae" }, { "name": "Benji" }, { "name": "Will" }
     ],
-    "note": "CT Tournament all weekend at Chip's (paddle trade-in event). Davis Memorial Day event Sunday noon. Jude and Micah golf Tuesday 7 PM. Nathan's Bday Party Wednesday 7 PM.",
-    "status": "Long Memorial Day weekend — Davis event, church, family time. Golf with Jude Tuesday evening. Nathan's birthday Wednesday."
+    "note": "Memorial Day weekend — Davis event Sunday, family day Monday. Jude and Micah golf Tuesday 7 PM. Nathan's Bday Party Wednesday 7 PM. Dinner event Thursday 7 PM. MN Valley Young Life golf was a hit.",
+    "status": "Long Memorial Day weekend ahead — rest, recharge, be present with family."
   }
 }
