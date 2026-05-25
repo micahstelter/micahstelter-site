@@ -1,59 +1,32 @@
 {
-  "updated": "May 24, 2026 — 2:00 PM",
+  "updated": "May 25, 2026 — 6:00 AM",
   "attention": [
     {
       "source": "calendar",
       "from": "Today",
-      "summary": "Davis Memorial Day event wrapping up (noon-5 PM). Tomorrow is Memorial Day — family day. Rest of today is free.",
+      "summary": "Memorial Day — family day. No work obligations. YMCA morning and evening if desired. Possible Matt Steele hangout tonight at 9:30 PM.",
       "priority_area": "fun",
       "urgency": "normal",
-      "time": "Now",
-      "suggested_action": "Be present with family the rest of the day. Enjoy the holiday weekend."
+      "time": "All Day",
+      "suggested_action": "Rest and be present with Lizzie and the kids. Enjoy the holiday."
     },
     {
       "source": "gmail",
       "from": "Otter.ai",
-      "summary": "Today's Substance Church sermon transcript is ready — Pastor Nate Puccini, 5/24/26 (47 min).",
+      "summary": "Pastor Nate Puccini sermon transcript from yesterday (5/24/26, 47 min) is ready to review in Otter.",
       "priority_area": "faith",
       "urgency": "normal",
-      "time": "11:18 AM",
-      "suggested_action": "Review the Otter transcript from this morning's sermon when you have a quiet moment. Could update the faith section with fresh notes."
+      "time": "Yesterday",
+      "suggested_action": "Review the Otter transcript from yesterday's Substance Church sermon. Update faith section with fresh notes and call to action."
     },
     {
       "source": "calendar",
-      "from": "Tuesday May 26",
-      "summary": "Heavy day back from Memorial Day: PP L10 9 AM, PHE L10 11 AM, Prep 12:30, Christian GAM Coaching 12:30-3:45 (Alex Cooper GAM 1 PM, Shawn GAM 2:15), Debrief 3:15, Baldamar Meet & Greet 4 PM, Jude & Micah Golf 7 PM.",
+      "from": "Tomorrow (Tue May 26)",
+      "summary": "Packed day back from Memorial Day: PP L10 9 AM, PHE L10 11 AM, Prep 12:30, Christian GAM Coaching 12:30-3:45 (Alex Cooper GAM 1 PM, Shawn GAM 2:15), Debrief 3:15, Baldamar Meet & Greet 4 PM, Jude & Micah Golf 7 PM.",
       "priority_area": "business",
       "urgency": "urgent",
-      "time": "Tuesday",
-      "suggested_action": "Prep L10 talking points and GAM coaching themes over the weekend. Pull any available transcripts for Christian's coaching sessions."
-    },
-    {
-      "source": "calendar",
-      "from": "Wednesday May 27",
-      "summary": "PHE Candidate Review 9 AM, Ben GAM 9 AM, Patrick GAM 10:15, Haakon & Micah 11:15, Retail Estimate Training 12:15, Coaching Block 2:45-6 PM, Nathan's Bday Party 7 PM.",
-      "priority_area": "business",
-      "urgency": "urgent",
-      "time": "Wednesday",
-      "suggested_action": "Prepare for Ben and Patrick GAMs — review pipeline data from Plaud. Prep Retail Estimate Training materials."
-    },
-    {
-      "source": "calendar",
-      "from": "Thursday May 28",
-      "summary": "Micah & Alex Check Point 9 AM, Seth Block Calendar / Sales Plan 11 AM, Coaching Block 12:30-6 PM, Dinner Event 7 PM.",
-      "priority_area": "business",
-      "urgency": "urgent",
-      "time": "Thursday",
-      "suggested_action": "Prep Alex check point — PHE and Paris priorities. Work with Seth on calendar blocking and energy management."
-    },
-    {
-      "source": "calendar",
-      "from": "Friday May 29",
-      "summary": "Bible Study 7 AM, Aleph Exec L10 9:30-11 AM, May Board of Governors (BOG) 11 AM-3 PM. Big leadership day.",
-      "priority_area": "business",
-      "urgency": "urgent",
-      "time": "Friday",
-      "suggested_action": "Prep Exec L10 talking points — check the Exec L10 Google Sheet. BOG follows immediately — prepare financial updates and strategic issues for Jason, Chet, Erich, Alex, Mark."
+      "time": "Tomorrow",
+      "suggested_action": "Prep L10 talking points and GAM coaching themes tonight or early tomorrow. Pull Plaud themes for Christian's coaching sessions."
     },
     {
       "source": "plaud",
@@ -65,13 +38,31 @@
       "suggested_action": "Follow up with Ben on Cousins contract, McCoy breakup email, and Samson/Megan outcomes. Loop Mark on Schindle before L10 Tuesday."
     },
     {
-      "source": "gmail",
-      "from": "Ramp",
-      "summary": "Caleb Svendsgaard's $1,195.45 transaction at 4over, Inc. triggered an alert.",
+      "source": "calendar",
+      "from": "Wednesday May 27",
+      "summary": "PHE Candidate Review 9 AM, Ben GAM 9 AM, Patrick GAM 10:15, Haakon & Micah 11:15, Retail Estimate Training 12:15, Coaching Block 2:45-6 PM, Nathan's Bday Party 7 PM.",
       "priority_area": "business",
       "urgency": "normal",
-      "time": "Earlier this week",
-      "suggested_action": "Review the 4over alert — check if expected. Mention to Caleb at L10 if needed."
+      "time": "Wednesday",
+      "suggested_action": "Prepare for Ben and Patrick GAMs — review pipeline data from Plaud. Prep Retail Estimate Training materials."
+    },
+    {
+      "source": "calendar",
+      "from": "Thursday May 28",
+      "summary": "Micah & Alex Check Point 9 AM, Seth Block Calendar / Sales Plan 11 AM, Coaching Block 12:30-6 PM, Dinner Event 7 PM.",
+      "priority_area": "business",
+      "urgency": "normal",
+      "time": "Thursday",
+      "suggested_action": "Prep Alex check point — PHE and Paris priorities. Work with Seth on calendar blocking and energy management."
+    },
+    {
+      "source": "calendar",
+      "from": "Friday May 29",
+      "summary": "Bible Study 7 AM, Aleph Exec L10 9:30-11 AM, May Board of Governors (BOG) 11 AM-3 PM. Big leadership day.",
+      "priority_area": "business",
+      "urgency": "normal",
+      "time": "Friday",
+      "suggested_action": "Prep Exec L10 talking points — check the Exec L10 Google Sheet. BOG follows immediately — prepare financial updates and strategic issues."
     },
     {
       "source": "gmail",
@@ -79,49 +70,41 @@
       "summary": "Private event invite: SOAR Leadership Workshop June 24, 9-11 AM in Minneapolis. Focus on alignment — right people doing the right work.",
       "priority_area": "business",
       "urgency": "low",
-      "time": "This week",
-      "suggested_action": "Review SOAR invite — decide if worth attending June 24."
-    },
-    {
-      "source": "gmail",
-      "from": "Cloudflare",
-      "summary": "Reminder to enable features on micahstelter.ai domain — security and optimization options available.",
-      "priority_area": "business",
-      "urgency": "low",
-      "time": "Yesterday",
-      "suggested_action": "Check Cloudflare dashboard for micahstelter.ai when you have time — enable recommended features."
+      "time": "Last week",
+      "suggested_action": "Decide if SOAR Leadership Workshop June 24 is worth attending. RSVP if so."
     },
     {
       "source": "gmail",
       "from": "Curbside Waste",
-      "summary": "Memorial Day service delay — all residential routes delayed one day the week of May 25.",
+      "summary": "Memorial Day service delay — all residential routes delayed one day this week.",
       "priority_area": "fun",
       "urgency": "low",
       "time": "This week",
-      "suggested_action": "Trash pickup delayed one day this week."
+      "suggested_action": "Trash pickup delayed one day this week due to Memorial Day."
     }
   ],
   "briefing": [
-    { "time": "12:00 PM", "title": "Davis Memorial Day Event (in progress)" }
+    { "time": "All Day", "title": "Memorial Day" },
+    { "time": "9:30 PM", "title": "Matt Steele? (tentative)" }
   ],
   "upcoming_events": [
     {
-      "date": "Sun May 24",
-      "time": "12:00 PM",
-      "title": "Davis Memorial Day Event",
-      "attendees": "Family",
-      "type": "social",
-      "prep_eligible": false,
-      "prep_hint": "Family Memorial Day weekend event — enjoy it."
-    },
-    {
       "date": "Mon May 25",
-      "time": "All day",
+      "time": "All Day",
       "title": "Memorial Day",
       "attendees": "Family",
       "type": "social",
       "prep_eligible": false,
       "prep_hint": "Memorial Day — rest and be present with family."
+    },
+    {
+      "date": "Mon May 25",
+      "time": "9:30 PM",
+      "title": "Matt Steele?",
+      "attendees": "",
+      "type": "social",
+      "prep_eligible": false,
+      "prep_hint": "Possible hangout — no prep needed."
     },
     {
       "date": "Tue May 26",
@@ -139,7 +122,7 @@
       "attendees": "Caleb, Patrick, Mark, Patrick (Aleph), Jasmine, Tito, Ben Rangel, Christian",
       "type": "team_meeting",
       "prep_eligible": true,
-      "prep_hint": "PHE L10 — Ben's pipeline outcomes, Caleb 4over alert follow-up."
+      "prep_hint": "PHE L10 — Ben's pipeline outcomes, Christian GAM coaching prep."
     },
     {
       "date": "Tue May 26",
@@ -229,7 +212,7 @@
       "attendees": "Haakon Hansen",
       "type": "one_on_one",
       "prep_eligible": true,
-      "prep_hint": "New meeting with Haakon — clarify agenda."
+      "prep_hint": "Haakon accepted the invite. Clarify agenda beforehand."
     },
     {
       "date": "Wed May 27",
@@ -320,10 +303,19 @@
       "type": "team_meeting",
       "prep_eligible": true,
       "prep_hint": "Board of Governors monthly meeting. Prepare financial updates, key wins, and strategic issues."
+    },
+    {
+      "date": "Sat May 30",
+      "time": "All Day",
+      "title": "Kids in Red Wing",
+      "attendees": "Family",
+      "type": "social",
+      "prep_eligible": false,
+      "prep_hint": "Kids away in Red Wing — potential date opportunity with Lizzie."
     }
   ],
   "plaud": {
-    "last_scraped": "May 24, 2026",
+    "last_scraped": "May 25, 2026",
     "date_range": "May 12-14, 2026",
     "open_loops": [
       "Schindle job — Noah O underbid; drop interior, ~17% margin. Loop Mark.",
@@ -367,13 +359,13 @@
     "source": "Sermon — The Power of Team and God-Sized Dreams (May 17, Hope Community Church)",
     "scripture": "Genesis 13:14-18",
     "call_to_action": "Identify one unreasonable prayer — something impossible without God's direct intervention. Write it down and pray it daily. Prayer-walk your workplace this week.",
-    "status": "Substance Church attended this morning. Otter transcript ready for Pastor Nate Puccini's sermon (47 min). Bible Study Friday 7 AM at the office. Continue daily unreasonable prayer."
+    "status": "Substance Church attended yesterday. Otter transcript ready for Pastor Nate Puccini's sermon (47 min, 5/24). Bible Study Friday 7 AM at the office. Continue daily unreasonable prayer."
   },
   "marriage": {
     "note": "Peace in my home — authority over the chaos. Boldness to hold the line and have heavenly eyes for Lizzie and the kids.",
     "last_date": "—",
-    "next_date": "—",
-    "status": "Memorial Day weekend — Davis event today, family day tomorrow. Be intentional and present with Lizzie and the kids."
+    "next_date": "Sat May 30 (kids in Red Wing — date night opportunity)",
+    "status": "Memorial Day — be intentional and present with Lizzie and the kids today. Saturday the kids go to Red Wing — plan a date."
   },
   "health": {
     "last_draw": "Apr 28, 2026",
@@ -398,19 +390,19 @@
   "business": {
     "ytd_commission": "$77,796",
     "team_size": "14 reps",
-    "status": "Sunday afternoon — Memorial Day weekend. Packed week ahead starting Tuesday: L10s, GAM coaching with Christian, Retail Estimate Training, Exec L10 + BOG Friday. Open loops from Plaud need follow-up at Tuesday L10s.",
+    "status": "Memorial Day — no work today. Packed week starts tomorrow: L10s, GAM coaching with Christian (Alex Cooper + Shawn), Retail Estimate Training, Exec L10 + BOG Friday. Open loops from Plaud need follow-up at Tuesday L10s.",
     "commission_status": {
       "approved": ["Stephen Bacon ($5,693.85)", "Chris Sidla ($3,386.15)", "Seth Bostrom ($153.60)", "Ben Rangel ($3,642.36)", "Nick Brattin ($523.10)", "Grant Herbert ($116.79)", "Noah Ondrusik ($3,343.11)", "Seyf Topal ($499.44)", "Mike O'Meara ($1,265)", "Noah Franzen ($965.17)", "Nick Lane ($3,958.98)", "Justin Satterberg ($2,214.32)", "Brandon Stahnke (paid early)"],
       "pending": ["Matt Rawski ($7,489.75)"],
       "note": "13/14 approved. Matt still pending."
     },
-    "new_this_week": "Otter transcript from today's Substance Church sermon ready. Ramp alert: Caleb $1,195.45 at 4over. Haakon accepted Wed 5/27 meeting. SOAR Leadership Workshop invite June 24. Cloudflare features reminder for micahstelter.ai. Curbside waste delayed one day for Memorial Day week."
+    "new_this_week": "Haakon accepted Wed 5/27 meeting. SOAR Leadership Workshop invite June 24. Kids in Red Wing Saturday — potential date night."
   },
   "fun": {
     "children": [
       { "name": "Jude" }, { "name": "Nori" }, { "name": "Mae" }, { "name": "Benji" }, { "name": "Will" }
     ],
-    "note": "Memorial Day weekend — Davis event today, family day Monday. Jude and Micah golf Tuesday 7 PM. Nathan's Bday Party Wednesday 7 PM. Dinner event Thursday 7 PM.",
-    "status": "Enjoying the holiday weekend — rest, recharge, be present with family."
+    "note": "Memorial Day with family today. Jude and Micah golf Tuesday 7 PM. Nathan's Bday Party Wednesday 7 PM. Dinner event Thursday 7 PM. Kids in Red Wing Saturday — date night with Lizzie?",
+    "status": "Holiday weekend — rest, recharge, be present with family. Matt Steele possible hangout tonight."
   }
 }
