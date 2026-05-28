@@ -1,195 +1,142 @@
 {
-  "updated": "May 27, 2026 — 2:00 PM",
+  "updated": "May 28, 2026 — 6:00 AM",
   "attention": [
     {
       "source": "gmail",
       "from": "Christian Kullmann",
-      "summary": "Herzog Claim update: Christian spoke with Chet, dropped commission to 10%, and sent the email. Also texting with Samuel who is willing to discuss and figure something out. Loop closing.",
+      "summary": "Christian emailed asking for 20-30 min to talk — not in crisis mode but wants grounded clarity on where Micah originally thought he'd be by now and what he's seeing. Wants to connect before the weekend.",
       "priority_area": "business",
-      "urgency": "normal",
-      "time": "2:08 PM",
-      "suggested_action": "Acknowledge Christian's update. Monitor Samuel conversation — no immediate action needed."
+      "urgency": "urgent",
+      "time": "Yesterday 2:31 PM",
+      "suggested_action": "Reply to Christian and schedule 20-30 min — could do after the SOAR call today or fold into Monday's 1v1."
     },
     {
       "source": "gmail",
-      "from": "Nick (Paris Painting)",
-      "summary": "Nick replied to Chalk Talks thread — asking for Micah's thoughts on his talk topic. Happy to take lead on slides but wants direction.",
+      "from": "Dan DeMarais",
+      "summary": "Dan followed up after yesterday's Baldamar meeting with Mike O'Meara. Thanked Micah for hospitality and intro'd Andrew Rydlund (Cornerstone Advancement) — says they should know each other.",
       "priority_area": "business",
       "urgency": "normal",
-      "time": "1:30 PM",
-      "suggested_action": "Reply to Nick with vision for the Chalk Talk topic or green-light him to run with it."
+      "time": "Yesterday 9:19 PM",
+      "suggested_action": "Reply to Dan thanking him. Respond to the Andrew Rydlund intro — set up a call or coffee."
     },
     {
       "source": "gmail",
-      "from": "Alex Calof",
-      "summary": "Alex reviewed L10 Coach blind test (Nathan Calderon's facilitation). Says feedback is solid, shared input. Also forwarded to Mark suggesting Mark could execute coaching sessions solo with AI review.",
+      "from": "Royce Pavelka / Colliers",
+      "summary": "Red Fox property tour confirmed for Monday 8:30 AM with Michael Anderstrom (Colliers), Royce, and Chet. Life Science & Manufacturing facility — Chet and Micah both want to look at it.",
       "priority_area": "business",
       "urgency": "normal",
-      "time": "1:22 PM",
-      "suggested_action": "Read Alex's L10 Coach feedback and Mark forward. Discuss at Thursday's Alex Check Point or Friday's BOG."
+      "time": "Yesterday 7:36 PM",
+      "suggested_action": "Confirm attendance for Monday 8:30 AM Red Fox tour. Note: this overlaps with Building Walk at 8:30 AM — resolve conflict."
     },
     {
       "source": "gmail",
-      "from": "Mark Nelson",
-      "summary": "Mark scheduled Prep for 2nd Interview (Fri 8 AM) and 2nd Interview with Trischa (Fri 8:30 AM) for Production Manager role at 3515 48th Ave N.",
+      "from": "Erich",
+      "summary": "Erich sent Pat a Career Path recap email after Friday's meeting — cc'd Micah and Chet. Pat still being pursued by previous employer with compensation offers and 6-12 month timeline.",
       "priority_area": "business",
       "urgency": "normal",
-      "time": "10:49 AM",
-      "suggested_action": "Block Friday 8-9 AM for Trischa interview prep and interview. Review resume beforehand."
+      "time": "Yesterday 2:42 PM",
+      "suggested_action": "Read Erich's full Career Path email to Pat. Be aware of retention dynamics."
     },
     {
       "source": "gmail",
-      "from": "Nick Rathmann (SOAR)",
-      "summary": "Nick Rathmann accepted the SOAR Groups call with Ashley and Chet for tomorrow (Thu) at 1:30 PM.",
+      "from": "Ross",
+      "summary": "Ross documented discussion with Micah about splitting Cate Santos' VA hours. Cate will work 2-5 hrs/week on ESP's NPS followup. Paris will bill ESP for those hours.",
+      "priority_area": "business",
+      "urgency": "normal",
+      "time": "Yesterday 2:11 PM",
+      "suggested_action": "Confirm Ross's summary is accurate. No further action needed unless corrections required."
+    },
+    {
+      "source": "gmail",
+      "from": "Dave (Aleph)",
+      "summary": "Dave replied to Brady's Chalk Talks thread — suggests creating 1-pagers for each breakout session as a best practice from PCA roundtables.",
+      "priority_area": "business",
+      "urgency": "normal",
+      "time": "5:51 AM",
+      "suggested_action": "Align with Brady on creating 1-pagers for Chalk Talk breakout sessions per Dave's suggestion."
+    },
+    {
+      "source": "gmail",
+      "from": "Jason (Aleph)",
+      "summary": "Jason replied to Alex's L10 Coach blind test feedback. Clarified the feedback was generated purely from transcript + rubric — no Dave evaluation included. Detailed response to Alex's input.",
+      "priority_area": "business",
+      "urgency": "normal",
+      "time": "Yesterday 6:57 PM",
+      "suggested_action": "Read Jason's detailed reply. Discuss at Alex Check Point today (3 PM) or Friday's BOG."
+    },
+    {
+      "source": "gmail",
+      "from": "Alex (Daily Close)",
+      "summary": "Alex sent Christian a Daily Close process email — review progress on goals, to-do list, inbox, and adjust tomorrow's schedule in the last 15-30 min of each day.",
       "priority_area": "business",
       "urgency": "low",
-      "time": "1:43 PM",
-      "suggested_action": "Noted — all confirmed for SOAR call tomorrow 1:30 PM."
+      "time": "Yesterday 8:54 PM",
+      "suggested_action": "Good development practice from Alex to Christian. Note for Christian's GAM this morning."
     },
     {
       "source": "gmail",
-      "from": "Goodness Collective (NCF)",
-      "summary": "Goodness Collective MN Gathering in July. Meeting at 7650 location (across the pond from NCF offices). Erich also invited.",
+      "from": "AJ (Larson Technology)",
+      "summary": "AJ proposing to move AI Alignment meetings from Fridays to Thursdays for the summer. Asked Jason to coordinate schedules.",
+      "priority_area": "business",
+      "urgency": "low",
+      "time": "Yesterday 3:06 PM",
+      "suggested_action": "Let Jason handle scheduling. Share availability if asked."
+    },
+    {
+      "source": "gmail",
+      "from": "NCF / Goodness Collective",
+      "summary": "Goodness Collective MN Gathering in July — meeting at 7650 location (across the pond from NCF offices). Erich also invited.",
       "priority_area": "faith",
       "urgency": "low",
-      "time": "1:57 PM",
+      "time": "Yesterday 1:57 PM",
       "suggested_action": "Review July gathering details. Coordinate with Erich on attending together."
     },
     {
-      "source": "calendar",
-      "from": "Tomorrow — Thu May 28",
-      "summary": "Patrick Sales Coaching 8:30 AM, Cyndi Bajema siding estimate 9 AM, Seth calendar blocking 11 AM, Scorecards 12:30 PM, SOAR call 1:30 PM, Jason FieldPulse (Tentative) 2 PM, Alex Check Point 3 PM, Dinner 7 PM.",
+      "source": "gmail",
+      "from": "Matt Rawski",
+      "summary": "Matt declined the June 8 Matt GAM calendar invite.",
       "priority_area": "business",
-      "urgency": "normal",
-      "time": "Tomorrow",
-      "suggested_action": "Prepare talking points for Patrick coaching (marketing mix theme). Watch Jason's FieldPulse Loom before the 2 PM tentative block."
-    },
-    {
-      "source": "calendar",
-      "from": "Friday — May 29",
-      "summary": "Trischa interview prep 8 AM + interview 8:30 AM (NEW). Exec L10 9:30 AM. BOG 11 AM-3 PM. HOLD Hirsh 3:30 PM.",
-      "priority_area": "business",
-      "urgency": "normal",
-      "time": "Friday",
-      "suggested_action": "Prep Exec L10 Google Sheet and BOG financial updates Thursday evening. Review Trischa's resume for interview."
+      "urgency": "low",
+      "time": "Yesterday",
+      "suggested_action": "Reschedule Matt's June 8 GAM — ask Matt for an alternative time."
     },
     {
       "source": "plaud",
       "from": "Plaud Board (May 12-14)",
-      "summary": "Open loops now 2+ weeks old. Use today's Ben coaching block (2:30 PM) and feedbacks block (4:30 PM) to close: Cousins contract, Samson decision, McCoy breakup, Schindle/Mark, Megan Clark outcome.",
+      "summary": "Open loops now 2+ weeks old: Schindle/Mark scope reduction, Bill Cousins contract, Samson decision, McCoy breakup email, Megan Clark outcome. Patrick hire resolved (Bo Anderson starts Monday).",
       "priority_area": "business",
       "urgency": "urgent",
       "time": "Overdue",
-      "suggested_action": "Get status updates on all Plaud open loops during today's coaching and feedbacks blocks."
+      "suggested_action": "Get status updates from Ben on Cousins, Samson, McCoy, and Megan Clark. Loop Mark on Schindle."
     },
     {
       "source": "calendar",
-      "from": "Today — remaining",
-      "summary": "Retail Estimate Training 1:30 PM, Drive 2:30 PM, Coaching w/ Ben 2:30-4:30 PM, Fence buddy bid 3 PM, Feedbacks (Christian + Ben) 4:30 PM, Nathan's Bday 7 PM.",
-      "priority_area": "business",
-      "urgency": "urgent",
-      "time": "Now",
-      "suggested_action": "Wrap Plaud/AI Adoption block. Head into Retail Estimate Training, then drive to Ben's coaching/buddy bid."
-    },
-    {
-      "source": "gmail",
-      "from": "Beza Tefera",
-      "summary": "Stelter Date confirmed Saturday 11 AM-3 PM. Kids in Red Wing all day.",
+      "from": "Saturday",
+      "summary": "Stelter Date confirmed Saturday 11 AM-3 PM with Lizzie. Kids in Red Wing all day. Beza organized.",
       "priority_area": "marriage",
       "urgency": "low",
       "time": "Saturday",
       "suggested_action": "Enjoy the date with Lizzie. No prep needed — just be present."
-    },
-    {
-      "source": "gmail",
-      "from": "Forrest Frank / Fiserv Forum",
-      "summary": "Forrest Frank: The Jesus Generation Tour logistics email received. Concert approaching.",
-      "priority_area": "fun",
-      "urgency": "low",
-      "time": "~10 days out",
-      "suggested_action": "Review concert logistics. Save mobile tickets to wallet."
     }
   ],
   "briefing": [
-    { "time": "1:30 PM", "title": "Retail Estimate Training w/ PHE Team" },
-    { "time": "2:30 PM", "title": "Drive" },
-    { "time": "2:30 PM", "title": "Micah Coaching w/ Ben" },
-    { "time": "3:00 PM", "title": "Laurence Lukas Fence Remodel (Ben buddy bid)" },
-    { "time": "4:30 PM", "title": "Feedbacks (Christian + Ben)" },
-    { "time": "7:00 PM", "title": "Nathan's Bday Party" }
+    { "time": "9:00 AM", "title": "Christian GAM" },
+    { "time": "11:00 AM", "title": "Block Calendar / Sales Plan for Energy (Seth)" },
+    { "time": "12:30 PM", "title": "Scorecards - PHE and Paris Painting" },
+    { "time": "1:30 PM", "title": "Call — Ashley, Micah, Chet, Nick Rathmann (SOAR)" },
+    { "time": "2:00 PM", "title": "Tentative: Jason / FieldPulse Adoption" },
+    { "time": "3:00 PM", "title": "Micah & Alex Check Point" },
+    { "time": "7:00 PM", "title": "Dinner Event" }
   ],
   "upcoming_events": [
     {
-      "date": "Wed May 27",
-      "time": "1:30 PM",
-      "title": "Retail Estimate Training w/ PHE Team",
-      "attendees": "PHE Team (Shawn, Carter, Josh, Patrick, Christian)",
-      "type": "team_meeting",
-      "prep_eligible": false,
-      "prep_hint": "In progress — at PHE office (3515 48th Ave N)."
-    },
-    {
-      "date": "Wed May 27",
-      "time": "2:30 PM",
-      "title": "Drive",
-      "attendees": "",
-      "type": "social",
-      "prep_eligible": false,
-      "prep_hint": "Drive to Ben's coaching location."
-    },
-    {
-      "date": "Wed May 27",
-      "time": "2:30 PM",
-      "title": "Micah Coaching w/ Ben",
-      "attendees": "Ben Rangel",
-      "type": "gam_coaching",
-      "prep_eligible": true,
-      "prep_hint": "Coaching block through 4:30 PM. Ben's fence buddy bid at 3 PM (Laurence Lukas, 2853 Quentin Ave). Get Plaud open loop updates."
-    },
-    {
-      "date": "Wed May 27",
-      "time": "3:00 PM",
-      "title": "Laurence Lukas: Fence Remodel (Ben Rangel)",
-      "attendees": "Ben Rangel, Laurence Lukas",
-      "type": "external",
-      "prep_eligible": false,
-      "prep_hint": "Buddy bid at 2853 Quentin Ave, Minneapolis. Door-knock referral from Paul. Observe Ben's fence estimate process."
-    },
-    {
-      "date": "Wed May 27",
-      "time": "4:30 PM",
-      "title": "Feedbacks (Christian + Ben)",
-      "attendees": "Christian Kullmann, Ben Rangel",
-      "type": "one_on_one",
-      "prep_eligible": true,
-      "prep_hint": "Write up coaching feedback from today's field observations. Christian and Ben both need feedback documents."
-    },
-    {
-      "date": "Wed May 27",
-      "time": "7:00 PM",
-      "title": "Nathan's Bday Party",
-      "attendees": "",
-      "type": "social",
-      "prep_eligible": false,
-      "prep_hint": "Birthday celebration — enjoy it."
-    },
-    {
-      "date": "Thu May 28",
-      "time": "8:30 AM",
-      "title": "Micah & Patrick - Sales Coaching",
-      "attendees": "Patrick Darlington",
-      "type": "gam_coaching",
-      "prep_eligible": true,
-      "prep_hint": "Sales coaching with Patrick before Cyndi Bajema siding estimate at 9 AM. Theme: marketing mix — push beyond 60% door-knock."
-    },
-    {
       "date": "Thu May 28",
       "time": "9:00 AM",
-      "title": "Cyndi Bajema: Siding Replacement (Patrick)",
-      "attendees": "Patrick Darlington, Cyndi Bajema",
-      "type": "external",
+      "title": "Christian GAM",
+      "attendees": "Christian Kullmann",
+      "type": "gam",
       "prep_eligible": true,
-      "prep_hint": "Buddy bid at 2842 Benton Blvd, Minneapolis. Siding to Hardie conversion. Door-knock referral from Johnny."
+      "prep_hint": "Christian emailed asking for clarity on where Micah sees him. Alex sent him a Daily Close process. Plaud themes: adapt to client profile, marketing mix. Use this GAM to address his request directly."
     },
     {
       "date": "Thu May 28",
@@ -207,16 +154,16 @@
       "attendees": "",
       "type": "team_meeting",
       "prep_eligible": true,
-      "prep_hint": "Scorecard review block. Prep PHE and Paris Painting scorecards."
+      "prep_hint": "Scorecard review block. Prep PHE and Paris Painting scorecards before Alex Check Point at 3 PM."
     },
     {
       "date": "Thu May 28",
       "time": "1:30 PM",
-      "title": "Call — Ashley Hawks, Micah, and Chet",
-      "attendees": "Ashley Hawks (SOAR), Chet Funk, Nick Rathmann",
+      "title": "Call — Ashley, Micah, Chet, Nick Rathmann (SOAR)",
+      "attendees": "Ashley Hawks, Chet Funk, Nick Rathmann",
       "type": "external",
       "prep_eligible": true,
-      "prep_hint": "SOAR Groups call — Ashley, Chet, and Nick Rathmann all confirmed."
+      "prep_hint": "SOAR Groups call — all four confirmed. Research SOAR Groups beforehand if needed."
     },
     {
       "date": "Thu May 28",
@@ -225,7 +172,7 @@
       "attendees": "Jason",
       "type": "one_on_one",
       "prep_eligible": true,
-      "prep_hint": "Conflict resolution first, then FieldPulse Adoption strategy for Paris Painting and PHE. Watch Jason's Loom beforehand."
+      "prep_hint": "Conflict resolution first, then FieldPulse Adoption strategy for Paris Painting and PHE."
     },
     {
       "date": "Thu May 28",
@@ -234,7 +181,7 @@
       "attendees": "Alex Calof",
       "type": "one_on_one",
       "prep_eligible": true,
-      "prep_hint": "PHE/Paris priorities. Discuss Alex's L10 Coach feedback and Mark execution plan. FieldPulse adoption status."
+      "prep_hint": "PHE/Paris priorities. Discuss Alex's L10 Coach feedback, Jason's reply, Mark execution plan. Christian's request for clarity. FieldPulse adoption. PHE trending 3.6M plan — scenario planning on costs."
     },
     {
       "date": "Thu May 28",
@@ -270,7 +217,16 @@
       "attendees": "Mark Nelson, Trischa",
       "type": "interview",
       "prep_eligible": true,
-      "prep_hint": "In-person 2nd interview for Production Manager at 3515 48th Ave N. Review resume and prep questions."
+      "prep_hint": "In-person 2nd interview for Production Manager at 3515 48th Ave N. Review resume and prep questions with Mark at 8 AM."
+    },
+    {
+      "date": "Fri May 29",
+      "time": "9:00 AM",
+      "title": "Int Slush",
+      "attendees": "",
+      "type": "team_meeting",
+      "prep_eligible": false,
+      "prep_hint": "Buffer block after interview."
     },
     {
       "date": "Fri May 29",
@@ -279,7 +235,7 @@
       "attendees": "Erich, Chet, Alex, Mark",
       "type": "team_meeting",
       "prep_eligible": true,
-      "prep_hint": "Executive L10 — prep in the Exec L10 Google Sheet. Bring weekly scorecard, key issues."
+      "prep_hint": "Executive L10 — prep in the Exec L10 Google Sheet. Bring weekly scorecard, key issues. Erich's Career Path email to Pat is relevant context."
     },
     {
       "date": "Fri May 29",
@@ -288,7 +244,7 @@
       "attendees": "Jason, Chet, Erich, Alex",
       "type": "team_meeting",
       "prep_eligible": true,
-      "prep_hint": "Board of Governors monthly meeting through 3 PM. Prepare financial updates, key wins, and strategic issues."
+      "prep_hint": "Board of Governors monthly meeting through 3 PM. Prepare financial updates, L10 Coach blind test results, strategic issues."
     },
     {
       "date": "Fri May 29",
@@ -315,7 +271,7 @@
       "attendees": "Lizzie, Beza Tefera",
       "type": "social",
       "prep_eligible": false,
-      "prep_hint": "Date with Lizzie! Beza organized. 11 AM - 3 PM. Kids are in Red Wing — perfect timing."
+      "prep_hint": "Date with Lizzie! Beza organized. 11 AM - 3 PM. Kids in Red Wing — perfect timing."
     },
     {
       "date": "Sun May 31",
@@ -337,12 +293,30 @@
     },
     {
       "date": "Mon Jun 1",
-      "time": "5:30 AM",
+      "time": "6:15 AM",
       "title": "Run",
       "attendees": "",
       "type": "social",
       "prep_eligible": false,
-      "prep_hint": "Morning run — half marathon training."
+      "prep_hint": "Morning run."
+    },
+    {
+      "date": "Mon Jun 1",
+      "time": "8:30 AM",
+      "title": "Building Walk",
+      "attendees": "",
+      "type": "external",
+      "prep_eligible": false,
+      "prep_hint": "Building walk — NOTE: 8:30 AM Red Fox property tour with Royce, Chet, and Michael Anderstrom (Colliers) also at 8:30. Resolve conflict."
+    },
+    {
+      "date": "Mon Jun 1",
+      "time": "8:30 AM",
+      "title": "Red Fox Property Tour",
+      "attendees": "Royce Pavelka, Chet Funk, Michael Anderstrom (Colliers)",
+      "type": "external",
+      "prep_eligible": true,
+      "prep_hint": "Life Science & Manufacturing facility tour. ~165 parking spaces, multi-tenant potential. Conflicts with Building Walk at same time."
     },
     {
       "date": "Mon Jun 1",
@@ -351,7 +325,7 @@
       "attendees": "Matt Rawski",
       "type": "gam",
       "prep_eligible": true,
-      "prep_hint": "Weekly Matt GAM. Review Percent Sold By Month sheet. Note: Matt declined Jun 8 instance — reschedule."
+      "prep_hint": "Weekly Matt GAM. Note: Matt declined the Jun 8 instance — reschedule that one."
     },
     {
       "date": "Mon Jun 1",
@@ -369,7 +343,7 @@
       "attendees": "Christian Kullmann",
       "type": "one_on_one",
       "prep_eligible": true,
-      "prep_hint": "Weekly 1v1 with Christian. Debrief Herzog resolution (dropped to 10%, Samuel discussion). This week's coaching insights."
+      "prep_hint": "Weekly 1v1 with Christian. He emailed asking for grounded clarity on where Micah sees him. Use this session to address that. Also discuss Alex's Daily Close process."
     },
     {
       "date": "Mon Jun 1",
@@ -388,17 +362,53 @@
       "type": "one_on_one",
       "prep_eligible": true,
       "prep_hint": "Bo Anderson onboarding block through 5:30 PM. Plaud pin, 360Learning access, first-week schedule."
+    },
+    {
+      "date": "Tue Jun 2",
+      "time": "9:00 AM",
+      "title": "Paris Painting L10",
+      "attendees": "Brandon, Matt, Mark, Alex, Caleb, Cara, Darcy, Chris McDaniel, Angel",
+      "type": "team_meeting",
+      "prep_eligible": true,
+      "prep_hint": "Weekly Paris Painting L10. Note: John declined (out of office). Bring scorecard data from Thursday's prep block."
+    },
+    {
+      "date": "Tue Jun 2",
+      "time": "11:00 AM",
+      "title": "Paris Home Exteriors L10",
+      "attendees": "Christian, Ben Rangel, Patrick, Mark, Caleb, Tito, Jasmine",
+      "type": "team_meeting",
+      "prep_eligible": true,
+      "prep_hint": "Weekly PHE L10. Discuss Christian's GAM insights, PHE trending 3.6M plan."
+    },
+    {
+      "date": "Tue Jun 2",
+      "time": "2:00 PM",
+      "title": "Haakon GAM",
+      "attendees": "Haakon Hansen, Chet",
+      "type": "gam",
+      "prep_eligible": true,
+      "prep_hint": "Haakon biz dev GAM. Haakon accepted Mid Year Review for Jun 24."
+    },
+    {
+      "date": "Tue Jun 2",
+      "time": "3:00 PM",
+      "title": "Ventures All Company Bi-Monthly L10",
+      "attendees": "Dave, Alex, Erich, Chet, Brady, Ross, Haakon, Kyle, Nick, Patrick, Shannon, JonMarc, Heather, Nate, Chrissy, Nathan Calderon",
+      "type": "team_meeting",
+      "prep_eligible": true,
+      "prep_hint": "Bi-monthly all-company Ventures L10. Prep in Aleph Ventures L10 Google Sheet."
     }
   ],
   "plaud": {
-    "last_scraped": "May 27, 2026",
+    "last_scraped": "May 28, 2026",
     "date_range": "May 12-14, 2026",
     "open_loops": [
       "Schindle job — Noah O underbid; drop interior, ~17% margin. Loop Mark.",
-      "Megan Clark contract — was Saturday 2pm in-person. Get outcome from Ben at today's coaching.",
+      "Megan Clark contract — was Saturday 2pm in-person. Get outcome from Ben.",
       "Bill Cousins — promo expired; send contract NOW, ask yes/no.",
       "Samson + McCoy — Samson decision at $32K; McCoy needs breakup email.",
-      "Patrick (hire) — resolved: Bo Anderson hired, first day June 1."
+      "Patrick (hire) — RESOLVED: Bo Anderson hired, first day June 1."
     ],
     "todos": [
       "Send Cousins updated bid + contract.",
@@ -406,8 +416,7 @@
       "Loop Mark on Schindle scope reduction + $500 off + ~17% margin.",
       "Mac Mini setup → Cloudflare domain → first HTML page via Claude.",
       "Finish re-running eval feedback with updated email format.",
-      "Get Plaud pins to Seyf + Ben (Brandon already running).",
-      "Respond to Christian on Herzog Claim scope allocation. — UPDATE: Christian dropped to 10%, sent email, texting Samuel."
+      "Get Plaud pins to Seyf + Ben (Brandon already running)."
     ],
     "themes": [
       "Same-week decisions — stop follow-up, ask for the decision; get verbal commit.",
@@ -441,7 +450,7 @@
     "note": "Peace in my home — authority over the chaos. Boldness to hold the line and have heavenly eyes for Lizzie and the kids.",
     "last_date": "—",
     "next_date": "Sat May 30 — 'Stelter Date' 11 AM-3 PM (Beza organized, kids in Red Wing)",
-    "status": "Stelter Date confirmed for Saturday! Beza Tefera organized and invited both Micah and Lizzie. Kids in Red Wing all day — quality time together. 3 days away."
+    "status": "Stelter Date this Saturday! Beza organized. Kids in Red Wing all day — quality time with Lizzie. 2 days away."
   },
   "health": {
     "last_draw": "Apr 28, 2026",
@@ -466,19 +475,19 @@
   "business": {
     "ytd_commission": "$77,796",
     "team_size": "14 reps",
-    "status": "Afternoon coaching block ahead. Retail Estimate Training wrapping, then drive to Ben's coaching/buddy bid at 3 PM. Feedbacks block at 4:30 PM for Christian + Ben write-ups. Christian resolved Herzog claim — dropped to 10%, sent email, texting Samuel. Alex reviewed L10 Coach blind test and forwarded to Mark for execution. Nick asking about Chalk Talks slides. Trischa 2nd interview added for Friday. Plaud open loops still 2+ weeks old — get updates at coaching.",
+    "status": "Big Thursday: Christian GAM 9 AM, Seth planning 11 AM, Scorecards 12:30, SOAR call 1:30, Jason FieldPulse 2 PM, Alex Check Point 3 PM. Christian asked for grounded clarity on where Micah sees him — address at GAM. Red Fox property tour confirmed Monday 8:30 AM with Royce, Chet, and Anderstrom. Bo Anderson starts Monday. Erich sent Pat a Career Path recap. L10 Coach blind test discussion continues (Jason replied to Alex). Dave suggests 1-pagers for Chalk Talk breakouts.",
     "commission_status": {
       "approved": ["Stephen Bacon ($5,693.85)", "Chris Sidla ($3,386.15)", "Seth Bostrom ($153.60)", "Ben Rangel ($3,642.36)", "Nick Brattin ($523.10)", "Grant Herbert ($116.79)", "Noah Ondrusik ($3,343.11)", "Seyf Topal ($499.44)", "Mike O'Meara ($1,265)", "Noah Franzen ($965.17)", "Nick Lane ($3,958.98)", "Justin Satterberg ($2,214.32)", "Brandon Stahnke (paid early)"],
       "pending": ["Matt Rawski ($7,489.75)"],
       "note": "13/14 approved. Matt still pending."
     },
-    "new_this_week": "Christian resolved Herzog claim (dropped to 10%, texting Samuel). Alex reviewed L10 Coach blind test, forwarded to Mark for solo execution plan. Nick asking about Chalk Talks slides. Mark added Trischa 2nd interview for Friday. Nick Rathmann confirmed SOAR call Thursday. Plaud/AI Adoption block + Feedbacks block added to today. Jason FieldPulse tentative block added for Thursday 2 PM. HOLD Hirsh added Friday 3:30 PM. Bo Anderson first day Monday June 1."
+    "new_this_week": "Christian asking for clarity meeting. Dan DeMarais follow-up + Andrew Rydlund intro. Red Fox property tour Monday 8:30 AM. Erich's Career Path email to Pat. Ross documented Cate Santos VA bill split with ESP. Dave's Chalk Talk 1-pager suggestion. Jason's detailed L10 Coach reply. AJ wants to move AI Alignment to Thursdays. Matt declined Jun 8 GAM. Bo Anderson starts Monday."
   },
   "fun": {
     "children": [
       { "name": "Jude" }, { "name": "Nori" }, { "name": "Mae" }, { "name": "Benji" }, { "name": "Will" }
     ],
-    "note": "Nathan's Bday Party tonight at 7 PM. Dinner event Thursday 7 PM. Kids in Red Wing Saturday. Stelter Date with Lizzie Saturday 11 AM-3 PM. Substance Church Sunday 9 AM. Forrest Frank concert approaching (Fiserv Forum logistics email received).",
-    "status": "Nathan's birthday tonight! Saturday is shaping up — kids in Red Wing, Stelter Date with Lizzie. Forrest Frank concert logistics received."
+    "note": "Dinner event tonight 7 PM. Kids in Red Wing Saturday. Stelter Date with Lizzie Saturday 11 AM-3 PM. Substance Church Sunday 9 AM. Forrest Frank concert approaching (Fiserv Forum).",
+    "status": "Date with Lizzie this Saturday while kids are in Red Wing. Bo Anderson's first day Monday — new energy on the team."
   }
 }
