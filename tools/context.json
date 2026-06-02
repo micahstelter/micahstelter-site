@@ -1,68 +1,50 @@
 {
-  "updated": "June 1, 2026 — 2:00 PM",
+  "updated": "June 2, 2026 — 6:00 AM",
   "attention": [
     {
-      "source": "calendar",
-      "from": "Bo Anderson",
-      "summary": "Bo onboarding in progress (2-5:30 PM). PaChia sent Gusto invite, Wallogy already set up by Micah. Bo confirmed sole proprietor. Caleb needs Bo's phone number for business cards/apparel.",
-      "priority_area": "business",
-      "urgency": "urgent",
-      "time": "Now",
-      "suggested_action": "Get Bo's phone number to Caleb. Confirm ARP signed contract is forwarded to PaChia."
-    },
-    {
-      "source": "gmail",
-      "from": "Ramp Alert",
-      "summary": "Caleb Svendsgaard's $6,920.50 transaction at Bcs Investment Group triggered an alert. Needs review.",
-      "priority_area": "business",
-      "urgency": "urgent",
-      "time": "12:33 PM",
-      "suggested_action": "Review the Ramp alert on Caleb's $6,920.50 BCS Investment Group transaction. Determine if this is expected marketing spend."
-    },
-    {
       "source": "gmail",
       "from": "Mark Nelson",
-      "summary": "Last-minute candidate John Huber for PHE Prod Manager role. Spark Hire video and resume attached. Adrian sent over the weekend.",
+      "summary": "John Huber — last-minute PHE Prod Manager candidate. Spark Hire video and resume attached. Mark is interviewing John this afternoon. Eddie Vasquez interview also today at 1 PM.",
       "priority_area": "business",
       "urgency": "urgent",
-      "time": "1:05 PM",
-      "suggested_action": "Watch John Huber's Spark Hire video before Eddie Vasquez interviews Tue/Wed. Share feedback with Mark."
-    },
-    {
-      "source": "calendar",
-      "from": "Mark Nelson",
-      "summary": "Eddie Vasquez Interview added: Tue Jun 2 at 1:00 PM and Wed Jun 3 at 2:30 PM. Both with Mark and Erich.",
-      "priority_area": "business",
-      "urgency": "normal",
-      "time": "Tomorrow + Wednesday",
-      "suggested_action": "Accept the Eddie Vasquez interview calendar invites. Review his materials before tomorrow 1 PM."
+      "time": "Yesterday",
+      "suggested_action": "Watch John Huber's Spark Hire video before Eddie Vasquez interview at 1 PM. Share feedback with Mark."
     },
     {
       "source": "gmail",
-      "from": "Jason Paris",
-      "summary": "AI Alignment agenda for tomorrow at 2 PM. Moving to modified L10 format: roadmap, status, dev-budget realignment. AJ shared Google Doc for agenda items.",
+      "from": "Matt Rawski + Brandon Stahnke",
+      "summary": "Nick Lane wants a pre-built follow-up cadence view in Wallogy (like Salesforce pipelines). Brandon confirms the feature already exists as 'pipelines' — just needs structure organized. Kyle is on board for a future dev cycle.",
       "priority_area": "business",
-      "urgency": "normal",
-      "time": "Tomorrow 2 PM",
-      "suggested_action": "Add any agenda items to the AI Alignment Google Doc before tomorrow. Review Kyle's AI Roadmap."
+      "urgency": "urgent",
+      "time": "Last night",
+      "suggested_action": "Reply to Matt: supportive, assign Brandon to organize pipeline structure with Kyle. Discuss at PP L10 this morning."
+    },
+    {
+      "source": "plaud",
+      "from": "Plaud Board (May 12-14)",
+      "summary": "Open loops now 3+ weeks old: Schindle/Mark scope reduction, Bill Cousins contract, Samson decision, McCoy breakup email, Megan Clark outcome. All overdue.",
+      "priority_area": "business",
+      "urgency": "urgent",
+      "time": "Overdue (3+ weeks)",
+      "suggested_action": "Get status updates from Ben at PHE L10 today on Cousins, Samson, McCoy, and Megan Clark. Loop Mark on Schindle."
     },
     {
       "source": "gmail",
       "from": "Kyle / Alex (Aleph Board)",
-      "summary": "Kyle sent AI Roadmap, partner retreat deck, and board-level proposal for review. Alex endorsed. Still needs review before tomorrow's AI Alignment at 2 PM.",
+      "summary": "Kyle's AI Roadmap, partner retreat deck, and board-level proposal still need review. AI Alignment meeting today at 2 PM.",
       "priority_area": "business",
       "urgency": "urgent",
       "time": "Overdue",
-      "suggested_action": "Read Kyle's AI Roadmap & partner retreat deck tonight or early tomorrow before AI Alignment at 2 PM."
+      "suggested_action": "Read Kyle's AI Roadmap before AI Alignment at 2 PM. Add agenda items to AJ's Google Doc."
     },
     {
       "source": "gmail",
-      "from": "Jasmine Vargas",
-      "summary": "Shared '2026 Sales Pain Point Issues' spreadsheet — journaled by salesperson. Shared with Micah and Mark.",
+      "from": "Jason Paris",
+      "summary": "FP Update: Added bookings, capacity, and plan metrics to team page (pulled from Acuity + Wallogy Sales Plan). Notes concern about low rep audio upload adoption — may need limited beta testing in Paris.",
       "priority_area": "business",
       "urgency": "normal",
-      "time": "11:33 AM",
-      "suggested_action": "Review Jasmine's Sales Pain Point Issues spreadsheet. Potential discussion topic for PHE L10 tomorrow."
+      "time": "Last night",
+      "suggested_action": "Review the new team page metrics. Discuss audio adoption concerns at AI Alignment today."
     },
     {
       "source": "gmail",
@@ -70,87 +52,65 @@
       "summary": "Matt created Hirshfield's Pricing Updates SOP with a shared Google Sheet for future price adjustments. Sent to Hirshfield's rep with Mark CC'd.",
       "priority_area": "business",
       "urgency": "low",
-      "time": "1:20 PM",
-      "suggested_action": "Good initiative from Matt. Acknowledge at tomorrow's PP L10."
+      "time": "Yesterday",
+      "suggested_action": "Good initiative from Matt. Acknowledge at PP L10 this morning."
     },
     {
       "source": "gmail",
-      "from": "Haakon Hansen",
-      "summary": "Haakon asked Katelynn to adjust Cate's (Catherine Santos VA) payroll — $160/month billed to ESP out of Paris's portion. Thread active.",
+      "from": "PaChia Vue",
+      "summary": "HP 250 printer ordered for Bo Anderson, arriving Friday.",
       "priority_area": "business",
-      "urgency": "normal",
-      "time": "11:31 AM",
-      "suggested_action": "Confirm Katelynn processes the payroll adjustment for Cate. No action needed from Micah unless Katelynn has questions."
+      "urgency": "low",
+      "time": "Yesterday",
+      "suggested_action": "No action needed. Printer arriving Friday for Bo."
     },
     {
-      "source": "plaud",
-      "from": "Plaud Board (May 12-14)",
-      "summary": "Open loops now 2.5+ weeks old: Schindle/Mark scope reduction, Bill Cousins contract, Samson decision, McCoy breakup email, Megan Clark outcome.",
-      "priority_area": "business",
-      "urgency": "urgent",
-      "time": "Overdue",
-      "suggested_action": "Get status updates from Ben on Cousins, Samson, McCoy, and Megan Clark at tomorrow's PHE L10. Loop Mark on Schindle."
-    },
-    {
-      "source": "gmail",
-      "from": "Patrick Darlington",
-      "summary": "Hover billing still unresolved: PP reps using PHE's Hover — Nick Lane (3), Mike O'Meara (1), Chris Sidla (1), Stephen (1). $60 each.",
-      "priority_area": "business",
+      "source": "calendar",
+      "from": "Schedule",
+      "summary": "Benji and Dad Date tonight 6-8 PM. New event on calendar.",
+      "priority_area": "fun",
       "urgency": "normal",
-      "time": "Unresolved",
-      "suggested_action": "Should have been addressed at Christian 1v1 today. Follow up at both L10s tomorrow."
+      "time": "Tonight 6 PM",
+      "suggested_action": "Wrap up meetings by 4:30 PM to be home for Benji date."
     },
     {
       "source": "calendar",
       "from": "Schedule Conflict",
-      "summary": "Wednesday: Jude Character Awards (9-11 AM) overlaps with Estimate Training w/ Bo (10:30 AM). Eddie Vasquez Interview added at 2:30 PM before Margin Deep Dive at 3 PM.",
+      "summary": "Wednesday: Jude Character Awards (9-11 AM) overlaps with Estimate Training w/ Bo (10:30 AM). Eddie Vasquez 2nd interview at 2:30 PM before Margin Deep Dive at 3 PM.",
       "priority_area": "fun",
       "urgency": "urgent",
       "time": "Wednesday",
-      "suggested_action": "Prioritize Jude's awards 9-11 AM. Have Patrick start Estimate Training with Bo at 10:30, join at 11. Eddie interview 2:30 then Margin Deep Dive 3 PM — tight but sequential."
+      "suggested_action": "Prioritize Jude's awards 9-11 AM. Have Patrick start Estimate Training with Bo at 10:30, join at 11. Eddie interview 2:30 then Margin Deep Dive 3 PM."
     },
     {
       "source": "gmail",
-      "from": "Mark Nelson",
-      "summary": "Mark declined today's Caleb GAM - Marketing. Meeting proceeded without Mark.",
+      "from": "Substance Church",
+      "summary": "Substance KIDS Updates for June — upcoming events and curriculum details for the kids.",
+      "priority_area": "faith",
+      "urgency": "low",
+      "time": "Yesterday",
+      "suggested_action": "Share with Lizzie for the kids' schedules."
+    },
+    {
+      "source": "gmail",
+      "from": "Teddy Francmanis (ZeroRisk)",
+      "summary": "Follow-up cold outreach about an outbound system for trades companies. Second email in a week.",
       "priority_area": "business",
       "urgency": "low",
-      "time": "11:21 AM",
-      "suggested_action": "No action needed. Note for Marketing Operating Review Wed."
-    },
-    {
-      "source": "gmail",
-      "from": "Brady Kelley",
-      "summary": "Sales Appreciation Breakfast scheduled for Friday Jul 10, 7:30-8:30 AM. Calendar invite sent to sales team.",
-      "priority_area": "business",
-      "urgency": "low",
-      "time": "10:36 AM",
-      "suggested_action": "Accept the invite. No prep needed now."
-    },
-    {
-      "source": "gmail",
-      "from": "Ticketmaster",
-      "summary": "Forrest Frank: The Jesus Generation Tour tickets. Add to virtual wallet before Friday Jun 5 at Fiserv Forum.",
-      "priority_area": "fun",
-      "urgency": "normal",
-      "time": "This week",
-      "suggested_action": "Add Forrest Frank tickets to phone wallet before Thursday departure."
+      "time": "Yesterday",
+      "suggested_action": "Ignore or send a polite 'not interested' reply."
     }
   ],
   "briefing": [
-    { "time": "2:00 PM", "title": "Bo Anderson - Onboarding (in progress)" },
-    { "time": "6:30 PM", "title": "YMCA" }
+    { "time": "9:00 AM", "title": "Paris Painting L10" },
+    { "time": "11:00 AM", "title": "Paris Home Exteriors L10" },
+    { "time": "1:00 PM", "title": "Eddie Vasquez Interview" },
+    { "time": "2:00 PM", "title": "AI Alignment" },
+    { "time": "2:30 PM", "title": "Haakon GAM" },
+    { "time": "3:00 PM", "title": "Ventures All Company Bi-Monthly L10" },
+    { "time": "6:00 PM", "title": "Benji and Dad Date" }
   ],
   "upcoming_events": [
-    {
-      "date": "Mon Jun 1",
-      "time": "2:00 PM",
-      "title": "Bo Anderson - Onboarding (through 5:30 PM)",
-      "attendees": "Bo Anderson",
-      "type": "one_on_one",
-      "prep_eligible": false,
-      "prep_hint": "In progress. Wallogy, sales plan, GAM prep, estimate builder, Hover, profile photo, sales model overview."
-    },
     {
       "date": "Tue Jun 2",
       "time": "9:00 AM",
@@ -158,7 +118,7 @@
       "attendees": "Brandon, Matt, Mark, Caleb, Cara, Darcy, Chris McDaniel, Angel",
       "type": "team_meeting",
       "prep_eligible": true,
-      "prep_hint": "John OOO. Address Hover billing, Bo first day update. Acknowledge Matt's Hirshfield's pricing SOP. Sales Appreciation Breakfast Jul 10 from Brady."
+      "prep_hint": "John OOO. Discuss Nick Lane pipeline request (Matt/Brandon thread). Acknowledge Matt's Hirshfield's pricing SOP. Bo first day update. Jason's FP update: audio upload adoption concern."
     },
     {
       "date": "Tue Jun 2",
@@ -167,7 +127,7 @@
       "attendees": "Christian, Ben Rangel, Patrick, Mark, Caleb, Tito, Jasmine, Bo",
       "type": "team_meeting",
       "prep_eligible": true,
-      "prep_hint": "Hover billing resolution. Get Ben's open loop updates on Cousins, Samson, McCoy, Megan Clark. Review Jasmine's Sales Pain Point Issues spreadsheet. Bo introduction."
+      "prep_hint": "Get Ben's open loop updates: Cousins, Samson, McCoy, Megan Clark (3+ weeks overdue). Bo introduction. Review Jasmine's Sales Pain Point Issues spreadsheet."
     },
     {
       "date": "Tue Jun 2",
@@ -176,7 +136,7 @@
       "attendees": "Mark Nelson, Erich",
       "type": "interview",
       "prep_eligible": true,
-      "prep_hint": "NEW: PHE Prod Manager candidate. Also review John Huber's Spark Hire video (Mark's last-minute candidate). Compare both."
+      "prep_hint": "PHE Prod Manager candidate. Also compare with John Huber (Mark's last-minute candidate — Spark Hire video available). Mark interviewing John this afternoon too."
     },
     {
       "date": "Tue Jun 2",
@@ -185,7 +145,7 @@
       "attendees": "Jason, AJ, Alex, Erich, Chet, Kyle",
       "type": "team_meeting",
       "prep_eligible": true,
-      "prep_hint": "Modified L10 format: roadmap, status, dev-budget. Review Kyle's AI Roadmap. Add agenda items to AJ's Google Doc. 2:00-2:30 PM."
+      "prep_hint": "Modified L10: roadmap, status, dev-budget. Review Kyle's AI Roadmap. Jason flagged low audio upload adoption. Nick Lane pipeline feature request connects here (Wallogy dev)."
     },
     {
       "date": "Tue Jun 2",
@@ -194,7 +154,7 @@
       "attendees": "Haakon Hansen, Chet",
       "type": "gam",
       "prep_eligible": true,
-      "prep_hint": "Haakon accepted. Sequential after AI Alignment. Cate VA payroll adjustment in progress."
+      "prep_hint": "Sequential after AI Alignment. Check Haakon's rep pipeline and recent coaching themes."
     },
     {
       "date": "Tue Jun 2",
@@ -204,6 +164,15 @@
       "type": "team_meeting",
       "prep_eligible": true,
       "prep_hint": "Bi-monthly all-company Ventures L10. Prep in Aleph Ventures L10 Google Sheet."
+    },
+    {
+      "date": "Tue Jun 2",
+      "time": "6:00 PM",
+      "title": "Benji and Dad Date",
+      "attendees": "Benji",
+      "type": "social",
+      "prep_eligible": false,
+      "prep_hint": "Dad date with Benji 6-8 PM. Enjoy it."
     },
     {
       "date": "Wed Jun 3",
@@ -221,7 +190,7 @@
       "attendees": "Family",
       "type": "social",
       "prep_eligible": false,
-      "prep_hint": "Jude's Character Awards ceremony 9-11 AM. CONFLICT: Estimate Training w/ Bo at 10:30."
+      "prep_hint": "Jude's Character Awards 9-11 AM. CONFLICT: Estimate Training w/ Bo at 10:30 — have Patrick start, join at 11."
     },
     {
       "date": "Wed Jun 3",
@@ -230,7 +199,7 @@
       "attendees": "Patrick Darlington, Bo Anderson",
       "type": "one_on_one",
       "prep_eligible": true,
-      "prep_hint": "Wallogy Estimate Builder training. Have Patrick start — join after Jude's awards at 11."
+      "prep_hint": "Wallogy Estimate Builder training. Patrick starts — join after Jude's awards at 11."
     },
     {
       "date": "Wed Jun 3",
@@ -239,25 +208,16 @@
       "attendees": "Caleb, Mark",
       "type": "team_meeting",
       "prep_eligible": true,
-      "prep_hint": "Monthly review: Interpret past results, align on 2-month plan for PP and PHE, assign to-dos with deadlines. Mark declined today's Caleb GAM."
+      "prep_hint": "Monthly review: Interpret past results, align on 2-month plan for PP and PHE, assign to-dos with deadlines."
     },
     {
       "date": "Wed Jun 3",
       "time": "1:00 PM",
       "title": "Retail Sales Model Training with Micah",
-      "attendees": "Christian, Alex Cooper, Shawn, Carter, Josh, Mark, Bo, James",
+      "attendees": "Christian, Alex Cooper, Shawn, Carter, Josh, Bo, James",
       "type": "team_meeting",
       "prep_eligible": true,
-      "prep_hint": "Retail sales model training for PHE team at PHE office. Prep core retail sales model content."
-    },
-    {
-      "date": "Wed Jun 3",
-      "time": "2:30 PM",
-      "title": "Eddie Vasquez Interview",
-      "attendees": "Mark Nelson, Erich",
-      "type": "interview",
-      "prep_eligible": true,
-      "prep_hint": "NEW: Second interview slot for Eddie Vasquez. Right before Margin Deep Dive."
+      "prep_hint": "Retail sales model training for PHE team at PHE office. Prep core retail sales model content. Mark declined."
     },
     {
       "date": "Wed Jun 3",
@@ -266,16 +226,16 @@
       "attendees": "Mark",
       "type": "one_on_one",
       "prep_eligible": true,
-      "prep_hint": "Monthly margin deep dive and commission approval. Matt's $7,489.75 still pending. Tight after Eddie interview at 2:30."
+      "prep_hint": "Monthly margin deep dive and commission approval. Matt Rawski's $7,489.75 still pending — last commission to approve."
     },
     {
       "date": "Thu Jun 4",
       "time": "All Day",
-      "title": "OUT + Stelter Family Financials + Forrest Frank Trip Begins",
+      "title": "OUT + Stelter Family Financials + Forest Frank Trip Begins",
       "attendees": "",
       "type": "social",
       "prep_eligible": false,
-      "prep_hint": "Out of office. Family financials review. Forrest Frank trip through Sunday. Payroll Friday."
+      "prep_hint": "Out of office. Family financials/budget review. Forrest Frank trip through Sunday. Payroll Friday."
     },
     {
       "date": "Fri Jun 5",
@@ -294,17 +254,35 @@
       "type": "social",
       "prep_eligible": false,
       "prep_hint": "Concert at Fiserv Forum, Milwaukee. Add tickets to wallet beforehand."
+    },
+    {
+      "date": "Sun Jun 7",
+      "time": "9:00 AM",
+      "title": "Substance Church",
+      "attendees": "",
+      "type": "social",
+      "prep_eligible": false,
+      "prep_hint": "Sunday service."
+    },
+    {
+      "date": "Sun Jun 7",
+      "time": "2:00 PM",
+      "title": "Lena's Bday Party",
+      "attendees": "",
+      "type": "social",
+      "prep_eligible": false,
+      "prep_hint": "Birthday party 2-4 PM."
     }
   ],
   "plaud": {
-    "last_scraped": "June 1, 2026",
+    "last_scraped": "June 2, 2026",
     "date_range": "May 12-14, 2026",
     "open_loops": [
-      "Schindle job — Noah O underbid; drop interior, ~17% margin. Loop Mark.",
-      "Megan Clark contract — was Saturday 2pm in-person. Get outcome from Ben.",
-      "Bill Cousins — promo expired; send contract NOW, ask yes/no.",
-      "Samson + McCoy — Samson decision at $32K; McCoy needs breakup email.",
-      "Patrick (hire) — RESOLVED: Bo Anderson hired, first day today."
+      "Schindle job — Noah O underbid; drop interior, ~17% margin. Loop Mark. (3+ weeks overdue)",
+      "Megan Clark contract — was Saturday 2pm in-person. Get outcome from Ben. (3+ weeks overdue)",
+      "Bill Cousins — promo expired; send contract NOW, ask yes/no. (3+ weeks overdue)",
+      "Samson + McCoy — Samson decision at $32K; McCoy needs breakup email. (3+ weeks overdue)",
+      "Patrick (hire) — RESOLVED: Bo Anderson hired, started Jun 1."
     ],
     "todos": [
       "Send Cousins updated bid + contract.",
@@ -323,7 +301,7 @@
     ],
     "pipeline": {
       "ben_rangel": {
-        "target": "$85K closed this week",
+        "target": "$85K closed this week (from May 12-14 — get updated numbers)",
         "deals": [
           { "name": "Megan Clark", "amount": "$12,800", "status": "contract was Sat 2pm — get outcome" },
           { "name": "Marty fence", "amount": "$17,476", "status": "contract going out" },
@@ -337,16 +315,17 @@
   },
   "faith": {
     "note": "Walk the land of your God-sized dream. Stop praying small, safe prayers — God's capacity is infinite. Embrace the irritating but essential call to community. No person can take from you what God is giving to you. Hudson Taylor raised the cost to see who would surrender.",
-    "source": "Sermon — The Power of Team and God-Sized Dreams (May 17, Hope Community Church)",
+    "source": "Sermon — The Power of Team and God-Sized Dreams (May 17, Substance Church)",
     "scripture": "Genesis 13:14-18",
     "call_to_action": "Identify one unreasonable prayer — something impossible without God's direct intervention. Write it down and pray it daily. Prayer-walk your workplace this week.",
-    "status": "Continue daily unreasonable prayer. Bible Study Friday 7 AM. Forrest Frank: The Jesus Generation Tour Fri Jun 5. No new sermon notes since May 17."
+    "warrior_prayer_highlights": "Pray for Luke Benton (former sales guy, uncertainty/anxiety). Pray for Wyatt, Devin, Chris M. — all going through divorce. Wisdom for building next-level leaders. Arden Hills office LOI negotiations. Peace in the home for Lizzie and the kids.",
+    "status": "Bible Study Friday 7 AM. Forrest Frank: The Jesus Generation Tour Fri Jun 5. Substance Church Sunday. Substance KIDS June updates received. No new sermon notes since May 17."
   },
   "marriage": {
     "note": "Peace in my home — authority over the chaos. Boldness to hold the line and have heavenly eyes for Lizzie and the kids.",
     "last_date": "May 30, 2026 — Stelter Date",
     "next_date": "TBD",
-    "status": "Great date Friday. Forrest Frank trip Thu-Sun is family time. Stelter Family Financials/Budget review Thursday."
+    "status": "Forrest Frank trip Thu-Sun is family time. Stelter Family Financials/Budget review Thursday. Lena's Bday Party Sunday 2 PM."
   },
   "health": {
     "last_draw": "Apr 28, 2026",
@@ -371,19 +350,19 @@
   "business": {
     "ytd_commission": "$77,796",
     "team_size": "14 reps",
-    "status": "Monday afternoon — Bo onboarding in progress. Morning meetings done: Matt GAM, Brandon GAM, Christian 1v1, Caleb GAM (Mark declined). Eddie Vasquez interviews added Tue 1pm + Wed 2:30pm. John Huber last-minute PHE Prod Manager candidate from Adrian. Ramp alert: Caleb's $6,920.50 at BCS Investment Group. AI Alignment agenda sent by Jason — modified L10 format. Matt created Hirshfield's pricing SOP. Jasmine shared Sales Pain Point Issues spreadsheet.",
+    "status": "Tuesday — heavy meeting day. PP L10 at 9, PHE L10 at 11, Eddie Vasquez interview at 1, AI Alignment at 2, Haakon GAM at 2:30, Ventures L10 at 3. Matt/Brandon surfaced Nick Lane's Wallogy pipeline feature request (already exists, needs structure). Jason added bookings/capacity/plan metrics to FP team page, flagged low audio upload adoption. Mark interviewing both Eddie Vasquez and John Huber today for PHE Prod Manager. Plaud open loops 3+ weeks stale — need Ben updates at PHE L10.",
     "commission_status": {
       "approved": ["Stephen Bacon ($5,693.85)", "Chris Sidla ($3,386.15)", "Seth Bostrom ($153.60)", "Ben Rangel ($3,642.36)", "Nick Brattin ($523.10)", "Grant Herbert ($116.79)", "Noah Ondrusik ($3,343.11)", "Seyf Topal ($499.44)", "Mike O'Meara ($1,265)", "Noah Franzen ($965.17)", "Nick Lane ($3,958.98)", "Justin Satterberg ($2,214.32)", "Brandon Stahnke (paid early)"],
       "pending": ["Matt Rawski ($7,489.75)"],
-      "note": "13/14 approved. Matt still pending. Margin Deep Dive / Commission Approval with Mark Wed Jun 3."
+      "note": "13/14 approved. Matt still pending. Margin Deep Dive / Commission Approval with Mark Wed Jun 3 at 3 PM."
     },
-    "new_this_week": "Bo Anderson first day — onboarding in progress. Eddie Vasquez interviews Tue/Wed. John Huber Spark Hire for PHE Prod Manager. Ramp alert on Caleb's $6,920.50. AI Alignment moving to modified L10 format. Matt's Hirshfield's pricing SOP. Jasmine's Sales Pain Point Issues spreadsheet. Cate VA payroll adjustment ($160/mo to ESP). Sales Appreciation Breakfast Jul 10. Hover billing still unresolved."
+    "new_this_week": "Nick Lane Wallogy pipeline feature request (Matt/Brandon thread — feature exists, needs structure). Jason's FP team page update with bookings/capacity/plan metrics. Eddie Vasquez + John Huber interviews for PHE Prod Manager today. Bo Anderson first full day. Out Thu-Fri for Forrest Frank family trip."
   },
   "fun": {
     "children": [
       { "name": "Jude" }, { "name": "Nori" }, { "name": "Mae" }, { "name": "Benji" }, { "name": "Will" }
     ],
-    "note": "Jude Character Awards Wednesday Jun 3, 9-11 AM (conflicts with Estimate Training at 10:30 — prioritize Jude). Forrest Frank concert Friday Jun 5 at Fiserv Forum, Milwaukee — add tickets to wallet. Out Thu-Sun for family trip.",
-    "status": "Jude's Character Awards Wednesday. Forrest Frank concert trip Thu-Sun. Add tickets to wallet."
+    "note": "Benji and Dad Date tonight 6-8 PM. Jude Character Awards Wednesday Jun 3, 9-11 AM. Forrest Frank concert Friday Jun 5 at Fiserv Forum, Milwaukee. Lena's Bday Party Sunday 2-4 PM. Out Thu-Sun for family trip.",
+    "status": "Benji date tonight! Jude's awards Wednesday. Forrest Frank concert trip Thu-Sun. Add tickets to wallet."
   }
 }
