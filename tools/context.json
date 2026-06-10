@@ -1,176 +1,102 @@
 {
-  "updated": "June 9, 2026 — 6:00 AM",
+  "updated": "June 10, 2026 — 2:00 PM",
   "attention": [
     {
       "source": "calendar",
-      "from": "Today's Schedule",
-      "summary": "Heavy meeting day: Paris Painting L10 (9 AM), PHE L10 (11 AM), Finance Prep/Review w/ Mark (1 PM), Bo/Micah Sales Model (3 PM).",
+      "from": "June Monthly Meeting (3 PM today)",
+      "summary": "Big company all-hands 3-5 PM (PP + PHE + Aleph) at Brooklyn Center. Starts within the hour.",
       "priority_area": "business",
       "urgency": "urgent",
-      "time": "Today",
-      "suggested_action": "Prep both L10 sheets first thing; bring May numbers + Q2 tax question to Mark's 1 PM finance prep; build Bo's sales-model content for 3 PM."
+      "time": "3:00 PM today",
+      "suggested_action": "Head to the all-hands — good venue to align on marketing collabs and tee up the Field Pulse / Plaud bid-recording push you're syncing on right after."
+    },
+    {
+      "source": "calendar",
+      "from": "Paris Painting Field Pulse Sales Sync (NEW, 4:30 PM today)",
+      "summary": "You created a Sales Sync on Field Pulse / Plaud bid recording for 4:30-5 PM today. Most reps already accepted (Nick, Brandon, Seyf in; Mike, Justin tentative). Tail overlaps the 3-5 Monthly Meeting.",
+      "priority_area": "business",
+      "urgency": "urgent",
+      "time": "4:30 PM today",
+      "suggested_action": "Prep 2-3 talking points on Field Pulse bid recording (Plaud pins to Seyf + Ben still open). Note the overlap with the Monthly Meeting's last 30 min."
+    },
+    {
+      "source": "gmail",
+      "from": "Jason Paris — Field Pulse §3 sign-off",
+      "summary": "§3 calibration change still held for your + Alex's mutual sign-off. Field Pulse Walkthrough is tomorrow 9 AM (tentative on your calendar).",
+      "priority_area": "business",
+      "urgency": "urgent",
+      "time": "Before Thu 9 AM",
+      "suggested_action": "Sign off on Jason's §3 one-pager with Alex today — ideally grab him at the 3 PM all-hands — so the Thursday walkthrough isn't blocked."
     },
     {
       "source": "calendar",
       "from": "Q2 Estimated Taxes",
-      "summary": "Q2 estimated tax payments due Monday 6/15 — six days out.",
+      "summary": "Q2 estimated tax payments due Monday 6/15 — five days out. Partner Retreat also starts that day.",
       "priority_area": "business",
       "urgency": "urgent",
       "time": "Due Mon 6/15",
-      "suggested_action": "Confirm Q2 estimated taxes are scheduled at today's 1 PM Finance Prep with Mark."
-    },
-    {
-      "source": "plaud",
-      "from": "Ben GAM (Wed) + PHE L10 (today)",
-      "summary": "Plaud open loops are now ~4 weeks stale (Schindle, Cousins, Samson, McCoy, Megan Clark). Ben GAM is tomorrow 9 AM; PHE L10 is today 11 AM.",
-      "priority_area": "business",
-      "urgency": "urgent",
-      "time": "Today / Tomorrow",
-      "suggested_action": "Get fresh status from Ben at today's PHE L10, then close each loop out at the Ben GAM Wed 9 AM. Original target was $85K closed."
+      "suggested_action": "Confirm Q2 estimated taxes are scheduled with Mark before the retreat — Friday's Monthly Financial Meeting (reviewing May) is the last clean window."
     },
     {
       "source": "gmail",
-      "from": "Jason Paris",
-      "summary": "Field Pulse scoring updates shipped from your feedback (live). The §3 calibration change is held for your and Alex's mutual sign-off — one-pager attached.",
+      "from": "Dave / Ross — Pre-Retreat Partner Pulse",
+      "summary": "Aleph Summer Partner Retreat is one week out (starts Mon 6/15). Dave asked the COO team to complete the pre-retreat Partner Pulse form-fill; Ross already added the transition-curve doc to Drive.",
       "priority_area": "business",
       "urgency": "normal",
-      "time": "Yesterday 9:44 AM",
-      "suggested_action": "Review Jason's §3 one-pager and sign off with Alex before Thursday's Field Pulse Walkthrough (Jun 11, 9 AM)."
+      "time": "Before 6/15",
+      "suggested_action": "Complete your section of the pre-retreat Partner Pulse before the retreat."
     },
     {
-      "source": "calendar",
-      "from": "Patrick GAM (Wed 10:15)",
-      "summary": "Patrick Darlington is on paternity leave (new baby). His GAM tomorrow at 10:15 AM will likely need rescheduling.",
+      "source": "gmail",
+      "from": "Christian Kullmann — Carter Nielsen comp hold",
+      "summary": "Christian held Carter Nielsen's comp going forward due to low sales numbers; Katelynn + Machaela confirmed it's noted on payroll. GAM-Carter now set for Mon 6/22, 1:15 PM (and GAM Josh 12 PM same day).",
       "priority_area": "business",
       "urgency": "normal",
-      "time": "Tomorrow",
-      "suggested_action": "Send Patrick a congratulations text and reschedule the Wed 10:15 GAM."
+      "time": "Logged today",
+      "suggested_action": "No action needed now — comp hold is documented. Use the 6/22 GAM to set Carter's turnaround expectations."
     },
     {
-      "source": "calendar",
-      "from": "Wed 9 AM Conflict",
-      "summary": "Ben GAM and PHE Candidate Review (Mitsuoka/Adrian) both land at 9 AM tomorrow.",
+      "source": "plaud",
+      "from": "Ben GAM was this morning (9 AM)",
+      "summary": "Plaud open loops (Schindle, Cousins, Samson, McCoy, Megan Clark) are still ~4 weeks stale on the board. Ben GAM was scheduled for 9 AM today — outcome not yet reflected.",
       "priority_area": "business",
       "urgency": "normal",
-      "time": "Tomorrow",
-      "suggested_action": "Decide which 9 AM to take Wed — Ben GAM (close Plaud loops) vs. PHE Candidate Review. Delegate or move one."
+      "time": "Earlier today",
+      "suggested_action": "Confirm what closed at this morning's Ben GAM — Cousins contract sent, McCoy breakup email, Samson $32K decision, Megan Clark outcome — and update the pipeline row toward the $85K target."
     },
     {
       "source": "marriage",
       "from": "Lizzie",
-      "summary": "No date night currently on the calendar. Last Stelter date was May 30.",
+      "summary": "Still no date night on the calendar. Last Stelter date was May 30, and next week is consumed by the Partner Retreat.",
       "priority_area": "marriage",
       "urgency": "normal",
       "time": "—",
-      "suggested_action": "Pick a night this week and schedule a date with Lizzie."
+      "suggested_action": "Lock a date with Lizzie this week — before the 6/15 retreat eats the back half of the week."
     },
     {
       "source": "gmail",
-      "from": "Jonmarc / Dan (Portfolio Visits)",
-      "summary": "FYI threads: Jonmarc's Destiny Painting visit summary (marketing/IDS focus) and Dan's Pointer Painting visit recap (May 26-28). You're cc'd; Dave already replied to both.",
-      "priority_area": "business",
+      "from": "Ashley Hawks (SOAR Group)",
+      "summary": "You're confirmed for the July 16 SOAR peer group (passed on the sold-out June 24 workshop). Next step is a quick intro call with facilitator David Orbuch — Ashley is connecting you by text.",
+      "priority_area": "fun",
       "urgency": "low",
-      "time": "This week",
-      "suggested_action": "Skim for awareness — no reply required unless you want to weigh in on Destiny's marketing issue."
+      "time": "July 16",
+      "suggested_action": "Watch for David Orbuch's text and book the quick facilitator call."
     },
     {
       "source": "gmail",
       "from": "Dan Licht (Sherwin-Williams)",
-      "summary": "Guest on Thursday's June Mind Meld / Sherwin National Call (Jun 11, 11 AM). Asking attendees for topics to cover.",
+      "summary": "Dan is guesting on tomorrow's Sherwin National Call / Mind Meld (Thu 11 AM) and wants topic requests.",
       "priority_area": "business",
       "urgency": "low",
-      "time": "By Thu",
-      "suggested_action": "If you have a pricing/supply topic, reply to Dan before Thursday."
-    },
-    {
-      "source": "calendar",
-      "from": "Brady Kelley",
-      "summary": "Team Golf invite — Tue Jun 16, 7:30-11:30 AM (Dave, Erich, Patrick, Chet, Alex).",
-      "priority_area": "fun",
-      "urgency": "low",
-      "time": "Jun 16",
-      "suggested_action": "Accept or decline the Jun 16 Team Golf invite."
+      "time": "By Thu 11 AM",
+      "suggested_action": "If you have a pricing/supply topic, reply to Dan before tomorrow's call."
     }
   ],
   "briefing": [
-    { "time": "9:00 AM", "title": "Paris Painting L10" },
-    { "time": "11:00 AM", "title": "Paris Home Exteriors L10" },
-    { "time": "1:00 PM", "title": "Finance Meeting Prep/Review (Mark)" },
-    { "time": "3:00 PM", "title": "Bo/Micah - Sales Model" }
+    { "time": "3:00 PM", "title": "June Monthly Meeting (all-hands, 3-5 PM)" },
+    { "time": "4:30 PM", "title": "Paris Painting Field Pulse Sales Sync (NEW)" }
   ],
   "upcoming_events": [
-    {
-      "date": "Tue Jun 9",
-      "time": "9:00 AM",
-      "title": "PARIS PAINTING L10",
-      "attendees": "Brandon, Cara, Darcy, Mark, Chris McDaniel, Caleb, Matt, Angel",
-      "type": "team_meeting",
-      "prep_eligible": true,
-      "prep_hint": "Weekly L10. Prep in Paris Painting L10 Google Sheet. John and Alex declined."
-    },
-    {
-      "date": "Tue Jun 9",
-      "time": "11:00 AM",
-      "title": "PARIS HOME EXTERIORS L10",
-      "attendees": "Caleb, Patrick A, Mark, Jasmine, Tito, Ben Rangel, Christian, Bo",
-      "type": "team_meeting",
-      "prep_eligible": true,
-      "prep_hint": "Weekly L10. Patrick D on paternity leave. Bo is new. Get Ben's update on the 4+ week old Plaud pipeline loops (Cousins, Samson, McCoy, Megan Clark)."
-    },
-    {
-      "date": "Tue Jun 9",
-      "time": "1:00 PM",
-      "title": "Finance Meeting Prep/Review",
-      "attendees": "Mark Nelson",
-      "type": "one_on_one",
-      "prep_eligible": true,
-      "prep_hint": "Prep for the week's financial meetings. Confirm Q2 estimated taxes are scheduled before 6/15. Review May numbers ahead of Fri's Monthly Financial Meeting."
-    },
-    {
-      "date": "Tue Jun 9",
-      "time": "3:00 PM",
-      "title": "Bo/Micah - Sales Model",
-      "attendees": "Bo Anderson",
-      "type": "one_on_one",
-      "prep_eligible": true,
-      "prep_hint": "Bo's onboarding sales-model session (week 2). Bring deck/retail sales playbook fundamentals; his first bid is Thursday 1 PM."
-    },
-    {
-      "date": "Wed Jun 10",
-      "time": "9:00 AM",
-      "title": "Ben GAM",
-      "attendees": "Ben Rangel",
-      "type": "gam",
-      "prep_eligible": true,
-      "prep_hint": "CRITICAL: Close all 4+ week old Plaud open loops — Schindle, Cousins, Samson, McCoy, Megan Clark. Original pipeline target was $85K. Conflicts with PHE Candidate Review at 9 AM."
-    },
-    {
-      "date": "Wed Jun 10",
-      "time": "9:00 AM",
-      "title": "PHE Candidate Review (Mitsuoka)",
-      "attendees": "Adrian (Mitsuoka), Christian",
-      "type": "external",
-      "prep_eligible": true,
-      "prep_hint": "Recurring candidate review with recruiting firm. Overlaps Ben GAM — decide which to prioritize or delegate."
-    },
-    {
-      "date": "Wed Jun 10",
-      "time": "10:15 AM",
-      "title": "Patrick GAM",
-      "attendees": "Patrick Darlington",
-      "type": "gam",
-      "prep_eligible": false,
-      "prep_hint": "Patrick is on paternity leave (new baby). This slot likely needs to be rescheduled — send a congrats text."
-    },
-    {
-      "date": "Wed Jun 10",
-      "time": "12:30 PM",
-      "title": "Noah / Micah",
-      "attendees": "Noah Franzen",
-      "type": "one_on_one",
-      "prep_eligible": true,
-      "prep_hint": "1v1 with Noah Franzen. Review his pipeline and recent performance."
-    },
     {
       "date": "Wed Jun 10",
       "time": "3:00 PM",
@@ -178,7 +104,16 @@
       "attendees": "Full company (PP + PHE + Aleph)",
       "type": "team_meeting",
       "prep_eligible": true,
-      "prep_hint": "Big all-hands monthly meeting 3-5 PM. Good venue to align on marketing collabs (Hirshfields shirts, Pizzeria Lola). Cameron organized."
+      "prep_hint": "All-hands 3-5 PM at 3515 48th Ave N. Cameron organized. Align on marketing collabs and tee up the Field Pulse bid-recording initiative."
+    },
+    {
+      "date": "Wed Jun 10",
+      "time": "4:30 PM",
+      "title": "Paris Painting Sales Sync on Field Pulse",
+      "attendees": "Brandon, Nick, Seyf, Matt, Justin, Mike, Noah Franzen, Nick Brattin + sales team",
+      "type": "team_meeting",
+      "prep_eligible": true,
+      "prep_hint": "NEW meeting you created. Sync the sales team on Field Pulse / Plaud bid recording. Open item: get Plaud pins to Seyf + Ben (Brandon already running). Overlaps last 30 min of Monthly Meeting."
     },
     {
       "date": "Thu Jun 11",
@@ -187,7 +122,7 @@
       "attendees": "Jason Paris, Brandon Stahnke, Matt Rawski",
       "type": "team_meeting",
       "prep_eligible": true,
-      "prep_hint": "Review and sign off on Jason's §3 calibration change (with Alex) before this. Budget-framing logic already shipped."
+      "prep_hint": "Tentative on your calendar. Sign off on Jason's §3 calibration change (with Alex) before this. Budget-framing logic already shipped."
     },
     {
       "date": "Thu Jun 11",
@@ -205,16 +140,7 @@
       "attendees": "Erich, Mark, Katelynn",
       "type": "team_meeting",
       "prep_eligible": true,
-      "prep_hint": "Review Paris Brands financials. Prep with Mark at today's Finance Prep."
-    },
-    {
-      "date": "Thu Jun 11",
-      "time": "2:00 PM",
-      "title": "Baldamar w Chaz and Zak",
-      "attendees": "Chaz, Zak",
-      "type": "social",
-      "prep_eligible": false,
-      "prep_hint": "Social lunch/meeting at Baldamar."
+      "prep_hint": "Review Paris Brands financials. Feeds Friday's Monthly Financial Meeting on May."
     },
     {
       "date": "Thu Jun 11",
@@ -250,7 +176,7 @@
       "attendees": "Mark, Erich, Chet, Alex, Caleb, Katelynn",
       "type": "team_meeting",
       "prep_eligible": true,
-      "prep_hint": "May financials review. Coordinate with today's Finance Prep and Thursday's Paris Financial Review."
+      "prep_hint": "May financials review. Last clean window to confirm Q2 estimated taxes before 6/15. Prep at Thursday's Paris Financial Review."
     },
     {
       "date": "Fri Jun 12",
@@ -263,18 +189,9 @@
     },
     {
       "date": "Fri Jun 12",
-      "time": "3:30 PM",
-      "title": "Micah | Andrew | Dan @ Baldamar",
-      "attendees": "Andrew Rydlund, Dan Demarais",
-      "type": "social",
-      "prep_eligible": false,
-      "prep_hint": "Catch-up with Andrew and Dan at Baldamar. No formal prep."
-    },
-    {
-      "date": "Fri Jun 12",
       "time": "8:00 PM",
       "title": "Justin's Annual Bonfire",
-      "attendees": "Sales team — Justin, Matt, Brandon, Chris Sidla, Grant, Mike, Nick, Nick Brattin, Noah Franzen, Seyf + others",
+      "attendees": "Sales team — Justin, Matt, Brandon, Chris Sidla, Nick, Nick Brattin, Noah Franzen, Seyf, Mike + others",
       "type": "social",
       "prep_eligible": false,
       "prep_hint": "Justin Satterberg's annual bonfire. 6920 Harriet Ave, Richfield. Good team bonding."
@@ -287,17 +204,26 @@
       "type": "social",
       "prep_eligible": false,
       "prep_hint": "Sunday service."
+    },
+    {
+      "date": "Mon Jun 15",
+      "time": "8:00 AM",
+      "title": "Summer Aleph Partner Retreat (begins)",
+      "attendees": "Aleph partners",
+      "type": "team_meeting",
+      "prep_eligible": true,
+      "prep_hint": "Multi-day retreat starts. Complete the pre-retreat Partner Pulse form (Dave's request) beforehand. NOTE: Q2 estimated taxes also due today."
     }
   ],
   "plaud": {
-    "last_scraped": "June 9, 2026 — 6:00 AM",
-    "date_range": "May 12-14, 2026 (no new recordings since)",
+    "last_scraped": "June 10, 2026 — 2:00 PM",
+    "date_range": "May 12-14, 2026 (no new recordings since — board unchanged)",
     "open_loops": [
       "Schindle job — Noah O underbid; drop interior, ~17% margin. Loop Mark. (4+ weeks overdue)",
       "Megan Clark contract — was Saturday 2pm in-person. Get outcome from Ben. (4+ weeks overdue)",
       "Bill Cousins — promo expired; send contract NOW, ask yes/no. (4+ weeks overdue)",
       "Samson + McCoy — Samson decision at $32K; McCoy needs breakup email. (4+ weeks overdue)",
-      "Patrick (hire) — RESOLVED: Bo Anderson hired, onboarding now (sales model session today)."
+      "Patrick (hire) — RESOLVED: Bo Anderson hired and onboarding."
     ],
     "todos": [
       "Send Cousins updated bid + contract.",
@@ -305,7 +231,7 @@
       "Loop Mark on Schindle scope reduction + $500 off + ~17% margin.",
       "Mac Mini setup → Cloudflare domain → first HTML page via Claude.",
       "Finish re-running eval feedback with updated email format.",
-      "Get Plaud pins to Seyf + Ben (Brandon already running)."
+      "Get Plaud pins to Seyf + Ben (Brandon already running) — tie into today's 4:30 Field Pulse Sales Sync."
     ],
     "themes": [
       "Same-week decisions — stop follow-up, ask for the decision; get verbal commit.",
@@ -316,7 +242,7 @@
     ],
     "pipeline": {
       "ben_rangel": {
-        "target": "$85K closed (from May 12-14 — get updated numbers at PHE L10 today / Ben GAM Wed)",
+        "target": "$85K closed (Ben GAM was this morning 9 AM — confirm closes and update row)",
         "deals": [
           { "name": "Megan Clark", "amount": "$12,800", "status": "contract was Sat 2pm — get outcome" },
           { "name": "Marty fence", "amount": "$17,476", "status": "contract going out" },
@@ -340,7 +266,7 @@
     "note": "Peace in my home — authority over the chaos. Boldness to hold the line and have heavenly eyes for Lizzie and the kids.",
     "last_date": "May 30, 2026 — Stelter Date",
     "next_date": "TBD",
-    "status": "No date night currently on the calendar — worth scheduling one with Lizzie this week."
+    "status": "Still no date night on the calendar — schedule one before the 6/15 Partner Retreat consumes next week."
   },
   "health": {
     "last_draw": "Apr 28, 2026",
@@ -365,19 +291,19 @@
   "business": {
     "ytd_commission": "$77,796",
     "team_size": "14 reps",
-    "status": "Tuesday — L10 day. Paris Painting L10 (9 AM) and PHE L10 (11 AM) back-to-back this morning, Finance Prep w/ Mark (1 PM), Bo Sales Model (3 PM). Commission run complete (all 14 reps approved). Bo Anderson week 2: first bid Thu 1 PM, sales-model session today 3 PM. Jason shipped Field Pulse scoring updates; §3 calibration change awaiting Micah + Alex sign-off before Thu's walkthrough. Ben GAM tomorrow 9 AM — priority is closing the 4+ week stale Plaud loops. Patrick Darlington on paternity leave (Wed GAM needs rescheduling). Q2 estimated taxes due 6/15. Portfolio visit recaps in from Jonmarc (Destiny) and Dan (Pointer).",
+    "status": "Wednesday afternoon. June Monthly all-hands 3-5 PM, followed by a NEW Paris Painting Field Pulse Sales Sync at 4:30 PM (you organized it — team syncing on Plaud/Field Pulse bid recording). Jason's Field Pulse §3 calibration change still needs your + Alex's sign-off before tomorrow's 9 AM walkthrough. Ben GAM was this morning — confirm which stale Plaud loops closed. Christian put Carter Nielsen's comp on hold for low sales (documented; GAM-Carter set for 6/22). Aleph Summer Partner Retreat starts Mon 6/15 — pre-retreat Partner Pulse form due; Q2 estimated taxes also due 6/15. Heavy Friday: Exec L10, May financial review, SKIS portfolio visit.",
     "commission_status": {
       "approved": ["Stephen Bacon ($5,693.85)", "Chris Sidla ($3,386.15)", "Seth Bostrom ($153.60)", "Ben Rangel ($3,642.36)", "Nick Brattin ($523.10)", "Grant Herbert ($116.79)", "Noah Ondrusik ($3,343.11)", "Seyf Topal ($499.44)", "Mike O'Meara ($1,265)", "Noah Franzen ($965.17)", "Nick Lane ($3,958.98)", "Justin Satterberg ($2,214.32)", "Brandon Stahnke (paid early)", "Matt Rawski ($7,489.75)"],
       "pending": [],
       "note": "All 14 reps approved. Commission run complete."
     },
-    "new_this_week": "Bo Anderson sales-model session today (first bid Thu 1 PM). Jason Paris's Field Pulse §3 calibration change pending Micah + Alex sign-off ahead of Thu walkthrough. Patrick Darlington OOO — first child; Wed GAM to reschedule. Portfolio visit summaries from Jonmarc (Destiny Painting) and Dan (Pointer Painting). Dan Licht (Sherwin-Williams) guesting at Thu Mind Meld. Team Golf invite Tue 6/16. Q2 estimated tax deadline 6/15."
+    "new_this_week": "NEW: Paris Painting Field Pulse Sales Sync today 4:30 PM (you created it). Carter Nielsen comp hold logged by Christian/Katelynn/Machaela; GAM-Carter + GAM Josh set for Mon 6/22. Aleph Summer Partner Retreat starts Mon 6/15 — Dave requesting pre-retreat Partner Pulse form-fills. SOAR peer group confirmed for July 16 (facilitator intro call pending). Jason's Field Pulse §3 sign-off still open ahead of Thu walkthrough. Q2 estimated tax deadline 6/15."
   },
   "fun": {
     "children": [
       { "name": "Jude" }, { "name": "Nori" }, { "name": "Mae" }, { "name": "Benji" }, { "name": "Will" }
     ],
-    "note": "Big social stretch ahead: Back Office Boat Day Thu 6/11, Baldamar Thu + Fri, Justin's Annual Bonfire Fri 6/12 at 8 PM, Team Golf invite Tue 6/16.",
-    "status": "Respond to the Jun 16 Team Golf invite. Plenty of team bonding this week — enjoy it."
+    "note": "No evening plans tonight after the 4:30 Field Pulse sync. Big social stretch ahead: Back Office Boat Day Thu 6/11, Justin's Annual Bonfire Fri 6/12 at 8 PM. SOAR peer group joins the calendar July 16.",
+    "status": "Quiet evening at home tonight. Plenty of team bonding later this week."
   }
 }
