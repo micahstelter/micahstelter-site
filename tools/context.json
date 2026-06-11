@@ -1,122 +1,111 @@
 {
-  "updated": "June 11, 2026 — 6:00 AM",
+  "updated": "June 11, 2026 — 2:00 PM",
   "attention": [
     {
       "source": "calendar",
-      "from": "Field Pulse Walkthrough (9 AM today)",
-      "summary": "Field Pulse Walkthrough / Updates with Jason, Brandon, and Matt at 9 AM. Jason's §3 calibration change still needs your + Alex's sign-off going in.",
-      "priority_area": "business",
-      "urgency": "urgent",
-      "time": "9:00 AM today",
-      "suggested_action": "Grab Alex before 9 AM to co-sign Jason's §3 calibration one-pager so the walkthrough isn't blocked."
-    },
-    {
-      "source": "calendar",
       "from": "Q2 Estimated Taxes",
-      "summary": "Q2 estimated tax payments due Monday 6/15 — four days out, same day the Partner Retreat begins. Today's 1 PM Paris Financial Review and Friday's Monthly Financial Meeting are the last clean windows.",
+      "summary": "Q2 estimated tax payments due Monday 6/15 — same day the Partner Retreat begins. Today's 1 PM Paris Financial Review has passed; Friday's 11 AM Monthly Financial Meeting (May review) is now the last clean window before the deadline.",
       "priority_area": "business",
       "urgency": "urgent",
       "time": "Due Mon 6/15",
-      "suggested_action": "Confirm Q2 estimated taxes are scheduled with Mark at today's 1 PM Paris Financial Review."
+      "suggested_action": "Confirm Q2 estimated taxes are scheduled with Mark at Friday's 11 AM Monthly Financial Meeting — last clean window before 6/15."
     },
     {
       "source": "gmail",
       "from": "Matt Rawski — CoM Trend Exec View comment",
-      "summary": "Matt mentioned you in a comment on the Paris Brands CoM Trend Exec View sheet — rows 7-11 need your input.",
+      "summary": "Matt tagged you on the Paris Brands CoM Trend Exec View sheet — rows 7-11 need your input. Today's Paris Financial Review has passed, so this now feeds Friday's May review.",
       "priority_area": "business",
       "urgency": "normal",
-      "time": "Late last night",
-      "suggested_action": "Open the CoM Trend Exec View sheet and fill in rows 7-11 per Matt's comment, ideally before today's 1 PM Financial Review."
+      "time": "Carried from morning",
+      "suggested_action": "Fill in CoM Trend Exec View rows 7-11 before Friday's 11 AM Monthly Financial Meeting."
     },
     {
       "source": "gmail",
-      "from": "Brady — Aleph Ventures Partner Retreat Prep",
-      "summary": "Retreat is 5 days out (Nature Link Resort, June 16-19). Arrive by 5:00 PM Tuesday 6/16. Key logistics in Brady's email.",
+      "from": "Hassan Issa (Yanne Capital)",
+      "summary": "Hassan asked directly: 'Is there a number that would make a backer conversation worth it, or not even on your mind?' An inbound investor/backer feeler — wants to know if you're open.",
       "priority_area": "business",
       "urgency": "normal",
-      "time": "Yesterday",
-      "suggested_action": "Read Brady's retreat prep email and block travel time to arrive at Nature Link by 5 PM Tue 6/16."
+      "time": "1:23 PM",
+      "suggested_action": "Decide whether a backer conversation is on the table and send Hassan a short reply — either a number/range or a clear 'not now.'"
+    },
+    {
+      "source": "gmail",
+      "from": "Alex — June 26 Board Topic",
+      "summary": "Alex flagged a 6/26 board topic on Ventures governance, board input, the Ventures VTO and 3-Year Targets, and asked Jason to add it to the agenda. Directly relevant to next week's Partner Retreat.",
+      "priority_area": "business",
+      "urgency": "normal",
+      "time": "10:40 AM",
+      "suggested_action": "Read Alex's note and bring your point of view on Ventures 3-year targets into the Partner Retreat conversation."
+    },
+    {
+      "source": "calendar",
+      "from": "Tomorrow — Aleph Exec L10 (9:30 AM)",
+      "summary": "Friday's Exec L10 with Chet, Mark, Erich, Alex. Prep lives in the Exec L10 Google Sheet.",
+      "priority_area": "business",
+      "urgency": "normal",
+      "time": "Tomorrow 9:30 AM",
+      "suggested_action": "Add your issues and to-dos to the Exec L10 sheet tonight or first thing Friday."
+    },
+    {
+      "source": "calendar",
+      "from": "Tomorrow — SKIS Painting Visit (1:30 PM)",
+      "summary": "Friday whiteboard with Jesse Ficks (SKIS) and Haakon, Jason, Chet, Erich, Alex on Jesse's 1/3/10-year vision, an Aleph/SKIS partnership, and a possible Aleph Ventures Commercial division.",
+      "priority_area": "business",
+      "urgency": "normal",
+      "time": "Tomorrow 1:30 PM",
+      "suggested_action": "Review Haakon's agenda and frame your take on the SKIS partnership and a Commercial division before the session."
     },
     {
       "source": "gmail",
       "from": "Dave / Ross — Pre-Retreat Partner Pulse (COO form-fill)",
-      "summary": "Dave asked the COO team to complete the pre-retreat Partner Pulse form-fill before the 6/15 retreat. Ross and Nate already engaged on the thread.",
+      "summary": "Pre-retreat Partner Pulse form-fill still open for the COO team ahead of the 6/15 retreat.",
       "priority_area": "business",
       "urgency": "normal",
-      "time": "Yesterday",
-      "suggested_action": "Complete your section of the pre-retreat Partner Pulse form before the retreat."
+      "time": "Carried from yesterday",
+      "suggested_action": "Complete your section of the pre-retreat Partner Pulse form before Monday's retreat."
     },
     {
       "source": "plaud",
       "from": "Ben pipeline — stale open loops",
-      "summary": "Plaud open loops (Schindle, Cousins, Samson, McCoy, Megan Clark) remain ~4 weeks stale on the board. Board has not refreshed since May 12-14.",
+      "summary": "Plaud open loops (Schindle, Cousins, Samson, McCoy, Megan Clark) remain ~4 weeks stale. Board has not refreshed since May 12-14.",
       "priority_area": "business",
       "urgency": "normal",
       "time": "Stale 4+ weeks",
       "suggested_action": "Confirm with Ben which loops have closed — Cousins contract, McCoy breakup email, Samson $32K, Megan Clark — and update the pipeline toward the $85K target."
     },
     {
-      "source": "gmail",
-      "from": "Brady — Retreat room bill-back",
-      "summary": "$2,000 chargeback for your retreat room will be reduced from end-of-month payroll. FYI only.",
-      "priority_area": "business",
-      "urgency": "low",
-      "time": "Yesterday",
-      "suggested_action": "No action needed — note the $2,000 payroll reduction at month-end."
-    },
-    {
-      "source": "marriage",
+      "source": "imessage",
       "from": "Lizzie",
-      "summary": "Still no date night on the calendar, and next week is consumed by the Partner Retreat (6/15-19). (iMessage unavailable this morning — preserved from last refresh.)",
+      "summary": "Still no date night on the calendar, and next week is consumed by the Partner Retreat (6/15-19). (iMessage unavailable again this refresh — preserved from earlier.)",
       "priority_area": "marriage",
       "urgency": "normal",
       "time": "—",
-      "suggested_action": "Lock a date with Lizzie before the 6/15 retreat — this weekend is the only clean window."
+      "suggested_action": "Lock a date with Lizzie this weekend — it's the only clean window before the 6/15 retreat."
     },
     {
       "source": "gmail",
-      "from": "Ashley Hawks (SOAR Group)",
-      "summary": "You're confirmed for the July 16 SOAR peer group. Next step is a quick intro call with facilitator David Orbuch — Ashley is connecting you by text.",
-      "priority_area": "fun",
+      "from": "Grandma's Marathon — Garry Bjorklund Half",
+      "summary": "Race details + bib #17871 arrived. The Garry Bjorklund Half Marathon is the weekend after the retreat (~6/20, Duluth). Packet must be picked up in person before the race.",
+      "priority_area": "health",
       "urgency": "low",
-      "time": "Yesterday",
-      "suggested_action": "Watch for David Orbuch's text and book the quick facilitator call."
+      "time": "10:06 AM",
+      "suggested_action": "Plan Duluth logistics and packet pickup around the race weekend — note it lands right after the 6/15-19 retreat."
+    },
+    {
+      "source": "gmail",
+      "from": "Self-Gen Page Bookings audit (Caleb / Ana / Amanda)",
+      "summary": "Your 6/10 request to audit whether sales-rep-page bids are tagged Sales Team vs. referral in Wallogy is in motion — Caleb looped Ana/Amanda, who've started and are adding booking notes.",
+      "priority_area": "business",
+      "urgency": "low",
+      "time": "1:45 PM",
+      "suggested_action": "No action needed now — watch for the audit results to confirm self-gen tagging is accurate."
     }
   ],
   "briefing": [
-    { "time": "9:00 AM", "title": "Field Pulse Walkthrough / Updates" },
-    { "time": "11:00 AM", "title": "Sherwin Williams National Call" },
-    { "time": "1:00 PM", "title": "Paris Financial Review" },
+    { "time": "2:30 PM", "title": "Drive" },
     { "time": "3:00 PM", "title": "Back Office Boat Day!" }
   ],
   "upcoming_events": [
-    {
-      "date": "Thu Jun 11",
-      "time": "9:00 AM",
-      "title": "Field Pulse Walkthrough / Updates",
-      "attendees": "Jason Paris, Brandon Stahnke, Matt Rawski",
-      "type": "team_meeting",
-      "prep_eligible": true,
-      "prep_hint": "Sign off on Jason's §3 calibration change (with Alex) before this. Budget-framing logic already shipped."
-    },
-    {
-      "date": "Thu Jun 11",
-      "time": "11:00 AM",
-      "title": "Sherwin Williams National Call",
-      "attendees": "Aleph Ventures painting network",
-      "type": "external",
-      "prep_eligible": true,
-      "prep_hint": "Quarterly SW national call. No prep required unless you have a pricing/supply topic to raise."
-    },
-    {
-      "date": "Thu Jun 11",
-      "time": "1:00 PM",
-      "title": "Paris Financial Review",
-      "attendees": "Erich, Mark, Katelynn",
-      "type": "team_meeting",
-      "prep_eligible": true,
-      "prep_hint": "Review Paris Brands financials. Confirm Q2 estimated taxes here. Feeds Friday's Monthly Financial Meeting on May. Matt's CoM Trend Exec View rows 7-11 are relevant."
-    },
     {
       "date": "Thu Jun 11",
       "time": "3:00 PM",
@@ -124,7 +113,7 @@
       "attendees": "Cara, Heather, Danie, Abigail, Cameron, Amanda, Victoria, Haley + back office team",
       "type": "social",
       "prep_eligible": false,
-      "prep_hint": "Team social event. No formal prep — enjoy it."
+      "prep_hint": "Team social event on the water. No prep — enjoy it."
     },
     {
       "date": "Fri Jun 12",
@@ -133,7 +122,7 @@
       "attendees": "",
       "type": "social",
       "prep_eligible": false,
-      "prep_hint": "Morning Bible study at Paris Painting office."
+      "prep_hint": "Morning Bible study at the Paris Painting office."
     },
     {
       "date": "Fri Jun 12",
@@ -142,7 +131,7 @@
       "attendees": "Chet, Mark, Erich, Alex",
       "type": "team_meeting",
       "prep_eligible": true,
-      "prep_hint": "Exec L10. Prep in the Exec L10 Google Sheet."
+      "prep_hint": "Exec L10. Prep your issues/to-dos in the Exec L10 Google Sheet. Alex's 6/26 Ventures governance / 3-year targets topic may surface here ahead of the retreat."
     },
     {
       "date": "Fri Jun 12",
@@ -151,7 +140,7 @@
       "attendees": "Mark, Erich, Chet, Alex, Caleb, Katelynn",
       "type": "team_meeting",
       "prep_eligible": true,
-      "prep_hint": "May financials review. Last clean window to confirm Q2 estimated taxes before 6/15. Prep at Thursday's 1 PM Paris Financial Review."
+      "prep_hint": "May financials review. LAST clean window to confirm Q2 estimated taxes before 6/15. Have CoM Trend Exec View rows 7-11 filled in beforehand."
     },
     {
       "date": "Fri Jun 12",
@@ -160,7 +149,7 @@
       "attendees": "Haakon, Jason, Chet, Erich, Alex",
       "type": "external",
       "prep_eligible": true,
-      "prep_hint": "Whiteboard session on Jesse's 1/3/10-year vision, an Aleph/SKIS partnership, and a possible Aleph Ventures Commercial division. Review the agenda in Haakon's invite. (Note: time moved to 1:30 PM.)"
+      "prep_hint": "Whiteboard on Jesse's 1/3/10-year vision, an Aleph/SKIS partnership, and a possible Aleph Ventures Commercial division. Review Haakon's agenda."
     },
     {
       "date": "Fri Jun 12",
@@ -187,18 +176,36 @@
       "attendees": "Aleph partners",
       "type": "team_meeting",
       "prep_eligible": true,
-      "prep_hint": "Multi-day retreat. Complete the pre-retreat Partner Pulse form (Dave's request) beforehand. NOTE: Q2 estimated taxes also due today."
+      "prep_hint": "Multi-day retreat (Nature Link, Nisswa). Complete the pre-retreat Partner Pulse form beforehand. NOTE: Q2 estimated taxes also due today. Bring your Ventures 3-year-targets view (per Alex's board topic)."
+    },
+    {
+      "date": "Tue Jun 16",
+      "time": "7:30 AM",
+      "title": "Team Golf",
+      "attendees": "Brady, Dave, Erich, Patrick, Chet, Alex",
+      "type": "social",
+      "prep_eligible": false,
+      "prep_hint": "Retreat team golf at Whitefish Golf Club, Pequot Lakes. Then arrive at Nature Link Resort by 4 PM."
+    },
+    {
+      "date": "Tue Jun 16",
+      "time": "4:00 PM",
+      "title": "Aleph Retreat — Nature Links",
+      "attendees": "Aleph partners + Ventures network",
+      "type": "team_meeting",
+      "prep_eligible": true,
+      "prep_hint": "Main retreat block kicks off. Arrive at Nature Link Resort (Nisswa) by 4-5 PM."
     }
   ],
   "plaud": {
-    "last_scraped": "June 11, 2026 — 6:00 AM",
+    "last_scraped": "June 11, 2026 — 2:00 PM",
     "date_range": "May 12-14, 2026 (no new recordings since — board unchanged)",
     "open_loops": [
       "Schindle job — Noah O underbid; drop interior, ~17% margin. Loop Mark. (4+ weeks overdue)",
       "Megan Clark contract — was Saturday 2pm in-person. Get outcome from Ben. (4+ weeks overdue)",
       "Bill Cousins — promo expired; send contract NOW, ask yes/no. (4+ weeks overdue)",
       "Samson + McCoy — Samson decision at $32K; McCoy needs breakup email. (4+ weeks overdue)",
-      "Patrick (hire) — RESOLVED: Bo Anderson hired and onboarding (GAMs now on the calendar)."
+      "Patrick (hire) — RESOLVED: Bo Anderson hired and onboarding (Bo GAMs now confirmed on the July calendar)."
     ],
     "todos": [
       "Send Cousins updated bid + contract.",
@@ -235,18 +242,18 @@
     "scripture": "Genesis 13:14-18",
     "call_to_action": "Identify one unreasonable prayer — something impossible without God's direct intervention. Write it down and pray it daily. Prayer-walk your workplace this week.",
     "warrior_prayer_highlights": "Pray for Luke Benton (former sales guy, uncertainty/anxiety). Pray for Wyatt, Devin, Chris M. — all going through divorce. Wisdom for building next-level leaders. Arden Hills office LOI negotiations. Peace in the home for Lizzie and the kids. Patrick Darlington and wife welcoming their first child.",
-    "status": "Bible Study Friday Jun 12, 7 AM. Substance Church Sunday Jun 14, 9 AM. No new sermon notes since May 17."
+    "status": "Bible Study tomorrow (Fri Jun 12, 7 AM). Substance Church Sunday Jun 14, 9 AM. No new sermon notes since May 17."
   },
   "marriage": {
     "note": "Peace in my home — authority over the chaos. Boldness to hold the line and have heavenly eyes for Lizzie and the kids.",
     "last_date": "May 30, 2026 — Stelter Date",
     "next_date": "TBD",
-    "status": "Still no date night on the calendar — lock one this weekend before the 6/15 Partner Retreat consumes all of next week."
+    "status": "Still no date night on the calendar — this weekend is the only clean window before the 6/15-19 Partner Retreat consumes all of next week."
   },
   "health": {
     "last_draw": "Apr 28, 2026",
     "next_draw": "~Oct 2026",
-    "status": "Mostly optimal — 3 flags to watch",
+    "status": "Mostly optimal — 3 flags to watch. Garry Bjorklund Half Marathon coming up (~6/20, the weekend after the retreat) — bib #17871 confirmed.",
     "summary": "90%+ markers optimal. T up 17%, Vitamin D doubled. Five flags, three trending right.",
     "wins": [
       { "title": "Testosterone surging", "detail": "Up 17% to 564 ng/dL." },
@@ -266,19 +273,19 @@
   "business": {
     "ytd_commission": "$77,796",
     "team_size": "14 reps",
-    "status": "Thursday morning. Field Pulse Walkthrough at 9 AM (Jason's §3 sign-off with Alex still open going in), Sherwin Williams National Call at 11, Paris Financial Review at 1 PM, Back Office Boat Day at 3. Matt Rawski tagged you in the CoM Trend Exec View sheet — rows 7-11 need input. Aleph Summer Partner Retreat starts Mon 6/15 (Nature Link, arrive by 5 PM Tue 6/16) — pre-retreat Partner Pulse COO form-fill still due, and Q2 estimated taxes also land 6/15. Heavy Friday: Bible Study, Exec L10, May financial review, and the SKIS Painting portfolio visit at 1:30. A $2,000 retreat-room bill-back hits end-of-month payroll.",
+    "status": "Thursday afternoon. The morning ran clean — Field Pulse Walkthrough, Sherwin Williams National Call (recaps/notes now circulating from Otter, Fathom, Fireflies, Gemini), and the 1 PM Paris Financial Review are done. Back Office Boat Day at 3 PM closes the day. Q2 estimated taxes still need confirming before 6/15 — Friday's 11 AM May financial review is the last clean window. New inbound: Hassan Issa (Yanne Capital) asked whether a backer conversation is worth having; Alex queued a 6/26 board topic on Ventures governance and 3-year targets; your self-gen page-tagging audit is now in motion with Caleb/Ana/Amanda. Bo Anderson's GAMs are confirmed on the July calendar. Heavy Friday ahead: Bible Study, Exec L10, May financial review, and the SKIS Painting whiteboard at 1:30. Partner Retreat starts Mon 6/15 (Nature Link, Nisswa) with team golf Tue 7:30 AM — pre-retreat Partner Pulse form still open.",
     "commission_status": {
       "approved": ["Stephen Bacon ($5,693.85)", "Chris Sidla ($3,386.15)", "Seth Bostrom ($153.60)", "Ben Rangel ($3,642.36)", "Nick Brattin ($523.10)", "Grant Herbert ($116.79)", "Noah Ondrusik ($3,343.11)", "Seyf Topal ($499.44)", "Mike O'Meara ($1,265)", "Noah Franzen ($965.17)", "Nick Lane ($3,958.98)", "Justin Satterberg ($2,214.32)", "Brandon Stahnke (paid early)", "Matt Rawski ($7,489.75)"],
       "pending": [],
       "note": "All 14 reps approved. Commission run complete."
     },
-    "new_this_week": "Matt Rawski needs your input on CoM Trend Exec View rows 7-11. Brady sent Aleph Ventures Partner Retreat prep (Nature Link, June 16-19; arrive by 5 PM Tue) plus a $2,000 retreat-room bill-back to end-of-month payroll. Dave's pre-retreat Partner Pulse COO form-fill still open. Jason's Field Pulse §3 sign-off still pending ahead of the 9 AM walkthrough. SKIS Painting visit moved to Fri 1:30 PM. Q2 estimated tax deadline 6/15."
+    "new_this_week": "Hassan Issa (Yanne Capital) sent a backer feeler — wants to know if a number is on your mind. Alex queued a 6/26 board topic: Ventures governance, board input, VTO and 3-year targets. Self-gen page-tagging audit kicked off with Caleb/Ana/Amanda. Matt still needs your input on CoM Trend Exec View rows 7-11 ahead of Friday's May review. Bo Anderson GAMs confirmed on the July calendar. SKIS Painting visit holds Fri 1:30 PM. Partner Retreat 6/15-19 (Nature Link) with team golf Tue 7:30 AM; pre-retreat Partner Pulse form still open; Q2 estimated taxes due 6/15."
   },
   "fun": {
     "children": [
       { "name": "Jude" }, { "name": "Nori" }, { "name": "Mae" }, { "name": "Benji" }, { "name": "Will" }
     ],
-    "note": "Benji has soccer this morning. Big social stretch: Back Office Boat Day this afternoon, Justin's Annual Bonfire Fri 6/12 at 8 PM. SOAR peer group joins the calendar July 16.",
-    "status": "Team bonding bookends the week — boat day today, bonfire Friday."
+    "note": "Big social stretch: Back Office Boat Day this afternoon, Justin's Annual Bonfire Fri 6/12 at 8 PM, retreat team golf Tue 6/16. Garry Bjorklund Half Marathon (~6/20) lands the weekend after the retreat. SOAR peer group joins the calendar July 16.",
+    "status": "Team bonding bookends the week — boat day today, bonfire Friday, golf at the retreat next week."
   }
 }
