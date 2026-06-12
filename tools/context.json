@@ -1,86 +1,86 @@
 {
-  "updated": "June 12, 2026 — 6:00 AM",
+  "updated": "June 12, 2026 — 2:00 PM",
   "attention": [
     {
       "source": "calendar",
       "from": "Q2 Estimated Taxes",
-      "summary": "Q2 estimated tax payments are due Monday 6/15 — the same day the Partner Retreat begins. Today's 11 AM Monthly Financial Meeting (May review) is the last clean window to confirm they're scheduled before the deadline.",
+      "summary": "Q2 estimated tax payments are due Monday 6/15 — the same day the Partner Retreat begins. This morning's 11 AM Monthly Financial Meeting was the last clean window to confirm they're scheduled. With the retreat consuming Mon-Fri, this needs a confirmed answer today.",
       "priority_area": "business",
       "urgency": "urgent",
       "time": "Due Mon 6/15",
-      "suggested_action": "At today's 11 AM Monthly Financial Meeting, confirm with Mark that Q2 estimated taxes are scheduled before the 6/15 deadline — this is the last clean window."
+      "suggested_action": "Confirm with Mark today that Q2 estimated taxes are scheduled/paid before 6/15 — if it wasn't nailed down at the 11 AM meeting, close the loop before the retreat starts."
     },
     {
-      "source": "calendar",
-      "from": "Today — Exec L10 (9:30 AM)",
-      "summary": "Aleph Exec L10 with Chet, Mark, Erich, Alex this morning. Prep lives in the Exec L10 Google Sheet. Alex's 6/26 Ventures-governance / 3-year-targets topic may surface here ahead of the retreat.",
-      "priority_area": "business",
-      "urgency": "urgent",
-      "time": "Today 9:30 AM",
-      "suggested_action": "Add your issues and to-dos to the Exec L10 sheet before 9:30 AM."
-    },
-    {
-      "source": "calendar",
-      "from": "Today — Monthly Financial Meeting (11:00 AM)",
-      "summary": "May financials review with Mark, Erich, Chet, Alex, Caleb, Katelynn. Last clean window to confirm Q2 estimated taxes before 6/15. Matt's CoM Trend Exec View rows 7-11 still need your input ahead of this.",
-      "priority_area": "business",
-      "urgency": "urgent",
-      "time": "Today 11:00 AM",
-      "suggested_action": "Fill in the CoM Trend Exec View rows 7-11 before 11 AM and confirm Q2 estimated taxes during the meeting."
-    },
-    {
-      "source": "calendar",
-      "from": "Today — SKIS Painting Visit (1:30 PM)",
-      "summary": "Whiteboard with Jesse Ficks (SKIS), Haakon, Jason, Chet, Erich, Alex on Jesse's 1/3/10-year vision, an Aleph/SKIS partnership, and a possible Aleph Ventures Commercial division.",
+      "source": "gmail",
+      "from": "Alex — Additional Board Topics",
+      "summary": "Alex sent a fresh list of 6/26 board topics to Jason, Chet, Erich, and you: the Wallogy business plan (how do we charge for Wallogy in 2027 — AI?), what expenses sit in the 2027 P&L, what partners carry, and what the AI-tools rollout looks like. Builds on yesterday's Ventures governance / 3-year targets topic.",
       "priority_area": "business",
       "urgency": "normal",
-      "time": "Today 1:30 PM",
-      "suggested_action": "Review Haakon's agenda and frame your take on the SKIS partnership and a Commercial division before the session."
+      "time": "1:35 PM",
+      "suggested_action": "Skim Alex's added board topics and bring a point of view on 2027 Wallogy pricing + AI rollout into the Partner Retreat so 6/26 is well-framed."
+    },
+    {
+      "source": "gmail",
+      "from": "Royce (Brookshire) — Red Fox building",
+      "summary": "Royce forwarded the Red Fox tour thread to you and Chet: 'they want you to buy this building.' A real-estate acquisition decision landed on your plate this afternoon.",
+      "priority_area": "business",
+      "urgency": "normal",
+      "time": "1:19 PM",
+      "suggested_action": "Reply to Royce/Chet on whether you want to discuss the Red Fox building purchase further, or park it as a retreat/post-retreat topic."
+    },
+    {
+      "source": "gmail",
+      "from": "Caleb & Stephen — Roof Inspections",
+      "summary": "Caleb and Stephen worked a thread (cc you) on roof inspections: having two reps at one house is confusing for customers, so they'd notify whoever is on-site to inspect or flag PHE. Caleb wants to IDS this at the Q3 kickoff and align with Christian's team.",
+      "priority_area": "business",
+      "urgency": "low",
+      "time": "2:26 PM",
+      "suggested_action": "Add 'roof-inspection rep handoff' to the Q3 kickoff IDS list and note the need to align with Christian — no reply needed now."
+    },
+    {
+      "source": "plaud",
+      "from": "Brandon — new recording shared",
+      "summary": "Brandon shared a new Plaud recording with you (timestamp 12:58 today) — first new Plaud activity since the May 12-14 batch. Likely a ride-along or coaching session worth a listen.",
+      "priority_area": "business",
+      "urgency": "low",
+      "time": "1:35 PM",
+      "suggested_action": "Open Brandon's shared Plaud recording when you have a window to see what he captured."
     },
     {
       "source": "gmail",
       "from": "Chet — DICE Ministry / partner giving",
-      "summary": "Chet replied on the DICE Ministry Community Center thread, agreeing with your idea to move partner giving toward the Aleph Foundation (expectation of ~.4% of the 1% to the Foundation) and flagging it as a good Q3 kickoff topic.",
+      "summary": "Chet agrees with moving partner giving toward the Aleph Foundation (expectation of ~.4% of the 1%) and flagged it as a good Q3 kickoff topic.",
       "priority_area": "faith",
       "urgency": "normal",
-      "time": "Yesterday 11:13 PM",
+      "time": "Overnight",
       "suggested_action": "Reply to Chet confirming you'll add partner-giving-to-Foundation to the Q3 kickoff agenda."
     },
     {
       "source": "gmail",
       "from": "Jason — Manager Mobile View for Rep KPIs",
-      "summary": "Jason sent a Loom of a first-cut mobile manager view for rep performance (to-date sold, three-week momentum, flagged reps). Brandon already replied liking it but wanting to play with a test version.",
+      "summary": "Jason's Loom of a first-cut mobile manager view (to-date sold, three-week momentum, flagged reps). Brandon replied liking it but wants a test version to play with — asking if one exists now or if he waits until Monday.",
       "priority_area": "business",
       "urgency": "normal",
-      "time": "Yesterday 9:05 PM",
-      "suggested_action": "Watch Jason's Loom and reply with your feedback on the mobile manager KPI view."
+      "time": "Overnight",
+      "suggested_action": "Watch Jason's Loom and reply with feedback; let Brandon know whether a test version is available now or Monday."
     },
     {
       "source": "gmail",
-      "from": "Alex — June 26 Board Topic",
-      "summary": "Alex flagged a 6/26 board topic on Ventures governance, board input, the Ventures VTO and 3-Year Targets. Jason confirmed it'll be a good post-retreat topic. Directly relevant to next week's Partner Retreat.",
-      "priority_area": "business",
-      "urgency": "normal",
-      "time": "Yesterday 10:40 AM",
-      "suggested_action": "Bring your point of view on Ventures 3-year targets into the Partner Retreat so the 6/26 board topic is well-framed."
-    },
-    {
-      "source": "gmail",
-      "from": "Dave / Ross — Pre-Retreat Partner Pulse (COO form-fill)",
-      "summary": "Pre-retreat Partner Pulse form-fill still open for the COO team ahead of the 6/15 retreat.",
+      "from": "Pre-Retreat Partner Pulse (COO form-fill)",
+      "summary": "Pre-retreat Partner Pulse form-fill still open ahead of Monday's 6/15 retreat.",
       "priority_area": "business",
       "urgency": "normal",
       "time": "Carried",
       "suggested_action": "Complete your section of the pre-retreat Partner Pulse form before Monday's retreat."
     },
     {
-      "source": "plaud",
-      "from": "Ben pipeline — stale open loops",
-      "summary": "Plaud open loops (Schindle, Cousins, Samson, McCoy, Megan Clark) remain 4+ weeks stale. Board has not refreshed since May 12-14.",
+      "source": "calendar",
+      "from": "Partner Retreat prep (Mon 6/15)",
+      "summary": "The Summer Partner Retreat begins Monday 8 AM (Nature Link, Nisswa) and runs through Friday. Bring your Ventures 3-year-targets view plus 2027 Wallogy pricing / AI-rollout thinking (per Alex's board topics) so the 6/26 board session is well-framed.",
       "priority_area": "business",
       "urgency": "normal",
-      "time": "Stale 4+ weeks",
-      "suggested_action": "Confirm with Ben which loops have closed — Cousins contract, McCoy breakup email, Samson $32K, Megan Clark — and update the pipeline toward the $85K target."
+      "time": "Starts Mon 6/15",
+      "suggested_action": "Block 30 min this weekend to draft your Ventures 3-year-targets and Wallogy-2027 positions before the retreat."
     },
     {
       "source": "gmail",
@@ -88,7 +88,7 @@
       "summary": "Katelynn sent the MN Paid Family Leave paperwork (max 12 weeks of family leave per year) to you and Erich.",
       "priority_area": "business",
       "urgency": "normal",
-      "time": "Yesterday 2:26 PM",
+      "time": "Carried",
       "suggested_action": "Review the MN PFL leave paperwork and align with Erich on how it applies before responding."
     },
     {
@@ -101,31 +101,22 @@
       "suggested_action": "Lock a date with Lizzie this weekend — it's the only clean window before the 6/15 retreat."
     },
     {
+      "source": "plaud",
+      "from": "Ben pipeline — stale open loops",
+      "summary": "Plaud open loops (Schindle, Cousins, Samson, McCoy, Megan Clark) remain 4+ weeks stale. Board has not refreshed since May 12-14.",
+      "priority_area": "business",
+      "urgency": "normal",
+      "time": "Stale 4+ weeks",
+      "suggested_action": "Confirm with Ben which loops have closed — Cousins contract, McCoy breakup email, Samson $32K, Megan Clark — and update the pipeline toward the $85K target."
+    },
+    {
       "source": "gmail",
       "from": "Grandma's Marathon — Garry Bjorklund Half",
       "summary": "Race details + bib #17871 confirmed. The Garry Bjorklund Half Marathon is the weekend after the retreat (~6/20, Duluth). Packet must be picked up in person before the race.",
       "priority_area": "health",
       "urgency": "low",
-      "time": "Yesterday 10:06 AM",
+      "time": "Carried",
       "suggested_action": "Plan Duluth logistics and packet pickup around race weekend — note it lands right after the 6/15-19 retreat."
-    },
-    {
-      "source": "gmail",
-      "from": "Customer complaint letter (Pachia / Darcy / Caleb)",
-      "summary": "A FedEx customer complaint letter arrived for Darcy; Caleb is already on it and the team expected it. Darcy asked Caleb to email the sender confirming receipt.",
-      "priority_area": "business",
-      "urgency": "low",
-      "time": "Yesterday 3:33 PM",
-      "suggested_action": "No action needed — Caleb and Darcy are handling it. Monitor only."
-    },
-    {
-      "source": "gmail",
-      "from": "Self-Gen Page Bookings audit (Caleb / Ana / Amanda)",
-      "summary": "Your request to audit whether sales-rep-page bids are tagged Sales Team vs. referral in Wallogy is in motion — Caleb looped Ana/Amanda, who've started and are adding booking notes to keep campaigns accurate.",
-      "priority_area": "business",
-      "urgency": "low",
-      "time": "Yesterday 2:41 PM",
-      "suggested_action": "No action needed now — watch for the audit results confirming self-gen tagging is accurate."
     },
     {
       "source": "gmail",
@@ -133,45 +124,15 @@
       "summary": "Ramp weekly digest flags 31 transactions with missing receipts/items requiring action on the Aleph Holdings account.",
       "priority_area": "business",
       "urgency": "low",
-      "time": "Today 6:12 AM",
+      "time": "Carried",
       "suggested_action": "Clear your missing-receipt items in Ramp when you have a few minutes — or delegate to finance."
     }
   ],
   "briefing": [
-    { "time": "7:00 AM", "title": "Bible Study" },
-    { "time": "9:30 AM", "title": "Aleph Exec L10" },
-    { "time": "11:00 AM", "title": "Monthly Financial Meeting — Reviewing May" },
-    { "time": "1:30 PM", "title": "SKIS Painting Visit (Jesse Ficks)" },
+    { "time": "1:30 PM", "title": "SKIS Painting Visit (Jesse Ficks) — in progress" },
     { "time": "8:00 PM", "title": "Justin's Annual Bonfire" }
   ],
   "upcoming_events": [
-    {
-      "date": "Fri Jun 12",
-      "time": "7:00 AM",
-      "title": "Bible Study",
-      "attendees": "",
-      "type": "social",
-      "prep_eligible": false,
-      "prep_hint": "Morning Bible study at the Paris Painting office."
-    },
-    {
-      "date": "Fri Jun 12",
-      "time": "9:30 AM",
-      "title": "Aleph Exec L10",
-      "attendees": "Chet, Mark, Erich, Alex",
-      "type": "team_meeting",
-      "prep_eligible": true,
-      "prep_hint": "Exec L10. Prep your issues/to-dos in the Exec L10 Google Sheet. Alex's 6/26 Ventures governance / 3-year targets topic may surface here ahead of the retreat."
-    },
-    {
-      "date": "Fri Jun 12",
-      "time": "11:00 AM",
-      "title": "Monthly Financial Meeting — Reviewing May",
-      "attendees": "Mark, Erich, Chet, Alex, Caleb, Katelynn",
-      "type": "team_meeting",
-      "prep_eligible": true,
-      "prep_hint": "May financials review. LAST clean window to confirm Q2 estimated taxes before 6/15. Have CoM Trend Exec View rows 7-11 filled in beforehand."
-    },
     {
       "date": "Fri Jun 12",
       "time": "1:30 PM",
@@ -179,7 +140,7 @@
       "attendees": "Haakon, Jason, Chet, Erich, Alex",
       "type": "external",
       "prep_eligible": true,
-      "prep_hint": "Whiteboard on Jesse's 1/3/10-year vision, an Aleph/SKIS partnership, and a possible Aleph Ventures Commercial division. Review Haakon's agenda."
+      "prep_hint": "Whiteboard on Jesse's 1/3/10-year vision, an Aleph/SKIS partnership, and a possible Aleph Ventures Commercial division. In progress this afternoon."
     },
     {
       "date": "Fri Jun 12",
@@ -188,7 +149,7 @@
       "attendees": "Sales team — Justin, Matt, Brandon, Chris Sidla, Nick, Nick Brattin, Noah Franzen, Seyf, Mike + others",
       "type": "social",
       "prep_eligible": false,
-      "prep_hint": "Justin Satterberg's annual bonfire. 6920 Harriet Ave, Richfield. Good team bonding."
+      "prep_hint": "Justin Satterberg's annual bonfire. 6920 Harriet Ave, Richfield, 8 PM. Good team bonding to close the week."
     },
     {
       "date": "Sun Jun 14",
@@ -206,7 +167,7 @@
       "attendees": "Aleph partners",
       "type": "team_meeting",
       "prep_eligible": true,
-      "prep_hint": "Multi-day retreat (Nature Link, Nisswa). Complete the pre-retreat Partner Pulse form beforehand. NOTE: Q2 estimated taxes also due today. Bring your Ventures 3-year-targets view (per Alex's board topic)."
+      "prep_hint": "Multi-day retreat (Nature Link, Nisswa). Complete the pre-retreat Partner Pulse form beforehand. NOTE: Q2 estimated taxes also due today. Bring your Ventures 3-year-targets view + 2027 Wallogy pricing / AI-rollout thinking (per Alex's board topics)."
     },
     {
       "date": "Tue Jun 16",
@@ -225,17 +186,27 @@
       "type": "team_meeting",
       "prep_eligible": true,
       "prep_hint": "Main retreat block kicks off. Arrive at Nature Link Resort (Nisswa) by 4-5 PM."
+    },
+    {
+      "date": "Wed Jun 17",
+      "time": "11:30 AM",
+      "title": "Weekly Follow-Up Training",
+      "attendees": "Christian, Shawn, Carter, Josh, Mark",
+      "type": "team_meeting",
+      "prep_eligible": false,
+      "prep_hint": "Recurring PHE follow-up training (Christian moved it earlier this week). Falls during the retreat block — confirm whether you're joining remotely."
     }
   ],
   "plaud": {
-    "last_scraped": "June 12, 2026 — 6:00 AM",
-    "date_range": "May 12-14, 2026 (no new recordings since — board unchanged)",
+    "last_scraped": "June 12, 2026 — 2:00 PM",
+    "date_range": "May 12-14, 2026 (board content unchanged — but Brandon shared a NEW recording today at 12:58, not yet on the public board)",
     "open_loops": [
       "Schindle job — Noah O underbid; drop interior, ~17% margin. Loop Mark. (4+ weeks overdue)",
       "Megan Clark contract — was Saturday 2pm in-person. Get outcome from Ben. (4+ weeks overdue)",
       "Bill Cousins — promo expired; send contract NOW, ask yes/no. (4+ weeks overdue)",
       "Samson + McCoy — Samson decision at $32K; McCoy needs breakup email. (4+ weeks overdue)",
-      "Patrick (hire) — RESOLVED: Bo Anderson hired and onboarding (Bo GAMs confirmed on the July calendar)."
+      "Patrick (hire) — RESOLVED: Bo Anderson hired and onboarding (Bo GAMs confirmed on the July calendar).",
+      "NEW: Brandon shared a Plaud recording today (12:58) — review for fresh open loops."
     ],
     "todos": [
       "Send Cousins updated bid + contract.",
@@ -243,7 +214,8 @@
       "Loop Mark on Schindle scope reduction + $500 off + ~17% margin.",
       "Mac Mini setup → Cloudflare domain → first HTML page via Claude.",
       "Finish re-running eval feedback with updated email format.",
-      "Get Plaud pins to Seyf + Ben (Brandon already running)."
+      "Get Plaud pins to Seyf + Ben (Brandon already running).",
+      "Listen to Brandon's new 12:58 Plaud recording."
     ],
     "themes": [
       "Same-week decisions — stop follow-up, ask for the decision; get verbal commit.",
@@ -272,13 +244,13 @@
     "scripture": "Genesis 13:14-18",
     "call_to_action": "Identify one unreasonable prayer — something impossible without God's direct intervention. Write it down and pray it daily. Prayer-walk your workplace this week.",
     "warrior_prayer_highlights": "Pray for Luke Benton (former sales guy, uncertainty/anxiety). Pray for Wyatt, Devin, Chris M. — all going through divorce. Wisdom for building next-level leaders. Arden Hills office LOI negotiations. Peace in the home for Lizzie and the kids. Patrick Darlington and wife welcoming their first child.",
-    "status": "Bible Study this morning (Fri Jun 12, 7 AM). Substance Church Sunday Jun 14, 9 AM. Chet flagged moving partner giving toward the Aleph Foundation (~.4% of the 1%) as a Q3 kickoff topic. No new sermon notes since May 17."
+    "status": "Bible Study was this morning (Fri Jun 12, 7 AM). Substance Church Sunday Jun 14, 9 AM. Chet confirmed moving partner giving toward the Aleph Foundation (~.4% of the 1%) as a Q3 kickoff topic. No new sermon notes since May 17."
   },
   "marriage": {
     "note": "Peace in my home — authority over the chaos. Boldness to hold the line and have heavenly eyes for Lizzie and the kids.",
     "last_date": "May 30, 2026 — Stelter Date",
     "next_date": "TBD",
-    "status": "Still no date night on the calendar — this weekend is the only clean window before the 6/15-19 Partner Retreat consumes all of next week. (iMessage source unavailable this refresh.)"
+    "status": "Still no date night on the calendar — this weekend is the only clean window before the 6/15-19 Partner Retreat consumes all of next week. (iMessage source unavailable this refresh — preserved from morning.)"
   },
   "health": {
     "last_draw": "Apr 28, 2026",
@@ -303,7 +275,7 @@
   "business": {
     "ytd_commission": "$77,796",
     "team_size": "14 reps",
-    "status": "Friday — the heaviest day of the week. Bible Study at 7, Exec L10 at 9:30, May Monthly Financial Meeting at 11 (last clean window to confirm Q2 estimated taxes before 6/15), and the SKIS Painting whiteboard with Jesse Ficks at 1:30. Justin's Annual Bonfire closes the day at 8 PM. New overnight: Chet agreed to move partner giving toward the Aleph Foundation (Q3 kickoff topic); Jason shared a mobile manager-KPI Loom and Brandon wants a test version; Katelynn sent MN PFL leave paperwork; the customer-complaint letter is being handled by Caleb/Darcy; the self-gen page-tagging audit is in motion with Ana/Amanda. Partner Retreat starts Mon 6/15 (Nature Link, Nisswa) with team golf Tue 7:30 AM — pre-retreat Partner Pulse form still open and Q2 estimated taxes due that day.",
+    "status": "Friday afternoon — the heaviest day of the week is winding down. The Exec L10 (9:30) and May Monthly Financial Meeting (11:00) are behind you; the SKIS Painting whiteboard with Jesse Ficks runs 1:30-4:30, and Justin's Annual Bonfire closes the day at 8 PM. New this afternoon: Alex added 6/26 board topics (2027 Wallogy pricing, AI rollout, partner cost-carry); Royce flagged that the seller wants you to buy the Red Fox building; Caleb/Stephen want to IDS roof-inspection rep handoffs at the Q3 kickoff; Brandon shared a new Plaud recording (12:58). Carrying: Chet's partner-giving-to-Foundation Q3 topic, Jason's mobile manager-KPI Loom (Brandon wants a test version), Katelynn's MN PFL paperwork. Partner Retreat starts Mon 6/15 (Nature Link, Nisswa) with team golf Tue 7:30 AM — pre-retreat Partner Pulse form still open and Q2 estimated taxes due that day.",
     "commission_status": {
       "approved": [
         "Stephen Bacon ($5,693.85)",
@@ -322,9 +294,9 @@
         "Matt Rawski ($7,489.75)"
       ],
       "pending": [],
-      "note": "All 14 reps approved. Commission run complete."
+      "note": "All 14 reps approved. Commission run complete. (Chris Sidla raised a separate question on job 97300 Fuller — wants to be paid on bid margin (~$8,400) vs. produced margin (~$1,000) after a crew error; you asked him to confirm that's the ask. Open thread with Mark cc'd.)"
     },
-    "new_this_week": "Chet agreed to move partner giving toward the Aleph Foundation (~.4% of the 1%) — queued as a Q3 kickoff topic. Jason shared a mobile manager-KPI view Loom; Brandon wants a test version before Monday. Katelynn sent MN PFL leave paperwork. Customer-complaint FedEx letter being handled by Caleb/Darcy. Self-gen page-tagging audit underway with Ana/Amanda. Alex's 6/26 board topic (Ventures governance, VTO, 3-year targets) confirmed as post-retreat. Matt still needs CoM Trend Exec View rows 7-11. Partner Retreat 6/15-19 (Nature Link) with team golf Tue 7:30 AM; Q2 estimated taxes due 6/15."
+    "new_this_week": "Alex added 6/26 board topics: 2027 Wallogy pricing/AI charging model, 2027 P&L expenses, partner cost-carry, AI-tools rollout — on top of Ventures governance / VTO / 3-year targets. Royce (Brookshire) flagged the seller wants you to buy the Red Fox building. Caleb/Stephen want to IDS roof-inspection rep handoffs at the Q3 kickoff and align with Christian. Brandon shared a new Plaud recording (12:58). Chet confirmed partner giving toward the Aleph Foundation (~.4% of the 1%) as a Q3 kickoff topic. Jason shared a mobile manager-KPI Loom; Brandon wants a test version before Monday. Katelynn sent MN PFL paperwork. Chris Sidla's Fuller (97300) commission question still open. Partner Retreat 6/15-19 (Nature Link) with team golf Tue 7:30 AM; Q2 estimated taxes due 6/15."
   },
   "fun": {
     "children": [
@@ -334,7 +306,7 @@
       { "name": "Benji" },
       { "name": "Will" }
     ],
-    "note": "Big social stretch: Justin's Annual Bonfire tonight (Fri 6/12, 8 PM), retreat team golf Tue 6/16. Garry Bjorklund Half Marathon (~6/20) lands the weekend after the retreat. SOAR peer group joins the calendar July 16.",
-    "status": "Team bonding bookends the stretch — bonfire tonight, golf at the retreat next week."
+    "note": "Big social stretch: Justin's Annual Bonfire tonight (Fri 6/12, 8 PM, 6920 Harriet Ave, Richfield), retreat team golf Tue 6/16. Garry Bjorklund Half Marathon (~6/20) lands the weekend after the retreat. SOAR peer group joins the calendar July 16.",
+    "status": "Team bonding bookends the stretch — bonfire tonight with the sales crew, golf at the retreat next week."
   }
 }
