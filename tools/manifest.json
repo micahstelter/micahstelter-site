@@ -2,7 +2,7 @@
   {
     "slug": "commission-tracker",
     "name": "Commission Tracker",
-    "description": "Paris Brands \u2014 per-rep payouts, approval status, YTD trends",
+    "description": "Paris Brands — per-rep payouts, approval status, YTD trends",
     "icon": "&#9670;",
     "category": "business",
     "published": "2026-05-16T00:00:00Z"
@@ -41,7 +41,7 @@
   },
   {
     "name": "Gmail",
-    "description": "Email \u2014 micah@aleph-mgmt.com",
+    "description": "Email — micah@aleph-mgmt.com",
     "icon": "&#9993;",
     "category": "business",
     "url": "https://mail.google.com",
@@ -50,7 +50,7 @@
   {
     "slug": "sales-projection",
     "name": "Sales Projection",
-    "description": "Paris Painting \u2014 historical trends, weekly projections & pace tracking",
+    "description": "Paris Painting — historical trends, weekly projections & pace tracking",
     "icon": "&#9650;",
     "category": "business",
     "published": "2026-05-17T00:00:00Z"
@@ -58,7 +58,7 @@
   {
     "slug": "door-dashboard",
     "name": "Door Knocking Dashboard",
-    "description": "Paris Home Exteriors \u2014 weekly rep activity, funnel metrics & inspection rates",
+    "description": "Paris Home Exteriors — weekly rep activity, funnel metrics & inspection rates",
     "icon": "&#9758;",
     "category": "business",
     "published": "2026-05-17T00:00:00Z"
@@ -66,9 +66,17 @@
   {
     "slug": "matt-rawski",
     "name": "Matt Rawski",
-    "description": "Welcome page \u2014 Matt Rawski",
+    "description": "Welcome page — Matt Rawski",
     "icon": "&#9670;",
     "category": "business",
     "published": "2026-05-22T00:00:00Z"
+  },
+  {
+    "slug": "org-chart",
+    "name": "Org Chart Builder",
+    "description": "Team structure — drag-and-drop re-org, profile cards, PNG/PDF export",
+    "icon": "&#10070;",
+    "category": "business",
+    "published": "2026-06-12T00:00:00Z"
   }
 ]
