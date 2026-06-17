@@ -1,109 +1,92 @@
 {
-  "updated": "June 16, 2026 — 2:00 PM",
+  "updated": "June 17, 2026 — 6:00 AM",
   "attention": [
     {
       "source": "gmail",
-      "from": "Cameron — MN Top Workplace announcement",
-      "summary": "Cameron drafted a team email announcing the Minnesota Top Workplace award and is asking you to review it — and to decide whether you or Mark sends it to the team. He noted you're busy with the retreat, so no rush, but it's waiting on your call.",
+      "from": "Mark — Paris Painting Sales Year Outlook",
+      "summary": "Mark sent you, Matt, and Brandon a written review of the Paris Painting sales outlook for the year, factoring in Seyf's departure this week and Seth's transition out in July. There's an attachment laying out his read on where the sales team lands.",
       "priority_area": "business",
-      "urgency": "normal",
-      "time": "12:55 PM",
-      "suggested_action": "Skim Cameron's Top Workplace announcement draft and tell him whether you or Mark sends it — quick reply clears it before it stalls behind the retreat."
+      "urgency": "urgent",
+      "time": "Yesterday 5:53 PM",
+      "suggested_action": "Read Mark's attached sales year-outlook before Monday's GAM block — Seyf out this week and Seth out in July reshapes rep capacity, so come back with a hiring/coverage point of view."
     },
     {
       "source": "gmail",
-      "from": "Ben Rangel commission — margin discrepancy",
-      "summary": "Machaela flagged that Ben's May margin changed significantly in Wallogy vs. the screenshot and asked you to confirm the $3,705. Ben wasn't sure which numbers were accurate. You replied at ~2:17 PM: 8% commission on both, Ben can approve for May now.",
-      "priority_area": "business",
-      "urgency": "low",
-      "time": "2:17 PM",
-      "suggested_action": "Resolved — you confirmed 8% on both and cleared Ben to approve in Wallogy. Just verify Machaela posts the corrected $3,705 figure."
-    },
-    {
-      "source": "calendar",
-      "from": "Aleph Partner Retreat — Day 2 (in progress)",
-      "summary": "Team golf at Whitefish wrapped this morning; the main retreat block at Nature Link Resort (Nisswa) kicks off at 4 PM today and runs through Friday. This is your prime window to surface your Ventures 3-year-targets view and 2027 Wallogy pricing / AI-rollout thinking ahead of the 6/26 board session.",
+      "from": "Cameron — MN Top Workplace announcement",
+      "summary": "Still open from yesterday: Cameron drafted the team email announcing the Minnesota Top Workplace award and needs you to review it and decide whether you or Mark sends it. He flagged that you're at the retreat, so no rush, but it's waiting on your call.",
       "priority_area": "business",
       "urgency": "normal",
-      "time": "Starts 4 PM",
-      "suggested_action": "Bring a point of view on 2027 Wallogy pricing and the AI-tools rollout into tonight's retreat block so 6/26 board topics are well-framed."
+      "time": "Yesterday 12:55 PM",
+      "suggested_action": "Skim Cameron's Top Workplace draft and tell him whether you or Mark sends it — a one-line reply clears it before it stalls behind the retreat."
     },
     {
-      "source": "calendar",
-      "from": "Tomorrow — PHE Weekly Follow-Up Training (11:30 AM)",
-      "summary": "Christian's recurring PHE follow-up training (Christian, Shawn, Carter, Josh, Mark) is on tomorrow at 11:30 AM — squarely inside the retreat block. You'll need to decide whether you're joining remotely or sitting it out this week.",
+      "source": "gmail",
+      "from": "Christian — L10 / adjuster conflict",
+      "summary": "Christian messaged that he needs to FaceTime into the L10 because an adjuster meeting at 11 got rescheduled on him twice. Heads-up that he'll be remote, not absent.",
       "priority_area": "business",
       "urgency": "normal",
-      "time": "Wed 11:30 AM",
-      "suggested_action": "Decide tonight whether you join tomorrow's PHE follow-up training remotely from the retreat or hand it fully to Christian — and let him know either way."
+      "time": "Yesterday 7:20 AM",
+      "suggested_action": "Acknowledge Christian's FaceTime plan for the L10 so he knows it's covered — no action needed beyond a thumbs-up."
     },
     {
       "source": "imessage",
       "from": "Lizzie",
-      "summary": "Still no date night on the calendar, and this whole week is consumed by the Partner Retreat (6/16-19), with Grandma's Marathon weekend immediately after. (iMessage source unavailable this refresh — preserved from earlier.)",
+      "summary": "Still no date night on the calendar. This week is consumed by the Partner Retreat (6/16-19) with Grandma's Marathon weekend immediately after — the week of 6/22 is the realistic next window. (iMessage source unavailable this refresh — preserved from prior run.)",
       "priority_area": "marriage",
       "urgency": "normal",
       "time": "—",
-      "suggested_action": "Text Lizzie a plan for a date the week of 6/22 — the calendar is wall-to-wall through the marathon, so name a concrete day now."
-    },
-    {
-      "source": "gmail",
-      "from": "Grandma's Marathon — Race Week",
-      "summary": "Grandma's Marathon sent the 'It's Race Week!' email — the Garry Bjorklund Half (bib #17871) is this weekend in Duluth (~6/20), right after the retreat. Pier B Resort also confirmed your upcoming Duluth stay. Packet must be picked up in person before the race.",
-      "priority_area": "health",
-      "urgency": "low",
-      "time": "10:07 AM",
-      "suggested_action": "Map the Duluth logistics: drive up after Friday's retreat block, confirm Pier B check-in, and plan in-person packet pickup before race morning."
+      "suggested_action": "Text Lizzie a concrete date for the week of 6/22 — the calendar is wall-to-wall through the marathon, so name a day now rather than leaving it open."
     },
     {
       "source": "plaud",
       "from": "Ben pipeline — stale open loops",
-      "summary": "Plaud open loops (Schindle, Cousins, Samson, McCoy, Megan Clark) remain 4+ weeks stale. The public board hasn't refreshed since May 12-14 — no new content surfaced this afternoon.",
+      "summary": "Plaud open loops (Schindle, Cousins, Samson, McCoy, Megan Clark) remain 5+ weeks stale. The public board hasn't refreshed since May 12-14 — no new content surfaced this morning.",
       "priority_area": "business",
       "urgency": "normal",
-      "time": "Stale 4+ weeks",
-      "suggested_action": "Confirm with Ben which loops have closed — Cousins contract, McCoy breakup email, Samson $32K, Megan Clark — and update the pipeline toward the $85K target."
+      "time": "Stale 5+ weeks",
+      "suggested_action": "Confirm with Ben which loops have closed — Cousins contract, McCoy breakup email, Samson $32K, Megan Clark — and update the pipeline toward the $85K target before Monday's coaching block."
     },
     {
       "source": "gmail",
-      "from": "Ramp — CompanyCam transaction needs receipt",
-      "summary": "Ramp flagged a $259.29 CompanyCam transaction (06/15) needing a memo, receipt, and accounting category — on top of the broader backlog of missing-item transactions on the Aleph Holdings account.",
+      "from": "Ramp — receipts and a reimbursement to review",
+      "summary": "Ramp flagged a $259.29 CompanyCam transaction (06/15) needing a memo, receipt, and accounting category, plus a $55.75 reimbursement at 1010 Washington Wine & Spirits pending your approval.",
       "priority_area": "business",
       "urgency": "low",
-      "time": "1:03 PM",
-      "suggested_action": "Clear the CompanyCam receipt in Ramp when you have a minute, or delegate the missing-item backlog to finance."
+      "time": "Yesterday 2:08 PM",
+      "suggested_action": "Clear the CompanyCam receipt and approve/reject the $55.75 reimbursement in Ramp when you have a minute, or hand the missing-item backlog to finance."
+    },
+    {
+      "source": "calendar",
+      "from": "Grandma's Marathon — Race Week",
+      "summary": "The Garry Bjorklund Half (bib #17871) is this Saturday in Duluth (~6/20), right after the retreat wraps Friday. Pier B Resort stay is confirmed. Packet must be picked up in person before the race.",
+      "priority_area": "health",
+      "urgency": "low",
+      "time": "Sat Jun 20",
+      "suggested_action": "Map the Duluth logistics: drive up after Friday's retreat block, confirm Pier B check-in, and plan in-person packet pickup before race morning."
     }
   ],
   "briefing": [
-    { "time": "4:00 PM", "title": "Aleph Retreat main block begins — Nature Link Resort, Nisswa" }
+    { "time": "8:00 AM", "title": "Summer Aleph Partner Retreat — Day 3 (Nature Link, Nisswa)" },
+    { "time": "12:30 PM", "title": "PHE Weekly Follow-Up Training (moved from 11:30) — Christian, Shawn, Carter, Josh, Mark, James" }
   ],
   "upcoming_events": [
-    {
-      "date": "Tue Jun 16",
-      "time": "4:00 PM",
-      "title": "Aleph Retreat — Nature Links (main block)",
-      "attendees": "Aleph partners + Ventures network",
-      "type": "team_meeting",
-      "prep_eligible": true,
-      "prep_hint": "Main retreat block kicks off at Nature Link Resort (Nisswa). Bring your Ventures 3-year-targets view + 2027 Wallogy pricing / AI-rollout thinking per Alex's 6/26 board topics."
-    },
     {
       "date": "Wed Jun 17",
       "time": "8:00 AM",
       "title": "Summer Aleph Partner Retreat (Day 3)",
-      "attendees": "Aleph partners",
+      "attendees": "Aleph partners + Ventures network",
       "type": "team_meeting",
       "prep_eligible": true,
-      "prep_hint": "Full retreat day at Nature Link. Good window to land the 2027 Wallogy pricing / AI-tools direction with the partner group."
+      "prep_hint": "Full retreat day at Nature Link. Prime window to land the 2027 Wallogy pricing / AI-tools direction and your Ventures 3-year-targets view ahead of the 6/26 board session."
     },
     {
       "date": "Wed Jun 17",
-      "time": "11:30 AM",
+      "time": "12:30 PM",
       "title": "PHE Weekly Follow-Up Training",
-      "attendees": "Christian, Shawn, Carter, Josh, Mark",
+      "attendees": "Christian, Shawn, Carter, Josh, Mark, James",
       "type": "team_meeting",
       "prep_eligible": true,
-      "prep_hint": "Recurring PHE follow-up training — falls inside the retreat block. Decide whether you join remotely (Meet link on the invite) or hand it to Christian this week."
+      "prep_hint": "Christian's recurring PHE follow-up training, moved to 12:30 today — falls inside the retreat block. Decide whether you join remotely (Meet link on the invite) or hand it to Christian this week."
     },
     {
       "date": "Thu Jun 18",
@@ -121,7 +104,7 @@
       "attendees": "",
       "type": "social",
       "prep_eligible": false,
-      "prep_hint": "Recurring Friday Bible Study (Paris Painting office / remote). Retreat wraps 8 AM after."
+      "prep_hint": "Recurring Friday Bible Study. Retreat wraps 8 AM right after."
     },
     {
       "date": "Fri Jun 19",
@@ -130,7 +113,7 @@
       "attendees": "",
       "type": "social",
       "prep_eligible": false,
-      "prep_hint": "Head to Duluth after the retreat wraps. Pier B Resort stay confirmed. Garry Bjorklund Half (bib #17871) is Saturday — pick up packet in person beforehand."
+      "prep_hint": "Head to Duluth after the retreat wraps. Pier B Resort confirmed. Garry Bjorklund Half (bib #17871) Saturday — pick up packet in person beforehand."
     },
     {
       "date": "Sun Jun 21",
@@ -140,11 +123,65 @@
       "type": "social",
       "prep_eligible": false,
       "prep_hint": "Sunday service after marathon weekend."
+    },
+    {
+      "date": "Mon Jun 22",
+      "time": "9:00 AM",
+      "title": "Matt GAM",
+      "attendees": "Matt Rawski",
+      "type": "gam",
+      "prep_eligible": true,
+      "prep_hint": "Weekly goal alignment with Matt. Review Matt's pipeline (he led May commissions at $7,489). Apply the Plaud theme: stop 'follow-up,' coach him to ask for the decision and get a verbal commit. Seyf's departure + Seth's July transition reshapes team capacity — surface coverage."
+    },
+    {
+      "date": "Mon Jun 22",
+      "time": "10:15 AM",
+      "title": "Brandon Sales MGMT GAM",
+      "attendees": "Brandon Stahnke",
+      "type": "gam",
+      "prep_eligible": true,
+      "prep_hint": "Manager GAM with Brandon. Check his reps' pipeline (incl. Nick B.). Plaud themes: same-week decisions and spirit-over-letter of the sales model. Brandon wanted a test version of Jason's mobile manager-KPI Loom — follow up."
+    },
+    {
+      "date": "Mon Jun 22",
+      "time": "11:45 AM",
+      "title": "GAM coaching w/ Christian",
+      "attendees": "Christian Kullmann",
+      "type": "gam_coaching",
+      "prep_eligible": true,
+      "prep_hint": "You're observing Christian run GAMs with Josh and Carter (his note: aim for 2 events in the block). Reference Plaud coaching themes — adapt to client profile, ask for the decision. Consider sending Christian a short pre-read on what you'll be watching for."
+    },
+    {
+      "date": "Mon Jun 22",
+      "time": "12:00 PM",
+      "title": "GAM Josh 1v1",
+      "attendees": "Christian, Josh",
+      "type": "gam_coaching",
+      "prep_eligible": true,
+      "prep_hint": "Observe Christian's 1v1 GAM with Josh. Watch for goal clarity and the decision-ask; debrief Christian after using the spirit-over-letter framing."
+    },
+    {
+      "date": "Mon Jun 22",
+      "time": "1:15 PM",
+      "title": "GAM-Carter",
+      "attendees": "Christian, Carter",
+      "type": "gam_coaching",
+      "prep_eligible": true,
+      "prep_hint": "Observe Christian's GAM with Carter. Same coaching lens — adapt to client profile, drive same-week decisions. Tie observations to the PHE follow-up training themes."
+    },
+    {
+      "date": "Mon Jun 22",
+      "time": "3:00 PM",
+      "title": "Caleb GAM - Marketing",
+      "attendees": "Caleb, Mark",
+      "type": "gam",
+      "prep_eligible": true,
+      "prep_hint": "Marketing GAM with Caleb. Plaud theme: push Caleb on direct-mail volume (Patrick was at 60% door-knock; target 20-30%). Also carry the Caleb/Stephen roof-inspection rep-handoff IDS for Q3 kickoff."
     }
   ],
   "plaud": {
-    "last_scraped": "June 16, 2026 — 2:00 PM",
-    "date_range": "May 12-14, 2026 (public board unchanged — no new recordings surfaced this afternoon since the morning check)",
+    "last_scraped": "June 17, 2026 — 6:00 AM",
+    "date_range": "May 12-14, 2026 (public board unchanged — no new recordings surfaced this morning)",
     "open_loops": [
       "Schindle job — Noah O underbid; drop interior, ~17% margin. Loop Mark. (5+ weeks overdue)",
       "Megan Clark contract — was Saturday 2pm in-person. Get outcome from Ben. (5+ weeks overdue)",
@@ -187,13 +224,13 @@
     "scripture": "Genesis 13:14-18",
     "call_to_action": "Identify one unreasonable prayer — something impossible without God's direct intervention. Write it down and pray it daily. Prayer-walk your workplace this week.",
     "warrior_prayer_highlights": "Pray for Luke Benton (former sales guy, uncertainty/anxiety). Pray for Wyatt, Devin, Chris M. — all going through divorce. Wisdom for building next-level leaders. Arden Hills office LOI negotiations. Peace in the home for Lizzie and the kids. Patrick Darlington and wife welcoming their first child.",
-    "status": "Mid-retreat week. Bible Study lands Fri Jun 19 (7 AM) as the retreat wraps; Substance Church Sun Jun 21, 9 AM. Recent personal notes: 'Alex Letter' and 'Worship Songs' (both Sun Jun 14) — no notes created or modified today. Carrying Chet's partner-giving-to-Aleph-Foundation (~.4% of the 1%) as a Q3 kickoff topic. No new sermon notes since May 17."
+    "status": "Mid-retreat week. Bible Study lands Fri Jun 19 (7 AM) as the retreat wraps; Substance Church Sun Jun 21, 9 AM. Recent personal notes 'Alex Letter' and 'Worship Songs' (both Sun Jun 14). No new sermon notes since May 17."
   },
   "marriage": {
     "note": "Peace in my home — authority over the chaos. Boldness to hold the line and have heavenly eyes for Lizzie and the kids.",
     "last_date": "May 30, 2026 — Stelter Date",
     "next_date": "TBD",
-    "status": "Still no date night on the calendar. This week is fully consumed by the Partner Retreat (6/16-19), with Grandma's Marathon weekend immediately after — the week of 6/22 is the realistic next window. (iMessage source unavailable this refresh — preserved from morning.)"
+    "status": "Still no date night on the calendar. This week is fully consumed by the Partner Retreat (6/16-19), with Grandma's Marathon weekend immediately after — the week of 6/22 is the realistic next window. (iMessage source unavailable this refresh — preserved from prior run.)"
   },
   "health": {
     "last_draw": "Apr 28, 2026",
@@ -217,8 +254,8 @@
   },
   "business": {
     "ytd_commission": "$77,796",
-    "team_size": "14 reps",
-    "status": "Tuesday afternoon, Day 2 of the Summer Partner Retreat. Team golf at Whitefish wrapped this morning; the main retreat block at Nature Link Resort (Nisswa) starts at 4 PM and runs through Friday. New this afternoon: Cameron sent a Minnesota Top Workplace team-announcement draft for your review (you or Mark to send); Machaela flagged a Wallogy margin discrepancy on Ben Rangel's May commission, which you resolved at ~2:17 PM (8% on both, Ben cleared to approve); Ramp flagged a $259.29 CompanyCam transaction needing a receipt. Tomorrow's PHE Weekly Follow-Up Training (11:30 AM) falls inside the retreat — decide on remote attendance. Aleph Ventures portfolio shoutouts came through from Ross (Sam Zahner, Philip Thompson $1M, Hector Rodriguez $1M). Commission run for May is complete — all 14 reps approved.",
+    "team_size": "14 reps (Seyf departing this week; Seth transitioning out in July)",
+    "status": "Wednesday morning, Day 3 of the Summer Partner Retreat at Nature Link Resort (Nisswa), running through Friday. New overnight: Mark sent a written Paris Painting sales year-outlook to you, Matt, and Brandon — factoring in Seyf's departure this week and Seth's July transition — and it needs your review before Monday's GAM block. Cameron's Minnesota Top Workplace team-announcement draft is still open for your review (you or Mark to send). Christian will FaceTime into the L10 (adjuster conflict at 11). Ramp has a $259.29 CompanyCam receipt and a $55.75 reimbursement waiting. Today's PHE Weekly Follow-Up Training moved to 12:30 PM and falls inside the retreat — decide on remote attendance. Monday 6/22 is a heavy coaching day: Matt GAM, Brandon GAM, GAM coaching with Christian (Josh + Carter), and Caleb marketing GAM.",
     "commission_status": {
       "approved": [
         "Stephen Bacon ($5,693.85)",
@@ -237,9 +274,9 @@
         "Matt Rawski ($7,489.75)"
       ],
       "pending": [],
-      "note": "All 14 reps approved; commission run complete. Ben Rangel May follow-up: Machaela flagged a Wallogy margin change vs. the original screenshot and asked to confirm the $3,705 (with the $2,500 advance-payback deduction). You confirmed 8% commission on both lines and cleared Ben to approve for May at ~2:17 PM today — Machaela to post the corrected figure."
+      "note": "May commission run complete — all 14 reps approved. Ben Rangel follow-up resolved 6/16: you confirmed 8% commission on both lines (with the $2,500 advance-payback deduction) and cleared Ben to approve; Machaela to post the corrected figure."
     },
-    "new_this_week": "Partner Retreat 6/16-19 (Nature Link, Nisswa) — team golf done Tue AM, main block 4 PM Tue. Cameron's MN Top Workplace team-announcement draft awaiting your review (you or Mark to send). Ben Rangel May commission margin discrepancy resolved (8% on both, Ben approving). Ramp CompanyCam $259.29 receipt outstanding. Carrying from last week: Alex's 6/26 board topics (2027 Wallogy pricing/AI charging, 2027 P&L expenses, partner cost-carry, AI-tools rollout); Royce's Red Fox building purchase question; Caleb/Stephen roof-inspection rep-handoff IDS for Q3 kickoff; Jason's mobile manager-KPI Loom (Brandon wants a test version); Chet's partner-giving-to-Foundation Q3 topic; Katelynn's MN PFL paperwork. Ventures portfolio shoutouts from Ross (Sam Zahner, Philip Thompson, Hector Rodriguez — both $1M produced)."
+    "new_this_week": "Partner Retreat 6/16-19 (Nature Link, Nisswa) — main block running through Friday. Mark's Paris Painting sales year-outlook (Seyf out this week, Seth out in July) awaiting your review — reshapes rep capacity. Cameron's MN Top Workplace team-announcement draft awaiting review (you or Mark to send). Ramp CompanyCam $259.29 receipt + $55.75 reimbursement outstanding. Monday 6/22 coaching block: Matt GAM, Brandon GAM, GAM coaching w/ Christian (Josh + Carter), Caleb marketing GAM. Carrying: Alex's 6/26 board topics (2027 Wallogy pricing/AI charging, 2027 P&L, partner cost-carry, AI-tools rollout); Caleb/Stephen roof-inspection rep-handoff IDS for Q3 kickoff; Jason's mobile manager-KPI Loom (Brandon wants a test version); Chet's partner-giving-to-Foundation Q3 topic. Ventures portfolio shoutouts from Ross (Sam Zahner, Philip Thompson $1M, Hector Rodriguez $1M)."
   },
   "fun": {
     "children": [
@@ -249,7 +286,7 @@
       { "name": "Benji" },
       { "name": "Will" }
     ],
-    "note": "Retreat team golf at Whitefish Golf Club wrapped this morning. Grandma's Marathon weekend in Duluth (~6/20) lands right after the retreat — Garry Bjorklund Half (bib #17871), Pier B Resort stay confirmed. SOAR peer group joins the calendar July 16.",
-    "status": "Big stretch of team and personal events bookending the retreat — golf this morning, marathon weekend in Duluth coming up Friday-Sunday."
+    "note": "Retreat in full swing at Nature Link (Nisswa) through Friday. Grandma's Marathon weekend in Duluth (~6/20) lands right after — Garry Bjorklund Half (bib #17871), Pier B Resort stay confirmed. SOAR peer group joins the calendar July 16.",
+    "status": "Big stretch bookending the retreat — partner days midweek, marathon weekend in Duluth Friday through Sunday."
   }
 }
