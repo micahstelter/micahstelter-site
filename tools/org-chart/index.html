@@ -722,26 +722,73 @@
       };
       const segs = [];
       const lineColor = theme().accent;
+
+      // Global bounds of every card, so we can route in the empty margins
+      // OUTSIDE the whole chart — guarantees the line never crosses a card.
+      let minL = Infinity, maxR = -Infinity;
+      inner.querySelectorAll('.person').forEach(el => {
+        const r = rectOf(el); minL = Math.min(minL, r.left); maxR = Math.max(maxR, r.right);
+      });
+      const GAP = 16;          // clearance into the empty band above/below a card row
+      const MARGIN = 40;       // how far past all cards the vertical gutter sits
+      let leftN = 0, rightN = 0;   // stagger multiple lines so they don't overlap
+
+      // Rounded orthogonal path through a list of points
+      const roundedPath = (pts, r) => {
+        let d = 'M ' + pts[0].x + ' ' + pts[0].y;
+        for (let i = 1; i < pts.length - 1; i++) {
+          const p0 = pts[i - 1], p1 = pts[i], p2 = pts[i + 1];
+          const v1x = p1.x - p0.x, v1y = p1.y - p0.y, v2x = p2.x - p1.x, v2y = p2.y - p1.y;
+          const l1 = Math.hypot(v1x, v1y) || 1, l2 = Math.hypot(v2x, v2y) || 1;
+          const rr = Math.min(r, l1 / 2, l2 / 2);
+          d += ' L ' + (p1.x - v1x / l1 * rr) + ' ' + (p1.y - v1y / l1 * rr) +
+               ' Q ' + p1.x + ' ' + p1.y + ' ' + (p1.x + v2x / l2 * rr) + ' ' + (p1.y + v2y / l2 * rr);
+        }
+        const last = pts[pts.length - 1];
+        return d + ' L ' + last.x + ' ' + last.y;
+      };
+      const dot = (x, y, r, o) => '<circle cx="' + x + '" cy="' + y + '" r="' + r + '" fill="' + lineColor + '"' + (o ? ' opacity="' + o + '"' : '') + '/>';
+      const stroke = d => '<path d="' + d + '" fill="none" stroke="' + lineColor + '" stroke-width="2" stroke-dasharray="3 4" opacity="0.9"/>';
+
       people().forEach(p => {
         if (!p.dottedManagerId) return;
         const fromEl = inner.querySelector('.person[data-id="' + p.id + '"]');           // the report
         const toEl = inner.querySelector('.person[data-id="' + p.dottedManagerId + '"]'); // the dotted manager
         if (!fromEl || !toEl) return;   // skip if either is inside a collapsed branch
         const A = rectOf(toEl), B = rectOf(fromEl);
-        // Route out the side with the most open canvas so the line never
-        // crosses the solid hierarchy or the cards between the two roles.
-        const leftSpace  = Math.min(A.left, B.left);
-        const rightSpace = W - Math.max(A.right, B.right);
-        const side = leftSpace >= rightSpace ? -1 : 1;   // -1 = bow left, +1 = bow right
-        const ax = side < 0 ? A.left - 2 : A.right + 2, ay = A.cy;
-        const bx = side < 0 ? B.left - 2 : B.right + 2, by = B.cy;
-        // bow far enough to clear a card stacked between the two roles
-        const off = Math.max(120, Math.min(260, Math.abs(by - ay) * 0.55));
-        const c1x = ax + side * off, c2x = bx + side * off;
-        segs.push('<path d="M ' + ax + ' ' + ay + ' C ' + c1x + ' ' + ay + ' ' + c2x + ' ' + by + ' ' + bx + ' ' + by +
-                  '" fill="none" stroke="' + lineColor + '" stroke-width="2" stroke-dasharray="3 4" opacity="0.9"/>');
-        segs.push('<circle cx="' + bx + '" cy="' + by + '" r="3.5" fill="' + lineColor + '"/>');
-        segs.push('<circle cx="' + ax + '" cy="' + ay + '" r="2.5" fill="' + lineColor + '" opacity="0.7"/>');
+
+        // Same row & adjacent: short direct side-to-side link (clear gap between them)
+        if (Math.abs(A.cy - B.cy) < 6) {
+          const left = A.left <= B.left ? A : B, right = A.left <= B.left ? B : A;
+          const lx = left.right + 2, rx = right.left - 2, y = left.cy;
+          const dip = Math.min(26, (rx - lx) * 0.4 + 6);
+          segs.push(stroke('M ' + lx + ' ' + y + ' Q ' + ((lx + rx) / 2) + ' ' + (y + dip) + ' ' + rx + ' ' + y));
+          segs.push(dot(rx, y, 3.5));
+          segs.push(dot(lx, y, 2.5, 0.7));
+          return;
+        }
+
+        // Different rows: route through the nearer outer gutter (beyond all cards).
+        const hi = A.cy <= B.cy ? A : B;   // higher card
+        const lo = A.cy <= B.cy ? B : A;   // lower card
+        const costLeft  = (hi.left - minL) + (lo.left - minL);
+        const costRight = (maxR - hi.right) + (maxR - lo.right);
+        const side = costLeft <= costRight ? -1 : 1;
+        const n = side < 0 ? leftN++ : rightN++;
+        const gx = side < 0 ? (minL - MARGIN - n * 12) : (maxR + MARGIN + n * 12);
+        const bandHi = hi.top - GAP;       // empty band just above the higher card's row
+        const bandLo = lo.bottom + GAP;    // empty band just below the lower card's row
+        const pts = [
+          { x: hi.cx, y: hi.top },         // exit higher card from its top
+          { x: hi.cx, y: bandHi },
+          { x: gx,    y: bandHi },
+          { x: gx,    y: bandLo },         // travel vertically in the outer gutter
+          { x: lo.cx, y: bandLo },
+          { x: lo.cx, y: lo.bottom }       // enter lower card from its bottom
+        ];
+        segs.push(stroke(roundedPath(pts, 10)));
+        segs.push(dot(hi.cx, hi.top, 3));
+        segs.push(dot(lo.cx, lo.bottom, 3));
       });
       svg.innerHTML = segs.join('');
     }
