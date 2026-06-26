@@ -203,6 +203,10 @@
       margin: 0 auto 0.55rem; display: flex; align-items: center; justify-content: center;
       color: #fff; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.04em;
     }
+    .avatar.photo {
+      background-size: cover; background-position: center; background-repeat: no-repeat;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.08);
+    }
     .p-name { font-size: 0.82rem; font-weight: 600; line-height: 1.25; }
     .p-title { font-size: 0.66rem; color: #6b6b67; margin-top: 0.15rem; line-height: 1.3; }
     .p-title.solo { font-size: 0.82rem; font-weight: 600; color: #1a1a18; margin-top: 0; }
@@ -264,6 +268,26 @@
       padding: 0.6rem 0.75rem; background: rgba(0,0,0,0.025); border-radius: 7px;
     }
     .check-row input { width: 16px; height: 16px; accent-color: #2a4a3e; cursor: pointer; }
+    .photo-field {
+      display: flex; align-items: center; gap: 0.9rem; margin-bottom: 1rem;
+    }
+    .photo-preview {
+      width: 60px; height: 60px; border-radius: 50%; flex-shrink: 0;
+      background: rgba(0,0,0,0.05); background-size: cover; background-position: center;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.55rem; letter-spacing: 0.1em; text-transform: uppercase; color: #b0b0a8;
+      border: 1px solid rgba(0,0,0,0.08);
+    }
+    .photo-btns { display: flex; flex-direction: column; gap: 0.35rem; }
+    .photo-btns .pf-btn {
+      font-size: 0.66rem; letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 0.4rem 0.7rem; border-radius: 6px; cursor: pointer; transition: all 0.2s;
+      border: 1px solid rgba(0,0,0,0.12); background: #fff; color: #4a4a46; text-align: left;
+    }
+    .photo-btns .pf-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .photo-btns .pf-remove { color: #c84a4a; border-color: rgba(200,74,74,0.3); }
+    .photo-btns .pf-remove:hover { border-color: #c84a4a; color: #c84a4a; background: rgba(200,74,74,0.05); }
+    .photo-hint { font-size: 0.6rem; color: #b0b0a8; }
     .check-row label { font-size: 0.78rem; color: #4a4a46; cursor: pointer; margin: 0; letter-spacing: 0; text-transform: none; }
     .modal-actions { display: flex; gap: 0.5rem; margin-top: 1.4rem; align-items: center; }
     .m-btn {
@@ -365,6 +389,15 @@
   <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this) closeModal()">
     <div class="modal">
       <h2 id="modalTitle">Edit <em>Person</em></h2>
+      <div class="photo-field">
+        <div class="photo-preview" id="f-photo-preview">Photo</div>
+        <div class="photo-btns">
+          <button type="button" class="pf-btn" onclick="document.getElementById('f-photo-input').click()">Upload photo</button>
+          <button type="button" class="pf-btn pf-remove" id="f-photo-remove" onclick="clearPhoto()">Remove</button>
+          <span class="photo-hint">Any size — auto-cropped to a circle</span>
+        </div>
+        <input type="file" id="f-photo-input" accept="image/*" style="display:none" onchange="choosePhoto(event)">
+      </div>
       <div class="check-row">
         <input type="checkbox" id="f-titleonly" onchange="toggleTitleOnly()">
         <label for="f-titleonly">Show title only (hide the person's name)</label>
@@ -491,6 +524,11 @@
     function persist(silent) {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+      } catch (err) {
+        toast('Storage full — use Save File to back up, or remove a few photos');
+        return;
+      }
+      try {
         if (!silent) {
           const el = document.getElementById('saveState');
           el.textContent = 'Saved'; el.classList.add('saved');
@@ -649,7 +687,9 @@
                'ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)" ' +
                'onclick="openEdit(\'' + p.id + '\')" title="' + esc(p.email || '') + '">' +
             (kids.length ? '<div class="report-badge">' + kids.length + '</div>' : '') +
-            '<div class="avatar" style="background:' + deptColor(p.dept) + '">' + esc(initials(p)) + '</div>' +
+            (p.photo
+              ? '<div class="avatar photo" style="background-image:url(\'' + p.photo + '\')"></div>'
+              : '<div class="avatar" style="background:' + deptColor(p.dept) + '">' + esc(initials(p)) + '</div>') +
             titleBlock +
             (p.dept ? '<div class="p-dept">' + esc(p.dept) + '</div>' : '') +
             (kids.length ? '<button class="collapse-toggle" onclick="event.stopPropagation(); toggleCollapse(\'' + p.id + '\')">' + (isCollapsed ? '+' : '−') + '</button>' : '') +
@@ -872,6 +912,43 @@
       document.getElementById('f-name').placeholder = on ? 'Optional — won’t show' : 'Full name';
     }
 
+    // -- Staff photos (auto center-crop to a uniform square) ----
+    let pendingPhoto = null;   // data URL held while the modal is open
+    function choosePhoto(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const img = new Image();
+      img.onload = () => {
+        const SIZE = 256;
+        const c = document.createElement('canvas');
+        c.width = SIZE; c.height = SIZE;
+        const ctx = c.getContext('2d');
+        const s = Math.min(img.width, img.height);          // square crop from center
+        ctx.drawImage(img, (img.width - s) / 2, (img.height - s) / 2, s, s, 0, 0, SIZE, SIZE);
+        pendingPhoto = c.toDataURL('image/jpeg', 0.85);
+        updatePhotoPreview();
+      };
+      img.onerror = () => toast('Could not read that image');
+      const r = new FileReader();
+      r.onload = () => { img.src = r.result; };
+      r.readAsDataURL(file);
+      e.target.value = '';
+    }
+    function clearPhoto() { pendingPhoto = null; updatePhotoPreview(); }
+    function updatePhotoPreview() {
+      const pv = document.getElementById('f-photo-preview');
+      const rm = document.getElementById('f-photo-remove');
+      if (pendingPhoto) {
+        pv.style.backgroundImage = "url('" + pendingPhoto + "')";
+        pv.textContent = '';
+        rm.style.display = '';
+      } else {
+        pv.style.backgroundImage = '';
+        pv.textContent = 'Photo';
+        rm.style.display = 'none';
+      }
+    }
+
     function openEdit(id) {
       const p = byId(id);
       if (!p) return;
@@ -883,6 +960,8 @@
       document.getElementById('f-dept').value = p.dept || '';
       document.getElementById('f-email').value = p.email || '';
       document.getElementById('f-phone').value = p.phone || '';
+      pendingPhoto = p.photo || null;
+      updatePhotoPreview();
       toggleTitleOnly();
       fillManagerSelect(id, p.managerId || '');
       fillDottedSelect(id, p.dottedManagerId || '');
@@ -895,6 +974,8 @@
       document.getElementById('modalTitle').innerHTML = 'Add <em>Person</em>';
       document.getElementById('f-titleonly').checked = false;
       ['f-name','f-title','f-dept','f-email','f-phone'].forEach(id => document.getElementById(id).value = '');
+      pendingPhoto = null;
+      updatePhotoPreview();
       toggleTitleOnly();
       fillManagerSelect(null, '');
       fillDottedSelect(null, '');
@@ -920,7 +1001,8 @@
         email: document.getElementById('f-email').value.trim(),
         phone: document.getElementById('f-phone').value.trim(),
         managerId: document.getElementById('f-manager').value || null,
-        dottedManagerId: document.getElementById('f-dotted').value || null
+        dottedManagerId: document.getElementById('f-dotted').value || null,
+        photo: pendingPhoto || null
       };
       if (editingId) {
         Object.assign(byId(editingId), data);
