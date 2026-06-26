@@ -709,12 +709,15 @@
       const inner = document.getElementById('chartInner');
       const innerRect = inner.getBoundingClientRect();
       const z = zoom || 1;
-      const center = el => {
+      const W = innerRect.width / z;   // unzoomed content width
+      const rectOf = el => {
         const r = el.getBoundingClientRect();
         return {
-          x: (r.left - innerRect.left) / z + (r.width / z) / 2,
-          y: (r.top - innerRect.top) / z + (r.height / z) / 2,
-          h: r.height / z
+          left:  (r.left  - innerRect.left) / z,
+          right: (r.right - innerRect.left) / z,
+          top:   (r.top   - innerRect.top)  / z,
+          bottom:(r.bottom- innerRect.top)  / z,
+          cy:    ((r.top + r.bottom) / 2 - innerRect.top) / z
         };
       };
       const segs = [];
@@ -724,16 +727,21 @@
         const fromEl = inner.querySelector('.person[data-id="' + p.id + '"]');           // the report
         const toEl = inner.querySelector('.person[data-id="' + p.dottedManagerId + '"]'); // the dotted manager
         if (!fromEl || !toEl) return;   // skip if either is inside a collapsed branch
-        const a = center(toEl), b = center(fromEl);
-        // curve the line out perpendicular so it stays clear of the solid tree
-        const dx = b.x - a.x, dy = b.y - a.y;
-        const len = Math.hypot(dx, dy) || 1;
-        const off = Math.min(70, len * 0.22);
-        const cx = (a.x + b.x) / 2 + (-dy / len) * off;
-        const cy = (a.y + b.y) / 2 + (dx / len) * off;
-        segs.push('<path d="M ' + a.x + ' ' + a.y + ' Q ' + cx + ' ' + cy + ' ' + b.x + ' ' + b.y +
-                  '" fill="none" stroke="' + lineColor + '" stroke-width="2" stroke-dasharray="3 4" opacity="0.85"/>');
-        segs.push('<circle cx="' + b.x + '" cy="' + b.y + '" r="3.5" fill="' + lineColor + '"/>');
+        const A = rectOf(toEl), B = rectOf(fromEl);
+        // Route out the side with the most open canvas so the line never
+        // crosses the solid hierarchy or the cards between the two roles.
+        const leftSpace  = Math.min(A.left, B.left);
+        const rightSpace = W - Math.max(A.right, B.right);
+        const side = leftSpace >= rightSpace ? -1 : 1;   // -1 = bow left, +1 = bow right
+        const ax = side < 0 ? A.left - 2 : A.right + 2, ay = A.cy;
+        const bx = side < 0 ? B.left - 2 : B.right + 2, by = B.cy;
+        // bow far enough to clear a card stacked between the two roles
+        const off = Math.max(120, Math.min(260, Math.abs(by - ay) * 0.55));
+        const c1x = ax + side * off, c2x = bx + side * off;
+        segs.push('<path d="M ' + ax + ' ' + ay + ' C ' + c1x + ' ' + ay + ' ' + c2x + ' ' + by + ' ' + bx + ' ' + by +
+                  '" fill="none" stroke="' + lineColor + '" stroke-width="2" stroke-dasharray="3 4" opacity="0.9"/>');
+        segs.push('<circle cx="' + bx + '" cy="' + by + '" r="3.5" fill="' + lineColor + '"/>');
+        segs.push('<circle cx="' + ax + '" cy="' + ay + '" r="2.5" fill="' + lineColor + '" opacity="0.7"/>');
       });
       svg.innerHTML = segs.join('');
     }
