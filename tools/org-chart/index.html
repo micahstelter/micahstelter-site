@@ -679,7 +679,8 @@
       } else {
         inner.innerHTML = band + legend + '<ul class="tree">' + roots.map(nodeHtml).join('') +
           '</ul><svg id="dottedLayer" class="dotted-layer"></svg>';
-        requestAnimationFrame(drawDotted);
+        requestAnimationFrame(() => requestAnimationFrame(drawDotted));
+        setTimeout(drawDotted, 60);
       }
 
       // Stats
