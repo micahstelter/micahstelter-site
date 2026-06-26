@@ -24,7 +24,7 @@
     .breadcrumb a:hover { color: #2a4a3e; }
     .breadcrumb span { margin: 0 0.4rem; }
 
-    .hero { margin-bottom: 1.75rem; display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+    .hero { margin-bottom: 1.5rem; display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
     .hero h1 {
       font-family: 'Cormorant Garamond', serif;
       font-size: 2.4rem; font-weight: 300; margin-bottom: 0.4rem; line-height: 1;
@@ -37,7 +37,25 @@
     }
     .stats-line strong { color: #2a4a3e; font-weight: 600; }
 
-    /* ── Toolbar ─────────────────────── */
+    /* -- View bar ---------------------- */
+    .viewbar {
+      display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
+      padding: 0.6rem 0.75rem; background: #f3f1ec;
+      border: 1px solid rgba(0,0,0,0.06); border-radius: 10px;
+      margin-bottom: 0.6rem;
+    }
+    .viewbar-label {
+      font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase;
+      color: #a0a09a; margin-right: 0.1rem;
+    }
+    .view-select {
+      font-size: 0.85rem; font-weight: 600; padding: 0.4rem 0.7rem; border-radius: 6px;
+      border: 1px solid rgba(0,0,0,0.12); background: #fff; outline: none;
+      color: #2a4a3e; cursor: pointer; min-width: 200px; transition: border-color 0.2s;
+    }
+    .view-select:focus { border-color: #2a4a3e; }
+
+    /* -- Toolbar ----------------------- */
     .toolbar {
       display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap;
       padding: 0.75rem; background: #fff;
@@ -53,12 +71,13 @@
     .tb-btn:hover { border-color: #2a4a3e; color: #2a4a3e; }
     .tb-btn.primary { background: #2a4a3e; border-color: #2a4a3e; color: #fff; font-weight: 600; }
     .tb-btn.primary:hover { background: #1d3a30; }
+    .tb-btn.danger:hover { border-color: #c84a4a; color: #c84a4a; }
     .tb-sep { width: 1px; height: 22px; background: rgba(0,0,0,0.08); margin: 0 0.3rem; }
     .tb-spacer { flex: 1; }
     .tb-search {
       font-size: 0.78rem; padding: 0.45rem 0.75rem; border-radius: 6px;
       border: 1px solid rgba(0,0,0,0.1); background: #faf9f7; outline: none;
-      width: 170px; transition: border-color 0.2s;
+      width: 160px; transition: border-color 0.2s;
     }
     .tb-search:focus { border-color: #2a4a3e; }
     .zoom-group { display: flex; align-items: center; gap: 0.2rem; }
@@ -72,9 +91,7 @@
     .save-state { font-size: 0.62rem; color: #b8b8b2; letter-spacing: 0.08em; text-transform: uppercase; }
     .save-state.saved { color: #2a9d6a; }
 
-    .hint-line { font-size: 0.68rem; color: #b0b0a8; margin-bottom: 0.9rem; }
-
-    /* ── Chart canvas ────────────────── */
+    /* -- Chart canvas ------------------ */
     .chart-scroll {
       overflow: auto; background: #fff;
       border: 1px solid rgba(0,0,0,0.06); border-radius: 12px;
@@ -83,8 +100,9 @@
       background-size: 22px 22px;
     }
     #chartInner { display: inline-block; min-width: 100%; text-align: center; }
+    .empty-note { color: #b0b0a8; font-size: 0.85rem; padding: 3rem 1rem; }
 
-    /* ── Tree connectors ─────────────── */
+    /* -- Tree connectors --------------- */
     .tree, .tree ul { list-style: none; }
     .tree { display: inline-flex; }
     .tree ul { display: flex; justify-content: center; position: relative; padding-top: 26px; }
@@ -109,7 +127,7 @@
     .tree li:first-child::after { border-radius: 6px 0 0 0; }
     .tree > li::before, .tree > li::after { display: none; }
 
-    /* ── Person card ─────────────────── */
+    /* -- Person card ------------------- */
     .person {
       position: relative; z-index: 1;
       width: 168px; padding: 0.9rem 0.8rem 0.75rem;
@@ -130,6 +148,7 @@
     .person.drop-no { border-color: #c84a4a; box-shadow: 0 0 0 4px rgba(200,74,74,0.1); }
     .person.dim { opacity: 0.25; }
     .person.hit { border-color: #e89528; box-shadow: 0 0 0 4px rgba(232,149,40,0.18); }
+    .person.role-only { border-style: dashed; background: #fcfbf9; }
 
     .avatar {
       width: 44px; height: 44px; border-radius: 50%;
@@ -138,6 +157,7 @@
     }
     .p-name { font-size: 0.82rem; font-weight: 600; line-height: 1.25; }
     .p-title { font-size: 0.66rem; color: #6b6b67; margin-top: 0.15rem; line-height: 1.3; }
+    .p-title.solo { font-size: 0.82rem; font-weight: 600; color: #1a1a18; margin-top: 0; }
     .p-dept {
       display: inline-block; margin-top: 0.45rem;
       font-size: 0.56rem; letter-spacing: 0.1em; text-transform: uppercase;
@@ -160,7 +180,7 @@
     }
     .collapse-toggle:hover { border-color: #2a4a3e; color: #2a4a3e; }
 
-    /* ── Modal ───────────────────────── */
+    /* -- Modal ------------------------- */
     .modal-overlay {
       position: fixed; inset: 0; background: rgba(26,26,24,0.35);
       display: none; align-items: center; justify-content: center; z-index: 50;
@@ -191,6 +211,12 @@
       font-family: inherit; color: #1a1a18;
     }
     .field input:focus, .field select:focus { border-color: #2a4a3e; }
+    .check-row {
+      display: flex; align-items: center; gap: 0.55rem; margin-bottom: 1rem;
+      padding: 0.6rem 0.75rem; background: rgba(0,0,0,0.025); border-radius: 7px;
+    }
+    .check-row input { width: 16px; height: 16px; accent-color: #2a4a3e; cursor: pointer; }
+    .check-row label { font-size: 0.78rem; color: #4a4a46; cursor: pointer; margin: 0; letter-spacing: 0; text-transform: none; }
     .modal-actions { display: flex; gap: 0.5rem; margin-top: 1.4rem; align-items: center; }
     .m-btn {
       padding: 0.6rem 1.1rem; font-size: 0.68rem; letter-spacing: 0.08em;
@@ -203,7 +229,7 @@
     .m-btn.delete { background: none; border: 1px solid rgba(200,74,74,0.4); color: #c84a4a; margin-left: auto; }
     .m-btn.delete:hover { background: rgba(200,74,74,0.08); }
 
-    /* ── Toast ───────────────────────── */
+    /* -- Toast ------------------------- */
     .toast {
       position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(80px);
       background: #1a1a18; color: #faf9f7; font-size: 0.75rem;
@@ -228,6 +254,7 @@
       body { padding: 1.5rem 1rem; }
       .toolbar { gap: 0.35rem; }
       .tb-search { width: 100%; order: 99; }
+      .view-select { min-width: 140px; flex: 1; }
     }
   </style>
 </head>
@@ -240,9 +267,18 @@
     <div class="hero fade-in fade-in-d1">
       <div>
         <h1>Org Chart <em>Builder</em></h1>
-        <p class="hero-sub">Drag a card onto a new manager to re-org. Click a card to edit details.</p>
+        <p class="hero-sub">Build a chart per business, switch between saved views, and re-org by dragging cards.</p>
       </div>
       <div class="stats-line" id="stats"></div>
+    </div>
+
+    <div class="viewbar fade-in fade-in-d2">
+      <span class="viewbar-label">View</span>
+      <select class="view-select" id="viewSelect" onchange="switchView(this.value)"></select>
+      <button class="tb-btn primary" onclick="newView()">+ New View</button>
+      <button class="tb-btn" onclick="renameView()">Rename</button>
+      <button class="tb-btn" onclick="duplicateView()">Duplicate</button>
+      <button class="tb-btn danger" onclick="deleteView()">Delete View</button>
     </div>
 
     <div class="toolbar fade-in fade-in-d2">
@@ -253,8 +289,6 @@
       <button class="tb-btn" onclick="exportJSON()">Save File</button>
       <button class="tb-btn" onclick="document.getElementById('importFile').click()">Load File</button>
       <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(event)">
-      <div class="tb-sep"></div>
-      <button class="tb-btn" onclick="resetDefault()">Reset</button>
       <div class="tb-spacer"></div>
       <input class="tb-search" id="search" placeholder="Search people..." oninput="render()">
       <div class="zoom-group">
@@ -270,7 +304,7 @@
     </div>
 
     <div class="footer">
-      <span>Changes auto-save in this browser · use Save File for a portable backup</span>
+      <span>Views auto-save in this browser · use Save File for a portable backup of the current view</span>
       <span id="lastEdit"></span>
     </div>
   </div>
@@ -279,7 +313,11 @@
   <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this) closeModal()">
     <div class="modal">
       <h2 id="modalTitle">Edit <em>Person</em></h2>
-      <div class="field"><label>Name</label><input id="f-name" placeholder="Full name"></div>
+      <div class="check-row">
+        <input type="checkbox" id="f-titleonly" onchange="toggleTitleOnly()">
+        <label for="f-titleonly">Show title only (hide the person's name)</label>
+      </div>
+      <div class="field"><label id="lbl-name">Name</label><input id="f-name" placeholder="Full name"></div>
       <div class="field"><label>Title</label><input id="f-title" placeholder="e.g. Sales Manager"></div>
       <div class="field">
         <label>Department</label>
@@ -300,29 +338,30 @@
   <div class="toast" id="toast"></div>
 
   <script>
-    const STORAGE_KEY = 'orgchart-data-v1';
+    const STORAGE_KEY = 'orgchart-store-v2';
+    const LEGACY_KEY = 'orgchart-data-v1';
 
-    const DEFAULT_DATA = [
-      { id: 'micah',    name: 'Micah Stelter',      title: 'CEO',           dept: 'Leadership',           email: 'micah@aleph-mgmt.com', phone: '', managerId: null },
-      { id: 'matt',     name: 'Matt Rawski',        title: 'Sales Manager', dept: 'Paris Painting',       email: '', phone: '', managerId: 'micah' },
-      { id: 'brandon',  name: 'Brandon Stahnke',    title: 'Sales Manager', dept: 'Paris Painting',       email: '', phone: '', managerId: 'micah' },
-      { id: 'christian',name: 'Christian Kullmann', title: 'Sales Manager', dept: 'Paris Home Exteriors', email: '', phone: '', managerId: 'micah' },
-      { id: 'nlane',    name: 'Nick Lane',          title: 'Sales Rep',     dept: 'Paris Painting',       email: '', phone: '', managerId: 'matt' },
-      { id: 'csidla',   name: 'Chris Sidla',        title: 'Sales Rep',     dept: 'Paris Painting',       email: '', phone: '', managerId: 'matt' },
-      { id: 'nondrusik',name: 'Noah Ondrusik',      title: 'Sales Rep',     dept: 'Paris Painting',       email: '', phone: '', managerId: 'matt' },
-      { id: 'jsatter',  name: 'Justin Satterberg',  title: 'Sales Rep',     dept: 'Paris Painting',       email: '', phone: '', managerId: 'matt' },
-      { id: 'momeara',  name: "Mike O'Meara",       title: 'Sales Rep',     dept: 'Paris Painting',       email: '', phone: '', managerId: 'matt' },
-      { id: 'nfranzen', name: 'Noah Franzen',       title: 'Sales Rep',     dept: 'Paris Painting',       email: '', phone: '', managerId: 'brandon' },
-      { id: 'nbrattin', name: 'Nick Brattin',       title: 'Sales Rep',     dept: 'Paris Painting',       email: '', phone: '', managerId: 'brandon' },
-      { id: 'sbostrom', name: 'Seth Bostrom',       title: 'Sales Rep',     dept: 'Paris Painting',       email: '', phone: '', managerId: 'brandon' },
-      { id: 'stopal',   name: 'Seyf Topal',         title: 'Sales Rep',     dept: 'Paris Painting',       email: '', phone: '', managerId: 'brandon' },
-      { id: 'sbacon',   name: 'Stephen Bacon',      title: 'Sales Rep',     dept: 'Paris Painting',       email: '', phone: '', managerId: 'brandon' },
-      { id: 'gherbert', name: 'Grant Herbert',      title: 'Sales Rep',     dept: 'Paris Painting',       email: '', phone: '', managerId: 'brandon' },
-      { id: 'acooper',  name: 'Alex Cooper',        title: 'Sales Rep',     dept: 'Paris Home Exteriors', email: '', phone: '', managerId: 'christian' },
-      { id: 'sstellen', name: 'Shawn Stellenberg',  title: 'Sales Rep',     dept: 'Paris Home Exteriors', email: '', phone: '', managerId: 'christian' },
-      { id: 'cnielsen', name: 'Carter Nielsen',     title: 'Sales Rep',     dept: 'Paris Home Exteriors', email: '', phone: '', managerId: 'christian' },
-      { id: 'brangel',  name: 'Ben Rangel',         title: 'Sales Rep',     dept: 'Paris Home Exteriors', email: '', phone: '', managerId: 'christian' },
-      { id: 'pdarling', name: 'Patrick Darlington', title: 'Sales Rep',     dept: 'Paris Home Exteriors', email: '', phone: '', managerId: 'christian' }
+    const DEFAULT_PEOPLE = [
+      { id: 'micah',    name: 'Micah Stelter',      title: 'CEO',           dept: 'Leadership',           email: 'micah@aleph-mgmt.com', phone: '', managerId: null, titleOnly: false },
+      { id: 'matt',     name: 'Matt Rawski',        title: 'Sales Manager', dept: 'Paris Painting',       email: '', phone: '', managerId: 'micah', titleOnly: false },
+      { id: 'brandon',  name: 'Brandon Stahnke',    title: 'Sales Manager', dept: 'Paris Painting',       email: '', phone: '', managerId: 'micah', titleOnly: false },
+      { id: 'christian',name: 'Christian Kullmann', title: 'Sales Manager', dept: 'Paris Home Exteriors', email: '', phone: '', managerId: 'micah', titleOnly: false },
+      { id: 'nlane',    name: 'Nick Lane',          title: 'Sales Rep',     dept: 'Paris Painting',       email: '', phone: '', managerId: 'matt', titleOnly: false },
+      { id: 'csidla',   name: 'Chris Sidla',        title: 'Sales Rep',     dept: 'Paris Painting',       email: '', phone: '', managerId: 'matt', titleOnly: false },
+      { id: 'nondrusik',name: 'Noah Ondrusik',      title: 'Sales Rep',     dept: 'Paris Painting',       email: '', phone: '', managerId: 'matt', titleOnly: false },
+      { id: 'jsatter',  name: 'Justin Satterberg',  title: 'Sales Rep',     dept: 'Paris Painting',       email: '', phone: '', managerId: 'matt', titleOnly: false },
+      { id: 'momeara',  name: "Mike O'Meara",       title: 'Sales Rep',     dept: 'Paris Painting',       email: '', phone: '', managerId: 'matt', titleOnly: false },
+      { id: 'nfranzen', name: 'Noah Franzen',       title: 'Sales Rep',     dept: 'Paris Painting',       email: '', phone: '', managerId: 'brandon', titleOnly: false },
+      { id: 'nbrattin', name: 'Nick Brattin',       title: 'Sales Rep',     dept: 'Paris Painting',       email: '', phone: '', managerId: 'brandon', titleOnly: false },
+      { id: 'sbostrom', name: 'Seth Bostrom',       title: 'Sales Rep',     dept: 'Paris Painting',       email: '', phone: '', managerId: 'brandon', titleOnly: false },
+      { id: 'stopal',   name: 'Seyf Topal',         title: 'Sales Rep',     dept: 'Paris Painting',       email: '', phone: '', managerId: 'brandon', titleOnly: false },
+      { id: 'sbacon',   name: 'Stephen Bacon',      title: 'Sales Rep',     dept: 'Paris Painting',       email: '', phone: '', managerId: 'brandon', titleOnly: false },
+      { id: 'gherbert', name: 'Grant Herbert',      title: 'Sales Rep',     dept: 'Paris Painting',       email: '', phone: '', managerId: 'brandon', titleOnly: false },
+      { id: 'acooper',  name: 'Alex Cooper',        title: 'Sales Rep',     dept: 'Paris Home Exteriors', email: '', phone: '', managerId: 'christian', titleOnly: false },
+      { id: 'sstellen', name: 'Shawn Stellenberg',  title: 'Sales Rep',     dept: 'Paris Home Exteriors', email: '', phone: '', managerId: 'christian', titleOnly: false },
+      { id: 'cnielsen', name: 'Carter Nielsen',     title: 'Sales Rep',     dept: 'Paris Home Exteriors', email: '', phone: '', managerId: 'christian', titleOnly: false },
+      { id: 'brangel',  name: 'Ben Rangel',         title: 'Sales Rep',     dept: 'Paris Home Exteriors', email: '', phone: '', managerId: 'christian', titleOnly: false },
+      { id: 'pdarling', name: 'Patrick Darlington', title: 'Sales Rep',     dept: 'Paris Home Exteriors', email: '', phone: '', managerId: 'christian', titleOnly: false }
     ];
 
     const DEPT_COLORS = {
@@ -332,37 +371,104 @@
     };
     const FALLBACK_COLORS = ['#4a6a8a', '#7a5a8a', '#8a6a4a', '#5a8a7a', '#8a4a5a'];
 
-    let people = load();
+    let store = loadStore();      // { activeViewId, views: [ {id, name, people} ] }
     let collapsed = new Set();
-    let editingId = null;   // null = adding new
+    let editingId = null;         // null = adding new
     let zoom = 1;
 
-    // ── Persistence ──────────────────────────
-    function load() {
+    // -- Persistence --------------------------
+    function uid(prefix) { return (prefix || 'v') + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+
+    function loadStore() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
         if (raw) {
           const parsed = JSON.parse(raw);
-          if (Array.isArray(parsed.people)) return parsed.people;
+          if (parsed && Array.isArray(parsed.views) && parsed.views.length) return parsed;
         }
       } catch (e) {}
-      return JSON.parse(JSON.stringify(DEFAULT_DATA));
+      // Migrate legacy single-chart data if present
+      let people = JSON.parse(JSON.stringify(DEFAULT_PEOPLE));
+      try {
+        const legacy = localStorage.getItem(LEGACY_KEY);
+        if (legacy) {
+          const lp = JSON.parse(legacy);
+          if (lp && Array.isArray(lp.people) && lp.people.length) people = lp.people;
+        }
+      } catch (e) {}
+      const v = { id: uid(), name: 'Paris Sales Org', people };
+      return { activeViewId: v.id, views: [v] };
     }
 
-    function persist() {
+    function persist(silent) {
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ people, savedAt: new Date().toISOString() }));
-        const el = document.getElementById('saveState');
-        el.textContent = 'Saved'; el.classList.add('saved');
-        clearTimeout(persist._t);
-        persist._t = setTimeout(() => { el.textContent = ''; el.classList.remove('saved'); }, 2000);
-        document.getElementById('lastEdit').textContent = 'Last edit ' + new Date().toLocaleTimeString();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+        if (!silent) {
+          const el = document.getElementById('saveState');
+          el.textContent = 'Saved'; el.classList.add('saved');
+          clearTimeout(persist._t);
+          persist._t = setTimeout(() => { el.textContent = ''; el.classList.remove('saved'); }, 2000);
+          document.getElementById('lastEdit').textContent = 'Last edit ' + new Date().toLocaleTimeString();
+        }
       } catch (e) {}
     }
 
-    // ── Helpers ──────────────────────────────
-    function byId(id) { return people.find(p => p.id === id); }
-    function childrenOf(id) { return people.filter(p => p.managerId === id); }
+    function activeView() {
+      return store.views.find(v => v.id === store.activeViewId) || store.views[0];
+    }
+    function people() { return activeView().people; }
+
+    // -- View management ----------------------
+    function renderViewSelect() {
+      const sel = document.getElementById('viewSelect');
+      sel.innerHTML = store.views
+        .map(v => '<option value="' + v.id + '"' + (v.id === store.activeViewId ? ' selected' : '') + '>' + esc(v.name) + '</option>')
+        .join('');
+    }
+    function switchView(id) {
+      if (!store.views.some(v => v.id === id)) return;
+      store.activeViewId = id;
+      collapsed.clear();
+      persist(true); render();
+      toast('Switched to ' + esc(activeView().name));
+    }
+    function newView() {
+      const name = (prompt('Name this view (e.g. a business or scenario):', '') || '').trim();
+      if (!name) return;
+      const v = { id: uid(), name, people: [] };
+      store.views.push(v); store.activeViewId = v.id;
+      collapsed.clear(); persist(); render();
+      toast('Created view "' + name + '" — add people to start');
+    }
+    function duplicateView() {
+      const cur = activeView();
+      const name = (prompt('Name for the duplicate:', cur.name + ' (copy)') || '').trim();
+      if (!name) return;
+      const v = { id: uid(), name, people: JSON.parse(JSON.stringify(cur.people)) };
+      store.views.push(v); store.activeViewId = v.id;
+      collapsed.clear(); persist(); render();
+      toast('Duplicated as "' + name + '"');
+    }
+    function renameView() {
+      const cur = activeView();
+      const name = (prompt('Rename view:', cur.name) || '').trim();
+      if (!name) return;
+      cur.name = name; persist(); render();
+      toast('Renamed to "' + name + '"');
+    }
+    function deleteView() {
+      if (store.views.length <= 1) { toast("Can't delete your only view"); return; }
+      const cur = activeView();
+      if (!confirm('Delete the view "' + cur.name + '" and everyone in it? This cannot be undone.')) return;
+      store.views = store.views.filter(v => v.id !== cur.id);
+      store.activeViewId = store.views[0].id;
+      collapsed.clear(); persist(); render();
+      toast('Deleted view');
+    }
+
+    // -- Helpers ------------------------------
+    function byId(id) { return people().find(p => p.id === id); }
+    function childrenOf(id) { return people().filter(p => p.managerId === id); }
     function isDescendant(candidateId, ancestorId) {
       let cur = byId(candidateId);
       const seen = new Set();
@@ -374,8 +480,12 @@
       }
       return false;
     }
-    function initials(name) {
-      return name.trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+    function displayName(p) { return p.titleOnly ? (p.title || 'Open role') : p.name; }
+    function initials(p) {
+      const base = p.titleOnly ? (p.title || '') : (p.name || p.title || '');
+      const parts = base.trim().split(/\s+/).filter(Boolean);
+      if (!parts.length) return '–';
+      return parts.map(w => w[0]).slice(0, 2).join('').toUpperCase();
     }
     function deptColor(dept) {
       const key = (dept || '').trim().toLowerCase();
@@ -395,26 +505,31 @@
       toast._t = setTimeout(() => t.classList.remove('show'), 2200);
     }
 
-    // ── Render ───────────────────────────────
+    // -- Render -------------------------------
     function render() {
+      renderViewSelect();
+      const ppl = people();
       const q = document.getElementById('search').value.trim().toLowerCase();
-      const roots = people.filter(p => !p.managerId || !byId(p.managerId));
+      const roots = ppl.filter(p => !p.managerId || !byId(p.managerId));
 
       function nodeHtml(p) {
         const kids = childrenOf(p.id);
         const isCollapsed = collapsed.has(p.id);
-        const match = q && (p.name.toLowerCase().includes(q) || (p.title||'').toLowerCase().includes(q) || (p.dept||'').toLowerCase().includes(q));
+        const match = q && ((p.titleOnly ? '' : p.name.toLowerCase()).includes(q) || (p.title||'').toLowerCase().includes(q) || (p.dept||'').toLowerCase().includes(q));
         const cls = ['person'];
+        if (p.titleOnly) cls.push('role-only');
         if (q) cls.push(match ? 'hit' : 'dim');
+        const titleBlock = p.titleOnly
+          ? '<div class="p-title solo">' + esc(p.title || 'Open role') + '</div>'
+          : '<div class="p-name">' + esc(p.name) + '</div><div class="p-title">' + esc(p.title || '—') + '</div>';
         let html = '<li>' +
           '<div class="' + cls.join(' ') + '" draggable="true" data-id="' + p.id + '" ' +
                'ondragstart="onDragStart(event)" ondragend="onDragEnd(event)" ' +
                'ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)" ' +
                'onclick="openEdit(\'' + p.id + '\')" title="' + esc(p.email || '') + '">' +
             (kids.length ? '<div class="report-badge">' + kids.length + '</div>' : '') +
-            '<div class="avatar" style="background:' + deptColor(p.dept) + '">' + esc(initials(p.name)) + '</div>' +
-            '<div class="p-name">' + esc(p.name) + '</div>' +
-            '<div class="p-title">' + esc(p.title || '—') + '</div>' +
+            '<div class="avatar" style="background:' + deptColor(p.dept) + '">' + esc(initials(p)) + '</div>' +
+            titleBlock +
             (p.dept ? '<div class="p-dept">' + esc(p.dept) + '</div>' : '') +
             (kids.length ? '<button class="collapse-toggle" onclick="event.stopPropagation(); toggleCollapse(\'' + p.id + '\')">' + (isCollapsed ? '+' : '−') + '</button>' : '') +
           '</div>';
@@ -425,18 +540,22 @@
         return html;
       }
 
-      document.getElementById('chartInner').innerHTML =
-        '<ul class="tree">' + roots.map(nodeHtml).join('') + '</ul>';
+      const inner = document.getElementById('chartInner');
+      if (!ppl.length) {
+        inner.innerHTML = '<div class="empty-note">This view is empty. Click <strong>+ Add Person</strong> to start building "' + esc(activeView().name) + '".</div>';
+      } else {
+        inner.innerHTML = '<ul class="tree">' + roots.map(nodeHtml).join('') + '</ul>';
+      }
 
       // Stats
-      const managers = people.filter(p => childrenOf(p.id).length).length;
-      const depts = new Set(people.map(p => (p.dept || '').trim().toLowerCase()).filter(Boolean)).size;
+      const managers = ppl.filter(p => childrenOf(p.id).length).length;
+      const depts = new Set(ppl.map(p => (p.dept || '').trim().toLowerCase()).filter(Boolean)).size;
       document.getElementById('stats').innerHTML =
-        '<strong>' + people.length + '</strong> people &nbsp;·&nbsp; <strong>' + managers + '</strong> managers &nbsp;·&nbsp; <strong>' + depts + '</strong> departments';
+        '<strong>' + ppl.length + '</strong> people &nbsp;·&nbsp; <strong>' + managers + '</strong> managers &nbsp;·&nbsp; <strong>' + depts + '</strong> departments';
 
       // Dept datalist
       const seen = new Set();
-      document.getElementById('deptList').innerHTML = people
+      document.getElementById('deptList').innerHTML = ppl
         .map(p => (p.dept || '').trim()).filter(d => d && !seen.has(d.toLowerCase()) && seen.add(d.toLowerCase()))
         .map(d => '<option value="' + esc(d) + '">').join('');
     }
@@ -446,7 +565,7 @@
       render();
     }
 
-    // ── Drag & drop ──────────────────────────
+    // -- Drag & drop --------------------------
     let dragId = null;
     function onDragStart(e) {
       dragId = e.currentTarget.dataset.id;
@@ -490,31 +609,39 @@
       moved.managerId = targetId;
       collapsed.delete(targetId);
       persist(); render();
-      toast(moved.name + ' now reports to ' + byId(targetId).name);
+      toast(displayName(moved) + ' now reports to ' + displayName(byId(targetId)));
     }
 
-    // ── Modal ────────────────────────────────
+    // -- Modal --------------------------------
     function fillManagerSelect(excludeId, current) {
       const sel = document.getElementById('f-manager');
       const opts = ['<option value="">— No manager (top level) —</option>'];
-      people.forEach(p => {
+      people().forEach(p => {
         if (p.id === excludeId) return;
         if (excludeId && isDescendant(p.id, excludeId)) return;
-        opts.push('<option value="' + p.id + '"' + (p.id === current ? ' selected' : '') + '>' + esc(p.name) + '</option>');
+        opts.push('<option value="' + p.id + '"' + (p.id === current ? ' selected' : '') + '>' + esc(displayName(p)) + '</option>');
       });
       sel.innerHTML = opts.join('');
+    }
+
+    function toggleTitleOnly() {
+      const on = document.getElementById('f-titleonly').checked;
+      document.getElementById('lbl-name').textContent = on ? 'Name (hidden on card)' : 'Name';
+      document.getElementById('f-name').placeholder = on ? 'Optional — won’t show' : 'Full name';
     }
 
     function openEdit(id) {
       const p = byId(id);
       if (!p) return;
       editingId = id;
-      document.getElementById('modalTitle').innerHTML = 'Edit <em>' + esc(p.name.split(' ')[0]) + '</em>';
-      document.getElementById('f-name').value = p.name;
+      document.getElementById('modalTitle').innerHTML = 'Edit <em>' + esc((displayName(p) || 'Person').split(' ')[0]) + '</em>';
+      document.getElementById('f-titleonly').checked = !!p.titleOnly;
+      document.getElementById('f-name').value = p.name || '';
       document.getElementById('f-title').value = p.title || '';
       document.getElementById('f-dept').value = p.dept || '';
       document.getElementById('f-email').value = p.email || '';
       document.getElementById('f-phone').value = p.phone || '';
+      toggleTitleOnly();
       fillManagerSelect(id, p.managerId || '');
       document.getElementById('deleteBtn').style.display = '';
       document.getElementById('modalOverlay').classList.add('open');
@@ -523,7 +650,9 @@
     function openAdd() {
       editingId = null;
       document.getElementById('modalTitle').innerHTML = 'Add <em>Person</em>';
+      document.getElementById('f-titleonly').checked = false;
       ['f-name','f-title','f-dept','f-email','f-phone'].forEach(id => document.getElementById(id).value = '');
+      toggleTitleOnly();
       fillManagerSelect(null, '');
       document.getElementById('deleteBtn').style.display = 'none';
       document.getElementById('modalOverlay').classList.add('open');
@@ -536,11 +665,13 @@
     }
 
     function saveModal() {
+      const titleOnly = document.getElementById('f-titleonly').checked;
       const name = document.getElementById('f-name').value.trim();
-      if (!name) { document.getElementById('f-name').focus(); return; }
+      const title = document.getElementById('f-title').value.trim();
+      if (titleOnly && !title) { toast('Add a title for a title-only card'); document.getElementById('f-title').focus(); return; }
+      if (!titleOnly && !name) { document.getElementById('f-name').focus(); return; }
       const data = {
-        name,
-        title: document.getElementById('f-title').value.trim(),
+        name, title, titleOnly,
         dept: document.getElementById('f-dept').value.trim(),
         email: document.getElementById('f-email').value.trim(),
         phone: document.getElementById('f-phone').value.trim(),
@@ -548,11 +679,10 @@
       };
       if (editingId) {
         Object.assign(byId(editingId), data);
-        toast('Updated ' + name);
+        toast('Updated ' + displayName(data));
       } else {
-        const id = 'p' + Date.now().toString(36);
-        people.push({ id, ...data });
-        toast('Added ' + name);
+        people().push({ id: uid('p'), ...data });
+        toast('Added ' + displayName(data));
       }
       closeModal(); persist(); render();
     }
@@ -561,22 +691,25 @@
       if (!editingId) return;
       const p = byId(editingId);
       const kids = childrenOf(editingId);
-      if (kids.length && !confirm('Remove ' + p.name + '? Their ' + kids.length + ' direct report(s) will move up to ' + (byId(p.managerId)?.name || 'top level') + '.')) return;
-      if (!kids.length && !confirm('Remove ' + p.name + ' from the chart?')) return;
+      if (kids.length && !confirm('Remove ' + displayName(p) + '? Their ' + kids.length + ' direct report(s) will move up to ' + (byId(p.managerId) ? displayName(byId(p.managerId)) : 'top level') + '.')) return;
+      if (!kids.length && !confirm('Remove ' + displayName(p) + ' from the chart?')) return;
       kids.forEach(k => k.managerId = p.managerId || null);
-      people = people.filter(x => x.id !== editingId);
+      activeView().people = people().filter(x => x.id !== editingId);
       closeModal(); persist(); render();
-      toast('Removed ' + p.name);
+      toast('Removed ' + displayName(p));
     }
 
-    // ── Zoom ─────────────────────────────────
+    // -- Zoom ---------------------------------
     function setZoom(delta) {
       zoom = Math.min(1.5, Math.max(0.4, Math.round((zoom + delta) * 10) / 10));
       document.getElementById('chartInner').style.zoom = zoom;
       document.getElementById('zoomPct').textContent = Math.round(zoom * 100) + '%';
     }
 
-    // ── Export ───────────────────────────────
+    // -- Export -------------------------------
+    function viewSlug() {
+      return (activeView().name || 'org-chart').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'org-chart';
+    }
     async function capture() {
       const inner = document.getElementById('chartInner');
       const prevZoom = inner.style.zoom;
@@ -585,20 +718,20 @@
       inner.style.zoom = prevZoom;
       return canvas;
     }
-
     async function exportPNG() {
+      if (!people().length) { toast('Nothing to export in this view'); return; }
       toast('Rendering PNG...');
       try {
         const canvas = await capture();
         const a = document.createElement('a');
-        a.download = 'org-chart-' + new Date().toISOString().slice(0,10) + '.png';
+        a.download = viewSlug() + '-' + new Date().toISOString().slice(0,10) + '.png';
         a.href = canvas.toDataURL('image/png');
         a.click();
         toast('PNG downloaded');
       } catch (e) { toast('Export failed: ' + e.message); }
     }
-
     async function exportPDF() {
+      if (!people().length) { toast('Nothing to export in this view'); return; }
       toast('Rendering PDF...');
       try {
         const canvas = await capture();
@@ -610,24 +743,23 @@
         const r = Math.min(pw / canvas.width, ph / canvas.height);
         const w = canvas.width * r, h = canvas.height * r;
         pdf.setFont('helvetica', 'normal'); pdf.setFontSize(9); pdf.setTextColor(160);
-        pdf.text('Org Chart — ' + new Date().toLocaleDateString(), 24, 24);
+        pdf.text(activeView().name + ' — ' + new Date().toLocaleDateString(), 24, 24);
         pdf.addImage(canvas.toDataURL('image/png'), 'PNG',
           (pdf.internal.pageSize.getWidth() - w) / 2, 40, w, h);
-        pdf.save('org-chart-' + new Date().toISOString().slice(0,10) + '.pdf');
+        pdf.save(viewSlug() + '-' + new Date().toISOString().slice(0,10) + '.pdf');
         toast('PDF downloaded');
       } catch (e) { toast('Export failed: ' + e.message); }
     }
-
     function exportJSON() {
-      const blob = new Blob([JSON.stringify({ exportedAt: new Date().toISOString(), people }, null, 2)], { type: 'application/json' });
+      const v = activeView();
+      const blob = new Blob([JSON.stringify({ exportedAt: new Date().toISOString(), view: v.name, people: v.people }, null, 2)], { type: 'application/json' });
       const a = document.createElement('a');
-      a.download = 'org-chart-' + new Date().toISOString().slice(0,10) + '.json';
+      a.download = viewSlug() + '-' + new Date().toISOString().slice(0,10) + '.json';
       a.href = URL.createObjectURL(blob);
       a.click();
       URL.revokeObjectURL(a.href);
-      toast('Chart saved to file');
+      toast('Saved "' + v.name + '" to file');
     }
-
     function importJSON(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -636,23 +768,16 @@
         try {
           const parsed = JSON.parse(reader.result);
           const arr = Array.isArray(parsed) ? parsed : parsed.people;
-          if (!Array.isArray(arr) || !arr.every(p => p.id && p.name)) throw new Error('Unrecognized format');
-          people = arr;
-          collapsed.clear();
-          persist(); render();
-          toast('Loaded ' + people.length + ' people from file');
+          if (!Array.isArray(arr) || !arr.every(p => p.id && (p.name || p.title))) throw new Error('Unrecognized format');
+          const name = (parsed.view || file.name.replace(/\.json$/i, '') || 'Imported view').trim();
+          const v = { id: uid(), name, people: arr.map(p => ({ titleOnly: false, ...p })) };
+          store.views.push(v); store.activeViewId = v.id;
+          collapsed.clear(); persist(); render();
+          toast('Loaded "' + name + '" as a new view (' + arr.length + ' people)');
         } catch (err) { toast('Could not load file: ' + err.message); }
       };
       reader.readAsText(file);
       e.target.value = '';
-    }
-
-    function resetDefault() {
-      if (!confirm('Reset to the default Paris sales org? Your current chart will be replaced.')) return;
-      people = JSON.parse(JSON.stringify(DEFAULT_DATA));
-      collapsed.clear();
-      persist(); render();
-      toast('Reset to default org');
     }
 
     // Keyboard: Esc closes modal
