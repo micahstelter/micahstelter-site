@@ -4,15 +4,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Org Chart Builder — micahstelter.ai</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
+    /* -- Brand theme variables (overridden by applyTheme) -- */
+    :root {
+      --bg: #faf9f7; --ink: #1a1a18; --muted: #6b6b67;
+      --accent: #2a4a3e; --accent-dark: #1d3a30;
+      --band-bg: #2a4a3e; --band-text: #ffffff;
+      --card-bg: #ffffff;
+      --font-head: 'Cormorant Garamond', serif;
+    }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
-      background: #faf9f7; color: #1a1a18;
+      background: var(--bg); color: var(--ink);
       min-height: 100vh; padding: 2.5rem 2rem;
+      transition: background 0.3s;
     }
     .container { max-width: 1100px; margin: 0 auto; }
 
@@ -26,10 +35,10 @@
 
     .hero { margin-bottom: 1.5rem; display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
     .hero h1 {
-      font-family: 'Cormorant Garamond', serif;
+      font-family: var(--font-head);
       font-size: 2.4rem; font-weight: 300; margin-bottom: 0.4rem; line-height: 1;
     }
-    .hero h1 em { font-style: italic; color: #2a4a3e; }
+    .hero h1 em { font-style: italic; color: var(--accent); }
     .hero-sub { color: #6b6b67; font-size: 0.85rem; line-height: 1.5; }
     .stats-line {
       font-size: 0.68rem; color: #a0a09a; letter-spacing: 0.08em;
@@ -51,9 +60,15 @@
     .view-select {
       font-size: 0.85rem; font-weight: 600; padding: 0.4rem 0.7rem; border-radius: 6px;
       border: 1px solid rgba(0,0,0,0.12); background: #fff; outline: none;
-      color: #2a4a3e; cursor: pointer; min-width: 200px; transition: border-color 0.2s;
+      color: var(--accent); cursor: pointer; min-width: 180px; transition: border-color 0.2s;
     }
-    .view-select:focus { border-color: #2a4a3e; }
+    .view-select:focus { border-color: var(--accent); }
+    .theme-select {
+      font-size: 0.72rem; padding: 0.4rem 0.6rem; border-radius: 6px;
+      border: 1px solid rgba(0,0,0,0.12); background: #fff; outline: none;
+      color: var(--accent); cursor: pointer; transition: border-color 0.2s;
+    }
+    .theme-select:focus { border-color: var(--accent); }
 
     /* -- Toolbar ----------------------- */
     .toolbar {
@@ -68,9 +83,9 @@
       background: none; border: 1px solid rgba(0,0,0,0.1); color: #4a4a46;
       transition: all 0.2s; white-space: nowrap;
     }
-    .tb-btn:hover { border-color: #2a4a3e; color: #2a4a3e; }
-    .tb-btn.primary { background: #2a4a3e; border-color: #2a4a3e; color: #fff; font-weight: 600; }
-    .tb-btn.primary:hover { background: #1d3a30; }
+    .tb-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .tb-btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+    .tb-btn.primary:hover { background: var(--accent-dark); }
     .tb-btn.danger:hover { border-color: #c84a4a; color: #c84a4a; }
     .tb-sep { width: 1px; height: 22px; background: rgba(0,0,0,0.08); margin: 0 0.3rem; }
     .tb-spacer { flex: 1; }
@@ -101,6 +116,26 @@
     }
     #chartInner { display: inline-block; min-width: 100%; text-align: center; }
     .empty-note { color: #b0b0a8; font-size: 0.85rem; padding: 3rem 1rem; }
+
+    /* -- Brand band (shown on chart + in exports) -- */
+    .brand-band {
+      display: flex; align-items: center; justify-content: center; gap: 0.6rem;
+      background: var(--band-bg); color: var(--band-text);
+      border-radius: 10px; padding: 0.7rem 1.25rem; margin: 0 auto 1.75rem;
+      max-width: max-content;
+    }
+    .brand-band .bb-mark {
+      width: 22px; height: 22px; border-radius: 5px;
+      background: var(--accent); display: inline-flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 700; font-size: 0.7rem; flex-shrink: 0;
+    }
+    .brand-band .bb-name {
+      font-family: var(--font-head); font-size: 1.15rem; font-weight: 400; letter-spacing: 0.01em;
+    }
+    .brand-band .bb-sub {
+      font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase; opacity: 0.7;
+      border-left: 1px solid rgba(255,255,255,0.25); padding-left: 0.6rem; margin-left: 0.2rem;
+    }
 
     /* -- Tree connectors --------------- */
     .tree, .tree ul { list-style: none; }
@@ -137,7 +172,7 @@
       box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     }
     .person:hover {
-      border-color: #2a4a3e; box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+      border-color: var(--accent); box-shadow: 0 6px 18px rgba(0,0,0,0.08);
       transform: translateY(-2px);
     }
     .person.dragging { opacity: 0.35; cursor: grabbing; }
@@ -167,7 +202,7 @@
     .report-badge {
       position: absolute; top: -8px; right: -8px;
       min-width: 20px; height: 20px; padding: 0 5px; border-radius: 99px;
-      background: #2a4a3e; color: #fff; font-size: 0.62rem; font-weight: 600;
+      background: var(--accent); color: #fff; font-size: 0.62rem; font-weight: 600;
       display: flex; align-items: center; justify-content: center;
     }
     .collapse-toggle {
@@ -198,7 +233,7 @@
       font-family: 'Cormorant Garamond', serif; font-weight: 300;
       font-size: 1.7rem; margin-bottom: 1.25rem;
     }
-    .modal h2 em { font-style: italic; color: #2a4a3e; }
+    .modal h2 em { font-style: italic; color: var(--accent); }
     .field { margin-bottom: 0.9rem; }
     .field label {
       display: block; font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase;
@@ -222,8 +257,9 @@
       padding: 0.6rem 1.1rem; font-size: 0.68rem; letter-spacing: 0.08em;
       text-transform: uppercase; border-radius: 7px; cursor: pointer; transition: all 0.2s;
     }
-    .m-btn.save { background: #2a4a3e; color: #fff; border: 1px solid #2a4a3e; font-weight: 600; }
-    .m-btn.save:hover { background: #1d3a30; }
+    .m-btn.save { background: var(--accent); color: #fff; border: 1px solid var(--accent); font-weight: 600; }
+    .m-btn.save:hover { background: var(--accent-dark); }
+    .modal h2 { font-family: var(--font-head); }
     .m-btn.cancel { background: none; border: 1px solid rgba(0,0,0,0.1); color: #6b6b67; }
     .m-btn.cancel:hover { border-color: #6b6b67; }
     .m-btn.delete { background: none; border: 1px solid rgba(200,74,74,0.4); color: #c84a4a; margin-left: auto; }
@@ -279,6 +315,9 @@
       <button class="tb-btn" onclick="renameView()">Rename</button>
       <button class="tb-btn" onclick="duplicateView()">Duplicate</button>
       <button class="tb-btn danger" onclick="deleteView()">Delete View</button>
+      <div class="tb-spacer"></div>
+      <span class="viewbar-label">Brand</span>
+      <select class="theme-select" id="themeSelect" onchange="setTheme(this.value)"></select>
     </div>
 
     <div class="toolbar fade-in fade-in-d2">
@@ -371,6 +410,41 @@
     };
     const FALLBACK_COLORS = ['#4a6a8a', '#7a5a8a', '#8a6a4a', '#5a8a7a', '#8a4a5a'];
 
+    // -- Brand themes. Aleph palette is from the official brand guide.
+    //    Paris colors are placeholders consistent with the Paris dashboards
+    //    until the Paris Brand Guidelines are provided.
+    const THEMES = {
+      'neutral': {
+        label: 'Neutral', mark: '◈',
+        bg: '#faf9f7', ink: '#1a1a18', muted: '#6b6b67',
+        accent: '#2a4a3e', accentDark: '#1d3a30',
+        bandBg: '#2a4a3e', bandText: '#ffffff',
+        fontHead: "'Cormorant Garamond', serif"
+      },
+      'aleph': {
+        label: 'Aleph Ventures', mark: 'A',
+        bg: '#faf8f5', ink: '#212223', muted: '#6b665e',
+        accent: '#e89528', accentDark: '#a47338',
+        bandBg: '#212223', bandText: '#ffffff',
+        fontHead: "'Lato', sans-serif"
+      },
+      'paris-painting': {
+        label: 'Paris Painting', mark: 'PP',
+        bg: '#f6f8fb', ink: '#0f172a', muted: '#64748b',
+        accent: '#0369a1', accentDark: '#1e293b',
+        bandBg: '#1e293b', bandText: '#ffffff',
+        fontHead: "'Lato', sans-serif"
+      },
+      'paris-exteriors': {
+        label: 'Paris Home Exteriors', mark: 'PHE',
+        bg: '#f6f8fb', ink: '#0f172a', muted: '#64748b',
+        accent: '#38bdf8', accentDark: '#0369a1',
+        bandBg: '#0369a1', bandText: '#ffffff',
+        fontHead: "'Lato', sans-serif"
+      }
+    };
+    const THEME_ORDER = ['neutral', 'aleph', 'paris-painting', 'paris-exteriors'];
+
     let store = loadStore();      // { activeViewId, views: [ {id, name, people} ] }
     let collapsed = new Set();
     let editingId = null;         // null = adding new
@@ -396,7 +470,7 @@
           if (lp && Array.isArray(lp.people) && lp.people.length) people = lp.people;
         }
       } catch (e) {}
-      const v = { id: uid(), name: 'Paris Sales Org', people };
+      const v = { id: uid(), name: 'Paris Sales Org', people, theme: 'neutral' };
       return { activeViewId: v.id, views: [v] };
     }
 
@@ -417,6 +491,37 @@
       return store.views.find(v => v.id === store.activeViewId) || store.views[0];
     }
     function people() { return activeView().people; }
+    function themeKey() {
+      const k = activeView().theme;
+      return THEMES[k] ? k : 'neutral';
+    }
+    function theme() { return THEMES[themeKey()]; }
+
+    // -- Brand theming ------------------------
+    function applyTheme() {
+      const t = theme();
+      const r = document.documentElement.style;
+      r.setProperty('--bg', t.bg);
+      r.setProperty('--ink', t.ink);
+      r.setProperty('--muted', t.muted);
+      r.setProperty('--accent', t.accent);
+      r.setProperty('--accent-dark', t.accentDark);
+      r.setProperty('--band-bg', t.bandBg);
+      r.setProperty('--band-text', t.bandText);
+      r.setProperty('--font-head', t.fontHead);
+    }
+    function renderThemeSelect() {
+      const sel = document.getElementById('themeSelect');
+      sel.innerHTML = THEME_ORDER
+        .map(k => '<option value="' + k + '"' + (k === themeKey() ? ' selected' : '') + '>' + esc(THEMES[k].label) + '</option>')
+        .join('');
+    }
+    function setTheme(key) {
+      if (!THEMES[key]) return;
+      activeView().theme = key;
+      applyTheme(); persist(); render();
+      toast('Theme: ' + THEMES[key].label);
+    }
 
     // -- View management ----------------------
     function renderViewSelect() {
@@ -435,7 +540,7 @@
     function newView() {
       const name = (prompt('Name this view (e.g. a business or scenario):', '') || '').trim();
       if (!name) return;
-      const v = { id: uid(), name, people: [] };
+      const v = { id: uid(), name, people: [], theme: themeKey() };
       store.views.push(v); store.activeViewId = v.id;
       collapsed.clear(); persist(); render();
       toast('Created view "' + name + '" — add people to start');
@@ -444,7 +549,7 @@
       const cur = activeView();
       const name = (prompt('Name for the duplicate:', cur.name + ' (copy)') || '').trim();
       if (!name) return;
-      const v = { id: uid(), name, people: JSON.parse(JSON.stringify(cur.people)) };
+      const v = { id: uid(), name, people: JSON.parse(JSON.stringify(cur.people)), theme: cur.theme || 'neutral' };
       store.views.push(v); store.activeViewId = v.id;
       collapsed.clear(); persist(); render();
       toast('Duplicated as "' + name + '"');
@@ -490,7 +595,7 @@
     function deptColor(dept) {
       const key = (dept || '').trim().toLowerCase();
       if (DEPT_COLORS[key]) return DEPT_COLORS[key];
-      if (!key) return '#6b6b67';
+      if (!key) return theme().accent;   // default avatar to the active brand accent
       let h = 0;
       for (let i = 0; i < key.length; i++) h = (h * 31 + key.charCodeAt(i)) >>> 0;
       return FALLBACK_COLORS[h % FALLBACK_COLORS.length];
@@ -507,7 +612,9 @@
 
     // -- Render -------------------------------
     function render() {
+      applyTheme();
       renderViewSelect();
+      renderThemeSelect();
       const ppl = people();
       const q = document.getElementById('search').value.trim().toLowerCase();
       const roots = ppl.filter(p => !p.managerId || !byId(p.managerId));
@@ -541,10 +648,15 @@
       }
 
       const inner = document.getElementById('chartInner');
+      const t = theme();
+      const band = themeKey() === 'neutral' ? '' :
+        '<div class="brand-band"><span class="bb-mark">' + esc(t.mark) + '</span>' +
+        '<span class="bb-name">' + esc(t.label) + '</span>' +
+        '<span class="bb-sub">' + esc(activeView().name) + '</span></div>';
       if (!ppl.length) {
-        inner.innerHTML = '<div class="empty-note">This view is empty. Click <strong>+ Add Person</strong> to start building "' + esc(activeView().name) + '".</div>';
+        inner.innerHTML = band + '<div class="empty-note">This view is empty. Click <strong>+ Add Person</strong> to start building "' + esc(activeView().name) + '".</div>';
       } else {
-        inner.innerHTML = '<ul class="tree">' + roots.map(nodeHtml).join('') + '</ul>';
+        inner.innerHTML = band + '<ul class="tree">' + roots.map(nodeHtml).join('') + '</ul>';
       }
 
       // Stats
@@ -752,7 +864,7 @@
     }
     function exportJSON() {
       const v = activeView();
-      const blob = new Blob([JSON.stringify({ exportedAt: new Date().toISOString(), view: v.name, people: v.people }, null, 2)], { type: 'application/json' });
+      const blob = new Blob([JSON.stringify({ exportedAt: new Date().toISOString(), view: v.name, theme: v.theme || 'neutral', people: v.people }, null, 2)], { type: 'application/json' });
       const a = document.createElement('a');
       a.download = viewSlug() + '-' + new Date().toISOString().slice(0,10) + '.json';
       a.href = URL.createObjectURL(blob);
@@ -770,7 +882,7 @@
           const arr = Array.isArray(parsed) ? parsed : parsed.people;
           if (!Array.isArray(arr) || !arr.every(p => p.id && (p.name || p.title))) throw new Error('Unrecognized format');
           const name = (parsed.view || file.name.replace(/\.json$/i, '') || 'Imported view').trim();
-          const v = { id: uid(), name, people: arr.map(p => ({ titleOnly: false, ...p })) };
+          const v = { id: uid(), name, people: arr.map(p => ({ titleOnly: false, ...p })), theme: THEMES[parsed.theme] ? parsed.theme : 'neutral' };
           store.views.push(v); store.activeViewId = v.id;
           collapsed.clear(); persist(); render();
           toast('Loaded "' + name + '" as a new view (' + arr.length + ' people)');
