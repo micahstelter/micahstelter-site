@@ -679,8 +679,6 @@
       } else {
         inner.innerHTML = band + legend + '<ul class="tree">' + roots.map(nodeHtml).join('') +
           '</ul><svg id="dottedLayer" class="dotted-layer"></svg>';
-        requestAnimationFrame(() => requestAnimationFrame(drawDotted));
-        setTimeout(drawDotted, 60);
       }
 
       // Stats
@@ -694,6 +692,9 @@
       document.getElementById('deptList').innerHTML = ppl
         .map(p => (p.dept || '').trim()).filter(d => d && !seen.has(d.toLowerCase()) && seen.add(d.toLowerCase()))
         .map(d => '<option value="' + esc(d) + '">').join('');
+
+      // Draw secondary (dotted) reporting lines synchronously (forces layout, reliable)
+      drawDotted();
     }
 
     function toggleCollapse(id) {
@@ -974,6 +975,8 @@
     document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
     render();
+    // Re-align dotted lines once web fonts load (font swap can shift card positions)
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(drawDotted);
   </script>
 </body>
 </html>
