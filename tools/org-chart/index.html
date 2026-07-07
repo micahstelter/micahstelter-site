@@ -288,6 +288,53 @@
     .photo-btns .pf-remove { color: #c84a4a; border-color: rgba(200,74,74,0.3); }
     .photo-btns .pf-remove:hover { border-color: #c84a4a; color: #c84a4a; background: rgba(200,74,74,0.05); }
     .photo-hint { font-size: 0.6rem; color: #b0b0a8; }
+
+    /* -- Directory reuse (in edit modal) -- */
+    .dir-reuse { position: relative; margin-bottom: 1rem; }
+    .dir-reuse input {
+      width: 100%; padding: 0.55rem 0.75rem; font-size: 0.8rem;
+      border: 1px dashed rgba(0,0,0,0.2); border-radius: 7px; background: #fbfaf8; outline: none;
+      transition: border-color 0.2s;
+    }
+    .dir-reuse input:focus { border-color: var(--accent); }
+    .dir-results {
+      position: absolute; z-index: 5; left: 0; right: 0; top: 100%; margin-top: 4px;
+      background: #fff; border: 1px solid rgba(0,0,0,0.12); border-radius: 8px;
+      box-shadow: 0 10px 28px rgba(0,0,0,0.12); max-height: 220px; overflow-y: auto; display: none;
+    }
+    .dir-results.open { display: block; }
+    .dir-item { display: flex; align-items: center; gap: 0.6rem; padding: 0.5rem 0.7rem; cursor: pointer; }
+    .dir-item:hover { background: rgba(0,0,0,0.04); }
+    .dir-av { width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0; background-size: cover; background-position: center;
+      display: flex; align-items: center; justify-content: center; color: #fff; font-size: 0.6rem; font-weight: 600; }
+    .dir-meta { min-width: 0; }
+    .dir-nm { font-size: 0.8rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .dir-sub { font-size: 0.66rem; color: #6b6b67; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .dir-empty { padding: 0.6rem 0.7rem; font-size: 0.72rem; color: #a0a09a; }
+
+    /* -- Directory browser modal list -- */
+    .dir-list { margin-top: 0.5rem; max-height: 55vh; overflow-y: auto; }
+    .dir-row {
+      display: flex; align-items: center; gap: 0.7rem; padding: 0.6rem 0.5rem;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+    .dir-row .dir-meta { flex: 1; }
+    .dir-row .rowbtn {
+      font-size: 0.62rem; letter-spacing: 0.05em; text-transform: uppercase;
+      padding: 0.35rem 0.6rem; border-radius: 6px; cursor: pointer; border: 1px solid rgba(0,0,0,0.12);
+      background: #fff; color: #4a4a46; transition: all 0.2s;
+    }
+    .dir-row .rowbtn.add:hover { border-color: var(--accent); color: var(--accent); }
+    .dir-row .rowbtn.del { color: #c84a4a; border-color: rgba(200,74,74,0.3); }
+    .dir-row .rowbtn.del:hover { background: rgba(200,74,74,0.06); }
+
+    /* -- Dual-seat indicator (same person in >1 tile) -- */
+    .dual-badge {
+      display: inline-flex; align-items: center; gap: 0.25rem; margin-top: 0.4rem;
+      font-size: 0.54rem; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--accent); background: rgba(0,0,0,0.03);
+      padding: 0.14rem 0.45rem; border-radius: 99px; border: 1px solid rgba(0,0,0,0.06);
+    }
     .check-row label { font-size: 0.78rem; color: #4a4a46; cursor: pointer; margin: 0; letter-spacing: 0; text-transform: none; }
     .modal-actions { display: flex; gap: 0.5rem; margin-top: 1.4rem; align-items: center; }
     .m-btn {
@@ -359,6 +406,7 @@
 
     <div class="toolbar fade-in fade-in-d2">
       <button class="tb-btn primary" onclick="openAdd()">+ Add Person</button>
+      <button class="tb-btn" onclick="openDirectory()">Directory</button>
       <div class="tb-sep"></div>
       <button class="tb-btn" onclick="exportPNG()">PNG</button>
       <button class="tb-btn" onclick="exportPDF()">PDF</button>
@@ -389,6 +437,11 @@
   <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this) closeModal()">
     <div class="modal">
       <h2 id="modalTitle">Edit <em>Person</em></h2>
+      <div class="dir-reuse">
+        <input id="f-dir-search" placeholder="🔎 Reuse a saved person… (type a name)" autocomplete="off"
+               oninput="dirSuggest()" onfocus="dirSuggest()">
+        <div class="dir-results" id="f-dir-results"></div>
+      </div>
       <div class="photo-field">
         <div class="photo-preview" id="f-photo-preview">Photo</div>
         <div class="photo-btns">
@@ -417,6 +470,19 @@
         <button class="m-btn save" onclick="saveModal()">Save</button>
         <button class="m-btn cancel" onclick="closeModal()">Cancel</button>
         <button class="m-btn delete" id="deleteBtn" onclick="deletePerson()">Remove</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Directory browser -->
+  <div class="modal-overlay" id="dirOverlay" onclick="if(event.target===this) closeDirectory()">
+    <div class="modal">
+      <h2>People <em>Directory</em></h2>
+      <p style="font-size:0.75rem;color:#6b6b67;margin:-0.6rem 0 0.9rem;">Everyone you've added across all your charts. Add them into the current view, or remove old entries.</p>
+      <div class="field"><input id="dir-search" placeholder="Search people…" autocomplete="off" oninput="dirRenderList()"></div>
+      <div class="dir-list" id="dir-list"></div>
+      <div class="modal-actions">
+        <button class="m-btn cancel" onclick="closeDirectory()">Close</button>
       </div>
     </div>
   </div>
@@ -492,7 +558,8 @@
     };
     const THEME_ORDER = ['neutral', 'aleph', 'paris-painting', 'paris-exteriors'];
 
-    let store = loadStore();      // { activeViewId, views: [ {id, name, people} ] }
+    let store = loadStore();      // { activeViewId, views: [ {id, name, people} ], directory: [] }
+    if (!Array.isArray(store.directory)) store.directory = [];
     let collapsed = new Set();
     let editingId = null;         // null = adding new
     let zoom = 1;
@@ -543,6 +610,33 @@
       return store.views.find(v => v.id === store.activeViewId) || store.views[0];
     }
     function people() { return activeView().people; }
+
+    // -- People directory (reusable across every view) ----
+    const normName = s => (s || '').trim().toLowerCase();
+    function dirFind(name) { const k = normName(name); return store.directory.find(d => normName(d.name) === k); }
+    function dirUpsert(p) {
+      if (!p.name || !p.name.trim()) return;
+      const existing = dirFind(p.name);
+      const rec = {
+        name: p.name.trim(), title: p.title || '', dept: p.dept || '',
+        email: p.email || '', phone: p.phone || '', photo: p.photo || null,
+        lastUsed: Date.now()
+      };
+      if (existing) Object.assign(existing, rec);
+      else store.directory.push(rec);
+    }
+    // Seed the directory from everyone already in any view (one-time merge)
+    function seedDirectory() {
+      store.views.forEach(v => (v.people || []).forEach(p => {
+        if (p.name && p.name.trim() && !dirFind(p.name)) {
+          store.directory.push({
+            name: p.name.trim(), title: p.title || '', dept: p.dept || '',
+            email: p.email || '', phone: p.phone || '', photo: p.photo || null, lastUsed: 0
+          });
+        }
+      }));
+    }
+
     function themeKey() {
       const k = activeView().theme;
       return THEMES[k] ? k : 'neutral';
@@ -671,6 +765,10 @@
       const q = document.getElementById('search').value.trim().toLowerCase();
       const roots = ppl.filter(p => !p.managerId || !byId(p.managerId));
 
+      // Count how many tiles each named person occupies (for the dual-seat marker)
+      const nameCounts = {};
+      ppl.forEach(pp => { if (pp.name && !pp.titleOnly) { const k = normName(pp.name); nameCounts[k] = (nameCounts[k] || 0) + 1; } });
+
       function nodeHtml(p) {
         const kids = childrenOf(p.id);
         const isCollapsed = collapsed.has(p.id);
@@ -692,6 +790,12 @@
               : '<div class="avatar" style="background:' + deptColor(p.dept) + '">' + esc(initials(p)) + '</div>') +
             titleBlock +
             (p.dept ? '<div class="p-dept">' + esc(p.dept) + '</div>' : '') +
+            (function () {
+              const k = p.name && !p.titleOnly ? normName(p.name) : '';
+              if (!k || nameCounts[k] < 2) return '';
+              const others = ppl.filter(o => o.id !== p.id && !o.titleOnly && normName(o.name) === k).map(o => o.title || '(untitled seat)');
+              return '<div class="dual-badge" title="' + esc(p.name + ' also holds: ' + others.join(', ')) + '">&#8862; Dual seat</div>';
+            })() +
             (kids.length ? '<button class="collapse-toggle" onclick="event.stopPropagation(); toggleCollapse(\'' + p.id + '\')">' + (isCollapsed ? '+' : '−') + '</button>' : '') +
           '</div>';
         if (kids.length && !isCollapsed) {
@@ -935,6 +1039,86 @@
       e.target.value = '';
     }
     function clearPhoto() { pendingPhoto = null; updatePhotoPreview(); }
+
+    // -- Directory search / reuse --------------
+    function dirAvatarHtml(d, cls) {
+      if (d.photo) return '<div class="' + cls + '" style="background-image:url(\'' + d.photo + '\')"></div>';
+      return '<div class="' + cls + '" style="background:' + deptColor(d.dept) + '">' + esc(initials({ name: d.name, title: d.title })) + '</div>';
+    }
+    function dirMatches(q) {
+      const k = normName(q);
+      return store.directory.filter(d =>
+        !k || normName(d.name).includes(k) || normName(d.title).includes(k) || normName(d.dept).includes(k));
+    }
+    function dirSuggest() {
+      const box = document.getElementById('f-dir-results');
+      const q = document.getElementById('f-dir-search').value;
+      if (!q.trim()) { box.classList.remove('open'); box.innerHTML = ''; return; }
+      const m = dirMatches(q).sort((a, b) => (b.lastUsed || 0) - (a.lastUsed || 0)).slice(0, 8);
+      box.innerHTML = m.length
+        ? m.map(d => '<div class="dir-item" onclick="fillFromDirectory(\'' + encodeURIComponent(d.name) + '\')">' +
+            dirAvatarHtml(d, 'dir-av') + '<div class="dir-meta"><div class="dir-nm">' + esc(d.name) +
+            '</div><div class="dir-sub">' + esc([d.title, d.dept].filter(Boolean).join(' · ') || '—') + '</div></div></div>').join('')
+        : '<div class="dir-empty">No saved people match.</div>';
+      box.classList.add('open');
+    }
+    function fillFromDirectory(en) {
+      const d = dirFind(decodeURIComponent(en));
+      if (!d) return;
+      document.getElementById('f-titleonly').checked = false; toggleTitleOnly();
+      document.getElementById('f-name').value = d.name;
+      document.getElementById('f-title').value = d.title || '';
+      document.getElementById('f-dept').value = d.dept || '';
+      document.getElementById('f-email').value = d.email || '';
+      document.getElementById('f-phone').value = d.phone || '';
+      pendingPhoto = d.photo || null; updatePhotoPreview();
+      document.getElementById('f-dir-search').value = '';
+      const box = document.getElementById('f-dir-results'); box.classList.remove('open'); box.innerHTML = '';
+      toast('Loaded ' + d.name + ' — set their seat & title');
+    }
+
+    // -- Directory browser --------------------
+    function openDirectory() {
+      document.getElementById('dir-search').value = '';
+      dirRenderList();
+      document.getElementById('dirOverlay').classList.add('open');
+      setTimeout(() => document.getElementById('dir-search').focus(), 50);
+    }
+    function closeDirectory() { document.getElementById('dirOverlay').classList.remove('open'); }
+    function dirRenderList() {
+      const list = document.getElementById('dir-list');
+      const items = dirMatches(document.getElementById('dir-search').value)
+        .slice().sort((a, b) => a.name.localeCompare(b.name));
+      if (!items.length) {
+        list.innerHTML = '<div class="dir-empty">No saved people yet — anyone you add to a chart is remembered here.</div>';
+        return;
+      }
+      list.innerHTML = items.map(d => {
+        const en = encodeURIComponent(d.name);
+        return '<div class="dir-row">' + dirAvatarHtml(d, 'dir-av') +
+          '<div class="dir-meta"><div class="dir-nm">' + esc(d.name) + '</div><div class="dir-sub">' +
+          esc([d.title, d.dept].filter(Boolean).join(' · ') || '—') + '</div></div>' +
+          '<button class="rowbtn add" onclick="addFromDirectory(\'' + en + '\')">Add to chart</button>' +
+          '<button class="rowbtn del" onclick="removeFromDirectory(\'' + en + '\')">Remove</button></div>';
+      }).join('');
+    }
+    function addFromDirectory(en) {
+      const d = dirFind(decodeURIComponent(en));
+      if (!d) return;
+      people().push({ id: uid('p'), name: d.name, title: d.title || '', dept: d.dept || '',
+        email: d.email || '', phone: d.phone || '', photo: d.photo || null,
+        managerId: null, dottedManagerId: null, titleOnly: false });
+      persist(); render();
+      toast('Added ' + d.name + ' — drag onto a manager or open to set title');
+    }
+    function removeFromDirectory(en) {
+      const name = decodeURIComponent(en);
+      if (!confirm('Remove "' + name + '" from your saved directory?\n(Cards already in charts are not affected.)')) return;
+      const k = normName(name);
+      store.directory = store.directory.filter(d => normName(d.name) !== k);
+      persist(); dirRenderList();
+      toast('Removed from directory');
+    }
     function updatePhotoPreview() {
       const pv = document.getElementById('f-photo-preview');
       const rm = document.getElementById('f-photo-remove');
@@ -962,6 +1146,7 @@
       document.getElementById('f-phone').value = p.phone || '';
       pendingPhoto = p.photo || null;
       updatePhotoPreview();
+      resetDirSearch();
       toggleTitleOnly();
       fillManagerSelect(id, p.managerId || '');
       fillDottedSelect(id, p.dottedManagerId || '');
@@ -976,6 +1161,7 @@
       ['f-name','f-title','f-dept','f-email','f-phone'].forEach(id => document.getElementById(id).value = '');
       pendingPhoto = null;
       updatePhotoPreview();
+      resetDirSearch();
       toggleTitleOnly();
       fillManagerSelect(null, '');
       fillDottedSelect(null, '');
@@ -984,6 +1170,10 @@
       setTimeout(() => document.getElementById('f-name').focus(), 50);
     }
 
+    function resetDirSearch() {
+      const s = document.getElementById('f-dir-search'); if (s) s.value = '';
+      const box = document.getElementById('f-dir-results'); if (box) { box.classList.remove('open'); box.innerHTML = ''; }
+    }
     function closeModal() {
       document.getElementById('modalOverlay').classList.remove('open');
       editingId = null;
@@ -1011,6 +1201,7 @@
         people().push({ id: uid('p'), ...data });
         toast('Added ' + displayName(data));
       }
+      dirUpsert(data);
       closeModal(); persist(); render();
     }
 
@@ -1110,8 +1301,9 @@
     }
 
     // Keyboard: Esc closes modal
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeDirectory(); } });
 
+    seedDirectory();
     render();
     // Re-align dotted lines once web fonts load (font swap can shift card positions)
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(drawDotted);
