@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Photo Match — micahstelter.ai</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: #faf9f7; color: #1a1a18; min-height: 100vh; padding: 2.5rem 2rem; }
+    .container { max-width: 760px; margin: 0 auto; }
+    .breadcrumb { font-size: 0.7rem; color: #a0a09a; margin-bottom: 2rem; letter-spacing: 0.08em; text-transform: uppercase; }
+    .breadcrumb a { color: #a0a09a; text-decoration: none; } .breadcrumb a:hover { color: #2a4a3e; } .breadcrumb span { margin: 0 0.4rem; }
+    h1 { font-family: 'Cormorant Garamond', serif; font-size: 2.4rem; font-weight: 300; margin-bottom: 0.4rem; }
+    h1 em { font-style: italic; color: #2a4a3e; }
+    .sub { color: #6b6b67; font-size: 0.88rem; line-height: 1.5; margin-bottom: 1.25rem; }
+    .note { font-size: 0.75rem; background: #fef6ec; border: 1px solid #f0d9b8; color: #8a6d3b;
+      padding: 0.7rem 0.9rem; border-radius: 8px; margin-bottom: 1.5rem; line-height: 1.5; }
+    .bar { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .count { font-size: 0.72rem; color: #a0a09a; letter-spacing: 0.06em; text-transform: uppercase; }
+    .btn { font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.5rem 0.9rem;
+      border-radius: 7px; cursor: pointer; border: 1px solid rgba(0,0,0,0.12); background: #fff; color: #4a4a46; transition: all 0.2s; }
+    .btn:hover { border-color: #2a4a3e; color: #2a4a3e; }
+    .btn.primary { background: #2a4a3e; border-color: #2a4a3e; color: #fff; font-weight: 600; }
+    .btn.primary:hover { background: #1d3a30; }
+    .btn.primary:disabled { opacity: 0.4; cursor: default; }
+    .spacer { flex: 1; }
+    .card { display: flex; align-items: center; gap: 1rem; padding: 0.85rem 1rem; background: #fff;
+      border: 1px solid rgba(0,0,0,0.07); border-radius: 12px; margin-bottom: 0.6rem; transition: opacity 0.2s, border-color 0.2s; }
+    .card.rejected { opacity: 0.45; }
+    .card.approved { border-color: #2a9d6a; }
+    .thumb { width: 64px; height: 64px; border-radius: 50%; flex-shrink: 0; background: #f0efec;
+      background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center;
+      color: #b0b0a8; font-size: 0.55rem; letter-spacing: 0.08em; text-transform: uppercase; border: 1px solid rgba(0,0,0,0.06); }
+    .meta { flex: 1; min-width: 0; }
+    .nm { font-size: 0.95rem; font-weight: 600; }
+    .rl { font-size: 0.75rem; color: #6b6b67; margin-top: 0.1rem; }
+    .src { font-size: 0.66rem; color: #a0a09a; margin-top: 0.25rem; }
+    .src a { color: #a0a09a; }
+    .acts { display: flex; gap: 0.4rem; flex-shrink: 0; }
+    .toggle { font-size: 0.64rem; letter-spacing: 0.05em; text-transform: uppercase; padding: 0.4rem 0.7rem;
+      border-radius: 6px; cursor: pointer; border: 1px solid rgba(0,0,0,0.12); background: #fff; color: #6b6b67; }
+    .toggle.on-approve { background: #2a9d6a; border-color: #2a9d6a; color: #fff; }
+    .toggle.on-reject { background: #c84a4a; border-color: #c84a4a; color: #fff; }
+    .section-label { font-size: 0.62rem; letter-spacing: 0.16em; text-transform: uppercase; color: #a0a09a; margin: 1.75rem 0 0.75rem; }
+    .nomatch { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .chip { font-size: 0.72rem; color: #6b6b67; background: #f0efec; border: 1px solid rgba(0,0,0,0.05);
+      padding: 0.3rem 0.6rem; border-radius: 99px; }
+    .done { background: rgba(42,157,106,0.08); border: 1px solid rgba(42,157,106,0.3); color: #1a7a52;
+      padding: 0.9rem 1rem; border-radius: 10px; font-size: 0.85rem; margin-bottom: 1rem; display: none; }
+    .done.show { display: block; }
+    .toast { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(80px);
+      background: #1a1a18; color: #faf9f7; font-size: 0.78rem; padding: 0.7rem 1.3rem; border-radius: 99px;
+      opacity: 0; transition: all 0.35s; z-index: 60; }
+    .toast.show { transform: translateX(-50%); opacity: 1; }
+    .empty { color: #a0a09a; font-size: 0.85rem; padding: 1rem 0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="breadcrumb"><a href="/">micahstelter.ai</a><span>/</span><a href="/">tools</a><span>/</span>photo match</div>
+    <h1>Photo <em>Match</em></h1>
+    <p class="sub">Headshots found in your Google Drive, matched to people in your org-chart directory. Approve the ones that look right, then apply — they save straight into your charts.</p>
+    <div class="note"><strong>Privacy note:</strong> I only used images clearly named for a person (headshots &amp; name-tagged photos). Driver's licenses, passports, SSN cards and other ID documents that surfaced in the search were deliberately excluded and never used.</div>
+
+    <div class="done" id="done"></div>
+
+    <div class="bar">
+      <span class="count" id="count"></span>
+      <div class="spacer"></div>
+      <button class="btn" onclick="setAll(true)">Approve all</button>
+      <button class="btn" onclick="setAll(false)">Reject all</button>
+      <button class="btn primary" id="applyBtn" onclick="apply()">Apply approved →</button>
+    </div>
+
+    <div id="matchList"></div>
+
+    <div class="section-label">No confident match (add a photo manually in the builder, or drop a named headshot in Drive)</div>
+    <div class="nomatch" id="noMatch"></div>
+  </div>
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const STORAGE_KEY = 'orgchart-store-v2';
+    // Candidate matches found in your Drive (name -> Drive file). Cropped live from Drive below.
+    const CANDIDATES = [
+      { name: 'Micah Stelter',   fileId: '1Ehqqlcp2y9_306L5wIpqKyHJabVTXemU', file: 'Micah Stelter.jpg' },
+      { name: 'Matt Rawski',     fileId: '14Y7mLMlUxmof8WfNP6LpocURsbhLEo19', file: 'Matt Rawski.jpg' },
+      { name: 'Patrick Herzog',  fileId: '13AU-ncRdss8eZ_WdryAo34IgfBe88_Pt', file: 'Pat Herzog.jpg' },
+      { name: 'Dave Rychley',    fileId: '1AQNin-8uRDsZ1bj6mWxfIy36CzWco9Sj', file: 'Dave Rychley Scottsdale Headshots-128.jpg' },
+      { name: 'Ross Crump',      fileId: '1U54h9b9A71k0GWhedzHG1oDDDitFnIay', file: 'Ross Crump Scottsdale Headshots-25.jpg' }
+    ];
+
+    const norm = s => (s || '').trim().toLowerCase();
+    function loadStore() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || null; } catch (e) { return null; } }
+    const store = loadStore();
+    const dir = store && Array.isArray(store.directory) ? store.directory : [];
+    const dirByName = {}; dir.forEach(d => dirByName[norm(d.name)] = d);
+
+    // photos cropped from Drive, keyed by name
+    const photos = {};
+    const state = {};   // name -> 'approve' | 'reject'
+
+    function esc(s){ return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+    function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove('show'),2400); }
+
+    // Crop a Drive image (via Google user-content, CORS-clean) to a 256px circle-ready square
+    function cropDrive(fileId) {
+      return new Promise(res => {
+        const sizes = ['w600','w400','w300'];
+        let idx = 0;
+        const attempt = () => {
+          const img = new Image(); img.crossOrigin = 'anonymous';
+          img.onload = () => { try {
+            const S=256,c=document.createElement('canvas'); c.width=S;c.height=S; const x=c.getContext('2d');
+            const s=Math.min(img.naturalWidth,img.naturalHeight);
+            x.drawImage(img,(img.naturalWidth-s)/2,(img.naturalHeight-s)/2,s,s,0,0,S,S);
+            res(c.toDataURL('image/jpeg',0.82));
+          } catch(e){ next(); } };
+          img.onerror = next;
+          img.src = 'https://lh3.googleusercontent.com/d/'+fileId+'='+sizes[idx];
+        };
+        const next = () => { idx++; idx < sizes.length ? attempt() : res(null); };
+        attempt();
+      });
+    }
+
+    function renderCount(){
+      const app = Object.values(state).filter(v=>v==='approve').length;
+      document.getElementById('count').textContent = app + ' of ' + CANDIDATES.length + ' approved';
+      document.getElementById('applyBtn').disabled = app === 0;
+    }
+    function setToggle(name, v){ state[name]=v; const card=document.getElementById('c-'+btoa(name).replace(/=/g,''));
+      const t=card.querySelector('.toggle');
+      card.classList.toggle('approved', v==='approve'); card.classList.toggle('rejected', v==='reject');
+      t.className='toggle '+(v==='approve'?'on-approve':'on-reject'); t.textContent = v==='approve'?'✓ Approved':'✕ Rejected';
+      renderCount();
+    }
+    function setAll(approve){ CANDIDATES.forEach(c=>{ if(photos[c.name]) setToggle(c.name, approve?'approve':'reject'); }); }
+
+    function renderMatches(){
+      const list = document.getElementById('matchList');
+      list.innerHTML = CANDIDATES.map(c=>{
+        const d = dirByName[norm(c.name)] || {};
+        const role = [d.title, d.dept].filter(Boolean).join(' · ') || 'Not yet in a chart';
+        const key = btoa(c.name).replace(/=/g,'');
+        return '<div class="card" id="c-'+key+'">' +
+          '<div class="thumb" id="t-'+key+'">…</div>' +
+          '<div class="meta"><div class="nm">'+esc(c.name)+'</div><div class="rl">'+esc(role)+'</div>' +
+          '<div class="src">From Drive: '+esc(c.file)+' · <a href="https://drive.google.com/file/d/'+c.fileId+'/view" target="_blank">open</a></div></div>' +
+          '<div class="acts"><button class="toggle" onclick="cycle(\''+esc(c.name).replace(/\\/g,"").replace(/'/g,"\\'")+'\')">…</button></div>' +
+        '</div>';
+      }).join('');
+      // load + crop each
+      CANDIDATES.forEach(async c=>{
+        const key = btoa(c.name).replace(/=/g,'');
+        const data = await cropDrive(c.fileId);
+        const t = document.getElementById('t-'+key);
+        if (data){ photos[c.name]=data; t.style.backgroundImage="url('"+data+"')"; t.textContent='';
+          setToggle(c.name, 'approve');
+        } else {
+          t.textContent='no preview'; const btn=document.querySelector('#c-'+key+' .toggle');
+          btn.textContent='Skip'; state[c.name]='reject'; document.getElementById('c-'+key).classList.add('rejected');
+          renderCount();
+        }
+      });
+    }
+    function cycle(name){ if(!photos[name]){ toast("Couldn't load this image — open it in Drive"); return; }
+      setToggle(name, state[name]==='approve' ? 'reject' : 'approve'); }
+
+    function renderNoMatch(){
+      const matched = new Set(CANDIDATES.map(c=>norm(c.name)));
+      const rest = dir.map(d=>d.name).filter(n=>!matched.has(norm(n))).sort();
+      const el = document.getElementById('noMatch');
+      el.innerHTML = rest.length ? rest.map(n=>'<span class="chip">'+esc(n)+'</span>').join('')
+        : '<div class="empty">Everyone in your directory has a match candidate.</div>';
+    }
+
+    function apply(){
+      const s = loadStore();
+      if (!s){ toast('Open the Org Chart tool once first, then come back.'); return; }
+      if (!Array.isArray(s.directory)) s.directory = [];
+      let applied = 0;
+      const approvedNames = CANDIDATES.filter(c=>state[c.name]==='approve' && photos[c.name]);
+      approvedNames.forEach(c=>{
+        const k = norm(c.name); const photo = photos[c.name];
+        // update directory entry (create if missing)
+        let de = s.directory.find(d=>norm(d.name)===k);
+        if (de) de.photo = photo; else s.directory.push({ name:c.name, title:'', dept:'', email:'', phone:'', photo, lastUsed:0 });
+        // update every matching person in every view
+        (s.views||[]).forEach(v=> (v.people||[]).forEach(p=>{ if(!p.titleOnly && norm(p.name)===k){ p.photo = photo; } }));
+        applied++;
+      });
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }
+      catch(e){ toast('Storage full — try applying fewer at once'); return; }
+      const done = document.getElementById('done');
+      done.innerHTML = '✓ Applied '+applied+' photo'+(applied===1?'':'s')+' to your directory and charts. Open the <a href="/tools/org-chart/">Org Chart</a> to see them.';
+      done.classList.add('show'); window.scrollTo(0,0);
+      toast('Applied '+applied+' photo'+(applied===1?'':'s'));
+    }
+
+    renderMatches();
+    renderNoMatch();
+    renderCount();
+  </script>
+</body>
+</html>
