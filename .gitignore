@@ -1,1 +1,11 @@
 .deploy.json
+
+# Vault-only files (Micah's second brain) — never publish to the site
+PROJECT-CONTEXT.md
+context-capture-log.md
+ingested-transcripts.md
+weekly-context-capture-plan.md
+transcripts/
+tools/publish.sh
+tools/health/
+.DS_Store
