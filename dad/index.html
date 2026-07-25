@@ -81,7 +81,7 @@
     overflow: hidden; background: #f3efe6;
     box-shadow: 0 20px 50px rgba(26,26,24,0.12);
   }
-  canvas { display: block; width: 100%; height: auto; touch-action: none; }
+  canvas { display: block; margin: 0 auto; max-width: 100%; touch-action: none; }
 
   /* -- Overlay screens --------------------------- */
   .overlay {
@@ -122,16 +122,21 @@
   .rank { font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: #f5f4f0; font-weight: 700; }
   .recap { font-size: 0.8rem; color: #b9b6ac; margin-top: 0.7rem; }
 
-  /* -- Touch pad --------------------------------- */
-  .touch { display: none; margin-top: 1rem; user-select: none; }
-  .touch-grid { display: grid; grid-template-columns: repeat(3, 62px); grid-auto-rows: 62px; gap: 0.4rem; justify-content: center; }
-  .touch button {
-    font-size: 1.2rem; background: var(--card); border: 1px solid #e2e0da; border-radius: 8px;
-    color: var(--accent); cursor: pointer;
+  /* -- Sweep button (touch only) ------------------ */
+  .sweep-btn {
+    display: none; position: absolute; right: 12px; bottom: 12px;
+    width: 76px; height: 76px; border-radius: 50%;
+    background: rgba(42, 74, 62, 0.9); color: #fff; border: 2px solid rgba(255,255,255,0.5);
+    font-family: var(--font-body); font-weight: 700; font-size: 0.68rem;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    box-shadow: 0 6px 16px rgba(26,26,24,0.25);
+    -webkit-tap-highlight-color: transparent; touch-action: manipulation; z-index: 2;
   }
-  .touch button:active { background: var(--accent); color: #fff; }
-  .touch .wide { grid-column: 1 / -1; font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700; height: 46px; }
-  @media (hover: none) and (pointer: coarse) { .touch { display: block; } }
+  .sweep-btn:active { transform: scale(0.94); }
+  .sweep-btn.cooling { background: rgba(160,160,154,0.55); border-color: rgba(255,255,255,0.3); }
+  @media (hover: none) and (pointer: coarse) { .sweep-btn { display: block; } }
+  .touch-mode .sweep-btn { display: block; }
+  .touch-mode .sweep-chip { display: none; }
 
   .backlink {
     margin-top: 1.6rem; font-size: 0.78rem; color: var(--muted); text-decoration: none;
@@ -140,10 +145,48 @@
   .backlink:hover { color: var(--accent); border-color: var(--accent); }
   .footnote { margin-top: 0.5rem; font-size: 0.72rem; color: var(--faint); text-align: center; }
 
-  @media (max-width: 640px) {
-    .hud { gap: 0.7rem; padding: 0.6rem 0.75rem; }
-    .hud-item .val { font-size: 1.15rem; }
-    .meter-wrap { flex-basis: 100%; order: 5; }
+  /* -- Phone ------------------------------------- */
+  @media (max-width: 700px) {
+    body {
+      padding: 0.7rem 0.6rem 1rem;
+      min-height: 100dvh;
+      overscroll-behavior: none;
+    }
+    .eyebrow { font-size: 0.58rem; letter-spacing: 0.16em; }
+    h1 { font-size: 1.75rem; margin: 0.1rem 0 0.15rem; }
+    .tagline { font-size: 0.78rem; margin-bottom: 0.6rem; }
+    .stage { max-width: 100%; }
+
+    .hud { gap: 0.5rem 0.8rem; padding: 0.5rem 0.7rem; border-radius: 5px 5px 0 0; }
+    .hud-item .label { font-size: 0.53rem; letter-spacing: 0.12em; }
+    .hud-item .val { font-size: 1.1rem; }
+    .hud-spacer { display: none; }
+    .meter-wrap { flex-basis: 100%; order: 5; min-width: 0; }
+    .sweep-chip { display: none; }        /* the round Sweep button replaces it */
+
+    .board { border-radius: 0 0 5px 5px; }
+    .overlay { padding: 1rem 0.9rem; overflow-y: auto; }
+    .overlay h2 { font-size: 1.5rem; }
+    .overlay p { font-size: 0.82rem; }
+    .keys { font-size: 0.78rem; margin: 0.7rem 0 0; }
+    .cast { gap: 0.6rem; margin: 0.7rem 0 0; }
+    .cast div { font-size: 0.6rem; }
+    .cast div b { font-size: 0.95rem; }
+    .btn { margin-top: 1rem; padding: 0.8rem 1.5rem; font-size: 0.7rem; }
+    .btn.ghost { margin-left: 0.4rem; }
+    .score-final { font-size: 2.4rem; }
+    .recap { font-size: 0.72rem; }
+    .backlink { margin-top: 0.9rem; }
+    .footnote { display: none; }
+  }
+
+  /* Landscape phone — every pixel of height counts */
+  @media (max-height: 480px) and (pointer: coarse) {
+    .eyebrow, .tagline, .footnote { display: none; }
+    h1 { font-size: 1.3rem; }
+    body { padding-top: 0.4rem; }
+    .overlay .cast { display: none; }
+    .backlink { margin-top: 0.5rem; }
   }
 </style>
 </head>
@@ -168,11 +211,12 @@
 
     <div class="board">
       <canvas id="game" width="960" height="600"></canvas>
+      <button id="btn-sweep" class="sweep-btn" aria-label="Dad Sweep">Sweep</button>
 
       <div class="overlay" id="screen-start">
         <h2>The Stelter <em>Five</em> are loose.</h2>
         <p>Jude, Nori, Mae, Benji and Will are tearing through the house dropping crayons, cereal, toys and costumes. You're Dad. Clean it up before the chaos meter fills.</p>
-        <div class="keys">
+        <div class="keys" id="how-to">
           <kbd>←</kbd><kbd>↑</kbd><kbd>↓</kbd><kbd>→</kbd> or <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> to move &nbsp;·&nbsp;
           walk over a mess to clean it &nbsp;·&nbsp; bump a kid for a hug &nbsp;·&nbsp; <kbd>Space</kbd> for a Dad Sweep
         </div>
@@ -196,16 +240,6 @@
     </div>
   </div>
 
-  <div class="touch">
-    <div class="touch-grid">
-      <button data-key="up" style="grid-column:2">▲</button>
-      <button data-key="left" style="grid-column:1;grid-row:2">◀</button>
-      <button data-key="down" style="grid-column:2;grid-row:2">▼</button>
-      <button data-key="right" style="grid-column:3;grid-row:2">▶</button>
-      <button data-key="sweep" class="wide">Dad Sweep</button>
-    </div>
-  </div>
-
   <a class="backlink" href="/">← Back to micahstelter.ai</a>
   <div class="footnote">Built for real: Jude, Nori, Mae, Benji &amp; Will. Rex the rabbit hops through sometimes.</div>
 
@@ -215,13 +249,50 @@
 
   var canvas = document.getElementById('game');
   var ctx = canvas.getContext('2d');
-  var W = 960, H = 600;
-
-  // Crisp rendering on retina
+  var board = document.querySelector('.board');
+  var stage = document.querySelector('.stage');
   var dpr = Math.min(window.devicePixelRatio || 1, 2);
-  canvas.width = W * dpr; canvas.height = H * dpr;
-  canvas.style.aspectRatio = W + ' / ' + H;
-  ctx.scale(dpr, dpr);
+
+  // The play field reshapes to the screen: wide on a desktop, tall on a phone.
+  // Everything downstream reads W/H, so the whole game follows.
+  var W = 960, H = 600, uiScale = 1;
+  // ?touch=1 previews the phone controls on a desktop browser
+  var isTouch = window.matchMedia('(hover: none) and (pointer: coarse)').matches ||
+                location.search.indexOf('touch') > -1;
+  if (isTouch) document.body.classList.add('touch-mode');
+
+  function layout() {
+    var cssW = Math.min(stage.clientWidth, 980);
+    var top = board.getBoundingClientRect().top;
+    var reserve = isTouch ? 96 : 104;              // room for back link + footnote
+    var cssH = Math.max(300, (window.innerHeight || 700) - top - reserve);
+    var phone = cssW < 700;
+
+    W = phone ? Math.round(clamp(cssW * 1.55, 500, 760)) : 960;
+    var aspect = cssW / cssH;
+    H = Math.round(clamp(W / aspect, phone ? 620 : 460, phone ? 1240 : 760));
+
+    // fit the logical field inside the space we actually have
+    var scale = Math.min(cssW / W, cssH / H);
+    // on a small screen the field is squeezed, so names and props are drawn
+    // larger in field units to stay readable at real size
+    uiScale = clamp(1 / scale, 1, 1.65);
+    canvas.style.width = Math.round(W * scale) + 'px';
+    canvas.style.height = Math.round(H * scale) + 'px';
+    canvas.width = Math.round(W * dpr);
+    canvas.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    // keep everyone inside the new walls
+    if (state) {
+      var fit = function (o, m) { o.x = clamp(o.x, PAD + m, W - PAD - m); o.y = clamp(o.y, PAD + m + 12, H - PAD - m); };
+      fit(state.player, 20);
+      state.kids.forEach(function (k) { fit(k, 18); k.tx = clamp(k.tx, PAD + 50, W - PAD - 50); k.ty = clamp(k.ty, PAD + 60, H - PAD - 40); });
+      state.messes.forEach(function (m) { fit(m, 22); });
+      if (state.pizza) fit(state.pizza, 30);
+      if (state.rex) fit(state.rex, 30);
+    }
+  }
 
   var PAD = 34;                  // wall inset
   var ROUND_TIME = 90;           // seconds
@@ -304,18 +375,30 @@
   });
   window.addEventListener('blur', function () { keys = {}; });
 
-  // touch pad
-  Array.prototype.forEach.call(document.querySelectorAll('.touch button'), function (b) {
-    var k = b.dataset.key;
-    function on(e) { e.preventDefault(); if (k === 'sweep') doSweep(); else keys[k] = true; }
-    function off(e) { e.preventDefault(); keys[k] = false; }
-    b.addEventListener('touchstart', on, { passive: false });
-    b.addEventListener('touchend', off, { passive: false });
-    b.addEventListener('touchcancel', off, { passive: false });
-    b.addEventListener('mousedown', on);
-    b.addEventListener('mouseup', off);
-    b.addEventListener('mouseleave', off);
-  });
+  // Touch: drag anywhere on the floor and Dad walks to your finger.
+  var touchTarget = null;
+  function pointAt(e) {
+    var r = canvas.getBoundingClientRect();
+    var t = (e.touches && e.touches[0]) || e;
+    touchTarget = {
+      x: clamp((t.clientX - r.left) / r.width * W, PAD, W - PAD),
+      y: clamp((t.clientY - r.top) / r.height * H, PAD, H - PAD)
+    };
+  }
+  function onTouch(e) {
+    if (!running) return;
+    e.preventDefault();
+    pointAt(e);
+  }
+  canvas.addEventListener('touchstart', onTouch, { passive: false });
+  canvas.addEventListener('touchmove', onTouch, { passive: false });
+  canvas.addEventListener('mousedown', function (e) { if (running) pointAt(e); });
+  canvas.addEventListener('mousemove', function (e) { if (running && e.buttons === 1) pointAt(e); });
+
+  var sweepBtn = document.getElementById('btn-sweep');
+  function tapSweep(e) { e.preventDefault(); doSweep(); }
+  sweepBtn.addEventListener('touchstart', tapSweep, { passive: false });
+  sweepBtn.addEventListener('click', tapSweep);
 
   /* ---------------- actions ---------------- */
   function doSweep() {
@@ -362,9 +445,17 @@
     s.shake = Math.max(0, s.shake - dt);
     p.hugPose = Math.max(0, p.hugPose - dt);
 
-    // --- player movement
+    // --- player movement (keys win; otherwise walk toward the last touch)
     var ax = (keys.right ? 1 : 0) - (keys.left ? 1 : 0);
     var ay = (keys.down ? 1 : 0) - (keys.up ? 1 : 0);
+    if (ax || ay) {
+      touchTarget = null;
+    } else if (touchTarget) {
+      var tdx = touchTarget.x - p.x, tdy = touchTarget.y - p.y;
+      var td = Math.sqrt(tdx * tdx + tdy * tdy);
+      if (td < 5) { touchTarget = null; }
+      else { ax = tdx / td; ay = tdy / td; }
+    }
     var len = Math.sqrt(ax * ax + ay * ay) || 1;
     var spd = (s.boost > 0 ? 262 : 200);
     p.vx = (ax / len) * spd; p.vy = (ay / len) * spd;
@@ -534,14 +625,15 @@
       }
     }
 
-    // rug
+    // rug — sized to whatever shape the room is
+    var rw = Math.min(W * 0.56, 500), rh = Math.min(H * 0.46, 260);
     ctx.save();
     ctx.globalAlpha = 0.5;
     ctx.fillStyle = '#dfe6df';
-    roundRect(W / 2 - 250, H / 2 - 130, 500, 260, 130); ctx.fill();
+    roundRect(W / 2 - rw / 2, H / 2 - rh / 2, rw, rh, Math.min(rw, rh) / 2); ctx.fill();
     ctx.globalAlpha = 0.6;
     ctx.strokeStyle = '#2a4a3e'; ctx.lineWidth = 2;
-    roundRect(W / 2 - 228, H / 2 - 112, 456, 224, 112); ctx.stroke();
+    roundRect(W / 2 - rw / 2 + 22, H / 2 - rh / 2 + 18, rw - 44, rh - 36, Math.min(rw - 44, rh - 36) / 2); ctx.stroke();
     ctx.restore();
 
     // wall
@@ -550,25 +642,30 @@
     ctx.fillStyle = '#e3dccd';
     ctx.fillRect(0, 36, W, 6);
 
-    // window
-    ctx.fillStyle = '#cfe0e6'; roundRect(96, 6, 128, 30, 4); ctx.fill();
+    // window (left end of the wall)
+    var winW = Math.min(128, W * 0.22), winX = W * 0.10;
+    ctx.fillStyle = '#cfe0e6'; roundRect(winX, 6, winW, 30, 4); ctx.fill();
     ctx.strokeStyle = '#fff'; ctx.lineWidth = 3;
-    ctx.beginPath(); ctx.moveTo(160, 6); ctx.lineTo(160, 36); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(winX + winW / 2, 6); ctx.lineTo(winX + winW / 2, 36); ctx.stroke();
 
-    // shelf + frames
-    ctx.fillStyle = '#c9a86a'; ctx.fillRect(700, 26, 150, 6);
-    ctx.fillStyle = '#2a4a3e'; ctx.fillRect(716, 8, 18, 18);
-    ctx.fillStyle = '#b08d4f'; ctx.fillRect(744, 10, 16, 16);
-    ctx.fillStyle = '#b5697a'; ctx.fillRect(770, 6, 20, 20);
+    // shelf + family photos (right end of the wall)
+    var shX = W * 0.72, shW = Math.min(150, W * 0.24);
+    ctx.fillStyle = '#c9a86a'; ctx.fillRect(shX, 26, shW, 6);
+    ctx.fillStyle = '#2a4a3e'; ctx.fillRect(shX + 16, 8, 18, 18);
+    ctx.fillStyle = '#b08d4f'; ctx.fillRect(shX + 44, 10, 16, 16);
+    ctx.fillStyle = '#b5697a'; ctx.fillRect(shX + 70, 6, 20, 20);
 
     // couch (top-left decor)
-    ctx.fillStyle = '#d9d3c6'; roundRect(30, 52, 150, 54, 10); ctx.fill();
-    ctx.fillStyle = '#cac3b4'; roundRect(42, 60, 60, 38, 8); ctx.fill();
-    roundRect(108, 60, 60, 38, 8); ctx.fill();
+    var cw = Math.min(150, W * 0.26);
+    ctx.fillStyle = '#d9d3c6'; roundRect(W * 0.03, 52, cw, 54, 10); ctx.fill();
+    ctx.fillStyle = '#cac3b4';
+    roundRect(W * 0.03 + 12, 60, cw * 0.4, 38, 8); ctx.fill();
+    roundRect(W * 0.03 + cw * 0.52, 60, cw * 0.4, 38, 8); ctx.fill();
 
     // toy chest (bottom-right decor)
-    ctx.fillStyle = '#c9a86a'; roundRect(W - 176, H - 92, 132, 58, 8); ctx.fill();
-    ctx.fillStyle = '#b0904f'; roundRect(W - 176, H - 92, 132, 16, 8); ctx.fill();
+    var tw = Math.min(132, W * 0.22);
+    ctx.fillStyle = '#c9a86a'; roundRect(W - tw - 44, H - 92, tw, 58, 8); ctx.fill();
+    ctx.fillStyle = '#b0904f'; roundRect(W - tw - 44, H - 92, tw, 16, 8); ctx.fill();
   }
 
   // shared cute-character renderer
@@ -641,17 +738,19 @@
       ctx.beginPath(); ctx.arc(x, hy + 3.4 * s, 5 * s, 0.35, Math.PI - 0.35); ctx.closePath(); ctx.fill();
     }
 
-    // name tag
+    // name tag — kept inside the room even when someone hugs the top wall
     if (o.label) {
-      ctx.font = '700 10px Lato, sans-serif';
+      var fs = 10 * uiScale;
+      ctx.font = '700 ' + fs + 'px Lato, sans-serif';
       ctx.textAlign = 'center';
       var tw = ctx.measureText(o.label).width;
+      var ly = Math.max(hy - 24 * s, fs + 6);
       ctx.globalAlpha = 0.9;
       ctx.fillStyle = '#ffffff';
-      roundRect(x - tw / 2 - 6, hy - 24 * s - 12, tw + 12, 15, 7); ctx.fill();
+      roundRect(x - tw / 2 - 6, ly - 12, tw + 12, fs + 5, 7); ctx.fill();
       ctx.globalAlpha = 1;
       ctx.fillStyle = o.labelColor || '#2a4a3e';
-      ctx.fillText(o.label, x, hy - 24 * s);
+      ctx.fillText(o.label, x, ly);
     }
     ctx.restore();
   }
@@ -682,7 +781,7 @@
       ctx.globalAlpha = 0.2; ctx.fillStyle = '#000';
       ctx.beginPath(); ctx.ellipse(0, 10 * pop, 11 * pop, 3.6 * pop, 0, 0, Math.PI * 2); ctx.fill();
       ctx.globalAlpha = 1;
-      ctx.font = (23 * pop) + 'px "Apple Color Emoji","Segoe UI Emoji",sans-serif';
+      ctx.font = (23 * pop * uiScale) + 'px "Apple Color Emoji","Segoe UI Emoji",sans-serif';
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillText(m.glyph, 0, 0);
       ctx.restore();
@@ -700,7 +799,7 @@
     if (s.pizza) {
       ctx.save();
       ctx.globalAlpha = s.pizza.life < 3 ? (0.4 + 0.6 * Math.abs(Math.sin(s.pizza.life * 6))) : 1;
-      ctx.font = '30px "Apple Color Emoji","Segoe UI Emoji",sans-serif';
+      ctx.font = (30 * uiScale) + 'px "Apple Color Emoji","Segoe UI Emoji",sans-serif';
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillText('🍕', s.pizza.x, s.pizza.y + Math.sin(s.pizza.bob) * 5);
       ctx.restore();
@@ -709,9 +808,19 @@
     // rex
     if (s.rex) {
       ctx.save();
-      ctx.font = '28px "Apple Color Emoji","Segoe UI Emoji",sans-serif';
+      ctx.font = (28 * uiScale) + 'px "Apple Color Emoji","Segoe UI Emoji",sans-serif';
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillText('🐰', s.rex.x, s.rex.y - Math.abs(Math.sin(s.rex.hop)) * 9);
+      ctx.restore();
+    }
+
+    // where your finger last pointed
+    if (touchTarget && running) {
+      ctx.save();
+      ctx.globalAlpha = 0.4;
+      ctx.strokeStyle = '#2a4a3e'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(touchTarget.x, touchTarget.y, 12, 0, Math.PI * 2); ctx.stroke();
+      ctx.beginPath(); ctx.arc(touchTarget.x, touchTarget.y, 3, 0, Math.PI * 2); ctx.fill();
       ctx.restore();
     }
 
@@ -747,14 +856,14 @@
         });
         if (k.hugged > 0) {
           ctx.save();
-          ctx.font = '16px "Apple Color Emoji","Segoe UI Emoji",sans-serif';
+          ctx.font = (16 * uiScale) + 'px "Apple Color Emoji","Segoe UI Emoji",sans-serif';
           ctx.textAlign = 'center';
           ctx.globalAlpha = clamp(k.hugged / 1.2, 0, 1);
           ctx.fillText('😊', k.x, k.y - 52 * d.size);
           ctx.restore();
         } else if (k.giggle > 0) {
           ctx.save();
-          ctx.font = '700 11px Lato, sans-serif';
+          ctx.font = '700 ' + (11 * uiScale) + 'px Lato, sans-serif';
           ctx.fillStyle = '#c15b4a'; ctx.textAlign = 'center';
           ctx.globalAlpha = clamp(k.giggle, 0, 1);
           ctx.fillText('oops!', k.x, k.y - 54 * d.size);
@@ -803,9 +912,13 @@
     if (s.sweepCd > 0) {
       el.sweep.classList.add('cooling');
       el.sweep.textContent = 'Sweep in ' + Math.ceil(s.sweepCd) + 's';
+      sweepBtn.classList.add('cooling');
+      sweepBtn.textContent = Math.ceil(s.sweepCd) + 's';
     } else {
       el.sweep.classList.remove('cooling');
       el.sweep.textContent = 'Space · Dad Sweep';
+      sweepBtn.classList.remove('cooling');
+      sweepBtn.textContent = 'Sweep';
     }
   }
 
@@ -814,7 +927,9 @@
   var screenEnd = document.getElementById('screen-end');
 
   function startGame() {
+    layout();
     state = newState();
+    touchTarget = null;
     running = true;
     screenStart.classList.add('hidden');
     screenEnd.classList.add('hidden');
@@ -865,12 +980,36 @@
   });
 
   // handy for tuning: window.__dadMode().state
-  window.__dadMode = function () { return { state: state, keys: keys, sweep: doSweep }; };
+  window.__dadMode = function () { return { state: state, keys: keys, sweep: doSweep, layout: layout }; };
+
+  // on a phone, say so in the instructions
+  if (isTouch) {
+    document.getElementById('how-to').innerHTML =
+      '<b>Drag anywhere</b> and Dad walks to your finger &nbsp;·&nbsp; slide over a mess to clean it ' +
+      '&nbsp;·&nbsp; steer into a kid for a hug &nbsp;·&nbsp; tap <b>Sweep</b> to clear a pile';
+  }
+
+  // re-fit when the phone rotates or the window changes
+  var resizeTimer = null;
+  window.addEventListener('resize', function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () { layout(); if (!running) { draw(); } }, 120);
+  });
+  window.addEventListener('orientationchange', function () {
+    setTimeout(function () { layout(); if (!running) { draw(); } }, 250);
+  });
 
   // idle attract frame
+  layout();
   state = newState();
   draw();
   syncHud();
+
+  // the headline fonts change how tall the header is — re-fit once they land
+  function refit() { layout(); if (!running) draw(); }
+  window.addEventListener('load', refit);
+  if (document.fonts && document.fonts.ready) { document.fonts.ready.then(refit); }
+  setTimeout(refit, 600);
 })();
 </script>
 </body>
