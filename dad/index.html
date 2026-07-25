@@ -74,6 +74,15 @@
     color: var(--accent); white-space: nowrap;
   }
   .sweep-chip.cooling { color: var(--faint); border-color: #ddd; }
+  .sound-toggle {
+    font-family: var(--font-body); font-size: 0.66rem; letter-spacing: 0.12em;
+    text-transform: uppercase; font-weight: 700; cursor: pointer;
+    padding: 0.32rem 0.6rem; border-radius: 999px;
+    border: 1px solid var(--gold); background: transparent; color: var(--gold);
+    white-space: nowrap; -webkit-tap-highlight-color: transparent;
+  }
+  .sound-toggle:hover { background: rgba(176,141,79,0.1); }
+  .sound-toggle.off { border-color: #ddd; color: var(--faint); }
 
   /* -- Canvas ------------------------------------ */
   .board {
@@ -207,6 +216,7 @@
         <div class="meter"><span id="hud-meter"></span></div>
       </div>
       <div class="sweep-chip" id="hud-sweep">Space · Dad Sweep</div>
+      <button class="sound-toggle" id="btn-sound" aria-label="Toggle music">♪ On</button>
     </div>
 
     <div class="board">
@@ -302,25 +312,179 @@
 
   var KIDS = [
     { name: 'Jude',  age: 14, shirt: '#2a4a3e', hair: '#4a3728', size: 1.14, speed: 138, rate: 10.5, drops: ['⛳','🛴','🥤','👟'] },
-    { name: 'Nori',  age: 12, shirt: '#b5697a', hair: '#5b3a24', size: 1.06, speed: 132, rate: 9.0,  drops: ['🎭','👗','📚','🎀'] },
-    { name: 'Mae',   age: 8,  shirt: '#6f97c4', hair: '#8a5a2b', size: 0.95, speed: 126, rate: 7.5,  drops: ['🖍️','🎨','✂️','📄'] },
+    { name: 'Nori',  age: 12, shirt: '#b5697a', hair: '#e5c16a', hairStyle: 'curly', eyes: '#4a86c8', size: 1.06, speed: 132, rate: 9.0, drops: ['🎭','👗','📚','🎀'] },
+    { name: 'Mae',   age: 8,  shirt: '#6f97c4', hair: '#8a5a2b', hairStyle: 'long', size: 0.95, speed: 126, rate: 7.5,  drops: ['🖍️','🎨','✂️','📄'] },
     { name: 'Benji', age: 5,  shirt: '#6b9e78', hair: '#c08a3e', size: 0.86, speed: 118, rate: 6.2,  drops: ['🧸','🧱','🚗','🥁'] },
-    { name: 'Will',  age: 2,  shirt: '#d9a441', hair: '#e6c073', size: 0.74, speed: 96,  rate: 4.4,  drops: ['🍪','🥣','🧦','🍌','🧻'] }
+    { name: 'Will',  age: 2,  shirt: '#d9a441', hair: '#e6c073', hairStyle: 'curl', size: 0.74, speed: 96,  rate: 4.4,  drops: ['🍪','🥣','🧦','🍌','🧻'] }
   ];
 
   var state, keys = {}, running = false, lastT = 0, audioCtx = null;
 
-  /* ---------------- audio (tiny, optional) ---------------- */
-  function blip(freq, dur, type, vol) {
+  var soundOn = true;
+  try { soundOn = localStorage.getItem('dadmode-sound') !== 'off'; } catch (e) { /* private mode */ }
+
+  /* ---------------- audio ---------------- */
+  var sfxGain = null, musicGain = null;
+
+  function initAudio() {
+    if (audioCtx) return audioCtx;
     try {
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      sfxGain = audioCtx.createGain(); sfxGain.gain.value = 0.9;
+      musicGain = audioCtx.createGain(); musicGain.gain.value = 0.5;
+      sfxGain.connect(audioCtx.destination);
+      musicGain.connect(audioCtx.destination);
+    } catch (e) { audioCtx = null; }
+    return audioCtx;
+  }
+
+  function blip(freq, dur, type, vol) {
+    if (!soundOn || !initAudio()) return;
+    try {
       var o = audioCtx.createOscillator(), g = audioCtx.createGain();
       o.type = type || 'sine'; o.frequency.value = freq;
       g.gain.setValueAtTime(vol || 0.06, audioCtx.currentTime);
       g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
-      o.connect(g); g.connect(audioCtx.destination);
+      o.connect(g); g.connect(sfxGain);
       o.start(); o.stop(audioCtx.currentTime + dur);
     } catch (e) { /* audio is a nice-to-have */ }
+  }
+
+  /* ------------- 8-bit soundtrack -------------
+     Four-bar loop over C - Am - F - G. Square-wave lead, pulse bass,
+     noise hat, and a thumping kick. Speeds up when the clock gets low. */
+  var MIDI_REST = 0;
+  var LEAD = [
+    // bar 1 — C
+    72, 0, 76, 0, 79, 0, 76, 0, 72, 0, 76, 0, 79, 0, 81, 0,
+    // bar 2 — Am
+    81, 0, 79, 0, 76, 0, 72, 0, 69, 0, 72, 0, 76, 0, 79, 0,
+    // bar 3 — F
+    77, 0, 81, 0, 84, 0, 81, 0, 77, 0, 72, 0, 77, 0, 81, 0,
+    // bar 4 — G
+    79, 0, 83, 0, 86, 0, 83, 0, 79, 0, 74, 0, 79, 0, 71, 0
+  ];
+  var ROOTS = [36, 33, 29, 31];           // C2, A1, F1, G1 per bar
+  var STEPS = 64;                          // 16th notes in the loop
+
+  var music = { on: false, step: 0, next: 0, timer: null };
+
+  function midiHz(m) { return 440 * Math.pow(2, (m - 69) / 12); }
+
+  function tone(m, at, dur, type, vol, detune) {
+    var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.type = type;
+    o.frequency.value = midiHz(m);
+    if (detune) o.detune.value = detune;
+    g.gain.setValueAtTime(0.0001, at);
+    g.gain.linearRampToValueAtTime(vol, at + 0.012);      // snappy chip attack
+    g.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+    o.connect(g); g.connect(musicGain);
+    o.start(at); o.stop(at + dur + 0.02);
+  }
+
+  function kick(at) {
+    var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(150, at);
+    o.frequency.exponentialRampToValueAtTime(45, at + 0.11);
+    g.gain.setValueAtTime(0.28, at);
+    g.gain.exponentialRampToValueAtTime(0.0001, at + 0.14);
+    o.connect(g); g.connect(musicGain);
+    o.start(at); o.stop(at + 0.16);
+  }
+
+  var noiseBuf = null;
+  function hat(at, vol) {
+    if (!noiseBuf) {
+      noiseBuf = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.12, audioCtx.sampleRate);
+      var d = noiseBuf.getChannelData(0);
+      for (var i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    }
+    var src = audioCtx.createBufferSource(), g = audioCtx.createGain(), hp = audioCtx.createBiquadFilter();
+    src.buffer = noiseBuf;
+    hp.type = 'highpass'; hp.frequency.value = 7000;
+    g.gain.setValueAtTime(vol, at);
+    g.gain.exponentialRampToValueAtTime(0.0001, at + 0.05);
+    src.connect(hp); hp.connect(g); g.connect(musicGain);
+    src.start(at); src.stop(at + 0.06);
+  }
+
+  function stepDur() {
+    // 132 BPM in 16ths, a touch faster once the house is heating up
+    var base = 60 / 132 / 4;
+    var hot = state && running && state.time < 25;
+    return hot ? base * 0.9 : base;
+  }
+
+  function playStep(i, at) {
+    var bar = Math.floor(i / 16) % 4;
+    var sd = stepDur();
+
+    var n = LEAD[i];
+    if (n !== MIDI_REST) tone(n, at, sd * 1.7, 'square', 0.1);
+
+    // bass on every 8th, alternating root and fifth
+    if (i % 2 === 0) {
+      var eighth = (i / 2) % 8;
+      var m = ROOTS[bar] + (eighth % 4 === 2 ? 7 : 0);
+      tone(m, at, sd * 1.6, 'square', 0.13, 6);
+    }
+    if (i % 8 === 0) kick(at);                       // beats 1 and 3
+    if (i % 4 === 2) hat(at, 0.055);                 // offbeat tick
+    if (i % 16 === 14) hat(at, 0.08);                // little pickup into the bar
+  }
+
+  function musicSchedule() {
+    if (!music.on || !audioCtx) return;
+    var lookahead = audioCtx.currentTime + 0.15;
+    while (music.next < lookahead) {
+      playStep(music.step, Math.max(music.next, audioCtx.currentTime + 0.02));
+      music.next += stepDur();
+      music.step = (music.step + 1) % STEPS;
+    }
+  }
+
+  function musicStart() {
+    if (!soundOn || !initAudio() || music.on) return;
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    music.on = true;
+    music.step = 0;
+    music.next = audioCtx.currentTime + 0.08;
+    musicGain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+    musicGain.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 0.5);
+    clearInterval(music.timer);
+    music.timer = setInterval(musicSchedule, 40);
+    musicSchedule();
+  }
+
+  function musicStop(fade) {
+    if (!music.on) return;
+    music.on = false;
+    clearInterval(music.timer);
+    if (audioCtx && musicGain) {
+      var t = audioCtx.currentTime;
+      musicGain.gain.cancelScheduledValues(t);
+      musicGain.gain.setValueAtTime(musicGain.gain.value, t);
+      musicGain.gain.linearRampToValueAtTime(0.0001, t + (fade || 0.25));
+    }
+  }
+
+  // little end-of-round jingles
+  function jingle(won) {
+    if (!soundOn || !initAudio()) return;
+    var t = audioCtx.currentTime + 0.1;
+    var seq = won ? [72, 76, 79, 84, 88] : [72, 69, 65, 60];
+    seq.forEach(function (m, i) {
+      var at = t + i * (won ? 0.11 : 0.14);
+      var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.type = 'square'; o.frequency.value = midiHz(m);
+      g.gain.setValueAtTime(0.0001, at);
+      g.gain.linearRampToValueAtTime(0.13, at + 0.015);
+      g.gain.exponentialRampToValueAtTime(0.0001, at + (won ? 0.3 : 0.34));
+      o.connect(g); g.connect(sfxGain);
+      o.start(at); o.stop(at + 0.4);
+    });
   }
 
   /* ---------------- helpers ---------------- */
@@ -718,12 +882,23 @@
       ctx.beginPath(); ctx.arc(x + 6 * s, hy - 13 * s, 4.5 * s, 0, Math.PI * 2); ctx.fill();
       ctx.beginPath(); ctx.arc(x - 5 * s, hy - 13 * s, 4 * s, 0, Math.PI * 2); ctx.fill();
     }
+    if (o.hairStyle === 'curly') {
+      // a ring of ringlets framing the face
+      var curls = [[-12,-7,6.5],[-8,-14,6.5],[0,-16,7],[8,-14,6.5],[12,-7,6.5],
+                   [-15,1,6],[15,1,6],[-14,9,5.5],[14,9,5.5],[-10,15,4.8],[10,15,4.8]];
+      for (var ci = 0; ci < curls.length; ci++) {
+        ctx.beginPath();
+        ctx.arc(x + curls[ci][0] * s, hy + curls[ci][1] * s, curls[ci][2] * s, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
 
     // face
-    ctx.fillStyle = '#3a2f27';
     var ex = o.facing * 2 * s;
-    ctx.beginPath(); ctx.arc(x - 4.6 * s + ex, hy + 1 * s, 1.7 * s, 0, Math.PI * 2); ctx.fill();
-    ctx.beginPath(); ctx.arc(x + 4.6 * s + ex, hy + 1 * s, 1.7 * s, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = o.eyes || '#3a2f27';
+    ctx.beginPath(); ctx.arc(x - 4.6 * s + ex, hy + 1 * s, 1.9 * s, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x + 4.6 * s + ex, hy + 1 * s, 1.9 * s, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#3a2f27';
     ctx.strokeStyle = '#3a2f27'; ctx.lineWidth = 1.5 * s; ctx.lineCap = 'round';
     ctx.beginPath();
     ctx.arc(x + ex, hy + 3.5 * s, 4.2 * s, o.frown ? Math.PI * 1.15 : 0.2, o.frown ? Math.PI * 1.85 : Math.PI - 0.2);
@@ -776,7 +951,7 @@
     s.messes.forEach(function (m) {
       ctx.save();
       ctx.translate(m.x, m.y);
-      var pop = 0.6 + 0.4 * m.pop;
+      var pop = clamp(0.6 + 0.4 * m.pop, 0.1, 1);
       ctx.rotate(m.spin);
       ctx.globalAlpha = 0.2; ctx.fillStyle = '#000';
       ctx.beginPath(); ctx.ellipse(0, 10 * pop, 11 * pop, 3.6 * pop, 0, 0, Math.PI * 2); ctx.fill();
@@ -849,8 +1024,7 @@
         var k = a.kid, d = k.def;
         drawPerson({
           x: k.x, y: k.y, scale: d.size,
-          shirt: d.shirt, hair: d.hair,
-          hairStyle: (k.name === 'Nori' || k.name === 'Mae') ? 'long' : (k.name === 'Will' ? 'curl' : ''),
+          shirt: d.shirt, hair: d.hair, hairStyle: d.hairStyle || '', eyes: d.eyes,
           step: k.step, facing: k.facing,
           label: k.name, labelColor: d.shirt
         });
@@ -933,6 +1107,7 @@
     running = true;
     screenStart.classList.add('hidden');
     screenEnd.classList.add('hidden');
+    musicStart();
     lastT = performance.now();
     requestAnimationFrame(loop);
   }
@@ -960,12 +1135,14 @@
     document.getElementById('end-recap').textContent =
       s.cleaned + ' messes cleaned · ' + s.hugs + ' hugs given · ' + s.sweeps + ' dad sweeps' + (won ? ' · +150 survival bonus' : '');
     screenEnd.classList.remove('hidden');
-    blip(won ? 700 : 200, 0.4, won ? 'sine' : 'sawtooth', 0.06);
-    if (won) { setTimeout(function () { blip(900, 0.4, 'sine', 0.05); }, 160); }
+    musicStop(0.35);
+    jingle(won);
   }
 
   function loop(now) {
-    var dt = Math.min((now - lastT) / 1000, 0.05);
+    // never let time run backwards — a rAF timestamp can predate the moment
+    // lastT was stamped (e.g. right after switching back to this tab)
+    var dt = clamp((now - lastT) / 1000, 0, 0.05);
     lastT = now;
     if (running) update(dt);
     draw();
@@ -975,6 +1152,21 @@
 
   document.getElementById('btn-start').addEventListener('click', startGame);
   document.getElementById('btn-again').addEventListener('click', startGame);
+
+  // music on/off, remembered between visits
+  var soundBtn = document.getElementById('btn-sound');
+  function syncSoundBtn() {
+    soundBtn.textContent = soundOn ? '♪ On' : '♪ Off';
+    soundBtn.classList.toggle('off', !soundOn);
+  }
+  soundBtn.addEventListener('click', function () {
+    soundOn = !soundOn;
+    try { localStorage.setItem('dadmode-sound', soundOn ? 'on' : 'off'); } catch (e) { /* private mode */ }
+    syncSoundBtn();
+    if (soundOn) { if (running) musicStart(); }
+    else { musicStop(0.12); }
+  });
+  syncSoundBtn();
   window.addEventListener('keydown', function (e) {
     if ((e.code === 'Enter' || e.code === 'Space') && !running) { e.preventDefault(); startGame(); }
   });
@@ -1004,6 +1196,12 @@
   state = newState();
   draw();
   syncHud();
+
+  // the game freezes when you switch tabs — the music should too
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) { musicStop(0.1); }
+    else if (running && soundOn) { musicStart(); lastT = performance.now(); }
+  });
 
   // the headline fonts change how tall the header is — re-fit once they land
   function refit() { layout(); if (!running) draw(); }
