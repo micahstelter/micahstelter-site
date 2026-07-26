@@ -133,6 +133,15 @@
   .sheet li { margin-bottom:0.3rem; }
   .sheet li b { color:var(--ink); }
   .amtrow { display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.9rem; }
+  .rpt { display:grid; grid-template-columns:repeat(2,1fr); gap:0.5rem; margin-bottom:1rem; }
+  .rpt div { background:#f7f6f3; border-radius:5px; padding:0.6rem 0.7rem; }
+  .rpt span { display:block; font-size:0.56rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--faint); font-weight:700; }
+  .rpt b { display:block; font-family:var(--font-head); font-size:1.5rem; font-weight:400; line-height:1.15; }
+  .rpt small { display:block; font-size:0.72rem; color:var(--muted); }
+  .rpt-events div { font-size:0.86rem; padding:0.42rem 0; border-top:1px solid var(--line); }
+  .rpt-events div:first-child { border-top:none; }
+  .rpt-events .good { color:var(--up); } .rpt-events .bad { color:var(--down); }
+  .rpt-events .big { color:var(--gold); font-weight:700; }
   .btn { font-family:var(--font-body); font-weight:700; font-size:0.72rem; letter-spacing:0.16em;
     text-transform:uppercase; background:var(--accent); color:#fff; border:none; border-radius:3px;
     padding:0.8rem 1.6rem; cursor:pointer; }
@@ -153,17 +162,15 @@
 <div class="stage">
   <div class="eyebrow">A slow game about compounding</div>
   <h1>The <em>Freedom</em> Number</h1>
-  <p class="tagline">Build a business. Buy the building. Put the rest in the market.<br>Win when your money covers your life.</p>
+  <p class="tagline">Build a business. Buy the building. Put the rest in the market.<br>One week per turn. Win when your money covers your life.</p>
 
   <div class="topbar">
     <div class="clock"><span class="label">Date</span><span class="val" id="date">—</span></div>
     <div class="clock"><span class="label">Age</span><span class="val" id="age">—</span></div>
     <div class="spacer"></div>
     <div class="speeds">
-      <button class="sbtn primary" id="b-day">+1 Day</button>
-      <button class="sbtn" id="b-week">+1 Week</button>
-      <button class="sbtn" id="b-month">+1 Month</button>
-      <button class="sbtn" id="b-play">▶ Auto</button>
+      <button class="sbtn primary" id="b-end">End week ▸</button>
+      <button class="sbtn" id="b-coast">Coast ▸▸</button>
     </div>
   </div>
 
@@ -259,9 +266,9 @@
    none — which is exactly why it's what you retire on.
    ============================================================ */
 
-const DAYS_PER_MONTH = 30, MONTHS_PER_YEAR = 12, DAYS_PER_YEAR = 360;
+const WEEKS_PER_MONTH = 4, MONTHS_PER_YEAR = 12, WEEKS_PER_YEAR = 48;
 const SAFE_DRAW = 0.04;            // 4% rule — what a portfolio can pay forever
-const SAVE_KEY = "freedom-number-v1";
+const SAVE_KEY = "freedom-number-v2";
 
 const FUNDS = [
   { id:"idx",  name:"Index Fund",  blurb:"The whole market. Boring on purpose.", mu:0.00028, sd:0.0072, price:100 },
@@ -283,11 +290,11 @@ const PROP_NAMES = ["Maple St. duplex","49th Ave bungalow","Elmwood triplex","Bi
 
 /* ---------------- state ---------------- */
 let S = null;
-let playing = false, playTimer = null;
+let playing = false;
 
 function fresh() {
   const st = {
-    day:0, cash:18000, age:30,
+    week:0, turn:[], cash:18000, age:30,
     job:{ has:true, pay:5800, focus:55 },
     expensesBase:4200,
     focusCap:100,
@@ -318,10 +325,10 @@ function gauss(){ let u=0,v=0; while(!u)u=Math.random(); while(!v)v=Math.random(
   return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); }
 
 function dateStr(st){
-  const y = Math.floor(st.day/DAYS_PER_YEAR), rem = st.day%DAYS_PER_YEAR;
-  const m = Math.floor(rem/DAYS_PER_MONTH), d = rem%DAYS_PER_MONTH + 1;
+  const y = Math.floor(st.week/WEEKS_PER_YEAR), rem = st.week%WEEKS_PER_YEAR;
+  const m = Math.floor(rem/WEEKS_PER_MONTH), w = rem%WEEKS_PER_MONTH + 1;
   const MN = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  return MN[m] + " " + d + ", Yr " + (y+1);
+  return MN[m] + " wk " + w + ", Yr " + (y+1);
 }
 
 /* mortgage payment, 30yr fixed */
@@ -341,7 +348,7 @@ function propCashflow(p){
   return gross*(1-0.42) - p.payment;
 }
 function monthlyExpenses(st){
-  const infl = Math.pow(1.025, st.day/DAYS_PER_YEAR);
+  const infl = Math.pow(1.025, st.week/WEEKS_PER_YEAR);
   return st.expensesBase * infl;
 }
 /* Freedom income = what the assets pay, without you working */
@@ -362,6 +369,7 @@ function focusUsed(st){
 function say(st, text, cls){
   st.log.unshift({ when:dateStr(st), text, cls:cls||"" });
   if (st.log.length > 140) st.log.pop();
+  if (st.turn) st.turn.push({ text, cls:cls||"" });
 }
 
 /* ---------------- market listings ---------------- */
@@ -392,17 +400,18 @@ function rollDeals(st){
 /* ============================================================
    THE TICK — one day
    ============================================================ */
-function tickDay(st){
-  st.day++;
+function tickWeek(st){
+  st.week++;
+  st.turn = [];                       // what happened this week, for the report
 
   /* --- market regime --- */
   if (st.regime.left > 0) st.regime.left--;
-  else if (Math.random() < 0.0016) {
+  else if (Math.random() < 0.011) {
     if (Math.random() < 0.55) {
-      st.regime = { kind:"bear", left:Math.round(rnd(90,260)) };
+      st.regime = { kind:"bear", left:Math.round(rnd(13,37)) };
       say(st, "The market turned. Analysts are using the word “correction.”", "bad");
     } else {
-      st.regime = { kind:"bull", left:Math.round(rnd(120,300)) };
+      st.regime = { kind:"bull", left:Math.round(rnd(17,43)) };
       say(st, "Something caught fire in the market. Everyone suddenly has opinions.", "good");
     }
   } else if (st.regime.left === 0) st.regime.kind = "normal";
@@ -413,34 +422,35 @@ function tickDay(st){
   st.funds.forEach((f,i)=>{
     const spec = FUNDS[i];
     f.prev = f.price;
-    const shock = (spec.mu + drag*(spec.sd/0.0072)) + spec.sd*volx*gauss();
+    /* one week = five trading days, aggregated: drift scales linearly, vol by sqrt */
+    const shock = (spec.mu + drag*(spec.sd/0.0072))*7 + spec.sd*volx*Math.sqrt(7)*gauss();
     f.price = Math.max(4, f.price * (1+shock));
   });
 
   /* --- properties --- */
   st.props.forEach(p=>{
-    p.value *= 1 + (0.034/DAYS_PER_YEAR) + 0.0009*gauss();
-    if (p.vacantMonths > 0 && st.day % DAYS_PER_MONTH === 0) p.vacantMonths--;
+    p.value *= 1 + (0.034/WEEKS_PER_YEAR) + 0.0024*gauss();
+    if (p.vacantMonths > 0 && st.week % WEEKS_PER_MONTH === 0) p.vacantMonths--;
   });
 
   /* --- month end --- */
-  if (st.day % DAYS_PER_MONTH === 0) monthEnd(st);
+  if (st.week % WEEKS_PER_MONTH === 0) monthEnd(st);
 
   /* --- random life --- */
-  if (Math.random() < 0.011) lifeEvent(st);
+  if (Math.random() < 0.075) lifeEvent(st);
 
   /* --- year end --- */
-  if (st.day % DAYS_PER_YEAR === 0) {
+  if (st.week % WEEKS_PER_YEAR === 0) {
     st.age++;
     rollListings(st); rollDeals(st);
     if (st.job.has) { st.job.pay *= 1 + rnd(0.015,0.045); }
   }
 
   /* --- history --- */
-  if (st.day % 5 === 0 || st.day < 5) {
+  {
     const inc = freedomIncome(st), exp = monthlyExpenses(st);
-    st.history.push({ d:st.day, nw:netWorth(st), ratio:Math.min(1.6, inc/exp) });
-    if (st.history.length > 900) st.history = st.history.filter((_,i)=> i%2===0 || i>st.history.length-200);
+    st.history.push({ d:st.week, nw:netWorth(st), ratio:Math.min(1.6, inc/exp) });
+    if (st.history.length > 700) st.history = st.history.filter((_,i)=> i%2===0 || i>st.history.length-160);
   }
   checkMilestones(st);
 }
@@ -484,7 +494,7 @@ function monthEnd(st){
   outflow += monthlyExpenses(st);
   st.cash += inflow - outflow;
 
-  if (over > 0 && st.day % (DAYS_PER_MONTH*3) === 0)
+  if (over > 0 && st.week % (WEEKS_PER_MONTH*3) === 0)
     say(st, "You're stretched " + over + " points past your attention. Things are slipping.", "bad");
 
   if (st.cash < 0) {
@@ -543,7 +553,7 @@ function lifeEvent(st){
     st.job.pay *= rnd(1.04, 1.12);
     say(st, "You got a raise. " + money(st.job.pay) + "/mo.", "good");
   }
-  else if (roll < 0.575 && st.job.has && st.day > 700) {
+  else if (roll < 0.575 && st.job.has && st.week > 100) {
     st.job.has = false;
     say(st, "Your job went away. Your assets don't care — but your expenses don't either. " +
             "You can go back to work anytime; it's runway, not failure.", "bad");
@@ -580,11 +590,11 @@ function checkMilestones(st){
   const r = freedomIncome(st)/monthlyExpenses(st);
   MILES.forEach(m=>{
     if (!st.milestones[m.k] && r >= m.at) {
-      st.milestones[m.k] = st.day;
+      st.milestones[m.k] = st.week;
       say(st, m.t, "big");
     }
   });
-  if (r >= 1) { st.freeStreak++; if (st.freeStreak >= 12*30 && !st.won) { st.won = true; showWin(); } }
+  if (r >= 1) { st.freeStreak++; if (st.freeStreak >= 48 && !st.won) { st.won = true; showWin(); } }
   else st.freeStreak = 0;
 }
 
@@ -697,7 +707,7 @@ function render(){
 
   document.getElementById("nw").textContent = moneyK(nw);
   const first = S.history[0] ? S.history[0].nw : nw;
-  document.getElementById("nwnote").textContent = S.day>30
+  document.getElementById("nwnote").textContent = S.week>8
     ? ((nw>=first?"+":"") + moneyK(nw-first) + " since day one") : " ";
   document.getElementById("cash").textContent = moneyK(S.cash);
   document.getElementById("cashnote").textContent = S.cash < exp ? "under one month of expenses" : " ";
@@ -858,14 +868,47 @@ document.getElementById("b-how").onclick = ()=>{
       <li><b>The market</b> pays the least per dollar and asks nothing of you. That's why it's what you actually retire on.</li>
       <li><b>Businesses</b> pay the most and cost the most attention — and sell for 2–4× annual profit when you're done.</li>
       <li><b>Real estate</b> is leverage: 25% down, tenant pays the loan. It cuts both ways.</li>
-      <li><b>You win</b> by holding freedom income above your expenses for 12 straight months.</li>
+      <li><b>A turn is a week.</b> Make every move you want, then end the week. Coast runs up to 12 weeks and stops the moment something needs you.</li>
+      <li><b>You win</b> by holding freedom income above your expenses for 48 straight weeks — a full year.</li>
     </ul>
     <p style="font-size:0.82rem">Expenses inflate 2.5% a year. Lifestyle creeps as you get richer. Recessions come. That's the point.</p>
     <button class="btn" onclick="closeSheet()">Got it</button>`);
 };
+
+/* ---------- the week report: the payoff for ending a turn ---------- */
+function showTurnReport(before, weeks, stopped){
+  weeks = weeks || 1;
+  const nw = netWorth(S), dNW = nw - before.nw, dCash = S.cash - before.cash;
+  const mkt = marketValue(S), dMkt = before.mkt > 0 ? (mkt/before.mkt - 1)*100 : 0;
+  const inc = freedomIncome(S), exp = monthlyExpenses(S);
+  const events = S.turn && S.turn.length ? S.turn : [];
+
+  const idxCh = ((S.funds[0].price/S.funds[0].prev)-1)*100;
+
+  openSheet(`
+    <h2>${weeks===1 ? "That <em>week</em>" : weeks + " <em>weeks</em> later"}</h2>
+    <p style="margin-bottom:1rem">${dateStr(S)} &nbsp;·&nbsp; you're ${S.age}${stopped ? " &nbsp;·&nbsp; <b>"+stopped+"</b>" : ""}</p>
+
+    <div class="rpt">
+      <div><span>Net worth</span><b class="${dNW>=0?'up':'down'}">${dNW>=0?"+":""}${moneyK(dNW)}</b><small>${moneyK(nw)} total</small></div>
+      <div><span>Cash</span><b class="${dCash>=0?'up':'down'}">${dCash>=0?"+":""}${moneyK(dCash)}</b><small>${moneyK(S.cash)} on hand</small></div>
+      <div><span>Market</span><b class="${idxCh>=0?'up':'down'}">${idxCh>=0?"+":""}${idxCh.toFixed(1)}%</b><small>${mkt>0?moneyK(mkt)+" invested":"nothing invested"}</small></div>
+      <div><span>Freedom</span><b>${Math.round(inc/exp*100)}%</b><small>${money(inc)} of ${money(exp)}</small></div>
+    </div>
+
+    ${events.length
+      ? `<div class="rpt-events">${events.map(e=>`<div class="${e.cls}">${e.text}</div>`).join("")}</div>`
+      : `<p style="font-size:0.86rem;font-style:italic;color:var(--faint)">A quiet week. Those are the ones that compound.</p>`}
+
+    <div style="margin-top:1.1rem">
+      <button class="btn" onclick="closeSheet()">Make your moves</button>
+      <button class="btn ghost" onclick="closeSheet(); endWeek()">End another week</button>
+    </div>`);
+}
+
 function showWin(){
   stopPlay();
-  const yrs = (S.day/DAYS_PER_YEAR).toFixed(1);
+  const yrs = (S.week/WEEKS_PER_YEAR).toFixed(1);
   openSheet(`<h2>You're <em>free</em>.</h2>
     <p>Twelve straight months of your assets covering your entire life. It took ${yrs} years and you're ${S.age}.</p>
     <ul>
@@ -880,20 +923,41 @@ function showWin(){
 /* ============================================================
    TIME CONTROLS
    ============================================================ */
-function advance(n){ for (let i=0;i<n;i++) tickDay(S); render(); }
-document.getElementById("b-day").onclick = ()=>advance(1);
-document.getElementById("b-week").onclick = ()=>advance(7);
-document.getElementById("b-month").onclick = ()=>advance(30);
-function stopPlay(){ playing=false; clearInterval(playTimer);
-  document.getElementById("b-play").textContent="▶ Auto";
-  document.getElementById("b-play").classList.remove("playing"); }
-document.getElementById("b-play").onclick = ()=>{
-  if (playing) return stopPlay();
-  playing = true;
-  const btn = document.getElementById("b-play");
-  btn.textContent = "❚❚ Pause"; btn.classList.add("playing");
-  playTimer = setInterval(()=>{ for(let i=0;i<3;i++) tickDay(S); render(); }, 90);
-};
+function stopPlay(){ playing = false; }
+
+/* One turn = one week. Make your moves, then end the week and see what it bought you. */
+function endWeek(){
+  const before = { nw:netWorth(S), cash:S.cash, mkt:marketValue(S) };
+  tickWeek(S);
+  render();
+  showTurnReport(before);
+}
+
+/* Coasting: run weeks until something actually needs you, so a 20-year game
+   isn't 1,000 clicks. Stops early on any event, and always inside 12 weeks. */
+function coast(){
+  const before = { nw:netWorth(S), cash:S.cash, mkt:marketValue(S) };
+  const start = S.week;
+  let stopped = "", collected = [];
+  for (let i=0;i<12;i++){
+    tickWeek(S);
+    collected = collected.concat(S.turn);          // keep every week's news, not just the last
+    const notable = S.turn.some(e=> e.cls==="bad" || e.cls==="big");
+    if (notable) { stopped = "Something needed you."; break; }
+    if (S.cash < monthlyExpenses(S)) { stopped = "Cash is getting thin."; break; }
+  }
+  S.turn = collected;
+  render();
+  showTurnReport(before, S.week-start, stopped);
+}
+
+document.getElementById("b-end").onclick = endWeek;
+document.getElementById("b-coast").onclick = coast;
+window.addEventListener("keydown", e=>{
+  if (e.target.tagName === "INPUT") return;
+  if (e.code === "Space" && !modal.classList.contains("hidden")) { e.preventDefault(); closeSheet(); }
+  else if (e.code === "Space") { e.preventDefault(); endWeek(); }
+});
 document.getElementById("b-reset").onclick = ()=>{
   if (!confirm("Start over? Everything goes back to day one.")) return;
   stopPlay(); localStorage.removeItem(SAVE_KEY); S = fresh(); render();
@@ -908,18 +972,19 @@ function load(){
     const raw = localStorage.getItem(SAVE_KEY);
     if (!raw) return null;
     const st = JSON.parse(raw);
-    if (!st || typeof st.day !== "number" || !Array.isArray(st.funds)) return null;
+    if (!st || typeof st.week !== "number" || !Array.isArray(st.funds)) return null;
     return st;
   } catch(e){ return null; }
 }
 
 S = load() || fresh();
 render();
-if (S.day === 0) {
+if (S.week === 0) {
   openSheet(`<h2>You're 30, and you have <em>${money(S.cash)}</em>.</h2>
     <p>A job that pays ${money(S.job.pay)} a month and eats most of your attention. A life that costs ${money(monthlyExpenses(S))} a month and will only cost more.</p>
     <p>Three ways out: put money in the market and wait, buy buildings and let tenants pay them off, or buy a business and trade your attention for cash.</p>
-    <p><b>You win when what you own pays for your life — for twelve straight months.</b></p>
+    <p><b>You win when what you own pays for your life — for a full year straight.</b></p>
+    <p style="font-size:0.84rem">Each turn is one week. Make your moves — buy, sell, hire the market — then <b>end the week</b> and see what it bought you. <b>Coast</b> runs weeks until something needs you.</p>
     <button class="btn" onclick="closeSheet()">Start</button>
     <button class="btn ghost" onclick="closeSheet(); document.getElementById('b-how').click()">How it works</button>`);
 }
