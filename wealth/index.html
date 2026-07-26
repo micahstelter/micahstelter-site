@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Freedom Number — Micah Stelter</title>
+<meta name="description" content="A slow game about building wealth. Businesses, real estate, and the market — and the day your money starts paying for your life.">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg:#faf9f7; --ink:#1a1a18; --muted:#6b6b67; --faint:#a0a09a;
+    --accent:#2a4a3e; --accent-dark:#1d3a30; --gold:#b08d4f; --card:#ffffff;
+    --dark:#22221f; --line:#ecebe7;
+    --up:#3f7a55; --down:#b4503f;
+    --font-head:'Cormorant Garamond', serif;
+    --font-body:'Lato', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family:var(--font-body); background:var(--bg); color:var(--ink);
+    line-height:1.55; -webkit-font-smoothing:antialiased;
+    padding:1.4rem 1rem 3rem; display:flex; flex-direction:column; align-items:center;
+  }
+  .stage { width:100%; max-width:1120px; }
+  .eyebrow { font-size:0.66rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--gold); font-weight:700; text-align:center; }
+  h1 { font-family:var(--font-head); font-weight:400; font-size:clamp(2rem,5vw,2.9rem);
+       line-height:1.1; text-align:center; margin:0.3rem 0 0.25rem; }
+  h1 em { font-style:italic; color:var(--accent); }
+  .tagline { color:var(--muted); font-size:0.9rem; text-align:center; margin-bottom:1.3rem; }
+
+  /* ---------- top bar ---------- */
+  .topbar { display:flex; gap:0.8rem; align-items:center; flex-wrap:wrap;
+    background:var(--card); border:1px solid var(--line); border-radius:6px;
+    padding:0.7rem 0.95rem; margin-bottom:0.9rem; }
+  .clock { display:flex; flex-direction:column; line-height:1.15; min-width:104px; }
+  .clock .label { font-size:0.58rem; letter-spacing:0.16em; text-transform:uppercase; color:var(--faint); font-weight:700; }
+  .clock .val { font-family:var(--font-head); font-size:1.35rem; }
+  .spacer { flex:1; }
+  .speeds { display:flex; gap:0.35rem; flex-wrap:wrap; }
+  .sbtn { font-family:var(--font-body); font-weight:700; font-size:0.66rem; letter-spacing:0.1em;
+    text-transform:uppercase; background:var(--card); color:var(--accent); border:1px solid var(--accent);
+    border-radius:3px; padding:0.5rem 0.75rem; cursor:pointer; transition:background .15s,color .15s; }
+  .sbtn:hover { background:#eef3f0; }
+  .sbtn.primary { background:var(--accent); color:#fff; }
+  .sbtn.primary:hover { background:var(--accent-dark); }
+  .sbtn.playing { background:var(--gold); border-color:var(--gold); color:#22221f; }
+  .sbtn:disabled { opacity:0.4; cursor:not-allowed; }
+
+  /* ---------- hero ---------- */
+  .hero { background:var(--card); border:1px solid var(--line); border-radius:6px;
+    padding:1.1rem 1.1rem 1.2rem; margin-bottom:0.9rem; }
+  .hero-top { display:flex; justify-content:space-between; align-items:baseline; gap:1rem; flex-wrap:wrap; }
+  .hero-label { font-size:0.62rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--faint); font-weight:700; }
+  .hero-num { font-family:var(--font-head); font-size:clamp(1.9rem,5.5vw,2.7rem); line-height:1.05; }
+  .hero-num.free { color:var(--up); }
+  .hero-sub { font-size:0.82rem; color:var(--muted); }
+  .fbar { height:14px; border-radius:999px; background:#efeee9; overflow:hidden; margin:0.75rem 0 0.5rem; position:relative; }
+  .fbar span { display:block; height:100%; width:0%;
+    background:linear-gradient(90deg,#8fae94,#6b9e78 55%,#3f7a55); transition:width .25s ease; }
+  .fbar.done span { background:linear-gradient(90deg,#3f7a55,#b08d4f); }
+  .flegend { display:flex; justify-content:space-between; font-size:0.75rem; color:var(--muted); }
+
+  /* ---------- stat strip ---------- */
+  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(128px,1fr)); gap:0.55rem; margin-bottom:0.9rem; }
+  .stat { background:var(--card); border:1px solid var(--line); border-radius:6px; padding:0.62rem 0.75rem; }
+  .stat .label { font-size:0.57rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--faint); font-weight:700; }
+  .stat .val { font-family:var(--font-head); font-size:1.3rem; line-height:1.2; }
+  .stat .note { font-size:0.7rem; color:var(--muted); }
+  .stat .val.warn { color:var(--down); }
+
+  /* ---------- chart ---------- */
+  .chartwrap { background:var(--card); border:1px solid var(--line); border-radius:6px; padding:0.8rem 0.6rem 0.4rem; margin-bottom:0.9rem; }
+  .chart-head { display:flex; justify-content:space-between; align-items:baseline; padding:0 0.35rem 0.4rem; }
+  .chart-head h3 { font-family:var(--font-head); font-weight:400; font-size:1.15rem; }
+  .chart-head .legend { font-size:0.68rem; color:var(--muted); }
+  .chart-head .legend b { font-weight:700; }
+  .legend .k1 { color:var(--accent); } .legend .k2 { color:var(--gold); }
+  svg.chart { width:100%; height:170px; display:block; }
+
+  /* ---------- columns ---------- */
+  .cols { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:0.9rem; margin-bottom:0.9rem; }
+  .panel { background:var(--card); border:1px solid var(--line); border-radius:6px; padding:0.9rem; }
+  .panel h3 { font-family:var(--font-head); font-weight:400; font-size:1.28rem; margin-bottom:0.1rem; }
+  .panel .hint { font-size:0.74rem; color:var(--muted); margin-bottom:0.7rem; line-height:1.4; }
+
+  .row { display:flex; align-items:center; gap:0.5rem; padding:0.5rem 0; border-top:1px solid var(--line); }
+  .row:first-of-type { border-top:none; }
+  .row .nm { flex:1; min-width:0; }
+  .row .nm b { display:block; font-size:0.86rem; font-weight:700; }
+  .row .nm small { display:block; font-size:0.71rem; color:var(--muted); line-height:1.35; }
+  .row .px { text-align:right; font-family:var(--font-head); font-size:1.02rem; white-space:nowrap; }
+  .row .px small { display:block; font-family:var(--font-body); font-size:0.68rem; }
+  .up { color:var(--up); } .down { color:var(--down); }
+
+  .mini { font-family:var(--font-body); font-weight:700; font-size:0.62rem; letter-spacing:0.08em;
+    text-transform:uppercase; border-radius:3px; padding:0.34rem 0.5rem; cursor:pointer;
+    border:1px solid var(--accent); background:var(--card); color:var(--accent); }
+  .mini:hover { background:#eef3f0; }
+  .mini.sell { border-color:#c9c7c1; color:var(--muted); }
+  .mini.sell:hover { background:#f4f3f0; }
+  .mini.buy { background:var(--accent); color:#fff; }
+  .mini.buy:hover { background:var(--accent-dark); }
+  .mini:disabled { opacity:0.35; cursor:not-allowed; }
+  .btns { display:flex; gap:0.3rem; }
+
+  .empty { font-size:0.78rem; color:var(--faint); font-style:italic; padding:0.5rem 0; }
+
+  /* ---------- focus meter ---------- */
+  .focus { display:flex; align-items:center; gap:0.7rem; margin-top:0.7rem; padding-top:0.7rem; border-top:1px solid var(--line); }
+  .focus .fm { flex:1; height:9px; border-radius:999px; background:#efeee9; overflow:hidden; }
+  .focus .fm span { display:block; height:100%; background:var(--accent); transition:width .2s; }
+  .focus .fm span.over { background:var(--down); }
+  .focus .txt { font-size:0.72rem; color:var(--muted); white-space:nowrap; }
+
+  /* ---------- log ---------- */
+  .logwrap { background:var(--dark); color:#e8e6e0; border-radius:6px; padding:0.85rem 1rem; }
+  .logwrap h3 { font-family:var(--font-head); font-weight:400; font-size:1.15rem; color:#f5f4f0; margin-bottom:0.45rem; }
+  .log { max-height:210px; overflow-y:auto; font-size:0.8rem; }
+  .log div { padding:0.3rem 0; border-top:1px solid rgba(255,255,255,0.08); display:flex; gap:0.6rem; }
+  .log div:first-child { border-top:none; }
+  .log .when { color:#8d8a82; white-space:nowrap; font-size:0.72rem; padding-top:0.1rem; }
+  .log .good { color:#8fc79f; } .log .bad { color:#e2907f; } .log .big { color:var(--gold); font-weight:700; }
+
+  /* ---------- modal ---------- */
+  .modal { position:fixed; inset:0; background:rgba(34,34,31,0.82); backdrop-filter:blur(3px);
+    display:flex; align-items:center; justify-content:center; padding:1.2rem; z-index:50; }
+  .modal.hidden { display:none; }
+  .sheet { background:var(--card); border-radius:8px; max-width:520px; width:100%; padding:1.5rem; max-height:88vh; overflow-y:auto; }
+  .sheet h2 { font-family:var(--font-head); font-weight:400; font-size:1.7rem; line-height:1.15; margin-bottom:0.4rem; }
+  .sheet h2 em { font-style:italic; color:var(--accent); }
+  .sheet p { font-size:0.9rem; color:var(--muted); margin-bottom:0.7rem; }
+  .sheet ul { font-size:0.86rem; color:var(--muted); margin:0 0 0.9rem 1.1rem; }
+  .sheet li { margin-bottom:0.3rem; }
+  .sheet li b { color:var(--ink); }
+  .amtrow { display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.9rem; }
+  .btn { font-family:var(--font-body); font-weight:700; font-size:0.72rem; letter-spacing:0.16em;
+    text-transform:uppercase; background:var(--accent); color:#fff; border:none; border-radius:3px;
+    padding:0.8rem 1.6rem; cursor:pointer; }
+  .btn:hover { background:var(--accent-dark); }
+  .btn.ghost { background:transparent; color:var(--muted); border:1px solid #d8d6d0; }
+  .btn.ghost:hover { background:#f4f3f0; }
+  .btn.gold { background:var(--gold); color:#22221f; }
+  input[type=number] { font-family:var(--font-body); font-size:1rem; padding:0.55rem 0.7rem;
+    border:1px solid #d8d6d0; border-radius:3px; width:100%; margin-bottom:0.7rem; }
+  .footlinks { text-align:center; margin-top:1.5rem; font-size:0.74rem; color:var(--faint); }
+  .footlinks a { color:var(--accent); text-decoration:none; }
+  .footlinks button { background:none; border:none; color:var(--faint); font-family:var(--font-body);
+    font-size:0.74rem; cursor:pointer; text-decoration:underline; }
+  @media (max-width:560px){ .stats { grid-template-columns:repeat(2,1fr); } }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="eyebrow">A slow game about compounding</div>
+  <h1>The <em>Freedom</em> Number</h1>
+  <p class="tagline">Build a business. Buy the building. Put the rest in the market.<br>Win when your money covers your life.</p>
+
+  <div class="topbar">
+    <div class="clock"><span class="label">Date</span><span class="val" id="date">—</span></div>
+    <div class="clock"><span class="label">Age</span><span class="val" id="age">—</span></div>
+    <div class="spacer"></div>
+    <div class="speeds">
+      <button class="sbtn primary" id="b-day">+1 Day</button>
+      <button class="sbtn" id="b-week">+1 Week</button>
+      <button class="sbtn" id="b-month">+1 Month</button>
+      <button class="sbtn" id="b-play">▶ Auto</button>
+    </div>
+  </div>
+
+  <div class="hero">
+    <div class="hero-top">
+      <div>
+        <div class="hero-label">Freedom income — what your assets pay you each month</div>
+        <div class="hero-num" id="freedom">$0</div>
+      </div>
+      <div style="text-align:right">
+        <div class="hero-label">Your life costs</div>
+        <div class="hero-num" id="expenses" style="font-size:1.6rem">$0</div>
+      </div>
+    </div>
+    <div class="fbar" id="fbar"><span id="fbarfill"></span></div>
+    <div class="flegend"><span id="fpct">0% of the way there</span><span id="fgap">—</span></div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="label">Net worth</div><div class="val" id="nw">$0</div><div class="note" id="nwnote">&nbsp;</div></div>
+    <div class="stat"><div class="label">Cash</div><div class="val" id="cash">$0</div><div class="note" id="cashnote">&nbsp;</div></div>
+    <div class="stat"><div class="label">Monthly in</div><div class="val" id="min">$0</div><div class="note" id="minnote">&nbsp;</div></div>
+    <div class="stat"><div class="label">Monthly out</div><div class="val" id="mout">$0</div><div class="note">expenses + debt</div></div>
+    <div class="stat"><div class="label">Market</div><div class="val" id="mktmood">—</div><div class="note" id="mktnote">&nbsp;</div></div>
+  </div>
+
+  <div class="chartwrap">
+    <div class="chart-head">
+      <h3>The long view</h3>
+      <div class="legend"><b class="k1">━ net worth</b> &nbsp; <b class="k2">━ freedom income vs. expenses</b></div>
+    </div>
+    <svg class="chart" id="chart" viewBox="0 0 900 170" preserveAspectRatio="none"></svg>
+  </div>
+
+  <div class="cols">
+    <!-- MARKET -->
+    <div class="panel">
+      <h3>The Market</h3>
+      <p class="hint">Costs you nothing but patience. The slowest way to get rich and the only way to stay free — it needs none of your attention.</p>
+      <div id="funds"></div>
+    </div>
+
+    <!-- REAL ESTATE -->
+    <div class="panel">
+      <h3>Real Estate</h3>
+      <p class="hint">25% down, the bank funds the rest. Rent pays you monthly and the loan burns down whether you watch it or not. Costs a little attention.</p>
+      <div id="props"></div>
+      <div style="margin-top:0.6rem"><button class="mini buy" id="b-listings">See what's for sale</button></div>
+    </div>
+
+    <!-- BUSINESS -->
+    <div class="panel">
+      <h3>Small Business</h3>
+      <p class="hint">The fastest money and the most expensive in attention. Run it well and someone will buy it from you for years of profit at once.</p>
+      <div id="bizs"></div>
+      <div style="margin-top:0.6rem"><button class="mini buy" id="b-deals">See what's for sale</button></div>
+      <div class="focus">
+        <div class="txt">Attention</div>
+        <div class="fm"><span id="focusfill"></span></div>
+        <div class="txt" id="focustxt">0 / 100</div>
+      </div>
+      <div id="joblet"></div>
+    </div>
+  </div>
+
+  <div class="logwrap">
+    <h3>What happened</h3>
+    <div class="log" id="log"></div>
+  </div>
+
+  <div class="footlinks">
+    <a href="/">← micahstelter.ai</a> &nbsp;·&nbsp;
+    <button id="b-reset">start over</button> &nbsp;·&nbsp;
+    <button id="b-how">how it works</button>
+  </div>
+</div>
+
+<div class="modal hidden" id="modal"><div class="sheet" id="sheet"></div></div>
+
+<script>
+"use strict";
+/* ============================================================
+   The Freedom Number
+   A single-file, no-dependency wealth simulation.
+
+   Design intent: the win condition is NOT net worth. It is the day
+   your assets' monthly income covers your monthly life. Net worth is
+   a scoreboard; freedom income is the feeling.
+
+   The scarce resource is ATTENTION, not money. Businesses pay the
+   most per dollar and cost the most attention. Real estate pays
+   steady for a little. The market pays least per dollar and costs
+   none — which is exactly why it's what you retire on.
+   ============================================================ */
+
+const DAYS_PER_MONTH = 30, MONTHS_PER_YEAR = 12, DAYS_PER_YEAR = 360;
+const SAFE_DRAW = 0.04;            // 4% rule — what a portfolio can pay forever
+const SAVE_KEY = "freedom-number-v1";
+
+const FUNDS = [
+  { id:"idx",  name:"Index Fund",  blurb:"The whole market. Boring on purpose.", mu:0.00028, sd:0.0072, price:100 },
+  { id:"grw",  name:"Growth Fund", blurb:"More upside, and it will scare you.",  mu:0.00040, sd:0.0168, price:100 },
+  { id:"bnd",  name:"Bond Fund",   blurb:"Barely grows. Doesn't crash either.",  mu:0.00011, sd:0.0021, price:100 }
+];
+
+const BIZ_TYPES = [
+  { name:"Lawn Route",       cost:28000,  profit:1250, focus:20, blurb:"40 yards, one truck, every week." },
+  { name:"Painting Crew",    cost:52000,  profit:2450, focus:28, blurb:"Two painters and a schedule you own." },
+  { name:"Cleaning Company", cost:64000,  profit:2900, focus:30, blurb:"Recurring contracts, constant hiring." },
+  { name:"Laundromat",       cost:128000, profit:3300, focus:12, blurb:"Quarters and a lease. Nearly runs itself." },
+  { name:"Storage Units",    cost:215000, profit:4900, focus:8,  blurb:"Concrete, doors, and very few phone calls." },
+  { name:"Car Wash",         cost:168000, profit:4100, focus:14, blurb:"Equipment-heavy, weather-dependent." }
+];
+
+const PROP_NAMES = ["Maple St. duplex","49th Ave bungalow","Elmwood triplex","Birch Lane rental",
+  "Cedar Court fourplex","Robbins Ave house","Summit St. duplex","Northside single-family"];
+
+/* ---------------- state ---------------- */
+let S = null;
+let playing = false, playTimer = null;
+
+function fresh() {
+  const st = {
+    day:0, cash:18000, age:30,
+    job:{ has:true, pay:5800, focus:55 },
+    expensesBase:4200,
+    focusCap:100,
+    funds:FUNDS.map(f=>({ id:f.id, price:f.price, shares:0, prev:f.price })),
+    props:[], bizs:[],
+    listings:[], deals:[],
+    regime:{ kind:"normal", left:0 },  // market regime
+    history:[], log:[],
+    milestones:{}, freeStreak:0, won:false,
+    debtPaid:0
+  };
+  rollListings(st); rollDeals(st);
+  st.history.push({ d:0, nw:netWorth(st), ratio:0 });
+  return st;
+}
+
+/* ---------------- helpers ---------------- */
+const money = n => (n<0?"-":"") + "$" + Math.abs(Math.round(n)).toLocaleString();
+const moneyK = n => {
+  const a = Math.abs(n);
+  if (a >= 1000000) return (n<0?"-":"")+"$"+(a/1000000).toFixed(a>=10000000?1:2)+"M";
+  if (a >= 1000) return (n<0?"-":"")+"$"+Math.round(a/1000)+"k";
+  return money(n);
+};
+const rnd = (a,b) => a + Math.random()*(b-a);
+const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+function gauss(){ let u=0,v=0; while(!u)u=Math.random(); while(!v)v=Math.random();
+  return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); }
+
+function dateStr(st){
+  const y = Math.floor(st.day/DAYS_PER_YEAR), rem = st.day%DAYS_PER_YEAR;
+  const m = Math.floor(rem/DAYS_PER_MONTH), d = rem%DAYS_PER_MONTH + 1;
+  const MN = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  return MN[m] + " " + d + ", Yr " + (y+1);
+}
+
+/* mortgage payment, 30yr fixed */
+function mortPayment(principal, rate){
+  const r = rate/12, n = 360;
+  return principal * r / (1 - Math.pow(1+r, -n));
+}
+
+/* ---------------- valuation ---------------- */
+function marketValue(st){ return st.funds.reduce((s,f)=> s + f.shares*f.price, 0); }
+function propEquity(st){ return st.props.reduce((s,p)=> s + (p.value - p.loan), 0); }
+function bizValue(st){ return st.bizs.reduce((s,b)=> s + b.profit*12*b.multiple, 0); }
+function netWorth(st){ return st.cash + marketValue(st) + propEquity(st) + bizValue(st); }
+
+function propCashflow(p){
+  const gross = p.vacantMonths > 0 ? 0 : p.rent;
+  return gross*(1-0.42) - p.payment;
+}
+function monthlyExpenses(st){
+  const infl = Math.pow(1.025, st.day/DAYS_PER_YEAR);
+  return st.expensesBase * infl;
+}
+/* Freedom income = what the assets pay, without you working */
+function freedomIncome(st){
+  const fromMarket = marketValue(st) * SAFE_DRAW / 12;
+  const fromProps  = st.props.reduce((s,p)=> s + Math.max(0, propCashflow(p)), 0);
+  const fromBiz    = st.bizs.reduce((s,b)=> s + b.profit*0.7, 0); // 70% distributed, 30% retained
+  return fromMarket + fromProps + fromBiz;
+}
+function focusUsed(st){
+  let f = st.job.has ? st.job.focus : 0;
+  f += st.props.length * 4;
+  f += st.bizs.reduce((s,b)=> s + b.focus, 0);
+  return f;
+}
+
+/* ---------------- log ---------------- */
+function say(st, text, cls){
+  st.log.unshift({ when:dateStr(st), text, cls:cls||"" });
+  if (st.log.length > 140) st.log.pop();
+}
+
+/* ---------------- market listings ---------------- */
+function rollListings(st){
+  st.listings = [];
+  const n = 3;
+  for (let i=0;i<n;i++){
+    const price = Math.round(rnd(165000, 430000)/1000)*1000;
+    const yieldPct = rnd(0.0062, 0.0098);
+    const rent = Math.round(price*yieldPct/25)*25;
+    st.listings.push({ name:pick(PROP_NAMES), price, rent });
+  }
+}
+function rollDeals(st){
+  st.deals = [];
+  const shuffled = BIZ_TYPES.slice().sort(()=>Math.random()-0.5).slice(0,2);
+  shuffled.forEach(t=>{
+    const k = rnd(0.85,1.2);
+    st.deals.push({
+      name:t.name, blurb:t.blurb,
+      cost:Math.round(t.cost*k/500)*500,
+      profit:Math.round(t.profit*k/25)*25,
+      focus:t.focus
+    });
+  });
+}
+
+/* ============================================================
+   THE TICK — one day
+   ============================================================ */
+function tickDay(st){
+  st.day++;
+
+  /* --- market regime --- */
+  if (st.regime.left > 0) st.regime.left--;
+  else if (Math.random() < 0.0016) {
+    if (Math.random() < 0.55) {
+      st.regime = { kind:"bear", left:Math.round(rnd(90,260)) };
+      say(st, "The market turned. Analysts are using the word “correction.”", "bad");
+    } else {
+      st.regime = { kind:"bull", left:Math.round(rnd(120,300)) };
+      say(st, "Something caught fire in the market. Everyone suddenly has opinions.", "good");
+    }
+  } else if (st.regime.left === 0) st.regime.kind = "normal";
+
+  const drag = st.regime.kind==="bear" ? -0.0016 : st.regime.kind==="bull" ? 0.0009 : 0;
+  const volx = st.regime.kind==="bear" ? 1.9 : 1;
+
+  st.funds.forEach((f,i)=>{
+    const spec = FUNDS[i];
+    f.prev = f.price;
+    const shock = (spec.mu + drag*(spec.sd/0.0072)) + spec.sd*volx*gauss();
+    f.price = Math.max(4, f.price * (1+shock));
+  });
+
+  /* --- properties --- */
+  st.props.forEach(p=>{
+    p.value *= 1 + (0.034/DAYS_PER_YEAR) + 0.0009*gauss();
+    if (p.vacantMonths > 0 && st.day % DAYS_PER_MONTH === 0) p.vacantMonths--;
+  });
+
+  /* --- month end --- */
+  if (st.day % DAYS_PER_MONTH === 0) monthEnd(st);
+
+  /* --- random life --- */
+  if (Math.random() < 0.011) lifeEvent(st);
+
+  /* --- year end --- */
+  if (st.day % DAYS_PER_YEAR === 0) {
+    st.age++;
+    rollListings(st); rollDeals(st);
+    if (st.job.has) { st.job.pay *= 1 + rnd(0.015,0.045); }
+  }
+
+  /* --- history --- */
+  if (st.day % 5 === 0 || st.day < 5) {
+    const inc = freedomIncome(st), exp = monthlyExpenses(st);
+    st.history.push({ d:st.day, nw:netWorth(st), ratio:Math.min(1.6, inc/exp) });
+    if (st.history.length > 900) st.history = st.history.filter((_,i)=> i%2===0 || i>st.history.length-200);
+  }
+  checkMilestones(st);
+}
+
+function monthEnd(st){
+  const over = Math.max(0, focusUsed(st) - st.focusCap);
+
+  let inflow = 0, outflow = 0;
+
+  if (st.job.has) inflow += st.job.pay;
+
+  st.props.forEach(p=>{
+    const cf = propCashflow(p);
+    inflow += Math.max(0, cf); if (cf < 0) outflow += -cf;
+    p.loan = Math.max(0, p.loan - (p.payment - p.loan*(p.rate/12)));
+    if (p.vacantMonths === 0 && Math.random() < (0.035 + over*0.0015)) {
+      p.vacantMonths = Math.random()<0.7 ? 1 : 2;
+      say(st, p.name + " is empty. " + p.vacantMonths + " month" + (p.vacantMonths>1?"s":"") + " of no rent while you re-let it.", "bad");
+    }
+  });
+
+  st.bizs.forEach(b=>{
+    /* A business has a healthy level (potential) and a current level.
+       Attention grows the potential; neglect shrinks it. Shocks knock the
+       current level below potential, and it climbs back — the way a real
+       business recovers from a bad quarter instead of being permanently
+       smaller. Without this the only profit events are downward and every
+       business grinds to nothing. */
+    /* Growth slows as the business approaches what it can be without more of
+       you in it. A lawn route doesn't compound at 6% a year forever. */
+    const room = Math.max(0, 1 - b.potential / b.ceiling);
+    const grow = over > 0 ? -(0.005 + over*0.0013) : rnd(0.001,0.007) * room;
+    b.potential = Math.max(150, b.potential * (1 + grow));
+    b.profit += (b.potential - b.profit) * 0.18;           // mean-revert toward healthy
+    b.profit = Math.max(100, b.profit * (1 + 0.016*gauss()));
+    b.trailing.push(b.profit); if (b.trailing.length > 12) b.trailing.shift();
+    inflow += b.profit * 0.7;
+    b.multiple = Math.min(4.0, Math.max(1.9, b.multiple + (over>0 ? -0.01 : 0.005)));
+  });
+
+  outflow += monthlyExpenses(st);
+  st.cash += inflow - outflow;
+
+  if (over > 0 && st.day % (DAYS_PER_MONTH*3) === 0)
+    say(st, "You're stretched " + over + " points past your attention. Things are slipping.", "bad");
+
+  if (st.cash < 0) {
+    // forced liquidation, cheapest first: market, then property
+    say(st, "You ran out of cash. Something had to be sold.", "bad");
+    let need = -st.cash;
+    for (const f of st.funds) {
+      if (need <= 0) break;
+      const val = f.shares*f.price;
+      const take = Math.min(val, need);
+      f.shares -= take/f.price; need -= take; st.cash += take;
+    }
+    if (need > 0 && st.props.length) {
+      const p = st.props.pop();
+      const net = p.value*0.935 - p.loan;
+      st.cash += net;
+      say(st, "Sold " + p.name + " under pressure. Never the way you want to sell.", "bad");
+    }
+    if (st.cash < 0) st.cash = 0;
+  }
+}
+
+/* ---------------- events ---------------- */
+function lifeEvent(st){
+  const roll = Math.random();
+  const nw = netWorth(st);
+
+  if (roll < 0.14 && st.props.length) {
+    const p = pick(st.props);
+    const cost = Math.round(rnd(1800, 9500));
+    st.cash -= cost;
+    say(st, p.name + ": " + pick(["furnace died","roof leak","water heater blew","sewer line backed up"]) + ". " + money(cost) + ".", "bad");
+  }
+  else if (roll < 0.24 && st.bizs.length) {
+    const b = pick(st.bizs);
+    b.profit *= rnd(0.80, 0.9);                       // dents current, not potential — it recovers
+    say(st, "A competitor opened near " + b.name + ". Thinner margins until you win the work back.", "bad");
+  }
+  else if (roll < 0.32 && st.bizs.length) {
+    const b = pick(st.bizs);
+    b.potential = Math.min(b.ceiling, b.potential * rnd(1.05, 1.13));  // permanent step up, still bounded
+    say(st, pick(["You raised prices at ","A recurring contract landed at ","You added a second crew at "]) + b.name + ". It's structurally bigger now.", "good");
+  }
+  else if (roll < 0.40 && st.bizs.length) {
+    const b = pick(st.bizs);
+    const win = Math.round(b.profit * rnd(1.5, 4));
+    st.cash += win;
+    say(st, b.name + " landed a contract nobody expected. " + money(win) + ".", "good");
+  }
+  else if (roll < 0.48) {
+    const cost = Math.round(rnd(900, 7000));
+    st.cash -= cost;
+    say(st, pick(["Medical bill.","The van needed a transmission.","Dental work, all five kids.","Tree came down on the fence."]) + " " + money(cost) + ".", "bad");
+  }
+  else if (roll < 0.56 && st.job.has) {
+    st.job.pay *= rnd(1.04, 1.12);
+    say(st, "You got a raise. " + money(st.job.pay) + "/mo.", "good");
+  }
+  else if (roll < 0.575 && st.job.has && st.day > 700) {
+    st.job.has = false;
+    say(st, "Your job went away. Your assets don't care — but your expenses don't either. " +
+            "You can go back to work anytime; it's runway, not failure.", "bad");
+  }
+  else if (roll < 0.70) {
+    const gift = Math.round(rnd(1500, 14000));
+    st.cash += gift;
+    say(st, pick(["Tax refund came in.","A friend paid back a loan you'd written off.","Sold something in the garage."]) + " " + money(gift) + ".", "good");
+  }
+  else if (roll < 0.78 && nw > 220000) {
+    const bump = Math.round(rnd(90, 340));
+    st.expensesBase += bump;
+    say(st, pick(["Bigger house, bigger everything.","New car payment.","The kids' activities got real."]) + " Life costs " + money(bump) + "/mo more now.", "bad");
+  }
+  else if (roll < 0.88) {
+    rollListings(st);
+    say(st, "New listings hit the market.", "");
+  }
+  else {
+    rollDeals(st);
+    say(st, "Word is a couple of owners are ready to sell.", "");
+  }
+}
+
+/* ---------------- milestones ---------------- */
+const MILES = [
+  { k:"groceries", at:0.15, t:"Your assets now cover the groceries. It's small. It's also the first time money worked instead of you." },
+  { k:"quarter",   at:0.25, t:"A quarter of your life is paid for by things you own." },
+  { k:"half",      at:0.50, t:"Halfway. Your money now covers half of everything." },
+  { k:"mortgage",  at:0.75, t:"Three quarters. The math has stopped being theoretical." },
+  { k:"free",      at:1.00, t:"Your assets cover your entire life. You never have to work again — which means everything you do now, you chose." }
+];
+function checkMilestones(st){
+  const r = freedomIncome(st)/monthlyExpenses(st);
+  MILES.forEach(m=>{
+    if (!st.milestones[m.k] && r >= m.at) {
+      st.milestones[m.k] = st.day;
+      say(st, m.t, "big");
+    }
+  });
+  if (r >= 1) { st.freeStreak++; if (st.freeStreak >= 12*30 && !st.won) { st.won = true; showWin(); } }
+  else st.freeStreak = 0;
+}
+
+/* ============================================================
+   ACTIONS
+   ============================================================ */
+function buyFund(i, amount){
+  const f = S.funds[i];
+  if (amount > S.cash) amount = S.cash;
+  if (amount <= 0) return;
+  f.shares += amount/f.price; S.cash -= amount;
+  say(S, "Put " + money(amount) + " into " + FUNDS[i].name + ".", "");
+  render();
+}
+function sellFund(i, amount){
+  const f = S.funds[i]; const val = f.shares*f.price;
+  if (amount > val) amount = val;
+  if (amount <= 0) return;
+  f.shares -= amount/f.price; S.cash += amount;
+  say(S, "Sold " + money(amount) + " of " + FUNDS[i].name + ".", "");
+  render();
+}
+function buyProp(idx){
+  const l = S.listings[idx];
+  const down = l.price*0.25, closing = l.price*0.02;
+  if (S.cash < down+closing) return alert("Not enough cash. You need " + money(down+closing) + " for the down payment and closing.");
+  const rate = rnd(0.059, 0.071);
+  const loan = l.price - down;
+  S.cash -= down+closing;
+  S.props.push({ name:l.name, value:l.price, rent:l.rent, loan, rate,
+    payment:mortPayment(loan, rate), vacantMonths:0 });
+  say(S, "Bought " + l.name + " for " + money(l.price) + ". " + money(down) + " down.", "good");
+  S.listings.splice(idx,1);
+  render();
+}
+function sellProp(i){
+  const p = S.props[i];
+  const net = p.value*0.935 - p.loan;
+  if (!confirm("Sell " + p.name + "?\n\nValue " + money(p.value) + "\nLoan " + money(p.loan) +
+    "\nAfter 6.5% in costs you'd walk with " + money(net) + ".")) return;
+  S.cash += net; S.props.splice(i,1);
+  say(S, "Sold " + p.name + ". " + money(net) + " in your pocket.", "good");
+  render();
+}
+function buyBiz(idx){
+  const d = S.deals[idx];
+  if (S.cash < d.cost) return alert("Not enough cash. That one costs " + money(d.cost) + ".");
+  S.cash -= d.cost;
+  S.bizs.push({ name:d.name, profit:d.profit, potential:d.profit, ceiling:d.profit*rnd(2.0,3.0), focus:d.focus, multiple:2.6, trailing:[d.profit] });
+  say(S, "You bought " + d.name + ". " + money(d.profit) + "/mo, and " + d.focus + " points of your attention.", "good");
+  S.deals.splice(idx,1);
+  render();
+}
+function sellBiz(i){
+  const b = S.bizs[i];
+  const price = b.profit*12*b.multiple;
+  if (!confirm("Sell " + b.name + "?\n\nIt earns " + money(b.profit) + "/mo.\nAt a " +
+    b.multiple.toFixed(1) + "× multiple a buyer pays " + money(price) + ".\n\nYou get " +
+    b.focus + " attention points back.")) return;
+  S.cash += price; S.bizs.splice(i,1);
+  say(S, "Sold " + b.name + " for " + money(price) + ". That's years of profit, today.", "big");
+  render();
+}
+function takeJob(){
+  /* Real life has a way back. Without this, quitting early is an unrecoverable
+     death spiral — the game just grinds you to zero for fifteen years. */
+  const pay = Math.round(Math.max(4200, S.job.pay * 0.85));
+  if (!confirm("Go back to work?\n\n" + money(pay) + "/mo, and it costs " + S.job.focus +
+    " attention points.\n\nIt's not failure. It's runway.")) return;
+  S.job.has = true; S.job.pay = pay;
+  say(S, "You went back to work. " + money(pay) + "/mo, and your time is spoken for again.", "");
+  render();
+}
+function quitJob(){
+  const inc = freedomIncome(S), exp = monthlyExpenses(S);
+  const gap = exp - inc;
+  let warn = "";
+  if (gap > 0) warn = "\n\n⚠ You'd be short " + money(gap) + " every month. With " + money(S.cash) +
+    " in cash that's about " + Math.floor(S.cash/Math.max(1,gap)) + " months before you're selling things to eat.";
+  if (!confirm("Quit your job?\n\nYou lose " + money(S.job.pay) + "/mo.\nYou get " + S.job.focus +
+    " attention points back — enough to run real businesses.\n\nYour assets pay " +
+    money(inc) + "/mo against " + money(exp) + " of expenses." + warn)) return;
+  S.job.has = false;
+  say(S, "You quit. " + S.job.focus + " points of your life just came back.", "big");
+  render();
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+function render(){
+  const inc = freedomIncome(S), exp = monthlyExpenses(S), ratio = inc/exp;
+  const nw = netWorth(S);
+
+  document.getElementById("date").textContent = dateStr(S);
+  document.getElementById("age").textContent = S.age;
+
+  const fEl = document.getElementById("freedom");
+  fEl.textContent = money(inc); fEl.classList.toggle("free", ratio>=1);
+  document.getElementById("expenses").textContent = money(exp);
+  const pct = Math.min(100, ratio*100);
+  document.getElementById("fbarfill").style.width = pct + "%";
+  document.getElementById("fbar").classList.toggle("done", ratio>=1);
+  document.getElementById("fpct").textContent = ratio>=1
+    ? "You are free. " + Math.floor(S.freeStreak/30) + " of 12 months sustained."
+    : Math.round(ratio*100) + "% of the way there";
+  document.getElementById("fgap").textContent = ratio>=1
+    ? money(inc-exp) + " a month beyond your life"
+    : money(exp-inc) + " a month still on you";
+
+  document.getElementById("nw").textContent = moneyK(nw);
+  const first = S.history[0] ? S.history[0].nw : nw;
+  document.getElementById("nwnote").textContent = S.day>30
+    ? ((nw>=first?"+":"") + moneyK(nw-first) + " since day one") : " ";
+  document.getElementById("cash").textContent = moneyK(S.cash);
+  document.getElementById("cashnote").textContent = S.cash < exp ? "under one month of expenses" : " ";
+  document.getElementById("cash").classList.toggle("warn", S.cash < exp);
+
+  const jobPay = S.job.has ? S.job.pay : 0;
+  document.getElementById("min").textContent = moneyK(jobPay + inc);
+  document.getElementById("minnote").textContent = S.job.has ? money(jobPay) + " of that is your job" : "none of it is a job";
+  document.getElementById("mout").textContent = moneyK(exp + S.props.reduce((s,p)=>s+p.payment,0));
+
+  const mood = S.regime.kind;
+  document.getElementById("mktmood").textContent = mood==="bear"?"Falling":mood==="bull"?"Running":"Steady";
+  document.getElementById("mktmood").className = "val " + (mood==="bear"?"warn":"");
+  document.getElementById("mktnote").textContent = mood==="bear"?"this is when it's hard to hold"
+    : mood==="bull"?"this is when it's hard not to chase":" ";
+
+  /* funds */
+  document.getElementById("funds").innerHTML = S.funds.map((f,i)=>{
+    const spec = FUNDS[i], val = f.shares*f.price;
+    const ch = (f.price/f.prev-1)*100;
+    return `<div class="row">
+      <div class="nm"><b>${spec.name}</b><small>${spec.blurb}</small>
+        ${val>1?`<small style="color:var(--accent)">you hold ${moneyK(val)}</small>`:""}</div>
+      <div class="px">${f.price.toFixed(2)}<small class="${ch>=0?'up':'down'}">${ch>=0?"+":""}${ch.toFixed(2)}%</small></div>
+      <div class="btns">
+        <button class="mini buy" onclick="askBuyFund(${i})">Buy</button>
+        <button class="mini sell" onclick="askSellFund(${i})" ${val<1?"disabled":""}>Sell</button>
+      </div></div>`;
+  }).join("");
+
+  /* properties */
+  const pe = document.getElementById("props");
+  pe.innerHTML = S.props.length ? S.props.map((p,i)=>{
+    const cf = propCashflow(p);
+    return `<div class="row">
+      <div class="nm"><b>${p.name}</b>
+        <small>${p.vacantMonths>0 ? "<span style='color:var(--down)'>vacant "+p.vacantMonths+" mo</span>" : money(p.rent)+"/mo rent"}
+        · equity ${moneyK(p.value-p.loan)}</small></div>
+      <div class="px ${cf>=0?'up':'down'}">${cf>=0?"+":""}${money(cf)}<small>per month</small></div>
+      <div class="btns"><button class="mini sell" onclick="sellProp(${i})">Sell</button></div>
+    </div>`;
+  }).join("") : `<div class="empty">Nothing yet. A rental is the first thing most people buy that pays them back every month.</div>`;
+
+  /* businesses */
+  const be = document.getElementById("bizs");
+  be.innerHTML = S.bizs.length ? S.bizs.map((b,i)=>`<div class="row">
+      <div class="nm"><b>${b.name}</b><small>${b.focus} attention · worth ~${moneyK(b.profit*12*b.multiple)} at ${b.multiple.toFixed(1)}×</small></div>
+      <div class="px up">+${money(b.profit)}<small>per month</small></div>
+      <div class="btns"><button class="mini sell" onclick="sellBiz(${i})">Sell</button></div>
+    </div>`).join("") : `<div class="empty">Nothing yet. A business pays more per dollar than anything else here — and takes the one thing you can't buy back.</div>`;
+
+  /* focus */
+  const used = focusUsed(S), fpct = Math.min(100, used/S.focusCap*100);
+  const ff = document.getElementById("focusfill");
+  ff.style.width = fpct + "%"; ff.classList.toggle("over", used > S.focusCap);
+  document.getElementById("focustxt").textContent = used + " / " + S.focusCap + (used>S.focusCap?" — overloaded":"");
+
+  document.getElementById("joblet").innerHTML = S.job.has
+    ? `<div class="row" style="margin-top:0.5rem"><div class="nm"><b>Your job</b><small>${S.job.focus} attention · the reason you can't run three businesses</small></div>
+       <div class="px up">+${money(S.job.pay)}<small>per month</small></div>
+       <div class="btns"><button class="mini sell" onclick="quitJob()">Quit</button></div></div>`
+    : `<div class="row" style="margin-top:0.5rem"><div class="nm"><b>No job</b><small>all your attention is yours</small></div>
+       <div class="btns"><button class="mini" onclick="takeJob()">Go back to work</button></div></div>`;
+
+  /* log */
+  document.getElementById("log").innerHTML = S.log.length
+    ? S.log.map(l=>`<div><span class="when">${l.when}</span><span class="${l.cls}">${l.text}</span></div>`).join("")
+    : `<div><span class="when">${dateStr(S)}</span><span>Day one. ${money(S.cash)} in the bank and a job.</span></div>`;
+
+  drawChart();
+  save();
+}
+
+function drawChart(){
+  const h = S.history; const svg = document.getElementById("chart");
+  if (h.length < 2) { svg.innerHTML = ""; return; }
+  const W=900, H=170, pad=6;
+  const maxNW = Math.max(...h.map(p=>p.nw), 1000);
+  const x = i => pad + (i/(h.length-1))*(W-pad*2);
+  const yN = v => H-pad - (v/maxNW)*(H-pad*2);
+  const yR = v => H-pad - (Math.min(v,1.5)/1.5)*(H-pad*2);
+
+  let nwPath="", rPath="";
+  h.forEach((p,i)=>{ nwPath += (i?"L":"M")+x(i).toFixed(1)+","+yN(p.nw).toFixed(1); });
+  h.forEach((p,i)=>{ rPath += (i?"L":"M")+x(i).toFixed(1)+","+yR(p.ratio).toFixed(1); });
+  const area = nwPath + `L${x(h.length-1).toFixed(1)},${H-pad} L${pad},${H-pad} Z`;
+  const oneLine = yR(1);
+
+  svg.innerHTML = `
+    <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2a4a3e" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#2a4a3e" stop-opacity="0"/>
+    </linearGradient></defs>
+    <line x1="${pad}" y1="${oneLine}" x2="${W-pad}" y2="${oneLine}" stroke="#d9d7d1" stroke-dasharray="4 4"/>
+    <text x="${W-pad-2}" y="${oneLine-5}" text-anchor="end" font-size="10" fill="#a0a09a" font-family="Lato,sans-serif">free</text>
+    <path d="${area}" fill="url(#g)"/>
+    <path d="${nwPath}" fill="none" stroke="#2a4a3e" stroke-width="2"/>
+    <path d="${rPath}" fill="none" stroke="#b08d4f" stroke-width="1.6" opacity="0.95"/>`;
+}
+
+/* ============================================================
+   MODALS
+   ============================================================ */
+const modal = document.getElementById("modal"), sheet = document.getElementById("sheet");
+function openSheet(html){ sheet.innerHTML = html; modal.classList.remove("hidden"); }
+function closeSheet(){ modal.classList.add("hidden"); }
+modal.addEventListener("click", e=>{ if (e.target===modal) closeSheet(); });
+
+function askBuyFund(i){
+  const spec = FUNDS[i];
+  openSheet(`<h2>Buy <em>${spec.name}</em></h2>
+    <p>${spec.blurb} You have ${money(S.cash)} in cash.</p>
+    <input type="number" id="amt" placeholder="Amount" value="${Math.floor(Math.min(S.cash, S.cash*0.5))}">
+    <div class="amtrow">
+      <button class="mini" onclick="document.getElementById('amt').value=${Math.floor(S.cash*0.25)}">25%</button>
+      <button class="mini" onclick="document.getElementById('amt').value=${Math.floor(S.cash*0.5)}">50%</button>
+      <button class="mini" onclick="document.getElementById('amt').value=${Math.floor(S.cash)}">All of it</button>
+    </div>
+    <button class="btn" onclick="buyFund(${i}, +document.getElementById('amt').value); closeSheet()">Buy</button>
+    <button class="btn ghost" onclick="closeSheet()">Cancel</button>`);
+}
+function askSellFund(i){
+  const val = S.funds[i].shares*S.funds[i].price;
+  openSheet(`<h2>Sell <em>${FUNDS[i].name}</em></h2>
+    <p>You hold ${money(val)}.</p>
+    <input type="number" id="amt" value="${Math.floor(val)}">
+    <button class="btn" onclick="sellFund(${i}, +document.getElementById('amt').value); closeSheet()">Sell</button>
+    <button class="btn ghost" onclick="closeSheet()">Cancel</button>`);
+}
+document.getElementById("b-listings").onclick = ()=>{
+  openSheet(`<h2>For <em>sale</em></h2>
+    <p>25% down plus 2% closing. The bank lends the rest for 30 years — and the tenant pays it back.</p>
+    ${S.listings.map((l,i)=>{
+      const down=l.price*0.25, loan=l.price-down, pay=mortPayment(loan,0.065);
+      const cf = l.rent*0.58 - pay;
+      return `<div class="row"><div class="nm"><b>${l.name}</b>
+        <small>${money(l.price)} · rent ${money(l.rent)}/mo · ${money(down+l.price*0.02)} to close</small>
+        <small class="${cf>=0?'up':'down'}">${cf>=0?"+":""}${money(cf)}/mo after costs and mortgage</small></div>
+        <div class="btns"><button class="mini buy" onclick="buyProp(${i}); closeSheet()">Buy</button></div></div>`;
+    }).join("")}
+    <div style="margin-top:1rem"><button class="btn ghost" onclick="closeSheet()">Close</button></div>`);
+};
+document.getElementById("b-deals").onclick = ()=>{
+  openSheet(`<h2>Owners ready to <em>sell</em></h2>
+    <p>Cash up front. You have ${money(S.cash)}, and ${Math.max(0,S.focusCap-focusUsed(S))} attention points free.</p>
+    ${S.deals.map((d,i)=>`<div class="row"><div class="nm"><b>${d.name}</b><small>${d.blurb}</small>
+      <small>${money(d.cost)} · ${d.focus} attention</small></div>
+      <div class="px up">+${money(d.profit)}<small>per month</small></div>
+      <div class="btns"><button class="mini buy" onclick="buyBiz(${i}); closeSheet()">Buy</button></div></div>`).join("")}
+    <div style="margin-top:1rem"><button class="btn ghost" onclick="closeSheet()">Close</button></div>`);
+};
+document.getElementById("b-how").onclick = ()=>{
+  openSheet(`<h2>How it <em>works</em></h2>
+    <p>You win when your assets pay for your life — not when you hit a number.</p>
+    <ul>
+      <li><b>Freedom income</b> is what your things pay you monthly: 4% a year from the market, real cash flow from rentals, 70% of business profit.</li>
+      <li><b>Attention is the real currency.</b> You have 100 points. A job costs 55. A business costs 8–30. A rental costs 4. Go over and businesses decay and tenants leave.</li>
+      <li><b>The market</b> pays the least per dollar and asks nothing of you. That's why it's what you actually retire on.</li>
+      <li><b>Businesses</b> pay the most and cost the most attention — and sell for 2–4× annual profit when you're done.</li>
+      <li><b>Real estate</b> is leverage: 25% down, tenant pays the loan. It cuts both ways.</li>
+      <li><b>You win</b> by holding freedom income above your expenses for 12 straight months.</li>
+    </ul>
+    <p style="font-size:0.82rem">Expenses inflate 2.5% a year. Lifestyle creeps as you get richer. Recessions come. That's the point.</p>
+    <button class="btn" onclick="closeSheet()">Got it</button>`);
+};
+function showWin(){
+  stopPlay();
+  const yrs = (S.day/DAYS_PER_YEAR).toFixed(1);
+  openSheet(`<h2>You're <em>free</em>.</h2>
+    <p>Twelve straight months of your assets covering your entire life. It took ${yrs} years and you're ${S.age}.</p>
+    <ul>
+      <li>Net worth <b>${moneyK(netWorth(S))}</b></li>
+      <li>Freedom income <b>${money(freedomIncome(S))}</b> a month against <b>${money(monthlyExpenses(S))}</b> of life</li>
+      <li>${S.bizs.length} business${S.bizs.length===1?"":"es"}, ${S.props.length} propert${S.props.length===1?"y":"ies"}, ${moneyK(marketValue(S))} in the market</li>
+    </ul>
+    <p>Keep playing if you want. The compounding doesn't stop just because you did.</p>
+    <button class="btn gold" onclick="closeSheet()">Keep going</button>`);
+}
+
+/* ============================================================
+   TIME CONTROLS
+   ============================================================ */
+function advance(n){ for (let i=0;i<n;i++) tickDay(S); render(); }
+document.getElementById("b-day").onclick = ()=>advance(1);
+document.getElementById("b-week").onclick = ()=>advance(7);
+document.getElementById("b-month").onclick = ()=>advance(30);
+function stopPlay(){ playing=false; clearInterval(playTimer);
+  document.getElementById("b-play").textContent="▶ Auto";
+  document.getElementById("b-play").classList.remove("playing"); }
+document.getElementById("b-play").onclick = ()=>{
+  if (playing) return stopPlay();
+  playing = true;
+  const btn = document.getElementById("b-play");
+  btn.textContent = "❚❚ Pause"; btn.classList.add("playing");
+  playTimer = setInterval(()=>{ for(let i=0;i<3;i++) tickDay(S); render(); }, 90);
+};
+document.getElementById("b-reset").onclick = ()=>{
+  if (!confirm("Start over? Everything goes back to day one.")) return;
+  stopPlay(); localStorage.removeItem(SAVE_KEY); S = fresh(); render();
+};
+
+/* ============================================================
+   SAVE / LOAD
+   ============================================================ */
+function save(){ try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch(e){} }
+function load(){
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return null;
+    const st = JSON.parse(raw);
+    if (!st || typeof st.day !== "number" || !Array.isArray(st.funds)) return null;
+    return st;
+  } catch(e){ return null; }
+}
+
+S = load() || fresh();
+render();
+if (S.day === 0) {
+  openSheet(`<h2>You're 30, and you have <em>${money(S.cash)}</em>.</h2>
+    <p>A job that pays ${money(S.job.pay)} a month and eats most of your attention. A life that costs ${money(monthlyExpenses(S))} a month and will only cost more.</p>
+    <p>Three ways out: put money in the market and wait, buy buildings and let tenants pay them off, or buy a business and trade your attention for cash.</p>
+    <p><b>You win when what you own pays for your life — for twelve straight months.</b></p>
+    <button class="btn" onclick="closeSheet()">Start</button>
+    <button class="btn ghost" onclick="closeSheet(); document.getElementById('b-how').click()">How it works</button>`);
+}
+</script>
+</body>
+</html>
