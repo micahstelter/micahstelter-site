@@ -92,6 +92,15 @@
   .chip.lead { border-color:var(--accent); color:var(--accent); font-weight:700; }
   .chip b { width:9px; height:9px; border-radius:2px; }
   .quad-path { font-size:0.76rem; color:var(--muted); margin:0.5rem 0 0.35rem; }
+  .chapter { border-top:1px solid var(--line); margin-top:0.5rem; padding-top:0.6rem; }
+  .chapter-head { display:flex; align-items:baseline; gap:0.5rem; flex-wrap:wrap; }
+  .chapter-head span:first-child { font-size:0.6rem; letter-spacing:0.14em; color:var(--gold); font-weight:700; }
+  .chapter-head b { font-family:var(--font-head); font-weight:400; font-size:1.2rem; }
+  .chapter-head span:last-child { font-size:0.78rem; color:var(--muted); }
+  .chapter-next { display:flex; gap:0.45rem; margin-top:0.3rem; font-size:0.78rem; }
+  .chapter-next span { font-size:0.6rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--faint);
+    font-weight:700; padding-top:0.18rem; }
+  .chapter-next b { font-weight:400; color:var(--ink); }
   .quad-gm button { font-family:var(--font-body); font-size:0.68rem; font-weight:700; letter-spacing:0.06em;
     text-transform:uppercase; border:1px solid var(--accent); color:var(--accent); background:var(--card);
     border-radius:3px; padding:0.3rem 0.5rem; cursor:pointer; }
@@ -292,6 +301,10 @@
     <div class="quad-bar" id="quad-bar"></div>
     <div class="quad-key" id="quad-chips"></div>
     <div class="quad-path" id="quad-path">&nbsp;</div>
+    <div class="chapter">
+      <div class="chapter-head"><span id="ch-step">0/8</span><b id="ch-name">Employee</b><span id="ch-blurb"></span></div>
+      <div class="chapter-next"><span>Next</span><b id="ch-next"></b></div>
+    </div>
     <div class="quad-key"><span class="quad-gm" id="gmline"></span></div>
   </div>
 
@@ -596,7 +609,7 @@ function fresh() {
     listings:[], deals:[],
     regime:{ kind:"normal", left:0 },  // market regime
     history:[], log:[],
-    milestones:{}, freeStreak:0, won:false, over:false, gm:false, pmCo:false, quadHit:{}, quadStart:null, pending:null, pendingJob:false, jobGap:0, insolvent:false, chosenExpenses:0, yeses:0, cutbacks:[], lastCut:-999,
+    milestones:{}, freeStreak:0, won:false, over:false, gm:false, pmCo:false, quadHit:{}, quadStart:null, chapHit:{}, pending:null, pendingJob:false, jobGap:0, insolvent:false, chosenExpenses:0, yeses:0, cutbacks:[], lastCut:-999,
     debtPaid:0
   };
   rollListings(st); rollDeals(st);
@@ -791,6 +804,52 @@ function grantEquity(i){
   render();
 }
 
+
+/* ---------------- the arc ----------------
+   The sequence most people actually walk, named, so you can see which rung
+   you're on and what the next one is. Not a score — a map. */
+function chapter(st){
+  const q = incomeByQuadrant(st);
+  const exp = monthlyExpenses(st);
+  const pas = passiveIncome(st);
+  const managedBiz = st.bizs.filter(b=> st.gm || mgrLevel(b) > 0 || b.big).length;
+  const ownBiz = st.bizs.filter(b=> !st.gm && !mgrLevel(b) && !b.big).length;
+  const doorsManaged = st.pmCo || (st.props.length > 0 && st.props.every(p=>p.pm));
+
+  if (pas >= exp)
+    return { n:8, name:"Free", blurb:"What you own pays for your life. Everything from here is chosen.",
+             next:"Nothing needs doing. That's the point — so decide what it's for." };
+  if (q.I > q.E + q.S + q.B)
+    return { n:7, name:"Investor", blurb:"Most of your money comes from money.",
+             next:"Close the gap: " + money(exp-pas) + "/mo more of passive income and you're done working for good." };
+  if (st.gm || (managedBiz >= 2 && !st.job.has))
+    return { n:6, name:"Owner", blurb:"Your businesses run without you. You own them rather than being them.",
+             next:"Sell one at its multiple, or push the proceeds into holdings and the market — that's the last quadrant." };
+  if (managedBiz >= 1 && !st.job.has)
+    return { n:5, name:"Operator", blurb:"You've put people in the seats and you're still close to the work.",
+             next:doorsManaged ? "Get a second business under management, or a GM over all of it."
+                               : "Hand the doors to management — self-managed rentals are still your job." };
+  const selfDoors = st.pmCo ? 0 : st.props.filter(p=>!p.pm).length;
+  if (selfDoors > 0 && !st.job.has)
+    return { n:4, name:"Landlord", blurb:"You own doors and you're the one answering the phone.",
+             next:selfDoors + (selfDoors>1?" doors are":" door is") + " still yours to run. Put management on " +
+                  (selfDoors>1?"them":"it") + " and that income becomes investor income." };
+  if (st.props.length && !st.job.has && !st.bizs.some(b=>mgrLevel(b)>0||b.big))
+    return { n:4, name:"Landlord", blurb:"Your doors are managed. The businesses still aren't.",
+             next:"Develop somebody to run what you built — that's the step from doing it to owning it." };
+  if (!st.job.has && st.bizs.length)
+    return { n:3, name:"Self-employed", blurb:"You quit. You own the thing — and you are the thing.",
+             next:"Buy your first door, and start developing somebody to run what you built." };
+  if (st.job.has && st.bizs.length)
+    return { n:2, name:"Side hustle", blurb:"A job that pays the bills and something of your own on the side.",
+             next:"Grow it until it covers your life, then quit. You'd need " + money(exp) + "/mo from it." };
+  if (st.job.has && marketValue(st) > exp*6)
+    return { n:1, name:"Employee, saving", blurb:"A job and a growing pile. The pile is the point.",
+             next:"Buy something that pays you — a business on the side, or a door." };
+  return { n:0, name:"Employee", blurb:"One source of income and it needs you every day.",
+           next:"Save enough to buy something that earns without you. Even something small." };
+}
+
 /* ---------------- the quadrant ----------------
    Where your money actually comes from, in the four buckets:
      E  a job                          — you trade hours
@@ -807,7 +866,14 @@ function incomeByQuadrant(st){
     if (b.manager || st.gm || b.big) q.B += net; else q.S += net;
   });
   if (st.gm) q.B -= gmCost(st);
-  st.props.forEach(p=>{ q.I += propCashflow(p); }); q.I -= pmFee(st) + pmCoFee(st);
+  /* A rental you manage yourself is not investor income — you're the property
+     manager, you just aren't paying one. Handing it off is what moves it to I,
+     which makes hiring management a quadrant decision rather than a fee. */
+  st.props.forEach(p=>{
+    const cf = propCashflow(p) - ((p.pm && !st.pmCo) ? (p.vacantMonths>0?0:p.rent)*PM_FEE : 0);
+    if (st.pmCo || p.pm) q.I += cf; else q.S += cf;
+  });
+  if (st.pmCo) q.I -= pmCoFee(st);
   const hist = st.mktTrail && st.mktTrail.length ? st.mktTrail : [marketValue(st)];
   q.I += (hist.reduce((a,b)=>a+b,0)/hist.length) * SAFE_DRAW / 12;
   return q;
@@ -1590,6 +1656,15 @@ function render(){
         : live.length === 3
           ? "Three of the four are working for you at once — " + live.join(", ") + "."
           : "All four at once. You're not passing through the quadrants, you're using every one of them to get where you're going.";
+  const ch = chapter(S);
+  document.getElementById("ch-step").textContent = ch.n + "/8";
+  document.getElementById("ch-name").textContent = ch.name;
+  document.getElementById("ch-blurb").textContent = ch.blurb;
+  document.getElementById("ch-next").textContent = ch.next;
+  if (!S.chapHit) S.chapHit = {};
+  if (!S.chapHit[ch.n] && ch.n > 0) { S.chapHit[ch.n] = S.month;
+    say(S, "— " + ch.name + " — " + ch.blurb, "big"); }
+
   document.getElementById("gmline").innerHTML = S.gm
     ? `GM over ${S.bizs.length} businesses · ${money(gmCost(S))}/mo <button onclick="fireGM()">let go</button>`
     : (S.bizs.length >= 3 ? `<button onclick="hireGM()">Hire a GM over everything</button>` : "");
@@ -1824,6 +1899,8 @@ document.getElementById("b-how").onclick = ()=>{
       <li><b>Freedom income</b> is what your things pay you monthly: 4% a year from the market, real cash flow from rentals, 70% of business profit.</li>
       <li><b>Attention is the real currency.</b> You have 100 points. A job costs 55. A business costs 8–30. A rental costs 4. Go over and businesses decay and tenants leave.</li>
       <li><b>The market</b> pays the least per dollar and asks nothing of you. That's why it's what you actually retire on.</li>
+      <li><b>The chapters</b> run 0 to 8: employee → saving → side hustle → self-employed → landlord → operator → owner → investor → free. The panel names where you are and what the next rung is. Most people take two or three decades. It doesn't have to.</li>
+      <li><b>A door you manage yourself is not investor income</b> — you're the property manager, you just aren't paying one. Handing it to management is what moves that money into I.</li>
       <li><b>The quadrant</b> at the top is where your money actually comes from — <b>E</b> a job, <b>S</b> businesses you run, <b>B</b> businesses others run, <b>I</b> money that needs nobody. Moving right is the whole game.</li>
       <li><b>Passive income</b> is stricter than the win condition on purpose: a business you personally run isn't passive, it's a job you happen to own. When passive alone covers your expenses, you can walk away for real.</li>
       <li><b>Holdings</b> (marked HOLDING) unlock as your net worth grows: ground leases, triple-net retail, a franchise portfolio. They cost far more per dollar of income and almost nothing in attention. You don't get a better deal as you get richer — you get a quieter one.</li>
