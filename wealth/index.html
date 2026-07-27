@@ -310,7 +310,8 @@
 
   <div class="footlinks" style="margin-top:0.6rem">
     <button id="b-cut">cut back on something</button> &nbsp;·&nbsp;
-    <button id="b-give">give some away</button>
+    <button id="b-give">give some away</button> &nbsp;·&nbsp;
+    <button id="b-debt">pay down debt</button>
   </div>
   <div class="footlinks">
     <a href="/">← micahstelter.ai</a> &nbsp;·&nbsp;
@@ -592,7 +593,7 @@ function monthEnd(st){
     }
     const cf = propCashflow(p);
     inflow += Math.max(0, cf); if (cf < 0) outflow += -cf;
-    p.loan = Math.max(0, p.loan - (p.payment - p.loan*(p.rate/12)));
+    if (p.loan > 0) p.loan = Math.max(0, p.loan - (p.payment - p.loan*(p.rate/12)));
     if (p.vacantMonths === 0 && Math.random() < (0.035 + over*0.0015)) {
       p.vacantMonths = Math.random()<0.7 ? 1 : 2;
       say(st, p.name + " is empty. " + p.vacantMonths + " month" + (p.vacantMonths>1?"s":"") + " of no rent while you re-let it.", "bad");
@@ -818,6 +819,53 @@ function buyProp(idx){
   S.listings.splice(idx,1);
   render();
 }
+/* Paying a mortgage down. The payment does NOT drop as you prepay — it drops to zero
+   the month the loan is gone. That's how amortization actually works, and it's the part
+   people get wrong: a half-paid mortgage costs exactly what a full one does. */
+function payDown(i){
+  const p = S.props[i];
+  if (p.loan <= 0) return alert(p.name + " is already paid off. It pays you " + money(propCashflow(p)) + "/mo free and clear.");
+  const full = Math.ceil(p.loan);
+  openSheet(`<h2>Pay down <em>${p.name}</em></h2>
+    <p>You owe <b>${money(full)}</b> at ${(p.rate*100).toFixed(1)}%. The payment is <b>${money(p.payment)}/mo</b>.</p>
+    <ul>
+      <li><b>Pay it off entirely</b> — the payment disappears and ${money(p.payment)}/mo becomes freedom income. On the win condition that's a <b>${(p.payment*12/full*100).toFixed(1)}%</b> return, against 4% for the same money in the market.</li>
+      <li><b>Pay part of it</b> — the balance drops and you own more, but <b>the payment stays exactly the same</b> until the loan is gone. You get nothing in cash flow until the last dollar.</li>
+    </ul>
+    <p style="font-size:0.82rem">You have ${money(S.cash)} in cash. The market would probably grow this money faster — it just wouldn't pay you until you sold it.</p>
+    <input type="number" id="amt" value="${Math.floor(Math.min(S.cash, full))}">
+    <div class="amtrow">
+      <button class="mini" onclick="document.getElementById('amt').value=${Math.floor(Math.min(S.cash,full*0.25))}">25%</button>
+      <button class="mini" onclick="document.getElementById('amt').value=${Math.floor(Math.min(S.cash,full*0.5))}">50%</button>
+      <button class="mini" onclick="document.getElementById('amt').value=${Math.floor(Math.min(S.cash,full))}">Pay it off</button>
+    </div>
+    <button class="btn" onclick="doPayDown(${i}, +document.getElementById('amt').value); closeSheet()">Pay</button>
+    <button class="btn ghost" onclick="closeSheet()">Cancel</button>`);
+}
+function doPayDown(i, amt){
+  const p = S.props[i];
+  amt = Math.min(amt, S.cash, Math.ceil(p.loan));
+  if (amt <= 0) return;
+  S.cash -= amt; p.loan -= amt;
+  if (p.loan <= 1) {
+    p.loan = 0; const was = p.payment; p.payment = 0;
+    say(S, p.name + " is paid off. That's " + money(was) + "/mo that's yours now, every month, forever.", "big");
+  } else {
+    say(S, "Put " + money(amt) + " against " + p.name + ". You owe " + money(p.loan) +
+           " — and the payment is still " + money(p.payment) + " until it's gone.", "");
+  }
+  render();
+}
+/* the 18% debt is the highest-return payoff in the game and there was no way to touch it */
+function payDebt(){
+  if (!S.debt || S.debt <= 0) return alert("You don't owe anything.");
+  const amt = Math.min(S.cash, S.debt);
+  if (amt <= 0) return alert("No cash to pay it with.");
+  if (!confirm("Put " + money(amt) + " against the " + money(S.debt) + " you owe at 18%?\n\nNothing you can buy returns 18% guaranteed.")) return;
+  S.cash -= amt; S.debt -= amt;
+  say(S, "Paid " + money(amt) + " against the debt." + (S.debt<=0?" It's gone.":" " + money(S.debt) + " to go."), "good");
+  render();
+}
 function sellProp(i){
   const p = S.props[i];
   const net = p.value*0.935 - p.loan;
@@ -1010,9 +1058,9 @@ function render(){
     return `<div class="row">
       <div class="nm"><b>${p.name}</b>
         <small>${p.vacantMonths>0 ? "<span style='color:var(--down)'>vacant "+p.vacantMonths+" mo</span>" : money(p.rent)+"/mo rent"}
-        · equity ${moneyK(p.value-p.loan)}</small></div>
+        · equity ${moneyK(p.value-p.loan)}${p.loan<=0?" · <b style='color:var(--up)'>paid off</b>":""}</small></div>
       <div class="px ${cf>=0?'up':'down'}">${cf>=0?"+":""}${money(cf)}<small>per month</small></div>
-      <div class="btns"><button class="mini sell" onclick="sellProp(${i})">Sell</button></div>
+      <div class="btns">${p.loan>0?`<button class="mini" onclick="payDown(${i})">Pay down</button>`:""}<button class="mini sell" onclick="sellProp(${i})">Sell</button></div>
     </div>`;
   }).join("") : `<div class="empty">Nothing yet. A rental is the first thing most people buy that pays them back every month.</div>`;
 
@@ -1134,6 +1182,7 @@ document.getElementById("b-how").onclick = ()=>{
       <li><b>Businesses</b> pay the most and cost the most attention — and sell for 2–4× annual profit when you're done. <b>Reinvest</b> in one to raise its ceiling.</li>
       <li><b>Lifestyle offers</b> come as you get richer. Taking one raises your expenses forever, which moves the finish line away from you. Passing is the whole game.</li>
       <li><b>Real estate</b> is leverage: 25% down, tenant pays the loan. It cuts both ways.</li>
+      <li><b>Paying off a mortgage</b> turns ${'$'}1 of capital into more freedom income than ${'$'}1 in the market — a 7-8% return on the win condition against 4%. It just stops growing. Speed against size; that's the whole argument.</li>
       <li><b>A turn is a month.</b> Read the statement, make every move you want, then end the month. Coast runs up to 12 months and stops the moment something needs you.</li>
       <li><b>You win</b> by holding freedom income above your expenses for 12 straight months.</li>
     </ul>
@@ -1319,6 +1368,7 @@ function coast(){
   showTurnReport(before, S.month-start, stopped);
 }
 
+document.getElementById("b-debt").onclick = payDebt;
 document.getElementById("b-cut").onclick = cutBack;
 document.getElementById("b-give").onclick = give;
 document.getElementById("b-end").onclick = endMonth;
