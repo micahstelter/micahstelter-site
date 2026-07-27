@@ -170,6 +170,11 @@
   .rpt-events div:first-child { border-top:none; }
   .rpt-events .good { color:var(--up); } .rpt-events .bad { color:var(--down); }
   .rpt-events .big { color:var(--gold); font-weight:700; }
+  .offer { border:1px solid var(--gold); border-radius:6px; padding:0.8rem 0.9rem; margin-top:0.9rem; background:#fdfaf4; }
+  .offer-t { font-family:var(--font-head); font-size:1.15rem; line-height:1.25; margin-bottom:0.3rem; }
+  .offer-s { font-size:0.82rem; color:var(--muted); margin-bottom:0.7rem; }
+  .offer-b { display:flex; gap:0.4rem; }
+  .offer-b .btn { padding:0.6rem 1.1rem; }
   .btn { font-family:var(--font-body); font-weight:700; font-size:0.72rem; letter-spacing:0.16em;
     text-transform:uppercase; background:var(--accent); color:#fff; border:none; border-radius:3px;
     padding:0.8rem 1.6rem; cursor:pointer; }
@@ -337,6 +342,10 @@ const FUNDS = [
 ];
 
 const BIZ_TYPES = [
+  /* Deliberately the worst return per attention point in the game: it exists so a
+     starter can own something in year two, not so it can be stacked. Cheap in cash,
+     expensive in hours — you should want to graduate out of it. */
+  { name:"Vending Route",    cost:9500,   profit:380,  focus:16, blurb:"Twelve machines and a lot of driving." },
   { name:"Lawn Route",       cost:28000,  profit:1250, focus:20, blurb:"40 yards, one truck, every week." },
   { name:"Painting Crew",    cost:52000,  profit:2450, focus:28, blurb:"Two painters and a schedule you own." },
   { name:"Cleaning Company", cost:64000,  profit:2900, focus:30, blurb:"Recurring contracts, constant hiring." },
@@ -363,7 +372,7 @@ function fresh() {
     listings:[], deals:[],
     regime:{ kind:"normal", left:0 },  // market regime
     history:[], log:[],
-    milestones:{}, freeStreak:0, won:false,
+    milestones:{}, freeStreak:0, won:false, pending:null,
     debtPaid:0
   };
   rollListings(st); rollDeals(st);
@@ -437,14 +446,26 @@ function rollListings(st){
   const n = 3;
   for (let i=0;i<n;i++){
     const price = Math.round(rnd(165000, 430000)/1000)*1000;
-    const yieldPct = rnd(0.0062, 0.0098);
+    /* A 42% operating load on top of a 6.5% mortgage at 75% leverage ate almost
+       every listing — the median rental cash-flowed at MINUS $26/mo, so a sensible
+       player never bought one in 30 years. Widened and lifted so ~4 in 5 break even
+       and ~3 in 5 clear $150/mo, before vacancies and repairs take their cut. */
+    const yieldPct = rnd(0.0075, 0.0115);
     const rent = Math.round(price*yieldPct/25)*25;
     st.listings.push({ name:pick(PROP_NAMES), price, rent });
   }
 }
 function rollDeals(st){
   st.deals = [];
-  const shuffled = BIZ_TYPES.slice().sort(()=>Math.random()-0.5).slice(0,2);
+  let pool = BIZ_TYPES.slice().sort(()=>Math.random()-0.5);
+  /* Early on, always show something a starter can actually afford — otherwise the
+     first business lands around year 13 and the pillar may as well not exist. */
+  if (st.month < 60) {
+    const cheap = BIZ_TYPES.filter(b=>b.cost < 35000);
+    const one = pick(cheap);
+    pool = [one].concat(pool.filter(b=>b.name !== one.name));
+  }
+  const shuffled = pool.slice(0,2);
   shuffled.forEach(t=>{
     const k = rnd(0.85,1.2);
     st.deals.push({
@@ -622,10 +643,16 @@ function lifeEvent(st){
     st.cash += gift;
     say(st, pick(["Tax refund came in.","A friend paid back a loan you'd written off.","Sold something in the garage."]) + " " + money(gift) + ".", "good");
   }
-  else if (roll < 0.78 && nw > 220000) {
-    const bump = Math.round(rnd(90, 340));
-    st.expensesBase += bump;
-    say(st, pick(["Bigger house, bigger everything.","New car payment.","The kids' activities got real."]) + " Life costs " + money(bump) + "/mo more now.", "bad");
+  else if (roll < 0.78 && nw > 220000 && !st.pending) {
+    /* This used to be applied silently. Expenses ran from $4,200 to ~$10,000 over
+       30 years and the freedom target outran every portfolio. Now it's offered —
+       declining it IS the discipline the game is about. */
+    const bump = Math.round(rnd(120, 420));
+    st.pending = { bump, text: pick([
+      "You can afford the bigger house now. Everyone says you've earned it.",
+      "The truck you've wanted is sitting on the lot, and the payment fits.",
+      "The kids could do the travel team. It's real money every month.",
+      "A place at the lake. Not extravagant. Just… a payment." ]) };
   }
   else if (roll < 0.88) {
     rollListings(st);
@@ -705,6 +732,18 @@ function buyBiz(idx){
   S.bizs.push({ name:d.name, profit:d.profit, potential:d.profit, ceiling:d.profit*rnd(2.0,3.0), focus:d.focus, multiple:2.6, trailing:[d.profit] });
   say(S, "You bought " + d.name + ". " + money(d.profit) + "/mo, and " + d.focus + " points of your attention.", "good");
   S.deals.splice(idx,1);
+  render();
+}
+function reinvest(i){
+  const b = S.bizs[i];
+  const cost = Math.round(b.profit * 4 / 100) * 100;      // ~4 months of profit
+  const lift = 1 + rnd(0.06, 0.14);
+  if (S.cash < cost) return alert("You'd need " + money(cost) + " to put real money back into " + b.name + ".");
+  if (!confirm("Reinvest " + money(cost) + " into " + b.name + "?\n\nEquipment, a hire, a second route. It raises what this business can become — not just what it earns today.")) return;
+  S.cash -= cost;
+  b.ceiling *= lift;
+  b.potential = Math.min(b.ceiling, b.potential * (1 + rnd(0.03,0.08)));
+  say(S, "Put " + money(cost) + " back into " + b.name + ". Its ceiling just went up.", "good");
   render();
 }
 function sellBiz(i){
@@ -861,7 +900,7 @@ function render(){
   be.innerHTML = S.bizs.length ? S.bizs.map((b,i)=>`<div class="row">
       <div class="nm"><b>${b.name}</b><small>${b.focus} attention · worth ~${moneyK(b.profit*12*b.multiple)} at ${b.multiple.toFixed(1)}×</small></div>
       <div class="px up">+${money(b.profit)}<small>per month</small></div>
-      <div class="btns"><button class="mini sell" onclick="sellBiz(${i})">Sell</button></div>
+      <div class="btns"><button class="mini" onclick="reinvest(${i})">Reinvest</button><button class="mini sell" onclick="sellBiz(${i})">Sell</button></div>
     </div>`).join("") : `<div class="empty">Nothing yet. A business pays more per dollar than anything else here — and takes the one thing you can't buy back.</div>`;
 
   /* focus */
@@ -971,7 +1010,8 @@ document.getElementById("b-how").onclick = ()=>{
       <li><b>Freedom income</b> is what your things pay you monthly: 4% a year from the market, real cash flow from rentals, 70% of business profit.</li>
       <li><b>Attention is the real currency.</b> You have 100 points. A job costs 55. A business costs 8–30. A rental costs 4. Go over and businesses decay and tenants leave.</li>
       <li><b>The market</b> pays the least per dollar and asks nothing of you. That's why it's what you actually retire on.</li>
-      <li><b>Businesses</b> pay the most and cost the most attention — and sell for 2–4× annual profit when you're done.</li>
+      <li><b>Businesses</b> pay the most and cost the most attention — and sell for 2–4× annual profit when you're done. <b>Reinvest</b> in one to raise its ceiling.</li>
+      <li><b>Lifestyle offers</b> come as you get richer. Taking one raises your expenses forever, which moves the finish line away from you. Passing is the whole game.</li>
       <li><b>Real estate</b> is leverage: 25% down, tenant pays the loan. It cuts both ways.</li>
       <li><b>A turn is a month.</b> Read the statement, make every move you want, then end the month. Coast runs up to 12 months and stops the moment something needs you.</li>
       <li><b>You win</b> by holding freedom income above your expenses for 12 straight months.</li>
@@ -979,6 +1019,19 @@ document.getElementById("b-how").onclick = ()=>{
     <p style="font-size:0.82rem">Expenses inflate 2.5% a year. Lifestyle creeps as you get richer. Recessions come. That's the point.</p>
     <button class="btn" onclick="closeSheet()">Got it</button>`);
 };
+
+function acceptLifestyle(){
+  const p = S.pending; if (!p) return;
+  S.expensesBase += p.bump; S.pending = null;
+  say(S, "You took it. Life costs " + money(p.bump) + "/mo more from here.", "bad");
+  render(); closeSheet();
+}
+function declineLifestyle(){
+  const p = S.pending; if (!p) return;
+  S.pending = null;
+  say(S, "You passed. " + money(p.bump) + "/mo that stays yours.", "good");
+  render(); closeSheet();
+}
 
 /* ---------- the month report: the payoff for ending a turn ---------- */
 function showTurnReport(before, months, stopped){
@@ -1004,6 +1057,15 @@ function showTurnReport(before, months, stopped){
     ${events.length
       ? `<div class="rpt-events">${events.map(e=>`<div class="${e.cls}">${e.text}</div>`).join("")}</div>`
       : `<p style="font-size:0.86rem;font-style:italic;color:var(--faint)">A quiet month. Those are the ones that compound.</p>`}
+
+    ${S.pending ? `<div class="offer">
+        <div class="offer-t">${S.pending.text}</div>
+        <div class="offer-s">It would add <b>${money(S.pending.bump)}/mo</b> to your life, forever.
+          Your assets currently cover ${Math.round(freedomIncome(S)/monthlyExpenses(S)*100)}% of what you spend.</div>
+        <div class="offer-b">
+          <button class="btn ghost" onclick="acceptLifestyle()">Take it</button>
+          <button class="btn" onclick="declineLifestyle()">Pass</button>
+        </div></div>` : ""}
 
     <div style="margin-top:1.1rem">
       <button class="btn" onclick="closeSheet()">Make your moves</button>
