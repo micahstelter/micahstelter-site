@@ -161,7 +161,8 @@
   .sheet li { margin-bottom:0.3rem; }
   .sheet li b { color:var(--ink); }
   .amtrow { display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.9rem; }
-  .rpt { display:grid; grid-template-columns:repeat(2,1fr); gap:0.5rem; margin-bottom:1rem; }
+  .rpt { display:grid; grid-template-columns:repeat(3,1fr); gap:0.5rem; margin-bottom:1rem; }
+  @media (max-width:560px){ .rpt { grid-template-columns:repeat(2,1fr); } }
   .rpt div { background:#f7f6f3; border-radius:5px; padding:0.6rem 0.7rem; }
   .rpt span { display:block; font-size:0.56rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--faint); font-weight:700; }
   .rpt b { display:block; font-family:var(--font-head); font-size:1.5rem; font-weight:400; line-height:1.15; }
@@ -257,6 +258,7 @@
     <div class="stmt-cf nw" id="nwrow">
       <span>Net worth</span><b id="nw">$0</b>
     </div>
+    <div class="stmt-foot" style="margin:-0.4rem 0 0.6rem"><span id="nwpays">&nbsp;</span></div>
     <div class="stmt-foot">
       <span id="nwnote">&nbsp;</span><span id="mktnote">&nbsp;</span>
     </div>
@@ -306,6 +308,10 @@
     <div class="log" id="log"></div>
   </div>
 
+  <div class="footlinks" style="margin-top:0.6rem">
+    <button id="b-cut">cut back on something</button> &nbsp;·&nbsp;
+    <button id="b-give">give some away</button>
+  </div>
   <div class="footlinks">
     <a href="/">← micahstelter.ai</a> &nbsp;·&nbsp;
     <button id="b-reset">start over</button> &nbsp;·&nbsp;
@@ -342,16 +348,18 @@ const FUNDS = [
 ];
 
 const BIZ_TYPES = [
-  /* Deliberately the worst return per attention point in the game: it exists so a
-     starter can own something in year two, not so it can be stacked. Cheap in cash,
-     expensive in hours — you should want to graduate out of it. */
-  { name:"Vending Route",    cost:9500,   profit:380,  focus:16, blurb:"Twelve machines and a lot of driving." },
-  { name:"Lawn Route",       cost:28000,  profit:1250, focus:20, blurb:"40 yards, one truck, every week." },
-  { name:"Painting Crew",    cost:52000,  profit:2450, focus:28, blurb:"Two painters and a schedule you own." },
-  { name:"Cleaning Company", cost:64000,  profit:2900, focus:30, blurb:"Recurring contracts, constant hiring." },
-  { name:"Laundromat",       cost:128000, profit:3300, focus:12, blurb:"Quarters and a lease. Nearly runs itself." },
-  { name:"Storage Units",    cost:215000, profit:4900, focus:8,  blurb:"Concrete, doors, and very few phone calls." },
-  { name:"Car Wash",         cost:168000, profit:4100, focus:14, blurb:"Equipment-heavy, weather-dependent." }
+  /* Attention is priced to be monotone in CAPITAL. Storage units really are passive and
+     a painting crew really isn't — but you have to BUY your way to passive. The old table
+     spanned 26:1 in profit-per-attention-point with near-identical paybacks, so there was
+     exactly one correct business and you could read it off the card. Now it's 3.1:1 and
+     it costs $215k to reach the top of it. */
+  { name:"Vending Route",    cost:9500,   profit:380,  focus:10, blurb:"Twelve machines and a lot of driving." },
+  { name:"Lawn Route",       cost:28000,  profit:1250, focus:22, blurb:"40 yards, one truck, every week." },
+  { name:"Painting Crew",    cost:52000,  profit:2450, focus:34, blurb:"Two painters and a schedule you own." },
+  { name:"Cleaning Company", cost:64000,  profit:2900, focus:38, blurb:"Recurring contracts, constant hiring." },
+  { name:"Laundromat",       cost:128000, profit:3300, focus:34, blurb:"Quarters and a lease." },
+  { name:"Car Wash",         cost:168000, profit:4100, focus:38, blurb:"Equipment-heavy, weather-dependent." },
+  { name:"Storage Units",    cost:215000, profit:4900, focus:42, blurb:"Concrete, doors, and very few phone calls." }
 ];
 
 const PROP_NAMES = ["Maple St. duplex","49th Ave bungalow","Elmwood triplex","Birch Lane rental",
@@ -367,12 +375,13 @@ function fresh() {
     job:{ has:true, pay:5800, focus:55 },
     expensesBase:4200,
     focusCap:100,
-    funds:FUNDS.map(f=>({ id:f.id, price:f.price, shares:0, prev:f.price })),
+    funds:FUNDS.map(f=>({ id:f.id, price:f.price, shares:0, prev:f.price, basis:0 })),
+    mktTrail:[], debt:0, given:0, handed:0, underCount:0,
     props:[], bizs:[],
     listings:[], deals:[],
     regime:{ kind:"normal", left:0 },  // market regime
     history:[], log:[],
-    milestones:{}, freeStreak:0, won:false, pending:null,
+    milestones:{}, freeStreak:0, won:false, over:false, pending:null, pendingJob:false, jobGap:0, insolvent:false, chosenExpenses:0, yeses:0, cutbacks:[], lastCut:-999,
     debtPaid:0
   };
   rollListings(st); rollDeals(st);
@@ -409,7 +418,7 @@ function mortPayment(principal, rate){
 function marketValue(st){ return st.funds.reduce((s,f)=> s + f.shares*f.price, 0); }
 function propEquity(st){ return st.props.reduce((s,p)=> s + (p.value - p.loan), 0); }
 function bizValue(st){ return st.bizs.reduce((s,b)=> s + b.profit*12*b.multiple, 0); }
-function netWorth(st){ return st.cash + marketValue(st) + propEquity(st) + bizValue(st); }
+function netWorth(st){ return st.cash + marketValue(st) + propEquity(st) + bizValue(st) - (st.debt||0); }
 
 function propCashflow(p){
   const gross = p.vacantMonths > 0 ? 0 : p.rent;
@@ -417,15 +426,26 @@ function propCashflow(p){
 }
 function monthlyExpenses(st){
   const infl = Math.pow(1.025, st.month/MONTHS_PER_YEAR);
-  return st.expensesBase * infl;
+  /* Age was the one number that only moved one way and drove nothing but header text.
+     After 55 the body starts sending bills — which is why being free early is worth something. */
+  const health = st.age > 55 ? Math.pow(1.04, st.age-55) : 1;
+  return st.expensesBase * infl * health;
 }
 /* Freedom income = what the assets pay, without you working */
 function freedomIncome(st){
-  const fromMarket = marketValue(st) * SAFE_DRAW / 12;
-  const fromProps  = st.props.reduce((s,p)=> s + Math.max(0, propCashflow(p)), 0);
+  /* Draw off a trailing average, the way endowments do — otherwise a max-variance
+     fund wins 3 years earlier purely by being marked at a peak on the test month. */
+  const hist = st.mktTrail && st.mktTrail.length ? st.mktTrail : [marketValue(st)];
+  const avgMkt = hist.reduce((a,b)=>a+b,0)/hist.length;
+  const fromMarket = avgMkt * SAFE_DRAW / 12;
+  /* No floor. A vacant, negative door has to SUBTRACT from freedom income — clamping
+     it at zero meant a portfolio bleeding $25k/mo still read "72% of the way to free"
+     while the statement six inches below showed the truth. */
+  const fromProps  = st.props.reduce((s,p)=> s + propCashflow(p), 0);
   const fromBiz    = st.bizs.reduce((s,b)=> s + b.profit*0.7, 0); // 70% distributed, 30% retained
   return fromMarket + fromProps + fromBiz;
 }
+function ratioNow(){ return freedomIncome(S)/monthlyExpenses(S); }
 function focusUsed(st){
   let f = st.job.has ? st.job.focus : 0;
   f += st.props.length * 4;
@@ -452,7 +472,7 @@ function rollListings(st){
        and ~3 in 5 clear $150/mo, before vacancies and repairs take their cut. */
     const yieldPct = rnd(0.0075, 0.0115);
     const rent = Math.round(price*yieldPct/25)*25;
-    st.listings.push({ name:pick(PROP_NAMES), price, rent });
+    st.listings.push({ name:pick(PROP_NAMES), price, rent, rate:rnd(0.059,0.071) });
   }
 }
 function rollDeals(st){
@@ -481,6 +501,7 @@ function rollDeals(st){
    THE TICK — one day
    ============================================================ */
 function tickMonth(st){
+  if (st.over) return;
   st.month++;
   st.turn = [];                       // what happened this month, for the report
 
@@ -488,15 +509,15 @@ function tickMonth(st){
   if (st.regime.left > 0) st.regime.left--;
   else if (Math.random() < 0.045) {
     if (Math.random() < 0.55) {
-      st.regime = { kind:"bear", left:Math.round(rnd(3,9)) };
-      say(st, "The market turned. Analysts are using the word “correction.”", "bad");
+      st.regime = { kind:"bear", left:Math.round(rnd(3,7)), age:0 };
     } else {
-      st.regime = { kind:"bull", left:Math.round(rnd(4,11)) };
-      say(st, "Something caught fire in the market. Everyone suddenly has opinions.", "good");
+      st.regime = { kind:"bull", left:Math.round(rnd(4,11)), age:0 };
     }
   } else if (st.regime.left === 0) st.regime.kind = "normal";
 
-  const drag = st.regime.kind==="bear" ? -0.0016 : st.regime.kind==="bull" ? 0.0009 : 0;
+  /* Bear drag softened and shortened: the old numbers produced a 30-year median CAGR
+     of 5.8% with a p10 of 0.3%, a distribution that has never occurred in reality. */
+  const drag = st.regime.kind==="bear" ? -0.0011 : st.regime.kind==="bull" ? 0.0009 : 0;
   const volx = st.regime.kind==="bear" ? 1.9 : 1;
 
   st.funds.forEach((f,i)=>{
@@ -509,9 +530,18 @@ function tickMonth(st){
 
   /* --- properties --- */
   st.props.forEach(p=>{
-    p.value *= 1 + (0.034/MONTHS_PER_YEAR) + 0.005*gauss();
+    /* Houses could not fall: across 400 simulated 30-year houses the worst 12-month
+       return was -3.6%. Levered 4:1 that's riskless 13.8%/yr, and the tooltip claiming
+       leverage "cuts both ways" had never once been true. */
+    const hb = st.housing && st.housing.left > 0 ? -rnd(0.010,0.022) : 0;
+    p.value *= 1 + (0.034/MONTHS_PER_YEAR) + hb + 0.012*gauss();
     if (p.vacantMonths > 0) p.vacantMonths--;
   });
+
+  /* housing cycle, mirroring the market one */
+  if (!st.housing) st.housing = { left:0 };
+  if (st.housing.left > 0) st.housing.left--;
+  else if (Math.random() < 0.0017) st.housing.left = Math.round(rnd(6,18));
 
   /* --- month end --- */
   monthEnd(st);
@@ -522,14 +552,24 @@ function tickMonth(st){
   /* --- year end --- */
   if (st.month % MONTHS_PER_YEAR === 0) {
     st.age++;
+    /* rents were written once and frozen forever while expenses inflated — the pillar
+       was designed to decay over exactly the horizon the game measures */
+    st.props.forEach(p=>{ p.rent = Math.round(p.rent * (1 + rnd(0.015,0.035))/5)*5; });
     rollListings(st); rollDeals(st);
     if (st.job.has) { st.job.pay *= 1 + rnd(0.015,0.045); }
+  }
+
+  /* #6 the run has to be able to END. Without this, debt compounds to absurdity and
+     net worth stops meaning anything — a quit-at-month-1 run finished $30bn under. */
+  if (!st.over && st.debt > 24*monthlyExpenses(st) && netWorth(st) < 0) {
+    st.over = true;
+    say(st, "It came apart. The debt is bigger than anything you own, and it's still growing.", "big");
   }
 
   /* --- history --- */
   {
     const inc = freedomIncome(st), exp = monthlyExpenses(st);
-    st.history.push({ d:st.month, nw:netWorth(st), ratio:Math.min(1.6, inc/exp) });
+    st.history.push({ d:st.month, nw:netWorth(st), ratio:inc/exp });   // raw — clipping at write time threw the late game away
     if (st.history.length > 700) st.history = st.history.filter((_,i)=> i%2===0 || i>st.history.length-160);
   }
   checkMilestones(st);
@@ -543,6 +583,13 @@ function monthEnd(st){
   if (st.job.has) inflow += st.job.pay;
 
   st.props.forEach(p=>{
+    /* Repairs live PER PROPERTY now. In the shared event slot they capped at 3.6%/mo for
+       the whole portfolio — $224/mo of repairs at one door, $6/door at thirty-five. */
+    if (Math.random() < 0.015) {
+      const rc = Math.round(rnd(1800, 9500));
+      outflow += rc;
+      say(st, p.name + ": " + pick(["furnace","roof","water heater","sewer line","water damage"]) + ". " + money(rc) + ".", "bad");
+    }
     const cf = propCashflow(p);
     inflow += Math.max(0, cf); if (cf < 0) outflow += -cf;
     p.loan = Math.max(0, p.loan - (p.payment - p.loan*(p.rate/12)));
@@ -567,34 +614,77 @@ function monthEnd(st){
     b.profit += (b.potential - b.profit) * 0.18;           // mean-revert toward healthy
     b.profit = Math.max(100, b.profit * (1 + 0.016*gauss()));
     b.trailing.push(b.profit); if (b.trailing.length > 12) b.trailing.shift();
-    inflow += b.profit * 0.7;
-    b.multiple = Math.min(4.0, Math.max(1.9, b.multiple + (over>0 ? -0.01 : 0.005)));
+    /* market saturation: the 3rd and later of the same type earn less */
+    const sameType = st.bizs.filter(x=>x.name===b.name).length;
+    const sat = sameType > 2 ? Math.pow(0.75, sameType-2) : 1;
+    inflow += b.profit * 0.7 * sat;
+    /* The multiple follows how well you actually run it, and can fall BELOW what you
+       paid — a neglected business should be worth less than you gave for it. At the old
+       +0.005/mo it took 23 years to reach the cap, so "grow it and exit" wasn't a plan
+       a human could execute. */
+    const avg = b.trailing.reduce((a,c)=>a+c,0)/b.trailing.length;
+    const clean = over === 0 && b.profit >= avg;
+    b.multiple = Math.min(4.0, Math.max(1.2, b.multiple + (clean ? 0.012 : -0.015)));
   });
 
+  /* THE DRAW. While you work, the freedom number is a projection. The month you stop,
+     it becomes cash — you sell a slice of the portfolio to live on, which is what a
+     portfolio is FOR. Without this the emergency-liquidation branch was doing the job,
+     and players saw "You ran out of cash" 186 times per run while comfortably winning. */
+  if (!st.job.has) {
+    const mv = marketValue(st);
+    if (mv > 0) {
+      const draw = Math.min(mv, mv * SAFE_DRAW / 12);
+      st.funds.forEach(f=>{
+        const share = (f.shares*f.price)/mv;
+        const sell = draw*share;
+        const gain = Math.max(0, sell - (f.basis||0)*(sell/Math.max(1,f.shares*f.price)));
+        f.shares -= sell/f.price;
+        st.cash += sell - gain*0.15;                       // 15% capital gains, #12
+      });
+      say(st, "Drew " + money(draw) + " from the portfolio. That's what it's for.", "");
+    }
+  }
+
+  /* trailing window the draw is computed from */
+  st.mktTrail.push(marketValue(st)); if (st.mktTrail.length > 12) st.mktTrail.shift();
+
   outflow += monthlyExpenses(st);
+
+  /* #6 debt: unpaid bills don't evaporate, they accrue at 18% */
+  if (st.debt > 0) { st.debt *= 1 + 0.18/12; outflow += Math.max(200, st.debt*0.02); }
+
   st.cash += inflow - outflow;
 
   if (over > 0 && st.month % 3 === 0)
     say(st, "You're stretched " + over + " points past your attention. Things are slipping.", "bad");
 
   if (st.cash < 0) {
-    // forced liquidation, cheapest first: market, then property
-    say(st, "You ran out of cash. Something had to be sold.", "bad");
     let need = -st.cash;
+    const first = !st.insolvent;
+    if (first) say(st, "You ran out of cash. Something had to be sold.", "bad");
+    st.insolvent = true;
+    /* A forced sale is a BAD sale: 5% haircut plus the tax. Free liquidation made a
+       zero-month emergency fund the strictly dominant play, which is backwards. */
+    let cost = 0;
     for (const f of st.funds) {
       if (need <= 0) break;
       const val = f.shares*f.price;
-      const take = Math.min(val, need);
-      f.shares -= take/f.price; need -= take; st.cash += take;
+      const raise = Math.min(val, need/0.9);
+      const net = raise*0.95*0.985;
+      cost += raise - net;
+      f.shares -= raise/f.price; need -= net; st.cash += net;
     }
+    if (cost > 100 && first) say(st, "Selling at the wrong time cost you " + money(cost) + ".", "bad");
     if (need > 0 && st.props.length) {
       const p = st.props.pop();
       const net = p.value*0.935 - p.loan;
-      st.cash += net;
+      st.cash += net; need -= net;
       say(st, "Sold " + p.name + " under pressure. Never the way you want to sell.", "bad");
     }
-    if (st.cash < 0) st.cash = 0;
-  }
+    if (st.cash < 0) { st.debt += -st.cash; st.cash = 0;
+      if (first) say(st, "The rest went on credit at 18%.", "bad"); }
+  } else st.insolvent = false;
 }
 
 /* ---------------- events ---------------- */
@@ -602,13 +692,7 @@ function lifeEvent(st){
   const roll = Math.random();
   const nw = netWorth(st);
 
-  if (roll < 0.14 && st.props.length) {
-    const p = pick(st.props);
-    const cost = Math.round(rnd(1800, 9500));
-    st.cash -= cost;
-    say(st, p.name + ": " + pick(["furnace died","roof leak","water heater blew","sewer line backed up"]) + ". " + money(cost) + ".", "bad");
-  }
-  else if (roll < 0.24 && st.bizs.length) {
+  if (roll < 0.24 && st.bizs.length) {
     const b = pick(st.bizs);
     b.profit *= rnd(0.80, 0.9);                       // dents current, not potential — it recovers
     say(st, "A competitor opened near " + b.name + ". Thinner margins until you win the work back.", "bad");
@@ -634,21 +718,25 @@ function lifeEvent(st){
     say(st, "You got a raise. " + money(st.job.pay) + "/mo.", "good");
   }
   else if (roll < 0.575 && st.job.has && st.month > 24) {
-    st.job.has = false;
-    say(st, "Your job went away. Your assets don't care — but your expenses don't either. " +
-            "You can go back to work anytime; it's runway, not failure.", "bad");
+    st.job.has = false; st.jobGap = Math.round(rnd(1,4));
+    /* This was a line in a scrolling log. Missing it was worth 19x net worth. */
+    st.pendingJob = true;
+    say(st, "Your job went away.", "big");
   }
   else if (roll < 0.70) {
     const gift = Math.round(rnd(1500, 14000));
     st.cash += gift;
     say(st, pick(["Tax refund came in.","A friend paid back a loan you'd written off.","Sold something in the garage."]) + " " + money(gift) + ".", "good");
   }
-  else if (roll < 0.78 && nw > 220000 && !st.pending) {
+  else if (roll < 0.78 && roll >= 0.62 && st.month > 18 && !st.pending) {
     /* This used to be applied silently. Expenses ran from $4,200 to ~$10,000 over
        30 years and the freedom target outran every portfolio. Now it's offered —
        declining it IS the discipline the game is about. */
-    const bump = Math.round(rnd(120, 420));
-    st.pending = { bump, text: pick([
+    /* Scaled to your life, not flat. A flat $120-420 against an expense base that
+       doubles is a rounding error by year 25 — doubling the shipped bump changed the
+       win rate by zero across 40 runs. */
+    const bump = Math.round(st.expensesBase * rnd(0.05, 0.11) / 10) * 10;
+    st.pending = { bump, born: st.month, text: pick([
       "You can afford the bigger house now. Everyone says you've earned it.",
       "The truck you've wanted is sitting on the lot, and the payment fits.",
       "The kids could do the travel team. It's real money every month.",
@@ -666,11 +754,17 @@ function lifeEvent(st){
 
 /* ---------------- milestones ---------------- */
 const MILES = [
+  { k:"first",     at:0.02, t:"Something you own paid for something you needed. It's almost nothing. It's also the whole idea." },
+  { k:"tenth",     at:0.10, t:"A tenth of your life is covered by things you bought instead of hours you sold." },
   { k:"groceries", at:0.15, t:"Your assets now cover the groceries. It's small. It's also the first time money worked instead of you." },
   { k:"quarter",   at:0.25, t:"A quarter of your life is paid for by things you own." },
   { k:"half",      at:0.50, t:"Halfway. Your money now covers half of everything." },
   { k:"mortgage",  at:0.75, t:"Three quarters. The math has stopped being theoretical." },
-  { k:"free",      at:1.00, t:"Your assets cover your entire life. You never have to work again — which means everything you do now, you chose." }
+  { k:"free",      at:1.00, t:"Your assets cover your entire life. You never have to work again — which means everything you do now, you chose." },
+  { k:"carry",     at:1.50, t:"You could carry someone else's life now, not just your own." },
+  { k:"wrong",     at:2.00, t:"You could stop, and be wrong about it, and still be fine." },
+  { k:"changed",   at:3.00, t:"This is more than you will spend. The question changed — it isn't how much, it's what for." },
+  { k:"outlives",  at:5.00, t:"It outlives you now. Whatever happens next is somebody else's chapter." }
 ];
 function checkMilestones(st){
   const r = freedomIncome(st)/monthlyExpenses(st);
@@ -680,8 +774,16 @@ function checkMilestones(st){
       say(st, m.t, "big");
     }
   });
-  if (r >= 1) { st.freeStreak++; if (st.freeStreak >= 12 && !st.won) { st.won = true; showWin(); } }
-  else st.freeStreak = 0;
+  if (r >= 1) { st.freeStreak++; st.underCount = 0;
+    if (st.freeStreak >= 12 && !st.won) { st.won = true; showWin(); } }
+  else {
+    st.freeStreak = 0;
+    /* The win could never be lost: index runs spent a median 68 and a worst 232 months
+       — nineteen years — being told they were free while assets covered 31% of life. */
+    if (st.won) { st.underCount = (st.underCount||0)+1;
+      if (st.underCount >= 3) { st.won = false; st.underCount = 0;
+        say(st, "It slipped. The line moved and you didn't.", "big"); } }
+  }
 }
 
 /* ============================================================
@@ -707,7 +809,7 @@ function buyProp(idx){
   const l = S.listings[idx];
   const down = l.price*0.25, closing = l.price*0.02;
   if (S.cash < down+closing) return alert("Not enough cash. You need " + money(down+closing) + " for the down payment and closing.");
-  const rate = rnd(0.059, 0.071);
+  const rate = l.rate || rnd(0.059, 0.071);
   const loan = l.price - down;
   S.cash -= down+closing;
   S.props.push({ name:l.name, value:l.price, rent:l.rent, loan, rate,
@@ -729,21 +831,29 @@ function buyBiz(idx){
   const d = S.deals[idx];
   if (S.cash < d.cost) return alert("Not enough cash. That one costs " + money(d.cost) + ".");
   S.cash -= d.cost;
-  S.bizs.push({ name:d.name, profit:d.profit, potential:d.profit, ceiling:d.profit*rnd(2.0,3.0), focus:d.focus, multiple:2.6, trailing:[d.profit] });
+  S.bizs.push({ name:d.name, profit:d.profit, potential:d.profit, ceiling:d.profit*rnd(2.0,3.0),
+    focus:d.focus, multiple:d.cost/(d.profit*12), trailing:[d.profit], reinvests:0, lastReinvest:-999 });
   say(S, "You bought " + d.name + ". " + money(d.profit) + "/mo, and " + d.focus + " points of your attention.", "good");
   S.deals.splice(idx,1);
   render();
 }
 function reinvest(i){
   const b = S.bizs[i];
-  const cost = Math.round(b.profit * 4 / 100) * 100;      // ~4 months of profit
-  const lift = 1 + rnd(0.06, 0.14);
-  if (S.cash < cost) return alert("You'd need " + money(cost) + " to put real money back into " + b.name + ".");
-  if (!confirm("Reinvest " + money(cost) + " into " + b.name + "?\n\nEquipment, a hire, a second route. It raises what this business can become — not just what it earns today.")) return;
+  /* Priced off POTENTIAL not profit (pricing off the lagging number was an arbitrage),
+     with a cooldown, decaying returns, and — the important one — more of your attention.
+     Unbounded, this returned 3.2x the index risk-free and finished at 2,504% freedom. */
+  if (S.month - (b.lastReinvest ?? -999) < 6)
+    return alert("You put money into " + b.name + " recently. Give it time to work.");
+  const cost = Math.round(b.potential * 6 / 100) * 100;
+  const n = b.reinvests || 0;
+  const lift = 1 + rnd(0.06, 0.14) * Math.max(0.25, 1 - n*0.10);
+  if (S.cash < cost) return alert("You'd need " + money(cost) + " to put real money into " + b.name + ".");
+  if (!confirm("Reinvest " + money(cost) + " into " + b.name + "?\n\nEquipment, a hire, a second route.\n\nIt raises what this business can become — and it will take 2 more attention points. A bigger business takes more of you.")) return;
   S.cash -= cost;
   b.ceiling *= lift;
   b.potential = Math.min(b.ceiling, b.potential * (1 + rnd(0.03,0.08)));
-  say(S, "Put " + money(cost) + " back into " + b.name + ". Its ceiling just went up.", "good");
+  b.focus += 2; b.lastReinvest = S.month; b.reinvests = n+1;
+  say(S, "Put " + money(cost) + " back into " + b.name + ". Bigger ceiling, and it wants more of you.", "good");
   render();
 }
 function sellBiz(i){
@@ -759,7 +869,9 @@ function sellBiz(i){
 function takeJob(){
   /* Real life has a way back. Without this, quitting early is an unrecoverable
      death spiral — the game just grinds you to zero for fifteen years. */
-  const pay = Math.round(Math.max(4200, S.job.pay * 0.85));
+  /* older, and out longer, means less on offer */
+  const ageDrag = S.age > 60 ? Math.pow(0.97, S.age-60) : 1;
+  const pay = Math.round(Math.max(3000, S.job.pay * 0.85 * ageDrag));
   if (!confirm("Go back to work?\n\n" + money(pay) + "/mo, and it costs " + S.job.focus +
     " attention points.\n\nIt's not failure. It's runway.")) return;
   S.job.has = true; S.job.pay = pay;
@@ -793,7 +905,11 @@ function incomeLines(st){
   return L;
 }
 function expenseLines(st){
-  const L = [{ label:"Living expenses", amt:monthlyExpenses(st) }];
+  const infl = Math.pow(1.025, st.month/MONTHS_PER_YEAR);
+  const chosen = (st.chosenExpenses||0) * infl;
+  const L = [{ label:"Living, inflated", amt:monthlyExpenses(st) - chosen }];
+  if (chosen > 0) L.push({ label:"Lifestyle you chose ("+st.yeses+(st.yeses===1?" yes":" yeses")+")", amt:chosen });
+  if (st.debt > 0) L.push({ label:"Debt service (18%)", amt:Math.max(200, st.debt*0.02) });
   st.props.forEach(p=>{
     L.push({ label:p.name+" mortgage", amt:p.payment });
     const gross = p.vacantMonths>0 ? 0 : p.rent;
@@ -831,13 +947,13 @@ function render(){
   document.getElementById("age").textContent = S.age;
 
   const fEl = document.getElementById("freedom");
-  fEl.textContent = money(inc); fEl.classList.toggle("free", ratio>=1);
+  fEl.textContent = money(inc) + (ratio>=1.2 ? "  ·  " + ratio.toFixed(1) + "\u00d7 your life" : ""); fEl.classList.toggle("free", ratio>=1);
   document.getElementById("expenses").textContent = money(exp);
   const pct = Math.min(100, ratio*100);
   document.getElementById("fbarfill").style.width = pct + "%";
   document.getElementById("fbar").classList.toggle("done", ratio>=1);
   document.getElementById("fpct").textContent = ratio>=1
-    ? "You are free. " + S.freeStreak + " of 12 months sustained."
+    ? "You are free. " + Math.min(12,S.freeStreak) + " of 12 months sustained."
     : Math.round(ratio*100) + "% of the way there";
   document.getElementById("fgap").textContent = ratio>=1
     ? money(inc-exp) + " a month beyond your life"
@@ -863,6 +979,11 @@ function render(){
   const first = S.history[0] ? S.history[0].nw : nw;
   document.getElementById("nwnote").textContent = S.month>2
     ? ((nw>=first?"+":"") + moneyK(nw-first) + " since you started") : " ";
+
+  document.getElementById("nwpays").textContent =
+    "of which pays you " + money(freedomIncome(S)) + "/mo" +
+    (S.given>0 ? "  ·  given away " + moneyK(S.given) : "") +
+    (S.handed>0 ? "  ·  handed down " + moneyK(S.handed) : "");
 
   const mood = S.regime.kind;
   document.getElementById("mktnote").textContent = mood==="bear"?"market falling \u2014 hard to hold"
@@ -900,7 +1021,7 @@ function render(){
   be.innerHTML = S.bizs.length ? S.bizs.map((b,i)=>`<div class="row">
       <div class="nm"><b>${b.name}</b><small>${b.focus} attention · worth ~${moneyK(b.profit*12*b.multiple)} at ${b.multiple.toFixed(1)}×</small></div>
       <div class="px up">+${money(b.profit)}<small>per month</small></div>
-      <div class="btns"><button class="mini" onclick="reinvest(${i})">Reinvest</button><button class="mini sell" onclick="sellBiz(${i})">Sell</button></div>
+      <div class="btns"><button class="mini" onclick="reinvest(${i})">Reinvest</button>${S.age>=55?`<button class="mini" onclick="handDown(${i})">Hand down</button>`:""}<button class="mini sell" onclick="sellBiz(${i})">Sell</button></div>
     </div>`).join("") : `<div class="empty">Nothing yet. A business pays more per dollar than anything else here — and takes the one thing you can't buy back.</div>`;
 
   /* focus */
@@ -985,10 +1106,10 @@ document.getElementById("b-listings").onclick = ()=>{
   openSheet(`<h2>For <em>sale</em></h2>
     <p>25% down plus 2% closing. The bank lends the rest for 30 years — and the tenant pays it back.</p>
     ${S.listings.map((l,i)=>{
-      const down=l.price*0.25, loan=l.price-down, pay=mortPayment(loan,0.065);
+      const down=l.price*0.25, loan=l.price-down, pay=mortPayment(loan,l.rate);
       const cf = l.rent*0.58 - pay;
       return `<div class="row"><div class="nm"><b>${l.name}</b>
-        <small>${money(l.price)} · rent ${money(l.rent)}/mo · ${money(down+l.price*0.02)} to close</small>
+        <small>${money(l.price)} · ${(l.rate*100).toFixed(1)}% · rent ${money(l.rent)}/mo · ${money(down+l.price*0.02)} to close</small>
         <small class="${cf>=0?'up':'down'}">${cf>=0?"+":""}${money(cf)}/mo after costs and mortgage</small></div>
         <div class="btns"><button class="mini buy" onclick="buyProp(${i}); closeSheet()">Buy</button></div></div>`;
     }).join("")}
@@ -997,8 +1118,8 @@ document.getElementById("b-listings").onclick = ()=>{
 document.getElementById("b-deals").onclick = ()=>{
   openSheet(`<h2>Owners ready to <em>sell</em></h2>
     <p>Cash up front. You have ${money(S.cash)}, and ${Math.max(0,S.focusCap-focusUsed(S))} attention points free.</p>
-    ${S.deals.map((d,i)=>`<div class="row"><div class="nm"><b>${d.name}</b><small>${d.blurb}</small>
-      <small>${money(d.cost)} · ${d.focus} attention</small></div>
+    ${S.deals.slice().sort((a,b)=>(b.profit/b.focus)-(a.profit/a.focus)).map((d,i)=>`<div class="row"><div class="nm"><b>${d.name}</b><small>${d.blurb}</small>
+      <small>${money(d.cost)} · ${d.focus} attention · <b>${money(d.profit/d.focus)} per attention point</b></small></div>
       <div class="px up">+${money(d.profit)}<small>per month</small></div>
       <div class="btns"><button class="mini buy" onclick="buyBiz(${i}); closeSheet()">Buy</button></div></div>`).join("")}
     <div style="margin-top:1rem"><button class="btn ghost" onclick="closeSheet()">Close</button></div>`);
@@ -1022,9 +1143,50 @@ document.getElementById("b-how").onclick = ()=>{
 
 function acceptLifestyle(){
   const p = S.pending; if (!p) return;
-  S.expensesBase += p.bump; S.pending = null;
+  S.expensesBase += p.bump; S.chosenExpenses += p.bump; S.yeses++;
+  S.cutbacks.push({ bump:p.bump, text:p.text });
+  S.pending = null;
   say(S, "You took it. Life costs " + money(p.bump) + "/mo more from here.", "bad");
   render(); closeSheet();
+}
+/* #7 the way back — the most powerful real lever toward freedom, and it didn't exist */
+/* The endgame's second scoreboard. Accumulation past 3x is arithmetic, not a game.
+   The only lever that makes it a game again is one where the number goes DOWN on purpose. */
+function give(){
+  const step = 25000;
+  if (S.cash < step) return alert("Giving moves real money. You'd need " + money(step) + " in cash.");
+  if (!confirm("Give " + money(step) + " away?\n\nIt leaves your net worth permanently. It does not come back.\n\nGiven so far: " + money(S.given))) return;
+  S.cash -= step; S.given += step;
+  const tier = Math.floor(S.given/250000);
+  say(S, "Gave " + money(step) + ". " + (S.given % 250000 < step && tier > 0
+    ? "That's " + tier + " thing" + (tier>1?"s":"") + " that keeps running without you."
+    : "Total given: " + money(S.given) + "."), "big");
+  render();
+}
+function handDown(i){
+  const b = S.bizs[i];
+  if (S.age < 55) return alert("Not yet. You hand a business down when you're ready to stop running it — after 55.");
+  if (!confirm("Hand " + b.name + " down?\n\nIt leaves your balance sheet for good — you get no money for it.\nYou get back " +
+    b.focus + " attention points, and it keeps paying someone else.\n\nThis is the other way to win.")) return;
+  S.handed += b.profit*12*b.multiple;
+  S.bizs.splice(i,1);
+  say(S, "You handed " + b.name + " down. It runs without you now.", "big");
+  render();
+}
+function cutBack(){
+  if (!S.cutbacks.length) return alert("There's nothing to give up. Your expenses are all just life.");
+  if (S.month - S.lastCut < 36) return alert("You cut back recently. Give it a while.");
+  S.cutbacks.sort((a,b)=>b.bump-a.bump);
+  const c = S.cutbacks[0];
+  const cost = Math.round(c.bump*6);
+  if (S.cash < cost) return alert("Unwinding costs " + money(cost) + " — you eat the depreciation, same as real life.");
+  if (!confirm("Give up the biggest thing you took on?\n\nIt's costing you " + money(c.bump) +
+    "/mo.\nUnwinding costs " + money(cost) + " up front.\n\nYou'd be " +
+    money(c.bump*12/0.04) + " closer to free.")) return;
+  S.cash -= cost; S.expensesBase -= c.bump; S.chosenExpenses -= c.bump;
+  S.cutbacks.shift(); S.lastCut = S.month;
+  say(S, "You let it go. " + money(c.bump) + "/mo back in your pocket, permanently.", "big");
+  render();
 }
 function declineLifestyle(){
   const p = S.pending; if (!p) return;
@@ -1051,17 +1213,31 @@ function showTurnReport(before, months, stopped){
       <div><span>Net worth</span><b class="${dNW>=0?'up':'down'}">${dNW>=0?"+":""}${moneyK(dNW)}</b><small>${moneyK(nw)} total</small></div>
       <div><span>Cash</span><b class="${dCash>=0?'up':'down'}">${dCash>=0?"+":""}${moneyK(dCash)}</b><small>${moneyK(S.cash)} on hand</small></div>
       <div><span>Market</span><b class="${idxCh>=0?'up':'down'}">${idxCh>=0?"+":""}${idxCh.toFixed(1)}%</b><small>${mkt>0?moneyK(mkt)+" invested":"nothing invested"}</small></div>
-      <div><span>Freedom</span><b>${Math.round(inc/exp*100)}%</b><small>${money(inc)} of ${money(exp)}</small></div>
+      <div><span>Freedom</span><b>${inc/exp>=1.2 ? (inc/exp).toFixed(1)+"\u00d7" : Math.round(inc/exp*100)+"%"}</b><small>${money(inc)} of ${money(exp)}</small></div>
+      <div><span>Attention</span><b class="${focusUsed(S)>S.focusCap?'down':''}">${focusUsed(S)}/${S.focusCap}</b><small>${focusUsed(S)>S.focusCap?"overloaded — things are slipping":"of your life"}</small></div>
     </div>
 
     ${events.length
       ? `<div class="rpt-events">${events.map(e=>`<div class="${e.cls}">${e.text}</div>`).join("")}</div>`
       : `<p style="font-size:0.86rem;font-style:italic;color:var(--faint)">A quiet month. Those are the ones that compound.</p>`}
 
+    ${(S.pendingJob || (!S.job.has && S.cash < monthlyExpenses(S)*3 && ratioNow() < 1)) ? `<div class="offer">
+        <div class="offer-t">${S.pendingJob ? "Your job is gone." : "You're running thin without a job."}</div>
+        <div class="offer-s">Your assets pay <b>${money(freedomIncome(S))}</b> against <b>${money(monthlyExpenses(S))}</b> of life.
+          ${freedomIncome(S) < monthlyExpenses(S)
+            ? "About <b>" + Math.max(0,Math.floor(S.cash/Math.max(1,monthlyExpenses(S)-freedomIncome(S)))) + " months</b> of runway."
+            : "You're covered — you don't need one."}</div>
+        <div class="offer-b">
+          <button class="btn" onclick="takeJob(); S.pendingJob=false; closeSheet()">Take a job</button>
+          <button class="btn ghost" onclick="S.pendingJob=false; closeSheet()">Ride it out</button>
+        </div></div>` : ""}
+
     ${S.pending ? `<div class="offer">
         <div class="offer-t">${S.pending.text}</div>
-        <div class="offer-s">It would add <b>${money(S.pending.bump)}/mo</b> to your life, forever.
-          Your assets currently cover ${Math.round(freedomIncome(S)/monthlyExpenses(S)*100)}% of what you spend.</div>
+        <div class="offer-s">It would add <b>${money(S.pending.bump)}/mo</b> to your life — and it grows with
+          everything else. At a 4% draw that's <b>${moneyK(S.pending.bump*12/0.04)} of portfolio</b> you now have to
+          build, roughly ${Math.round(S.pending.bump*12/0.04/Math.max(1,(freedomIncome(S)||1)*3))} months further from free.
+          Your assets cover ${Math.round(freedomIncome(S)/monthlyExpenses(S)*100)}% of what you spend today.</div>
         <div class="offer-b">
           <button class="btn ghost" onclick="acceptLifestyle()">Take it</button>
           <button class="btn" onclick="declineLifestyle()">Pass</button>
@@ -1091,13 +1267,38 @@ function showWin(){
    TIME CONTROLS
    ============================================================ */
 function stopPlay(){ playing = false; }
+function cashflowSnapshot(){
+  let i=0; if (S.job.has) i+=S.job.pay;
+  S.bizs.forEach(b=>{ i+=b.profit*0.7; });
+  S.props.forEach(p=>{ i += (p.vacantMonths>0?0:p.rent); });
+  let o=monthlyExpenses(S);
+  S.props.forEach(p=>{ o+=p.payment; if(p.vacantMonths===0) o+=p.rent*0.42; });
+  return i-o;
+}
+function portfolioVacancy(){
+  if (!S.props.length) return 0;
+  return S.props.filter(p=>p.vacantMonths>0).length / S.props.length;
+}
 
 /* One turn = one month. Read the statement, make your moves, then end it. */
 function endMonth(){
+  if (S.over) return showOver();
   const before = { nw:netWorth(S), cash:S.cash, mkt:marketValue(S) };
   tickMonth(S);
   render();
+  if (S.over) return showOver();
   showTurnReport(before);
+}
+function showOver(){
+  openSheet(`<h2>It came <em>apart</em>.</h2>
+    <p>${dateStr(S)}. You're ${S.age}. The debt outgrew everything you own and kept growing.</p>
+    <ul>
+      <li>Owed <b>${moneyK(S.debt)}</b></li>
+      <li>Everything you own: <b>${moneyK(S.cash+marketValue(S)+propEquity(S)+bizValue(S))}</b></li>
+      <li>Your life cost <b>${money(monthlyExpenses(S))}</b> a month at the end${S.yeses?`, ${money((S.chosenExpenses||0)*Math.pow(1.025,S.month/12))} of it things you said yes to`:""}</li>
+    </ul>
+    <p>Most of the way this happens is quiet: expenses drift up, the cushion goes, one bad stretch arrives with nothing behind it.</p>
+    <button class="btn" onclick="closeSheet(); document.getElementById('b-reset').click()">Start again</button>`);
 }
 
 /* Coasting: run months until something actually needs you, so a 30-year game
@@ -1118,6 +1319,8 @@ function coast(){
   showTurnReport(before, S.month-start, stopped);
 }
 
+document.getElementById("b-cut").onclick = cutBack;
+document.getElementById("b-give").onclick = give;
 document.getElementById("b-end").onclick = endMonth;
 document.getElementById("b-coast").onclick = coast;
 window.addEventListener("keydown", e=>{
