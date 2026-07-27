@@ -363,6 +363,27 @@ const BIZ_TYPES = [
   { name:"Storage Units",    cost:215000, profit:4900, focus:42, blurb:"Concrete, doors, and very few phone calls." }
 ];
 
+/* ---- Tier 2: capital-heavy, attention-light. Locked until you have real money. ----
+   The ladder the game is really about:
+     small business  ~4.5%/mo on capital, 10-42 attention   (cheap to buy, expensive to live)
+     big holdings    ~1.5%/mo on capital,  2-22 attention   (expensive to buy, cheap to live)
+     the market        0.33%/mo drawable,   0 attention     (buys you out entirely)
+   You don't get a better deal as you get richer. You get a quieter one. */
+const BIG_DEALS = [
+  { name:"Ground Leases",       cost:420000,  profit:5800,  focus:2,  minNW:700000,
+    blurb:"Billboards and a cell tower. You own the dirt underneath." },
+  { name:"Equipment Leasing",   cost:520000,  profit:8600,  focus:10, minNW:850000,
+    blurb:"Skid steers and lifts on contract. A phone and a spreadsheet." },
+  { name:"Storage Portfolio",   cost:680000,  profit:10800, focus:8,  minNW:1100000,
+    blurb:"Three facilities, one part-time attendant." },
+  { name:"Triple-Net Retail",   cost:940000,  profit:12400, focus:3,  minNW:1500000,
+    blurb:"A pharmacy on a 15-year lease. The tenant pays everything." },
+  { name:"Laundromat Chain",    cost:1150000, profit:18500, focus:16, minNW:1800000,
+    blurb:"Nine locations and a route manager who already works there." },
+  { name:"Franchise Portfolio", cost:1800000, profit:29500, focus:22, minNW:2800000,
+    blurb:"Six stores, six general managers, one P&L you actually read." }
+];
+
 const PROP_NAMES = ["Maple St. duplex","49th Ave bungalow","Elmwood triplex","Birch Lane rental",
   "Cedar Court fourplex","Robbins Ave house","Summit St. duplex","Northside single-family"];
 
@@ -531,7 +552,7 @@ function mortPayment(principal, rate){
 /* ---------------- valuation ---------------- */
 function marketValue(st){ return st.funds.reduce((s,f)=> s + f.shares*f.price, 0); }
 function propEquity(st){ return st.props.reduce((s,p)=> s + (p.value - p.loan), 0); }
-function bizValue(st){ return st.bizs.reduce((s,b)=> s + b.profit*12*b.multiple, 0); }
+function bizValue(st){ return st.bizs.reduce((s,b)=> s + b.profit*12*b.multiple - (b.note||0), 0); }
 function netWorth(st){ return st.cash + marketValue(st) + propEquity(st) + bizValue(st) - (st.debt||0); }
 
 function propCashflow(p){
@@ -556,7 +577,7 @@ function freedomIncome(st){
      it at zero meant a portfolio bleeding $25k/mo still read "72% of the way to free"
      while the statement six inches below showed the truth. */
   const fromProps  = st.props.reduce((s,p)=> s + propCashflow(p), 0);
-  const fromBiz    = st.bizs.reduce((s,b)=> s + b.profit*0.7, 0); // 70% distributed, 30% retained
+  const fromBiz    = st.bizs.reduce((s,b)=> s + b.profit*0.7 - (b.note>0?b.notePay:0) - (b.manager?managerCost(st,b):0), 0); // 70% distributed, 30% retained
   return fromMarket + fromProps + fromBiz;
 }
 function ratioNow(){ return freedomIncome(S)/monthlyExpenses(S); }
@@ -600,7 +621,18 @@ function rollDeals(st){
     pool = [one].concat(pool.filter(b=>b.name !== one.name));
   }
   const shuffled = pool.slice(0,2);
+  /* One tier-2 holding appears alongside the small deals once your balance sheet
+     could actually carry it. They are the reward for having built something. */
+  const nw = netWorth(st);
+  const unlocked = BIG_DEALS.filter(b => nw >= b.minNW);
+  if (unlocked.length && Math.random() < 0.75) {
+    const b = pick(unlocked);
+    const k = rnd(0.9, 1.15);
+    shuffled.push({ name:b.name, blurb:b.blurb, big:true,
+      cost:Math.round(b.cost*k/1000)*1000, profit:Math.round(b.profit*k/50)*50, focus:b.focus });
+  }
   shuffled.forEach(t=>{
+    if (t.big) { st.deals.push(t); return; }      // already priced, and keep the flag
     const k = rnd(0.85,1.2);
     st.deals.push({
       name:t.name, blurb:t.blurb,
@@ -669,6 +701,10 @@ function tickMonth(st){
     /* rents were written once and frozen forever while expenses inflated — the pillar
        was designed to decay over exactly the horizon the game measures */
     st.props.forEach(p=>{ p.rent = Math.round(p.rent * (1 + rnd(0.015,0.035))/5)*5; });
+    /* Businesses raise prices too. Without this, profit was frozen in nominal terms while
+       expenses and wages inflated — every business quietly decayed, and a manager's salary
+       eventually exceeded the profit of the thing it managed. */
+    st.bizs.forEach(b=>{ const k = 1 + rnd(0.015,0.032); b.potential *= k; b.ceiling *= k; b.profit *= k; });
     rollListings(st); rollDeals(st);
     if (st.job.has) { st.job.pay *= 1 + rnd(0.015,0.045); }
   }
@@ -723,8 +759,19 @@ function monthEnd(st){
        business grinds to nothing. */
     /* Growth slows as the business approaches what it can be without more of
        you in it. A lawn route doesn't compound at 6% a year forever. */
+    if (b.manager) outflow += managerCost(st, b);
+    if (b.note > 0) {
+      outflow += b.notePay;
+      b.note = Math.max(0, b.note - (b.notePay - b.note*(b.noteRate/12)));
+      if (b.note === 0) say(st, b.name + "'s note is paid off. That's " + money(b.notePay) + "/mo back.", "big");
+    }
     const room = Math.max(0, 1 - b.potential / b.ceiling);
-    const grow = over > 0 ? -(0.005 + over*0.0013) : rnd(0.001,0.007) * room;
+    /* A managed business still grows — slightly slower than your own hands, but it
+       grows while you're doing something else, which is the entire point. */
+    const mgr = b.manager ? 0.8 : 1;
+    /* Real growth only — inflation is passed through separately at year end now, so this
+       no longer has to do both jobs. */
+    const grow = over > 0 ? -(0.005 + over*0.0013) : rnd(0.0005,0.0035) * room * mgr;
     b.potential = Math.max(150, b.potential * (1 + grow));
     b.profit += (b.potential - b.profit) * 0.18;           // mean-revert toward healthy
     b.profit = Math.max(100, b.profit * (1 + 0.016*gauss()));
@@ -1003,12 +1050,63 @@ function sellProp(i){
 }
 function buyBiz(idx){
   const d = S.deals[idx];
+  /* Tier-2 holdings are bought the way real acquisitions are: 30% down and a
+     10-year note. Requiring $900k in cash meant nobody ever bought one, because
+     anybody sensible has their money invested, not sitting in the account. */
+  if (d.big) {
+    const down = Math.round(d.cost*0.30), note = d.cost-down, rate = 0.081;
+    const pay = note*(rate/12)/(1-Math.pow(1+rate/12,-120));
+    if (S.cash < down) return alert(money(down) + " down is what it takes — 30% of " + money(d.cost) + ".");
+    if (!confirm("Buy " + d.name + "?\n\n" + money(d.cost) + ", " + money(down) + " down.\n" +
+      money(note) + " on a 10-year note at 8.1% — " + money(pay) + "/mo.\n\n" +
+      "It earns " + money(d.profit) + "/mo, so " + money(d.profit-pay) + "/mo after the note, and takes " +
+      d.focus + " attention.\n\nThe note is gone in 10 years and then it's all yours.")) return;
+    S.cash -= down;
+    S.bizs.push({ name:d.name, profit:d.profit, potential:d.profit, big:true,
+      ceiling:d.profit*rnd(1.15,1.45), focus:d.focus, multiple:d.cost/(d.profit*12),
+      trailing:[d.profit], reinvests:0, lastReinvest:-999, note:note, notePay:pay, noteRate:rate });
+    say(S, "Bought " + d.name + " — " + money(down) + " down and a note for the rest.", "big");
+    S.deals.splice(idx,1); render(); return;
+  }
   if (S.cash < d.cost) return alert("Not enough cash. That one costs " + money(d.cost) + ".");
   S.cash -= d.cost;
-  S.bizs.push({ name:d.name, profit:d.profit, potential:d.profit, ceiling:d.profit*rnd(2.0,3.0),
+  S.bizs.push({ name:d.name, profit:d.profit, potential:d.profit, big:!!d.big, ceiling:d.profit*(d.big?rnd(1.15,1.45):rnd(2.0,3.0)),
     focus:d.focus, multiple:d.cost/(d.profit*12), trailing:[d.profit], reinvests:0, lastReinvest:-999 });
   say(S, "You bought " + d.name + ". " + money(d.profit) + "/mo, and " + d.focus + " points of your attention.", "good");
   S.deals.splice(idx,1);
+  render();
+}
+/* Hire it out. A manager costs what a manager costs — a real salary, not a slice —
+   so it never pencils on a $380/mo vending route and always pencils on something
+   you've grown. That's the arc: build it, then buy your way out of running it. */
+function managerCost(st, b){
+  /* A real salary with a floor — never sensible on a $380 vending route — that scales
+     with the business, because running a bigger thing is a bigger job. */
+  const base = Math.max(2600, (b ? b.profit : 2600) * 0.22);
+  return Math.round(base * Math.pow(1.025, st.month/MONTHS_PER_YEAR));
+}
+function hireManager(i){
+  const b = S.bizs[i];
+  if (b.manager) return alert(b.name + " already has a manager running it.");
+  const cost = managerCost(S, b);
+  const freed = Math.round(b.focus * 0.7);
+  if (!confirm("Hire a manager for " + b.name + "?\n\n" + money(cost) + "/mo, forever — a real salary, not a share.\n\n" +
+    "You get back " + freed + " of your " + b.focus + " attention points, and a dedicated operator grows it past what you could part-time.\n\n" +
+    b.name + " earns " + money(b.profit) + "/mo today. After the salary that's " + money(b.profit-cost) + ".")) return;
+  b.manager = true;
+  b.ownerFocus = b.focus;
+  b.focus = b.focus - freed;
+  b.ceiling *= 1.15;
+  say(S, "Hired a manager for " + b.name + ". It runs without you now — and it can get bigger than you could have taken it.", "big");
+  render();
+}
+function fireManager(i){
+  const b = S.bizs[i];
+  if (!b.manager) return;
+  if (!confirm("Take " + b.name + " back?\n\nYou stop paying " + money(managerCost(S, b)) + "/mo and it costs you " +
+    (b.ownerFocus - b.focus) + " attention points again.")) return;
+  b.manager = false; b.focus = b.ownerFocus || b.focus;
+  say(S, "You took " + b.name + " back. Your money, your hours.", "");
   render();
 }
 function reinvest(i){
@@ -1084,6 +1182,7 @@ function expenseLines(st){
   const L = [{ label:"Living, inflated", amt:monthlyExpenses(st) - chosen }];
   if (chosen > 0) L.push({ label:"Lifestyle you chose ("+st.yeses+(st.yeses===1?" yes":" yeses")+")", amt:chosen });
   if (st.debt > 0) L.push({ label:"Debt service (18%)", amt:Math.max(200, st.debt*0.02) });
+  st.bizs.filter(b=>b.manager).forEach(b=> L.push({ label:b.name+" manager", amt:managerCost(st,b) }));
   st.props.forEach(p=>{
     L.push({ label:p.name+" mortgage", amt:p.payment });
     const gross = p.vacantMonths>0 ? 0 : p.rent;
@@ -1100,7 +1199,10 @@ function assetLines(st){
   return L;
 }
 function liabilityLines(st){
-  return st.props.filter(p=>p.loan>1).map(p=> ({ label:p.name+" loan", amt:p.loan }));
+  const L = st.props.filter(p=>p.loan>1).map(p=> ({ label:p.name+" loan", amt:p.loan }));
+  st.bizs.filter(b=>b.note>1).forEach(b=> L.push({ label:b.name+" note", amt:b.note }));
+  if (st.debt > 1) L.push({ label:"Debt at 18%", amt:st.debt });
+  return L;
 }
 function renderLines(elId, lines, emptyText){
   const el = document.getElementById(elId);
@@ -1193,9 +1295,11 @@ function render(){
   /* businesses */
   const be = document.getElementById("bizs");
   be.innerHTML = S.bizs.length ? S.bizs.map((b,i)=>`<div class="row">
-      <div class="nm"><b>${b.name}</b><small>${b.focus} attention · worth ~${moneyK(b.profit*12*b.multiple)} at ${b.multiple.toFixed(1)}×</small></div>
-      <div class="px up">+${money(b.profit)}<small>per month</small></div>
-      <div class="btns"><button class="mini" onclick="reinvest(${i})">Reinvest</button>${S.age>=55?`<button class="mini" onclick="handDown(${i})">Hand down</button>`:""}<button class="mini sell" onclick="sellBiz(${i})">Sell</button></div>
+      <div class="nm"><b>${b.name}</b><small>${b.focus} attention${b.manager?` · <b style="color:var(--up)">managed</b> · −${money(managerCost(S))}/mo`:""} · worth ~${moneyK(b.profit*12*b.multiple)} at ${b.multiple.toFixed(1)}×</small></div>
+      <div class="px up">+${money(b.manager? b.profit-managerCost(S,b) : b.profit)}<small>${b.manager?"after the manager":"per month"}</small></div>
+      <div class="btns">${b.manager
+          ? `<button class="mini sell" onclick="fireManager(${i})">Take it back</button>`
+          : `<button class="mini" onclick="hireManager(${i})">Hire a manager</button>`}<button class="mini" onclick="reinvest(${i})">Reinvest</button>${S.age>=55?`<button class="mini" onclick="handDown(${i})">Hand down</button>`:""}<button class="mini sell" onclick="sellBiz(${i})">Sell</button></div>
     </div>`).join("") : `<div class="empty">Nothing yet. A business pays more per dollar than anything else here — and takes the one thing you can't buy back.</div>`;
 
   /* focus */
@@ -1292,8 +1396,8 @@ document.getElementById("b-listings").onclick = ()=>{
 document.getElementById("b-deals").onclick = ()=>{
   openSheet(`<h2>Owners ready to <em>sell</em></h2>
     <p>Cash up front. You have ${money(S.cash)}, and ${Math.max(0,S.focusCap-focusUsed(S))} attention points free.</p>
-    ${S.deals.slice().sort((a,b)=>(b.profit/b.focus)-(a.profit/a.focus)).map((d,i)=>`<div class="row"><div class="nm"><b>${d.name}</b><small>${d.blurb}</small>
-      <small>${money(d.cost)} · ${d.focus} attention · <b>${money(d.profit/d.focus)} per attention point</b></small></div>
+    ${S.deals.map((d,i)=>({d,i})).sort((a,b)=>(b.d.profit/b.d.focus)-(a.d.profit/a.d.focus)).map(({d,i})=>`<div class="row"><div class="nm"><b>${d.name}${d.big?` <span style="color:var(--gold);font-size:0.68rem;letter-spacing:0.1em">HOLDING</span>`:""}</b><small>${d.blurb}</small>
+      <small>${d.big?money(Math.round(d.cost*0.30))+' down of '+moneyK(d.cost):money(d.cost)} · ${d.focus} attention · <b>${money(d.profit/d.focus)} per attention point</b> · ${(d.profit/d.cost*100).toFixed(2)}%/mo on capital</small></div>
       <div class="px up">+${money(d.profit)}<small>per month</small></div>
       <div class="btns"><button class="mini buy" onclick="buyBiz(${i}); closeSheet()">Buy</button></div></div>`).join("")}
     <div style="margin-top:1rem"><button class="btn ghost" onclick="closeSheet()">Close</button></div>`);
@@ -1305,6 +1409,8 @@ document.getElementById("b-how").onclick = ()=>{
       <li><b>Freedom income</b> is what your things pay you monthly: 4% a year from the market, real cash flow from rentals, 70% of business profit.</li>
       <li><b>Attention is the real currency.</b> You have 100 points. A job costs 55. A business costs 8–30. A rental costs 4. Go over and businesses decay and tenants leave.</li>
       <li><b>The market</b> pays the least per dollar and asks nothing of you. That's why it's what you actually retire on.</li>
+      <li><b>Holdings</b> (marked HOLDING) unlock as your net worth grows: ground leases, triple-net retail, a franchise portfolio. They cost far more per dollar of income and almost nothing in attention. You don't get a better deal as you get richer — you get a quieter one.</li>
+      <li><b>Hire a manager</b> on a business you've grown. A real salary (~${money(3800)}/mo), and you get 70% of its attention back — plus a dedicated operator raises its ceiling. Never worth it on something small; always worth it on something big.</li>
       <li><b>Businesses</b> pay the most and cost the most attention — and sell for 2–4× annual profit when you're done. <b>Reinvest</b> in one to raise its ceiling.</li>
       <li><b>Lifestyle offers</b> come as you get richer. Taking one raises your expenses forever, which moves the finish line away from you. Passing is the whole game.</li>
       <li><b>Real estate</b> is leverage: 25% down, tenant pays the loan. It cuts both ways.</li>
