@@ -163,6 +163,23 @@
   .focus .fm span.over { background:var(--down); }
   .focus .txt { font-size:0.72rem; color:var(--muted); white-space:nowrap; }
 
+  /* ---------- seats ---------- */
+  .seats { margin-bottom:0.9rem; }
+  .seats-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:0.5rem; }
+  .seats-head h3 { font-family:var(--font-head); font-weight:400; font-size:1.25rem; }
+  .seats-head span { font-size:0.72rem; color:var(--muted); }
+  .seat { display:flex; align-items:center; gap:0.6rem; padding:0.55rem 0; border-top:1px solid var(--line); }
+  .seat:first-child { border-top:none; }
+  .dot { width:10px; height:10px; border-radius:50%; flex:none; }
+  .dot.g { background:#3f7a55; } .dot.a { background:#c98a3f; } .dot.r { background:#b4503f; }
+  .seat .who { flex:1; min-width:0; }
+  .seat .who b { display:block; font-size:0.85rem; }
+  .seat .who small { display:block; font-size:0.72rem; color:var(--muted); }
+  .seat .att { font-family:var(--font-head); font-size:1rem; white-space:nowrap; text-align:right; min-width:52px; }
+  .seat .att small { display:block; font-family:var(--font-body); font-size:0.64rem; color:var(--faint); }
+  .seat .act { display:flex; gap:0.3rem; flex-wrap:wrap; justify-content:flex-end; }
+  @media (max-width:560px){ .seat { flex-wrap:wrap; } .seat .act { width:100%; justify-content:flex-start; } }
+
   /* ---------- log ---------- */
   .logwrap { background:var(--dark); color:#e8e6e0; border-radius:6px; padding:0.85rem 1rem; }
   .logwrap h3 { font-family:var(--font-head); font-weight:400; font-size:1.15rem; color:#f5f4f0; margin-bottom:0.45rem; }
@@ -345,6 +362,14 @@
       </div>
       <div id="joblet"></div>
     </div>
+  </div>
+
+  <div class="panel seats">
+    <div class="seats-head">
+      <h3>Who's in the seat</h3>
+      <span id="seats-sum">&nbsp;</span>
+    </div>
+    <div id="seats"></div>
   </div>
 
   <div class="logwrap">
@@ -560,7 +585,7 @@ function fresh() {
     listings:[], deals:[],
     regime:{ kind:"normal", left:0 },  // market regime
     history:[], log:[],
-    milestones:{}, freeStreak:0, won:false, over:false, gm:false, quadHit:{}, pending:null, pendingJob:false, jobGap:0, insolvent:false, chosenExpenses:0, yeses:0, cutbacks:[], lastCut:-999,
+    milestones:{}, freeStreak:0, won:false, over:false, gm:false, pmCo:false, quadHit:{}, pending:null, pendingJob:false, jobGap:0, insolvent:false, chosenExpenses:0, yeses:0, cutbacks:[], lastCut:-999,
     debtPaid:0
   };
   rollListings(st); rollDeals(st);
@@ -620,18 +645,124 @@ function freedomIncome(st){
   /* No floor. A vacant, negative door has to SUBTRACT from freedom income — clamping
      it at zero meant a portfolio bleeding $25k/mo still read "72% of the way to free"
      while the statement six inches below showed the truth. */
-  const fromProps  = st.props.reduce((s,p)=> s + propCashflow(p), 0);
-  const fromBiz    = st.bizs.reduce((s,b)=> s + b.profit*0.7 - (b.note>0?b.notePay:0) - (b.manager?managerCost(st,b):0), 0); // 70% distributed, 30% retained
+  const fromProps  = st.props.reduce((s,p)=> s + propCashflow(p), 0) - pmFee(st) - pmCoFee(st);
+  const fromBiz    = st.bizs.reduce((s,b)=> s + b.profit*0.7*(1-(b.equity||0)/100) - (b.note>0?b.notePay:0) - (b.manager && !st.gm ? managerCost(st,b) : 0), 0) - (st.gm && st.bizs.length ? gmCost(st) : 0); // 70% distributed, 30% retained
   return fromMarket + fromProps + fromBiz;
 }
 function ratioNow(){ return freedomIncome(S)/monthlyExpenses(S); }
 function focusUsed(st){
   let f = st.job.has ? st.job.focus : 0;
-  f += st.props.length * 4;
+  f += st.props.reduce((s,p)=> s + propFocus(st,p), 0);
   f += st.bizs.reduce((s,b)=> s + b.focus, 0);
   return f;
 }
 
+
+
+
+/* ---------------- running the doors ----------------
+   Real estate had no people in it at all: every door cost you 4 attention forever,
+   and vacancies and furnaces landed on your desk personally no matter how many you
+   owned. Two levels, matching how it actually scales.
+
+     a property manager   9% of rent per door   — they re-let faster and catch things early
+     a management company 7% of ALL rents       — one relationship, every door, near-zero attention
+                                                  and a maintenance reserve so repairs stop being shocks */
+const PM_FEE = 0.09, CO_FEE = 0.07;
+function pmFee(st){ return st.props.reduce((s,p)=> s + ((p.pm && !st.pmCo) ? (p.vacantMonths>0?0:p.rent)*PM_FEE : 0), 0); }
+function pmCoFee(st){ return st.pmCo ? st.props.reduce((s,p)=> s + (p.vacantMonths>0?0:p.rent), 0) * CO_FEE : 0; }
+function propFocus(st, p){ if (st.pmCo) return 1; return p.pm ? 1 : 4; }
+function hirePM(i){
+  const p = S.props[i];
+  if (S.pmCo) return alert("The management company already runs every door you own.");
+  if (p.pm) return alert(p.name + " is already managed.");
+  const fee = Math.round(p.rent*PM_FEE);
+  if (!confirm("Put a property manager on " + p.name + "?\n\n" + money(fee) + "/mo — 9% of the rent.\n\n" +
+    "It costs 1 of your attention instead of 4, they re-let it faster when it goes empty, " +
+    "and they catch problems before they become furnaces.")) return;
+  p.pm = true;
+  say(S, "Put a manager on " + p.name + ". Somebody else takes the calls.", "good");
+  render();
+}
+function hirePMCo(){
+  if (S.pmCo) return alert("You already have a company running everything.");
+  if (S.props.length < 4) return alert("A management company over three doors is just an expensive property manager. Get to four.");
+  const gross = S.props.reduce((s,p)=> s + p.rent, 0);
+  if (!confirm("Hire a management company for all " + S.props.length + " doors?\n\n" +
+    money(Math.round(gross*CO_FEE)) + "/mo — 7% of gross rents, cheaper than managing them one at a time.\n\n" +
+    "Every door drops to 1 attention, vacancies get filled fast, and they hold a maintenance reserve " +
+    "so repairs stop arriving as surprises.\n\nThis is the point where the doors stop being a job.")) return;
+  S.pmCo = true;
+  say(S, "Handed the whole portfolio to a management company. It runs without you now.", "big");
+  render();
+}
+
+/* ---------------- people ----------------
+   A manager used to be a vending machine: one payment, permanent, no risk. Real
+   operators develop somebody, and then have to work to keep them — the better you
+   make them, the more portable they are. That tension is the mechanic.
+
+   level 0  you run it
+   level 1  a manager                 30% of your attention, they can walk
+   level 2  a manager with a bench    20%, ceiling up, worth more to a buyer
+   level 3  runs it better than you   12%, and the business barely notices you exist
+
+   Equity is the answer to the risk you created by developing them. */
+const MGR_LEVELS = [
+  { name:"—",                 focus:1.00, ceil:1.00, mult:0.0, quit:0     },
+  { name:"Manager",           focus:0.30, ceil:1.15, mult:0.2, quit:0.008 },
+  { name:"Manager + a bench", focus:0.20, ceil:1.32, mult:0.5, quit:0.013 },
+  { name:"Runs it better than you", focus:0.12, ceil:1.55, mult:0.9, quit:0.019 }
+];
+function mgrLevel(b){ return b.mgrLevel || 0; }
+function applyPeople(st, b){
+  const L = MGR_LEVELS[mgrLevel(b)];
+  if (!b.ownerFocus) b.ownerFocus = b.focus;
+  b.focus = st.gm ? Math.ceil(b.ownerFocus*0.2*L.focus/0.30) : Math.ceil(b.ownerFocus * L.focus);
+  if (mgrLevel(b) === 0 && !st.gm) b.focus = b.ownerFocus;
+}
+function developCost(st, b){
+  const lvl = mgrLevel(b);
+  return Math.round(managerCost(st,b) * (lvl===0 ? 2 : lvl===1 ? 5 : 9));
+}
+function developPeople(i){
+  const b = S.bizs[i], lvl = mgrLevel(b);
+  if (lvl >= 3) return alert(b.name + " has as strong a bench as you can build. " +
+    (b.equity ? "" : "The only thing left is giving them a piece of it."));
+  const cost = developCost(S, b), next = MGR_LEVELS[lvl+1];
+  if (S.cash < cost) return alert("Developing people costs money up front — " + money(cost) + ".");
+  const label = lvl===0 ? "Hire a manager for " : lvl===1 ? "Build a bench under the manager at " : "Develop the manager at ";
+  if (!confirm(label + b.name + "?\n\n" + money(cost) + " up front" + (lvl===0 ? ", then " + money(managerCost(S,b)) + "/mo" : "") +
+    ".\n\nAfter: \"" + next.name + "\" — takes " + Math.ceil((b.ownerFocus||b.focus)*next.focus) +
+    " of your attention instead of " + b.focus + ", ceiling up " + Math.round((next.ceil/MGR_LEVELS[lvl].ceil-1)*100) +
+    "%, and worth more to a buyer.\n\nThe better they get, the more somebody else wants them.")) return;
+  S.cash -= cost;
+  b.ceiling *= next.ceil / MGR_LEVELS[lvl].ceil;
+  /* A better operator runs it better NOW. Raising only the ceiling meant the payoff
+     arrived years later through slow mean reversion, so developing people measured
+     worse than ignoring them — which is the opposite of the point. */
+  b.potential = Math.min(b.ceiling, b.potential * 1.12);
+  b.profit = Math.min(b.potential, b.profit * 1.08);
+  b.multiple = Math.min(5.0, b.multiple + (next.mult - MGR_LEVELS[lvl].mult));
+  b.mgrLevel = lvl+1; b.manager = true; b.tenure = 0;
+  applyPeople(S, b);
+  say(S, lvl===0 ? "Hired a manager at " + b.name + "." :
+       "Invested in the people at " + b.name + ". " + next.name + ".", "big");
+  render();
+}
+function grantEquity(i){
+  const b = S.bizs[i];
+  if (!mgrLevel(b)) return alert("There's nobody to give a piece to yet.");
+  const cur = b.equity || 0;
+  if (cur >= 20) return alert("They already own 20% of " + b.name + ". That's a partner, not an employee.");
+  const step = 5;
+  if (!confirm("Give " + b.name + "'s manager another " + step + "%?\n\nThey'd hold " + (cur+step) +
+    "% — it comes out of your profit and your sale price, forever.\n\nIn exchange they're far less likely to leave. " +
+    "People don't walk away from something they own.")) return;
+  b.equity = cur + step;
+  say(S, "Gave " + b.name + "'s manager " + b.equity + "%. They're not going anywhere.", "good");
+  render();
+}
 
 /* ---------------- the quadrant ----------------
    Where your money actually comes from, in the four buckets:
@@ -645,11 +776,11 @@ function incomeByQuadrant(st){
   const q = { E:0, S:0, B:0, I:0 };
   if (st.job.has) q.E += st.job.pay;
   st.bizs.forEach(b=>{
-    const net = b.profit*0.7 - (b.note>0?b.notePay:0) - (b.manager && !st.gm ? managerCost(st,b) : 0);
+    const net = b.profit*0.7*(1-(b.equity||0)/100) - (b.note>0?b.notePay:0) - (b.manager && !st.gm ? managerCost(st,b) : 0);
     if (b.manager || st.gm || b.big) q.B += net; else q.S += net;
   });
   if (st.gm) q.B -= gmCost(st);
-  st.props.forEach(p=>{ q.I += propCashflow(p); });
+  st.props.forEach(p=>{ q.I += propCashflow(p); }); q.I -= pmFee(st) + pmCoFee(st);
   const hist = st.mktTrail && st.mktTrail.length ? st.mktTrail : [marketValue(st)];
   q.I += (hist.reduce((a,b)=>a+b,0)/hist.length) * SAFE_DRAW / 12;
   return q;
@@ -852,7 +983,8 @@ function monthEnd(st){
   st.props.forEach(p=>{
     /* Repairs live PER PROPERTY now. In the shared event slot they capped at 3.6%/mo for
        the whole portfolio — $224/mo of repairs at one door, $6/door at thirty-five. */
-    if (Math.random() < 0.015) {
+    const managed = st.pmCo || p.pm;
+    if (Math.random() < (managed ? (st.pmCo ? 0.009 : 0.010) : 0.015)) {
       const big = Math.random() < 0.45;
       const rc = Math.round(big ? rnd(4200, 12000) : rnd(900, 4000));
       outflow += rc;
@@ -861,7 +993,8 @@ function monthEnd(st){
     const cf = propCashflow(p);
     inflow += Math.max(0, cf); if (cf < 0) outflow += -cf;
     if (p.loan > 0) p.loan = Math.max(0, p.loan - (p.payment - p.loan*(p.rate/12)));
-    if (p.vacantMonths === 0 && Math.random() < (0.035 + over*0.0015)) {
+    const vacRate = st.pmCo ? 0.011 : (p.pm ? 0.015 : 0.035);
+    if (p.vacantMonths === 0 && Math.random() < (vacRate + over*0.0015)) {
       p.vacantMonths = Math.random()<0.7 ? 1 : 2;
       say(st, p.name + pickFresh(st, VACANCY) + p.vacantMonths + " month" + (p.vacantMonths>1?"s":"") + " without rent.", "bad");
     }
@@ -877,6 +1010,23 @@ function monthEnd(st){
     /* Growth slows as the business approaches what it can be without more of
        you in it. A lawn route doesn't compound at 6% a year forever. */
     if (b.manager && !st.gm) outflow += managerCost(st, b);
+    if (b.equity) outflow += b.profit * 0.7 * (b.equity/100);       // their share of distributions
+
+    /* Turnover. The better you've made them, the more portable they are — equity is
+       the only real answer, which is exactly the trade real owners face. */
+    if (mgrLevel(b) > 0) {
+      b.tenure = (b.tenure||0) + 1;
+      const L = MGR_LEVELS[mgrLevel(b)];
+      const tenureShield = Math.min(0.5, (b.tenure||0)/180);
+      const equityShield = 1 / (1 + (b.equity||0)/4);
+      if (Math.random() < L.quit * (1-tenureShield) * equityShield) {
+        say(st, b.name + "'s manager left — somebody offered them more than you were paying." +
+          (b.equity ? " Even with a piece of it." : " They had nothing holding them."), "bad");
+        b.mgrLevel = 0; b.manager = false; b.tenure = 0;
+        b.ceiling *= 0.90; b.multiple = Math.max(1.2, b.multiple - 0.4);
+        applyPeople(st, b);
+      }
+    }
     if (b.note > 0) {
       outflow += b.notePay;
       b.note = Math.max(0, b.note - (b.notePay - b.note*(b.noteRate/12)));
@@ -929,6 +1079,7 @@ function monthEnd(st){
   st.mktTrail.push(marketValue(st)); if (st.mktTrail.length > 12) st.mktTrail.shift();
 
   if (st.gm && st.bizs.length) outflow += gmCost(st);
+  outflow += pmFee(st) + pmCoFee(st);
 
   outflow += monthlyExpenses(st);
 
@@ -1224,7 +1375,8 @@ function managerCost(st, b){
   const base = Math.max(2600, (b ? b.profit : 2600) * 0.22);
   return Math.round(base * Math.pow(1.025, st.month/MONTHS_PER_YEAR));
 }
-function hireManager(i){
+function hireManager(i){ return developPeople(i); }
+function hireManagerOld(i){
   const b = S.bizs[i];
   if (b.manager) return alert(b.name + " already has a manager running it.");
   const cost = managerCost(S, b);
@@ -1269,7 +1421,7 @@ function reinvest(i){
 }
 function sellBiz(i){
   const b = S.bizs[i];
-  const price = b.profit*12*b.multiple;
+  const price = b.profit*12*b.multiple*(1-(b.equity||0)/100);
   if (!confirm("Sell " + b.name + "?\n\nIt earns " + money(b.profit) + "/mo.\nAt a " +
     b.multiple.toFixed(1) + "× multiple a buyer pays " + money(price) + ".\n\nYou get " +
     b.focus + " attention points back.")) return;
@@ -1456,9 +1608,7 @@ function render(){
   be.innerHTML = S.bizs.length ? S.bizs.map((b,i)=>`<div class="row">
       <div class="nm"><b>${b.name}</b><small>${b.focus} attention${b.manager?` · <b style="color:var(--up)">managed</b> · −${money(managerCost(S))}/mo`:""} · worth ~${moneyK(b.profit*12*b.multiple)} at ${b.multiple.toFixed(1)}×</small></div>
       <div class="px up">+${money(b.manager? b.profit-managerCost(S,b) : b.profit)}<small>${b.manager?"after the manager":"per month"}</small></div>
-      <div class="btns">${b.manager
-          ? `<button class="mini sell" onclick="fireManager(${i})">Take it back</button>`
-          : `<button class="mini" onclick="hireManager(${i})">Hire a manager</button>`}<button class="mini" onclick="reinvest(${i})">Reinvest</button>${S.age>=55?`<button class="mini" onclick="handDown(${i})">Hand down</button>`:""}<button class="mini sell" onclick="sellBiz(${i})">Sell</button></div>
+      <div class="btns"><button class="mini" onclick="reinvest(${i})">Reinvest</button>${S.age>=55?`<button class="mini" onclick="handDown(${i})">Hand down</button>`:""}<button class="mini sell" onclick="sellBiz(${i})">Sell</button></div>
     </div>`).join("") : `<div class="empty">Nothing yet. A business pays more per dollar than anything else here — and takes the one thing you can't buy back.</div>`;
 
   /* focus */
@@ -1473,6 +1623,57 @@ function render(){
        <div class="btns"><button class="mini sell" onclick="quitJob()">Quit</button></div></div>`
     : `<div class="row" style="margin-top:0.5rem"><div class="nm"><b>No job</b><small>all your attention is yours</small></div>
        <div class="btns"><button class="mini" onclick="takeJob()">Go back to work</button></div></div>`;
+
+  /* ---- who's in the seat ---- */
+  const seatRows = [];
+  S.bizs.forEach((b,i)=>{
+    const lvl = mgrLevel(b), L = MGR_LEVELS[lvl];
+    const eq = b.equity||0, ten = b.tenure||0;
+    let dot, note, next = "";
+    if (lvl === 0) {
+      dot = "r"; note = "You're in this seat. It costs you " + b.focus + " attention every month.";
+      next = `<button class="mini buy" onclick="developPeople(${i})">Hire a manager · ${money(developCost(S,b))}</button>`;
+    } else {
+      const risk = L.quit * (1 - Math.min(0.5, ten/180)) / (1 + eq/4);
+      if (eq >= 10 || (ten > 90 && eq >= 5)) { dot = "g"; note = L.name + " · " + eq + "% owner · " + Math.floor(ten/12) + " yrs in the seat. Not going anywhere."; }
+      else if (risk > 0.010) { dot = "r"; note = L.name + " · no real hold on them. " + (eq?eq+"% owner. ":"") + "Good people get called."; }
+      else { dot = "a"; note = L.name + " · " + Math.floor(ten/12) + " yrs in · " + (eq ? eq+"% owner" : "no equity yet"); }
+      if (lvl < 3) next += `<button class="mini" onclick="developPeople(${i})">Develop · ${money(developCost(S,b))}</button>`;
+      if (eq < 20) next += `<button class="mini" onclick="grantEquity(${i})">Give 5%</button>`;
+    }
+    seatRows.push(`<div class="seat"><span class="dot ${dot}"></span>
+      <div class="who"><b>${b.name}</b><small>${note}</small></div>
+      <div class="att">${b.focus}<small>attention</small></div>
+      <div class="act">${next}</div></div>`);
+  });
+  if (S.props.length) {
+    const selfRun = S.props.filter(p=>!p.pm).length;
+    const dot = S.pmCo ? "g" : (selfRun === 0 ? "g" : (selfRun > 2 ? "r" : "a"));
+    const note = S.pmCo
+      ? "A management company runs all " + S.props.length + " doors. Vacancies get filled, repairs get caught."
+      : selfRun === 0 ? "Every door has a property manager."
+      : selfRun + " of " + S.props.length + " door" + (S.props.length>1?"s":"") + " still land on you — the calls, the turnovers, the furnaces.";
+    let act = "";
+    if (!S.pmCo) {
+      const un = S.props.findIndex(p=>!p.pm);
+      if (un >= 0) act += `<button class="mini" onclick="hirePM(${un})">Manager on one · 9%</button>`;
+      if (S.props.length >= 4) act += `<button class="mini buy" onclick="hirePMCo()">Management company · 7%</button>`;
+    }
+    seatRows.push(`<div class="seat"><span class="dot ${dot}"></span>
+      <div class="who"><b>The doors</b><small>${note}</small></div>
+      <div class="att">${S.props.reduce((s,p)=>s+propFocus(S,p),0)}<small>attention</small></div>
+      <div class="act">${act}</div></div>`);
+  }
+  if (S.job.has) seatRows.unshift(`<div class="seat"><span class="dot r"></span>
+      <div class="who"><b>Your job</b><small>Nobody can take this seat but you. That's the problem with it.</small></div>
+      <div class="att">${S.job.focus}<small>attention</small></div>
+      <div class="act"><button class="mini sell" onclick="quitJob()">Quit</button></div></div>`);
+  document.getElementById("seats").innerHTML = seatRows.length ? seatRows.join("")
+    : `<div class="empty">Nothing to staff yet. Every seat you fill is attention you get back.</div>`;
+  const needy = S.bizs.filter(b=>mgrLevel(b)===0).length;
+  document.getElementById("seats-sum").textContent =
+    (S.gm ? "GM over everything · " : "") + focusUsed(S) + " of " + S.focusCap + " attention spent" +
+    (needy ? " · " + needy + " seat" + (needy>1?"s":"") + " still yours" : "");
 
   /* log */
   document.getElementById("log").innerHTML = S.log.length
