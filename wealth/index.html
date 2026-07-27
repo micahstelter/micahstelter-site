@@ -86,6 +86,12 @@
   .quad-key b { display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:0.28rem; vertical-align:middle; }
   .kE { background:#b4503f; } .kS { background:#c98a3f; } .kB { background:#6b9e78; } .kI { background:#2a4a3e; }
   .quad-gm { margin-left:auto; }
+  .chip { display:inline-flex; align-items:center; gap:0.3rem; padding:0.22rem 0.5rem; border-radius:999px;
+    border:1px solid var(--line); font-size:0.7rem; color:var(--faint); }
+  .chip.on { color:var(--ink); border-color:#d5d2ca; background:#fbfaf8; }
+  .chip.lead { border-color:var(--accent); color:var(--accent); font-weight:700; }
+  .chip b { width:9px; height:9px; border-radius:2px; }
+  .quad-path { font-size:0.76rem; color:var(--muted); margin:0.5rem 0 0.35rem; }
   .quad-gm button { font-family:var(--font-body); font-size:0.68rem; font-weight:700; letter-spacing:0.06em;
     text-transform:uppercase; border:1px solid var(--accent); color:var(--accent); background:var(--card);
     border-radius:3px; padding:0.3rem 0.5rem; cursor:pointer; }
@@ -229,7 +235,14 @@
   .footlinks a { color:var(--accent); text-decoration:none; }
   .footlinks button { background:none; border:none; color:var(--faint); font-family:var(--font-body);
     font-size:0.74rem; cursor:pointer; text-decoration:underline; }
-  @media (max-width:560px){ .stats { grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:560px){
+    .stats { grid-template-columns:repeat(2,1fr); }
+    .row { flex-wrap:wrap; row-gap:0.35rem; }
+    .row .nm { flex:1 1 100%; }
+    .row .px { text-align:left; flex:1 1 auto; }
+    .row .btns { flex:0 0 auto; margin-left:auto; }
+    .row .nm b { white-space:normal; }
+  }
 </style>
 </head>
 <body>
@@ -277,11 +290,9 @@
       </div>
     </div>
     <div class="quad-bar" id="quad-bar"></div>
-    <div class="quad-key">
-      <span><b class="kE"></b>E job</span><span><b class="kS"></b>S you run it</span>
-      <span><b class="kB"></b>B others run it</span><span><b class="kI"></b>I needs nobody</span>
-      <span class="quad-gm" id="gmline"></span>
-    </div>
+    <div class="quad-key" id="quad-chips"></div>
+    <div class="quad-path" id="quad-path">&nbsp;</div>
+    <div class="quad-key"><span class="quad-gm" id="gmline"></span></div>
   </div>
 
   <div class="stmt">
@@ -585,7 +596,7 @@ function fresh() {
     listings:[], deals:[],
     regime:{ kind:"normal", left:0 },  // market regime
     history:[], log:[],
-    milestones:{}, freeStreak:0, won:false, over:false, gm:false, pmCo:false, quadHit:{}, pending:null, pendingJob:false, jobGap:0, insolvent:false, chosenExpenses:0, yeses:0, cutbacks:[], lastCut:-999,
+    milestones:{}, freeStreak:0, won:false, over:false, gm:false, pmCo:false, quadHit:{}, quadStart:null, pending:null, pendingJob:false, jobGap:0, insolvent:false, chosenExpenses:0, yeses:0, cutbacks:[], lastCut:-999,
     debtPaid:0
   };
   rollListings(st); rollDeals(st);
@@ -732,10 +743,26 @@ function developPeople(i){
   const cost = developCost(S, b), next = MGR_LEVELS[lvl+1];
   if (S.cash < cost) return alert("Developing people costs money up front — " + money(cost) + ".");
   const label = lvl===0 ? "Hire a manager for " : lvl===1 ? "Build a bench under the manager at " : "Develop the manager at ";
-  if (!confirm(label + b.name + "?\n\n" + money(cost) + " up front" + (lvl===0 ? ", then " + money(managerCost(S,b)) + "/mo" : "") +
+  /* If the salary is bigger than the business, say so plainly and show whether there's
+     any path out of it — you'd only sign up for a monthly loss if growth could close it. */
+  const salary = managerCost(S,b);
+  const netAfter = b.profit - salary;
+  let warn = "";
+  if (netAfter < 0) {
+    const breakeven = Math.round(salary/0.78);   // profit needed once the salary scales at 22%
+    const reachable = b.ceiling >= breakeven;
+    warn = "\n\n⚠ This business earns " + money(b.profit) + "/mo and the manager costs " + money(salary) +
+      ".\nYou would be " + money(-netAfter) + "/mo IN THE HOLE on it, every month.\n\n" +
+      "It needs to reach about " + money(breakeven) + "/mo to carry a manager.\n" +
+      (reachable
+        ? "Its ceiling is " + money(Math.round(b.ceiling)) + ", so there is a path — it just isn't today. Reinvesting raises that ceiling."
+        : "Its ceiling is " + money(Math.round(b.ceiling)) + ". There is NO path at this size. Grow it first, or don't.");
+  }
+  if (!confirm(label + b.name + "?\n\n" + money(cost) + " up front" + (lvl===0 ? ", then " + money(salary) + "/mo" : "") +
     ".\n\nAfter: \"" + next.name + "\" — takes " + Math.ceil((b.ownerFocus||b.focus)*next.focus) +
     " of your attention instead of " + b.focus + ", ceiling up " + Math.round((next.ceil/MGR_LEVELS[lvl].ceil-1)*100) +
-    "%, and worth more to a buyer.\n\nThe better they get, the more somebody else wants them.")) return;
+    "%, and worth more to a buyer." + warn +
+    "\n\nThe better they get, the more somebody else wants them.")) return;
   S.cash -= cost;
   b.ceiling *= next.ceil / MGR_LEVELS[lvl].ceil;
   /* A better operator runs it better NOW. Raising only the ceiling meant the payoff
@@ -1542,6 +1569,27 @@ function render(){
   document.getElementById("quad-bar").innerHTML =
     [["qE",qi.E],["qS",qi.S],["qB",qi.B],["qI",qi.I]]
       .map(([c,v])=> `<i class="${c}" style="width:${Math.max(0,v)/tot*100}%"></i>`).join("");
+
+  /* You don't pass through the quadrants, you use them. Show all four with what
+     each is actually contributing, not just whichever one happens to be biggest. */
+  const chips = [["E","kE","a job",qi.E],["S","kS","you run it",qi.S],
+                 ["B","kB","others run it",qi.B],["I","kI","needs nobody",qi.I]];
+  document.getElementById("quad-chips").innerHTML = chips.map(([L,k,desc,v])=>{
+    const share = Math.max(0,v)/tot;
+    const on = share > 0.02;
+    return `<span class="chip ${on?"on":""} ${L===cq.letter&&on?"lead":""}"><b class="${k}"></b>${L} ${desc}${
+      on ? " · " + Math.round(share*100) + "%" : ""}</span>`;
+  }).join("");
+  const live = chips.filter(c=> Math.max(0,c[3])/tot > 0.02).map(c=>c[0]);
+  const startedAt = S.quadStart || (S.quadStart = cq.letter);
+  document.getElementById("quad-path").textContent =
+    live.length <= 1
+      ? "Everything comes from one place. That's the fragile version."
+      : live.length === 2
+        ? "Two sources: " + live.join(" and ") + ". " + (live.indexOf("E")>=0 ? "The job is still carrying part of it." : "No job in the mix.")
+        : live.length === 3
+          ? "Three of the four are working for you at once — " + live.join(", ") + "."
+          : "All four at once. You're not passing through the quadrants, you're using every one of them to get where you're going.";
   document.getElementById("gmline").innerHTML = S.gm
     ? `GM over ${S.bizs.length} businesses · ${money(gmCost(S))}/mo <button onclick="fireGM()">let go</button>`
     : (S.bizs.length >= 3 ? `<button onclick="hireGM()">Hire a GM over everything</button>` : "");
@@ -1607,7 +1655,11 @@ function render(){
   const be = document.getElementById("bizs");
   be.innerHTML = S.bizs.length ? S.bizs.map((b,i)=>`<div class="row">
       <div class="nm"><b>${b.name}</b><small>${b.focus} attention${b.manager?` · <b style="color:var(--up)">managed</b> · −${money(managerCost(S))}/mo`:""} · worth ~${moneyK(b.profit*12*b.multiple)} at ${b.multiple.toFixed(1)}×</small></div>
-      <div class="px up">+${money(b.manager? b.profit-managerCost(S,b) : b.profit)}<small>${b.manager?"after the manager":"per month"}</small></div>
+      ${(()=>{ const net = b.manager && !S.gm ? b.profit - managerCost(S,b) : b.profit;
+         const eq = b.equity ? net*(b.equity/100) : 0;
+         const shown = net - eq;
+         return `<div class="px ${shown>=0?'up':'down'}">${shown>=0?"+":""}${money(shown)}<small>${
+           b.manager||S.gm ? (shown<0 ? "after the manager — it's losing" : "after the manager") : "per month"}</small></div>`; })()}
       <div class="btns"><button class="mini" onclick="reinvest(${i})">Reinvest</button>${S.age>=55?`<button class="mini" onclick="handDown(${i})">Hand down</button>`:""}<button class="mini sell" onclick="sellBiz(${i})">Sell</button></div>
     </div>`).join("") : `<div class="empty">Nothing yet. A business pays more per dollar than anything else here — and takes the one thing you can't buy back.</div>`;
 
@@ -1635,7 +1687,10 @@ function render(){
       next = `<button class="mini buy" onclick="developPeople(${i})">Hire a manager · ${money(developCost(S,b))}</button>`;
     } else {
       const risk = L.quit * (1 - Math.min(0.5, ten/180)) / (1 + eq/4);
-      if (eq >= 10 || (ten > 90 && eq >= 5)) { dot = "g"; note = L.name + " · " + eq + "% owner · " + Math.floor(ten/12) + " yrs in the seat. Not going anywhere."; }
+      const netSeat = b.profit - (S.gm ? 0 : managerCost(S,b));
+      if (netSeat < 0) { dot = "r"; note = "Costs " + money(-netSeat) + "/mo more than it earns. It needs to reach about " +
+        money(Math.round(managerCost(S,b)/0.78)) + "/mo" + (b.ceiling >= managerCost(S,b)/0.78 ? " — its ceiling allows that." : " — its ceiling doesn't allow that."); }
+      else if (eq >= 10 || (ten > 90 && eq >= 5)) { dot = "g"; note = L.name + " · " + eq + "% owner · " + Math.floor(ten/12) + " yrs in the seat. Not going anywhere."; }
       else if (risk > 0.010) { dot = "r"; note = L.name + " · no real hold on them. " + (eq?eq+"% owner. ":"") + "Good people get called."; }
       else { dot = "a"; note = L.name + " · " + Math.floor(ten/12) + " yrs in · " + (eq ? eq+"% owner" : "no equity yet"); }
       if (lvl < 3) next += `<button class="mini" onclick="developPeople(${i})">Develop · ${money(developCost(S,b))}</button>`;
