@@ -366,6 +366,119 @@ const BIZ_TYPES = [
 const PROP_NAMES = ["Maple St. duplex","49th Ave bungalow","Elmwood triplex","Birch Lane rental",
   "Cedar Court fourplex","Robbins Ave house","Summit St. duplex","Northside single-family"];
 
+
+/* ---------------- life, in detail ----------------
+   The old version had four expense strings and five repairs, so "the van needed a
+   transmission" showed up every few years. These are tiered so the words match the
+   size of the hit — a $600 surprise and a $14,000 one should not read the same —
+   and pickFresh() refuses to repeat anything until the pool has cycled. */
+
+const EXP_SMALL = [
+  "The dishwasher gave up.", "Two phone screens in one week.", "Vet bill — nothing serious, still not cheap.",
+  "New tires, all four.", "Urgent care on a Sunday.", "Sports fees and equipment came due at once.",
+  "The garage door spring snapped.", "A speeding ticket and traffic school.",
+  "Replaced the lawnmower.", "Someone backed into the mailbox. It was you.",
+  "The washing machine started walking across the floor.", "School pictures, yearbooks, field trips, all in one envelope.",
+  "A weekend away that was supposed to be cheap.", "New glasses, and then a second pair inside a month.",
+  "The snowblower wouldn't start and it was going to snow."
+];
+const EXP_MED = [
+  "The van needed a transmission.", "Dental work nobody enjoyed.", "The furnace at your own house quit in February.",
+  "Insurance deductible after a fender bender.", "Laptop and phone died the same month. Not related. Still.",
+  "A family funeral out of state — flights, hotel, time off.",
+  "Orthodontist. Eighteen months of payments, quoted cheerfully.",
+  "Tree came down on the fence.", "A pipe let go behind the drywall.",
+  "The car failed inspection in three separate ways.", "Emergency vet, and it was serious.",
+  "Property taxes reassessed upward and you owed the difference.",
+  "A/C died in the first week of July.", "Helped somebody out who needed it more than you needed the money."
+];
+const EXP_BIG = [
+  "A hospital stay, and the deductible was the easy part.",
+  "The roof on your own house finally went.",
+  "The van died completely — you had to replace it.",
+  "Water in the basement, and none of it was covered.",
+  "A legal thing you didn't start and couldn't ignore.",
+  "Storm damage the insurance argued about for months.",
+  "Foundation work. The estimate was the good news.",
+  "A parent needed help, and you were the one who could give it.",
+  "Six months of specialist visits that added up quietly."
+];
+const WINDFALLS = [
+  "Tax refund came in.", "A friend paid back a loan you'd written off.",
+  "Sold something in the garage that was worth more than you thought.",
+  "An old employer settled up on something owed.",
+  "A cash gift from family, no strings.", "Insurance paid out more than you expected.",
+  "Sold the second vehicle you never drove.", "A rebate you'd assumed was a scam turned out real.",
+  "Somebody bought that thing you listed a year ago.",
+  "A small inheritance from a relative you liked.",
+  "Back pay after a payroll error in your favor.",
+  "Found an old account you'd genuinely forgotten about."
+];
+const REPAIR_SMALL = ["a water heater", "a garbage disposal", "a bad outlet run", "a broken window",
+  "a busted screen door", "a leaking shutoff valve", "a dead thermostat", "an old dishwasher"];
+const REPAIR_BIG = ["a furnace", "a roof section", "a sewer line", "water damage in the ceiling",
+  "a rotted deck", "the whole electrical panel", "a cracked foundation corner", "burst pipes",
+  "a failed sump pump and the mess after it"];
+const BIZ_UP = ["You raised prices at ", "A recurring contract landed at ", "You added a second crew at ",
+  "A competitor closed and their customers came to ", "You landed a commercial account at ",
+  "Word of mouth got loud around ", "You cut a supplier cost at "];
+const BIZ_DOWN = ["A competitor opened near ", "Your best employee quit at ",
+  "A supplier raised prices on ", "A bad review cycle hit ", "You lost a big account at ",
+  "Equipment failure took a week out of "];
+
+const NEW_LISTINGS = [
+  "New listings hit the market.", "A few places came up this week.",
+  "Two owners listed on the same block.", "Something new showed up in the listings.",
+  "An estate sale put a couple of doors on the market.",
+  "A landlord getting out of the business listed everything at once.",
+  "Prices moved and some sellers finally blinked."
+];
+const NEW_DEALS = [
+  "Word is a couple of owners are ready to sell.", "Somebody's retiring and wants out clean.",
+  "A broker called about two businesses on the market.",
+  "An owner's health made the decision for him.",
+  "A partnership split up and both halves are for sale.",
+  "Somebody who started young is ready to do something else.",
+  "Two owners you know are quietly testing the water."
+];
+const VACANCY = [
+  " is empty. ", " turned over. ", " sat empty after the tenant left. ",
+  " lost its tenant with no notice. ", " needs re-letting. ", " went vacant mid-lease. "
+];
+const RAISES = [
+  "You got a raise.", "Your review went well.", "They bumped you to keep you.",
+  "A promotion came with money attached.", "You asked for more and got it.",
+  "Cost-of-living adjustment, and then some."
+];
+const BIZ_WIN = [
+  " landed a contract nobody expected. ", " had its best month on record. ",
+  " picked up a job that paid better than the bid. ",
+  " got a referral that turned into real work. ",
+  " collected on something written off long ago. ",
+  " won a bid it had no business winning. "
+];
+
+const DOWN_TAIL = [
+  " Thinner margins until you win it back.", " It'll take a few months to recover.",
+  " Revenue's going to sag for a while.", " You'll be earning that work back.",
+  " Nothing fatal, but it stings.", " The next quarter is going to look worse."
+];
+const UP_TAIL = [
+  " It's structurally bigger now.", " That's a permanent step up.",
+  " The ceiling moved, not just the month.", " It'll earn more from here on.",
+  " That one compounds.", " Bigger business than it was yesterday."
+];
+
+/* No repeats until the pool cycles. */
+function pickFresh(st, arr){
+  if (!st.recent) st.recent = [];
+  const open = arr.filter(x=> st.recent.indexOf(x) < 0);
+  const choice = pick(open.length ? open : arr);
+  st.recent.push(choice);
+  if (st.recent.length > 22) st.recent.shift();
+  return choice;
+}
+
 /* ---------------- state ---------------- */
 let S = null;
 let playing = false;
@@ -587,16 +700,17 @@ function monthEnd(st){
     /* Repairs live PER PROPERTY now. In the shared event slot they capped at 3.6%/mo for
        the whole portfolio — $224/mo of repairs at one door, $6/door at thirty-five. */
     if (Math.random() < 0.015) {
-      const rc = Math.round(rnd(1800, 9500));
+      const big = Math.random() < 0.45;
+      const rc = Math.round(big ? rnd(4200, 12000) : rnd(900, 4000));
       outflow += rc;
-      say(st, p.name + ": " + pick(["furnace","roof","water heater","sewer line","water damage"]) + ". " + money(rc) + ".", "bad");
+      say(st, p.name + " needed " + pickFresh(st, big ? REPAIR_BIG : REPAIR_SMALL) + ". " + money(rc) + ".", "bad");
     }
     const cf = propCashflow(p);
     inflow += Math.max(0, cf); if (cf < 0) outflow += -cf;
     if (p.loan > 0) p.loan = Math.max(0, p.loan - (p.payment - p.loan*(p.rate/12)));
     if (p.vacantMonths === 0 && Math.random() < (0.035 + over*0.0015)) {
       p.vacantMonths = Math.random()<0.7 ? 1 : 2;
-      say(st, p.name + " is empty. " + p.vacantMonths + " month" + (p.vacantMonths>1?"s":"") + " of no rent while you re-let it.", "bad");
+      say(st, p.name + pickFresh(st, VACANCY) + p.vacantMonths + " month" + (p.vacantMonths>1?"s":"") + " without rent.", "bad");
     }
   });
 
@@ -696,27 +810,31 @@ function lifeEvent(st){
   if (roll < 0.24 && st.bizs.length) {
     const b = pick(st.bizs);
     b.profit *= rnd(0.80, 0.9);                       // dents current, not potential — it recovers
-    say(st, "A competitor opened near " + b.name + ". Thinner margins until you win the work back.", "bad");
+    say(st, pickFresh(st, BIZ_DOWN) + b.name + "." + pickFresh(st, DOWN_TAIL), "bad");
   }
   else if (roll < 0.32 && st.bizs.length) {
     const b = pick(st.bizs);
     b.potential = Math.min(b.ceiling, b.potential * rnd(1.05, 1.13));  // permanent step up, still bounded
-    say(st, pick(["You raised prices at ","A recurring contract landed at ","You added a second crew at "]) + b.name + ". It's structurally bigger now.", "good");
+    say(st, pickFresh(st, BIZ_UP) + b.name + "." + pickFresh(st, UP_TAIL), "good");
   }
   else if (roll < 0.40 && st.bizs.length) {
     const b = pick(st.bizs);
     const win = Math.round(b.profit * rnd(1.5, 4));
     st.cash += win;
-    say(st, b.name + " landed a contract nobody expected. " + money(win) + ".", "good");
+    say(st, b.name + pickFresh(st, BIZ_WIN) + money(win) + ".", "good");
   }
   else if (roll < 0.48) {
-    const cost = Math.round(rnd(900, 7000));
+    const r = Math.random();
+    let cost, text;
+    if (r < 0.50)      { cost = Math.round(rnd(350, 1600));   text = pickFresh(st, EXP_SMALL); }
+    else if (r < 0.87) { cost = Math.round(rnd(1600, 6500));  text = pickFresh(st, EXP_MED); }
+    else               { cost = Math.round(rnd(6500, 19000)); text = pickFresh(st, EXP_BIG); }
     st.cash -= cost;
-    say(st, pick(["Medical bill.","The van needed a transmission.","Dental work, all five kids.","Tree came down on the fence."]) + " " + money(cost) + ".", "bad");
+    say(st, text + " " + money(cost) + ".", "bad");
   }
   else if (roll < 0.56 && st.job.has) {
     st.job.pay *= rnd(1.04, 1.12);
-    say(st, "You got a raise. " + money(st.job.pay) + "/mo.", "good");
+    say(st, pickFresh(st, RAISES) + " " + money(st.job.pay) + "/mo.", "good");
   }
   else if (roll < 0.575 && st.job.has && st.month > 24) {
     st.job.has = false; st.jobGap = Math.round(rnd(1,4));
@@ -727,7 +845,7 @@ function lifeEvent(st){
   else if (roll < 0.70) {
     const gift = Math.round(rnd(1500, 14000));
     st.cash += gift;
-    say(st, pick(["Tax refund came in.","A friend paid back a loan you'd written off.","Sold something in the garage."]) + " " + money(gift) + ".", "good");
+    say(st, pickFresh(st, WINDFALLS) + " " + money(gift) + ".", "good");
   }
   else if (roll < 0.78 && roll >= 0.62 && st.month > 18 && !st.pending) {
     /* This used to be applied silently. Expenses ran from $4,200 to ~$10,000 over
@@ -737,19 +855,27 @@ function lifeEvent(st){
        doubles is a rounding error by year 25 — doubling the shipped bump changed the
        win rate by zero across 40 runs. */
     const bump = Math.round(st.expensesBase * rnd(0.05, 0.11) / 10) * 10;
-    st.pending = { bump, born: st.month, text: pick([
+    st.pending = { bump, born: st.month, text: pickFresh(st, [
       "You can afford the bigger house now. Everyone says you've earned it.",
       "The truck you've wanted is sitting on the lot, and the payment fits.",
       "The kids could do the travel team. It's real money every month.",
-      "A place at the lake. Not extravagant. Just… a payment." ]) };
+      "A place at the lake. Not extravagant. Just… a payment.",
+      "A boat. You'd use it. You really think you'd use it.",
+      "Private school, and you can make the argument out loud without flinching.",
+      "A second car so nobody has to coordinate mornings anymore.",
+      "The kitchen you've walked past and disliked for eleven years.",
+      "A country club membership, and half the people you'd want to know are already in it.",
+      "A camper, so the vacations stop costing what vacations cost.",
+      "Somebody to clean the house every other week. It's not much. It's every month.",
+      "A cabin two hours north, which is exactly far enough." ]) };
   }
   else if (roll < 0.88) {
     rollListings(st);
-    say(st, "New listings hit the market.", "");
+    say(st, pickFresh(st, NEW_LISTINGS), "");
   }
   else {
     rollDeals(st);
-    say(st, "Word is a couple of owners are ready to sell.", "");
+    say(st, pickFresh(st, NEW_DEALS), "");
   }
 }
 
