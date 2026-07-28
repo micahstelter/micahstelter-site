@@ -521,7 +521,14 @@
       'paris painting': '#2a4a3e',
       'paris home exteriors': '#a47338'
     };
-    const FALLBACK_COLORS = ['#4a6a8a', '#7a5a8a', '#8a6a4a', '#5a8a7a', '#8a4a5a'];
+    // Distinct, readable palette (white text on each). Every department gets its own.
+    const DEPT_PALETTE = [
+      '#2f6f8f', '#8a4a5a', '#5a7a3a', '#7a5a8a', '#b0692a',
+      '#3a7a6a', '#9a4a3a', '#4a5a8a', '#7a6a2a', '#6a3f7a',
+      '#2a7a4a', '#a05a6a', '#4a6a8a', '#8a6a4a', '#5f6a2f',
+      '#8a3a6a', '#3a6a8a', '#7a4a2a'
+    ];
+    let deptColorMap = {};
 
     // -- Brand themes. Aleph palette is from the official brand guide.
     //    Paris colors are placeholders consistent with the Paris dashboards
@@ -738,13 +745,27 @@
       if (!parts.length) return '–';
       return parts.map(w => w[0]).slice(0, 2).join('').toUpperCase();
     }
+    function buildDeptColors() {
+      deptColorMap = {};
+      const used = new Set();
+      Object.keys(DEPT_COLORS).forEach(k => { deptColorMap[k] = DEPT_COLORS[k]; used.add(DEPT_COLORS[k]); });
+      const seen = new Set(Object.keys(deptColorMap));
+      const depts = [];
+      const add = d => { const k = (d || '').trim().toLowerCase(); if (k && !seen.has(k)) { seen.add(k); depts.push(k); } };
+      store.views.forEach(v => (v.people || []).forEach(p => add(p.dept)));
+      (store.directory || []).forEach(d => add(d.dept));
+      depts.sort();
+      let pi = 0;
+      depts.forEach(k => {
+        let c = DEPT_PALETTE[pi % DEPT_PALETTE.length]; pi++;
+        while (used.has(c) && pi < DEPT_PALETTE.length * 2) { c = DEPT_PALETTE[pi % DEPT_PALETTE.length]; pi++; }
+        deptColorMap[k] = c; used.add(c);
+      });
+    }
     function deptColor(dept) {
       const key = (dept || '').trim().toLowerCase();
-      if (DEPT_COLORS[key]) return DEPT_COLORS[key];
-      if (!key) return theme().accent;   // default avatar to the active brand accent
-      let h = 0;
-      for (let i = 0; i < key.length; i++) h = (h * 31 + key.charCodeAt(i)) >>> 0;
-      return FALLBACK_COLORS[h % FALLBACK_COLORS.length];
+      if (!key) return theme().accent;
+      return deptColorMap[key] || theme().accent;
     }
     function esc(s) {
       return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -759,6 +780,7 @@
     // -- Render -------------------------------
     function render() {
       applyTheme();
+      buildDeptColors();
       renderViewSelect();
       renderThemeSelect();
       const ppl = people();
