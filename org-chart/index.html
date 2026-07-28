@@ -1329,6 +1329,99 @@
     render();
     // Re-align dotted lines once web fonts load (font swap can shift card positions)
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(drawDotted);
-  </script>
+  
+/* ===== Division color picker + Open Seat (added) ===== */
+if (!store.deptColors) store.deptColors = {};
+const COLOR_PRESETS = ['#2a4a3e','#a47338','#e89528','#2f6f8f','#8a4a5a','#5a7a3a','#7a5a8a','#b0692a','#3a7a6a','#4a5a8a'];
+buildDeptColors = function () {
+  deptColorMap = {};
+  const used = new Set();
+  Object.keys(DEPT_COLORS).forEach(k => { deptColorMap[k] = DEPT_COLORS[k]; used.add(DEPT_COLORS[k]); });
+  const ov = store.deptColors || {};
+  Object.keys(ov).forEach(k => { deptColorMap[k] = ov[k]; used.add(ov[k]); });
+  const seen = new Set(Object.keys(deptColorMap));
+  const list = [];
+  const addd = d => { const k = (d||'').trim().toLowerCase(); if (k && !seen.has(k)) { seen.add(k); list.push(k); } };
+  store.views.forEach(v => (v.people||[]).forEach(p => addd(p.dept)));
+  (store.directory||[]).forEach(d => addd(d.dept));
+  list.sort();
+  let pi = 0;
+  list.forEach(k => { let c = DEPT_PALETTE[pi % DEPT_PALETTE.length]; pi++; while (used.has(c) && pi < DEPT_PALETTE.length*2) { c = DEPT_PALETTE[pi % DEPT_PALETTE.length]; pi++; } deptColorMap[k] = c; used.add(c); });
+};
+(function () {
+  const cs = document.createElement('style');
+  cs.textContent = ".color-overlay{position:fixed;inset:0;background:rgba(26,26,24,.35);display:none;align-items:center;justify-content:center;z-index:55;backdrop-filter:blur(2px);padding:1.5rem}.color-overlay.open{display:flex}.color-modal{background:#faf9f7;border-radius:14px;width:100%;max-width:440px;padding:1.6rem;box-shadow:0 24px 64px rgba(0,0,0,.18);max-height:88vh;overflow-y:auto}.color-modal h2{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:1.6rem;margin-bottom:.4rem}.color-modal h2 em{font-style:italic;color:var(--accent)}.color-sub{font-size:.75rem;color:#6b6b67;margin-bottom:1rem;line-height:1.5}.crow{padding:.7rem 0;border-bottom:1px solid rgba(0,0,0,.06)}.crow-top{display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem}.crow-sw{width:22px;height:22px;border-radius:50%;flex-shrink:0;border:1px solid rgba(0,0,0,.12)}.crow-nm{font-size:.85rem;font-weight:600;flex:1}.crow-auto{font-size:.6rem;letter-spacing:.05em;text-transform:uppercase;color:#a0a09a;background:none;border:1px solid rgba(0,0,0,.12);border-radius:5px;padding:.25rem .5rem;cursor:pointer}.crow-auto:hover{color:var(--accent);border-color:var(--accent)}.sws{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center}.sw{width:24px;height:24px;border-radius:50%;cursor:pointer;border:2px solid transparent}.sw:hover{transform:scale(1.12)}.sw.sel{border-color:#1a1a18}.sw-custom{width:26px;height:26px;padding:0;border:1px dashed rgba(0,0,0,.3);border-radius:50%;cursor:pointer;background:none}.color-empty{color:#a0a09a;font-size:.85rem;padding:.5rem 0}.person.open-seat{border-style:dashed!important;background:#fbfaf8}.person.open-seat .avatar{opacity:.45}.open-badge{position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:#8a6d3b;color:#fff;font-size:.5rem;font-weight:700;letter-spacing:.12em;padding:.12rem .4rem;border-radius:99px}";
+  document.head.appendChild(cs);
+  const ov = document.createElement('div');
+  ov.className = 'color-overlay'; ov.id = 'colorOverlay';
+  ov.innerHTML = "<div class='color-modal'><h2>Division <em>Colors</em></h2><div class='color-sub'>Pick a color for each division. In a single company these are departments; in a holdings view, companies.</div><div id='colorBody'></div><div style='margin-top:1.2rem;text-align:right'><button class='m-btn cancel' id='colorDone'>Done</button></div></div>";
+  document.body.appendChild(ov);
+  ov.addEventListener('click', e => {
+    if (e.target === ov || e.target.id === 'colorDone') { ov.classList.remove('open'); return; }
+    const sw = e.target.closest('.sw'); const au = e.target.closest('.crow-auto');
+    if (sw) { const d = sw.getAttribute('data-d'); store.deptColors[(d||'').trim().toLowerCase()] = sw.getAttribute('data-c'); persist(); render(); renderColors(); }
+    else if (au) { const d = au.getAttribute('data-d'); delete store.deptColors[(d||'').trim().toLowerCase()]; persist(); render(); renderColors(); }
+  });
+  ov.addEventListener('input', e => { const ci = e.target.closest('.sw-custom'); if (ci) { const d = ci.getAttribute('data-d'); store.deptColors[(d||'').trim().toLowerCase()] = ci.value; persist(); render(); renderColors(); } });
+  const tb = document.querySelector('.toolbar');
+  if (tb) { const b = document.createElement('button'); b.className = 'tb-btn'; b.textContent = 'Colors'; b.addEventListener('click', openColors); tb.appendChild(b); }
+  // Open Seat checkbox in the person modal
+  const modal = document.querySelector('#modalOverlay .modal');
+  if (modal && !document.getElementById('f-openseat')) {
+    const row = document.createElement('div');
+    row.className = 'check-row';
+    row.innerHTML = "<input type='checkbox' id='f-openseat'><label for='f-openseat'>Open seat (role to fill — shows an OPEN badge, name optional)</label>";
+    const anchor = document.getElementById('f-titleonly');
+    const at = anchor ? (anchor.closest('.check-row') || anchor.parentNode) : null;
+    if (at && at.parentNode) at.parentNode.insertBefore(row, at.nextSibling);
+    else modal.insertBefore(row, modal.querySelector('.field'));
+  }
+})();
+function openColors(){ renderColors(); document.getElementById('colorOverlay').classList.add('open'); }
+function renderColors(){
+  const seen = new Set(); const depts = [];
+  people().forEach(p => { const d = (p.dept||'').trim(); const k = d.toLowerCase(); if (d && !seen.has(k)) { seen.add(k); depts.push(d); } });
+  const body = document.getElementById('colorBody');
+  if (!depts.length) { body.innerHTML = "<div class='color-empty'>No divisions in this view yet — give people a Department (or Company) and they'll appear here.</div>"; return; }
+  body.innerHTML = depts.map(d => {
+    const cur = deptColor(d); const dl = esc(d);
+    const sws = COLOR_PRESETS.map(c => "<span class='sw"+(String(c).toLowerCase()===String(cur).toLowerCase()?' sel':'')+"' data-d=\""+dl+"\" data-c='"+c+"' style='background:"+c+"'></span>").join('');
+    return "<div class='crow'><div class='crow-top'><span class='crow-sw' style='background:"+cur+"'></span><span class='crow-nm'>"+dl+"</span><button class='crow-auto' data-d=\""+dl+"\">Auto</button></div><div class='sws'>"+sws+"<input class='sw-custom' type='color' data-d=\""+dl+"\" value='"+cur+"' title='Custom color'></div></div>";
+  }).join('');
+}
+// ---- Open Seat wiring ----
+const _openEdit = openEdit;
+openEdit = function (id) { _openEdit(id); const p = byId(id); const cb = document.getElementById('f-openseat'); if (cb) cb.checked = !!(p && p.openSeat); };
+const _openAdd = openAdd;
+openAdd = function () { _openAdd(); const cb = document.getElementById('f-openseat'); if (cb) cb.checked = false; };
+const _saveModal = saveModal;
+saveModal = function () {
+  const cb = document.getElementById('f-openseat');
+  const openSeat = !!(cb && cb.checked);
+  const wasEditing = editingId;
+  if (openSeat) { const to = document.getElementById('f-titleonly'); if (to && !to.checked) { to.checked = true; if (typeof toggleTitleOnly === 'function') toggleTitleOnly(); } }
+  const before = people().length;
+  _saveModal();
+  const stillOpen = document.getElementById('modalOverlay').classList.contains('open');
+  if (!stillOpen) {
+    let p = wasEditing ? byId(wasEditing) : (people().length > before ? people()[people().length - 1] : null);
+    if (p) { p.openSeat = openSeat; persist(); render(); }
+  }
+};
+function styleOpenSeats(){
+  let n = 0;
+  people().forEach(p => {
+    if (!p.openSeat) return;
+    n++;
+    const card = document.querySelector('.person[data-id="' + p.id + '"]');
+    if (card) { card.classList.add('open-seat'); if (!card.querySelector('.open-badge')) { const b = document.createElement('div'); b.className = 'open-badge'; b.textContent = 'OPEN SEAT'; card.appendChild(b); } }
+  });
+  if (n > 0) { const st = document.getElementById('stats'); if (st && !/open seat/i.test(st.textContent)) st.innerHTML += ' &nbsp;·&nbsp; <strong>' + n + '</strong> open ' + (n === 1 ? 'seat' : 'seats'); }
+}
+const _origRender = render;
+render = function () { _origRender.apply(this, arguments); styleOpenSeats(); };
+render();
+
+</script>
 </body>
 </html>
