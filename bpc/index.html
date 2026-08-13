@@ -209,6 +209,17 @@ td.slot .lbl{
 .win time{font-size:.62rem;color:var(--faint);letter-spacing:.07em;text-transform:uppercase;display:block;margin-bottom:.12rem}
 
 .datarow{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem}
+.syncrow{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+.syncrow input{max-width:16rem}
+.syncchip{
+  font-size:.66rem;letter-spacing:.09em;text-transform:uppercase;font-weight:700;
+  padding:.3rem .6rem;border-radius:20px;white-space:nowrap;align-self:center;
+}
+.syncchip.s-off{display:none}
+.syncchip.s-ok{background:#e8f0ea;color:var(--accent)}
+.syncchip.s-busy{background:#f5efdf;color:#8a6d2a}
+.syncchip.s-error{background:#f8e9e9;color:#9a3d3d}
+.tabs .syncchip{margin-left:auto}
 .saved{font-size:.68rem;color:var(--faint);letter-spacing:.06em}
 
 @media(max-width:820px){
@@ -251,6 +262,7 @@ td.slot .lbl{
     <button class="tab on" data-view="week">This Week</button>
     <button class="tab" data-view="cal">Block Calendar</button>
     <button class="tab" data-view="hist">History &amp; Wins</button>
+    <span class="syncchip s-off" id="syncChip"></span>
   </div>
 
   <!-- ============ THIS WEEK ============ -->
@@ -308,6 +320,10 @@ td.slot .lbl{
       <h2>Wins Log</h2>
       <p class="lede">Every signal you closed out, kept in one place.</p>
       <div class="wins" id="winsList"></div>
+    </div>
+    <div class="panel">
+      <h2>Sync Across Devices</h2>
+      <div id="syncBox"></div>
     </div>
     <div class="panel">
       <h2>Your Data</h2>
@@ -537,7 +553,7 @@ function load(){
 }
 
 let saveBroken=false;
-function save(){
+function saveLocal(){
   const stamp=new Date().toISOString();
   try{
     /* Merge-on-write. Another tab (or the phone, on the same browser profile) may
@@ -546,14 +562,7 @@ function save(){
        calendar it just painted; every other week stays as they left it. */
     const disk=readStore(KEY);
     if(disk && Number.isFinite(disk.seq) && disk.seq>lastSeq){
-      const mine=S;
-      S=normalize(disk);
-      // every week this tab holds gets merged against the other tab's copy
-      Object.keys(mine.weeks).forEach(k=>{ S.weeks[k]=mergeWeek(mine.weeks[k], S.weeks[k]); });
-      if(mtime({mtime:mine.blocksMtime}) >= mtime({mtime:S.blocksMtime})){
-        S.blocks=mine.blocks; S.blocksMtime=mine.blocksMtime;
-      }
-      S.seeded = S.seeded || mine.seeded;
+      S = mergeStores(S, disk);
     }
     S.seq=(Number.isFinite(S.seq)?S.seq:0)+1;
     S.writer=TAB;
@@ -587,6 +596,10 @@ function save(){
     : 'Last saved '+new Date(stamp).toLocaleString();
 }
 
+/* Everything in the app calls save(). It writes locally first — so the tool keeps
+   working with no connection — then queues a push to the server if sync is on. */
+function save(){ saveLocal(); schedulePush(); }
+
 /* Merge one week from two tabs: newest edit wins per signal, additions from both
    sides are kept, and an explicit delete on either side stays deleted. */
 function mergeWeek(mine, disk){
@@ -611,9 +624,140 @@ function mergeWeek(mine, disk){
   return normWeek(out);
 }
 
+/* Fold `mine` on top of `other`, week by week. Both the two-tab merge and the
+   server merge go through here, so there is exactly ONE reconciliation rule. */
+function mergeStores(mine, other){
+  const out=normalize(other);
+  Object.keys(mine.weeks).forEach(k=>{ out.weeks[k]=mergeWeek(mine.weeks[k], out.weeks[k]); });
+  if((mine.blocksMtime||0) >= (out.blocksMtime||0)){
+    out.blocks=mine.blocks; out.blocksMtime=mine.blocksMtime||0;
+  }
+  out.seeded = out.seeded || mine.seeded;
+  // `seq` is this browser's own cross-tab revision counter. A copy arriving from
+  // the server carries whatever counter its device was on, so take the high-water
+  // mark — letting it move backwards would break the two-tab staleness check.
+  out.seq = Math.max(Number(mine.seq)||0, Number(out.seq)||0);
+  return out;
+}
+
 function week(k){
   if(!S.weeks[k]) S.weeks[k]={signals:[],stages:{}};
   return normWeek(S.weeks[k]);
+}
+
+/* =====================================================================
+   REMOTE SYNC — /api/bpc, Cloudflare KV behind a passphrase
+   Local storage stays the source of truth for rendering, so the tool works
+   offline; the server is a shared copy the devices reconcile against.
+   ===================================================================== */
+const SYNC_URL='/api/bpc';
+const TOKEN_KEY='bpc-momentum-token';
+let rseq=0, pushTimer=null, syncState='off', syncMsg='Not connected', pushing=false;
+
+function token(){ try{ return localStorage.getItem(TOKEN_KEY)||''; }catch(_){ return ''; } }
+function setToken(v){
+  try{ if(v) localStorage.setItem(TOKEN_KEY,v); else localStorage.removeItem(TOKEN_KEY); }catch(_){}
+}
+function setSync(state,msg){ syncState=state; syncMsg=msg; paintSync(); }
+
+async function api(method, body){
+  const headers={'Authorization':'Bearer '+token()};
+  if(body) headers['content-type']='application/json';
+  const res=await fetch(SYNC_URL,{method,headers,body:body?JSON.stringify(body):undefined,cache:'no-store'});
+  let data=null; try{ data=await res.json(); }catch(_){}
+  return {status:res.status,data};
+}
+
+function explain(status,data){
+  if(data&&data.error==='storage_unbound') return 'Server storage isn’t set up yet';
+  if(data&&data.error==='secret_unset')    return 'Server passphrase isn’t set yet';
+  if(status===401) return 'Passphrase rejected';
+  return (data&&data.message)||('Server error '+status);
+}
+
+async function pull(){
+  if(!token()) return;
+  setSync('busy','Checking…');
+  try{
+    const {status,data}=await api('GET');
+    if(status!==200){ setSync('error',explain(status,data)); return; }
+    rseq=data.rseq||0;
+    if(data.store){
+      S=mergeStores(S,data.store);
+      saveLocal();
+      renderAll();
+    }
+    setSync('ok','Synced');
+    schedulePush();                 // make sure the server also has our side of the merge
+  }catch(e){ setSync('error','No connection'); }
+}
+
+function schedulePush(){
+  if(!token()) return;
+  clearTimeout(pushTimer);
+  pushTimer=setTimeout(()=>push(0),1500);   // debounce: he types a lot
+}
+
+async function push(attempt){
+  if(!token()||pushing) return;
+  pushing=true;
+  setSync('busy','Saving…');
+  try{
+    const {status,data}=await api('PUT',{store:S,baseRseq:rseq});
+    if(status===200){ rseq=data.rseq; setSync('ok','Saved '+new Date().toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})); return; }
+    if(status===409){
+      // Another device moved first. Merge their copy in and try once more.
+      if(data&&data.store){ S=mergeStores(S,data.store); saveLocal(); renderAll(); }
+      rseq=data.rseq||rseq;
+      if(attempt<2){ pushing=false; return push(attempt+1); }
+      setSync('error','Couldn’t settle with the other device — reopen the page');
+      return;
+    }
+    setSync('error',explain(status,data));
+  }catch(e){
+    setSync('error','No connection — saved on this device');
+  }finally{ pushing=false; }
+}
+
+function paintSync(){
+  const chip=document.getElementById('syncChip');
+  if(chip){
+    chip.className='syncchip s-'+syncState;
+    chip.textContent = syncState==='off' ? '' : syncMsg;
+  }
+  const box=document.getElementById('syncBox');
+  if(!box) return;
+  if(!token()){
+    box.innerHTML=`<p class="lede">Right now this browser keeps its own copy. Connect with your passphrase and
+      this laptop and your phone share one.</p>
+      <div class="syncrow">
+        <input type="password" id="syncPass" placeholder="Sync passphrase" autocomplete="current-password">
+        <button class="btn" id="syncConnect">Connect</button>
+      </div>
+      <p class="saved" id="syncNote" style="margin-top:.6rem">Set this passphrase on the site’s settings first — ask Claude for the steps.</p>`;
+    const go=()=>{
+      const v=document.getElementById('syncPass').value.trim();
+      if(!v) return;
+      setToken(v);
+      pull().then(()=>{ if(syncState==='error'&&/rejected/i.test(syncMsg)) setToken(''); paintSync(); });
+      paintSync();
+    };
+    document.getElementById('syncConnect').onclick=go;
+    document.getElementById('syncPass').onkeydown=e=>{ if(e.key==='Enter') go(); };
+  }else{
+    box.innerHTML=`<p class="lede">This device shares one copy with your others. Edits sync a second or two after you stop typing.</p>
+      <div class="syncrow">
+        <span class="syncchip s-${syncState}">${esc(syncMsg)}</span>
+        <button class="btn ghost" id="syncNow">Sync now</button>
+        <button class="btn warn" id="syncOff">Disconnect this device</button>
+      </div>`;
+    document.getElementById('syncNow').onclick=()=>pull();
+    document.getElementById('syncOff').onclick=()=>{
+      if(confirm('Stop syncing on this device?\n\nYour weeks stay on this browser, and the shared copy is left untouched.')){
+        setToken(''); rseq=0; setSync('off','Not connected');
+      }
+    };
+  }
 }
 
 /* =====================================================================
@@ -1079,6 +1223,10 @@ function init(){
   };
 
   wireDragGuards();
+  paintSync();
+  if(token()) pull();
+  // A tab coming back to the foreground may have missed the other device's edits.
+  document.addEventListener('visibilitychange',()=>{ if(!document.hidden && token()) pull(); });
 
   /* Another tab on this browser just wrote. Don't yank a field out from under a
      sentence in progress — save()'s merge already protects the other tab's work,
