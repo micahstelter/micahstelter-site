@@ -9,3 +9,7 @@ transcripts/
 tools/publish.sh
 tools/health/
 .DS_Store
+
+# Local test harnesses — they run against real localStorage, never deploy them
+_t.html
+**/_t.html
