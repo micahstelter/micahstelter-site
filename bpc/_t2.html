@@ -1,0 +1,93 @@
+<!DOCTYPE html><meta charset="utf-8"><title>bpc persistence</title>
+<iframe id="f" style="width:1000px;height:600px"></iframe>
+<pre id="out">running…</pre>
+<script>
+const R=[], ok=(n,c,d)=>R.push((c?'PASS':'FAIL')+' | '+n+(d!==undefined&&!c?'  → '+d:''));
+const K='bpc-momentum-v1', B=K+'-backup';
+f.src='/bpc/?cb='+Math.random();
+f.onload=()=>setTimeout(run,500);
+function run(){
+ const W=f.contentWindow, ev=c=>W.eval(c);
+ const disk=k=>{ const r=ev(`localStorage.getItem(${JSON.stringify(k||K)})`); return r?JSON.parse(r):null; };
+ const boot=()=>ev("init()");            // what a browser refresh actually runs
+ const wipe=()=>ev("Object.keys(localStorage).filter(k=>k.indexOf('bpc')===0).forEach(k=>localStorage.removeItem(k))");
+ try{
+  ev("window.alert=function(){};window.confirm=function(){return true};");  // modals block headless — stub for the whole run
+
+  /* A. first visit with zero edits */
+  wipe(); boot();
+  ok('first visit seeds 4 signals', ev("S.weeks[curWeek].signals.length")===4, ''+ev("S.weeks[curWeek].signals.length"));
+  ok('first visit COMMITS to storage (survives refresh with no edits)', disk()!==null,
+     'nothing on disk until the first keystroke');
+
+  /* B. typed signal edit */
+  ev("week(curWeek).signals[0].signal='EDITED'; save();");
+  ok('signal edit is on disk', disk().weeks[ev('curWeek')].signals[0].signal==='EDITED');
+
+  /* C. half-typed log line, no Enter pressed */
+  ev(`(function(){var i=document.querySelector('input[data-log]');i.value='half typed move';i.dispatchEvent(new Event('input',{bubbles:true}));})()`);
+  const drafts=disk().weeks[ev('curWeek')].signals.map(s=>s.logDraft||'').join('');
+  ok('half-typed log line is on disk as a draft', drafts.indexOf('half typed move')>-1, JSON.stringify(drafts));
+  boot();
+  ok('...and comes back in the box after a refresh',
+     ev(`(function(){var i=document.querySelector('input[data-log]');return i&&i.value;})()`)==='half typed move',
+     JSON.stringify(ev(`(function(){var i=document.querySelector('input[data-log]');return i&&i.value;})()`)));
+
+  /* D. reflection */
+  ev(`(function(){curStage='reflect';renderWeek();var t=document.getElementById('rMoved');t.value='reflection text';t.dispatchEvent(new Event('input',{bubbles:true}));})()`);
+  ok('reflection text is on disk', disk().weeks[ev('curWeek')].stages.reflect.moved==='reflection text');
+
+  /* E. calendar */
+  ev("window.__p=window.prompt;window.prompt=()=>'PERSIST';drag={d:2,a:540,b:570};commitPaint();window.prompt=window.__p;");
+  ok('calendar block is on disk', (disk().blocks||[]).some(b=>b.l==='PERSIST'));
+
+  /* F. two tabs, same profile — the clobber case */
+  ev("week(curWeek).signals[0].signal='TAB-A'; save();");
+  // another tab writes a DIFFERENT signal, bumping seq
+  ev(`(function(){var d=JSON.parse(localStorage.getItem(${JSON.stringify(K)}));
+       d.weeks[curWeek].signals[1].signal='TAB-B'; d.weeks[curWeek].signals[1].mtime=Date.now()+5000; d.seq=(d.seq||0)+1; d.writer='othertab';
+       localStorage.setItem(${JSON.stringify(K)},JSON.stringify(d));})()`);
+  ev("save();");                                  // this tab saves its stale copy
+  const d1=disk().weeks[ev('curWeek')].signals;
+  ok('second tab’s work survives this tab’s next save', d1[1].signal==='TAB-B', 'erased by tab A');
+  ok('this tab’s own work also survives the merge', d1[0].signal==='TAB-A', 'lost in the merge');
+
+  /* F2. a whole week edited only in the other tab is preserved */
+  ev(`(function(){var d=JSON.parse(localStorage.getItem(${JSON.stringify(K)}));
+       d.weeks['2026-06-01']={signals:[{id:'z1',domain:'brand',status:'open',age:1,currentState:'',signal:'OTHER-WEEK',done:'',deps:'',log:[],mtime:Date.now()+5000}],stages:{}};
+       d.seq=(d.seq||0)+1; d.writer='othertab'; localStorage.setItem(${JSON.stringify(K)},JSON.stringify(d));})()`);
+  ev("week(curWeek).signals[0].signal='TAB-A-AGAIN'; save();");
+  ok('a week only the other tab touched is preserved',
+     !!(disk().weeks['2026-06-01']) && disk().weeks['2026-06-01'].signals[0].signal==='OTHER-WEEK',
+     'the other tab’s week was dropped');
+
+  /* F3. a delete in this tab is not resurrected by the other tab's copy */
+  ev(`(function(){var w=week(curWeek);var id=w.signals[2].id;
+       w.signals=w.signals.filter(x=>x.id!==id);(w.removed=w.removed||[]).push({id:id,at:Date.now()});
+       window.__deletedId=id; save();})()`);
+  ev(`(function(){var d=JSON.parse(localStorage.getItem(${JSON.stringify(K)}));
+       d.weeks[curWeek].signals.push({id:window.__deletedId,domain:'customer',status:'open',age:1,currentState:'',signal:'ZOMBIE',done:'',deps:'',log:[],mtime:Date.now()+9000});
+       d.seq=(d.seq||0)+1; d.writer='othertab'; localStorage.setItem(${JSON.stringify(K)},JSON.stringify(d));})()`);
+  ev("week(curWeek).signals[0].signal='AFTER-DELETE'; save();");
+  ok('a deleted signal is not resurrected by the other tab',
+     !disk().weeks[ev('curWeek')].signals.some(x=>x.signal==='ZOMBIE'), 'zombie came back');
+
+  /* G. backup copy exists */
+  ev("bakAt=0; week(curWeek).signals[0].signal='MAKE-BACKUP'; save();");
+  ok('a known-good backup copy is kept', disk(B)!==null, 'no backup key written');
+
+  /* H. corrupt primary recovers from backup */
+  ev(`localStorage.setItem(${JSON.stringify(K)},'{broken json');`);
+  boot();
+  ok('corrupt primary recovers from the backup instead of starting empty',
+     ev("Object.keys(S.weeks).length")>0 && ev("S.weeks[curWeek].signals.length")>0,
+     'started empty');
+  ok('the unreadable copy is set aside, not deleted',
+     JSON.parse(ev("JSON.stringify(Object.keys(localStorage))")).some(k=>k.indexOf('-corrupt-')>-1));
+
+  wipe();
+ }catch(e){ R.push('FAIL | harness threw: '+e.message+'\n'+e.stack); }
+ const bad=R.filter(r=>r.startsWith('FAIL')).length;
+ out.textContent=R.join('\n')+'\n\n'+(bad?bad+' FAILING':'ALL '+R.length+' PASS');
+}
+</script>

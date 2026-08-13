@@ -337,6 +337,10 @@ td.slot .lbl{
    ===================================================================== */
 
 const KEY = 'bpc-momentum-v1';
+const BAK = KEY + '-backup';          // last known-good copy, refreshed at most once a minute
+const TAB = Math.random().toString(36).slice(2,9);   // identifies this tab's own writes
+let lastSeq = 0;                      // highest store revision this tab has seen
+let bakAt = 0;                        // when the backup copy was last refreshed
 
 const DOMAINS = [
   { id:'brand', label:'Brand', color:'#2a4a3e',
@@ -386,6 +390,10 @@ function stageForToday(){
   return 'reflect';                        // Fri/Sat
 }
 const uid = () => 's'+Math.random().toString(36).slice(2,9);
+/* Last-touched stamps. The cross-tab merge is only as good as its ability to tell
+   which side edited a given signal most recently. */
+const touch  = o => { if(o) o.mtime=Date.now(); return o; };
+const mtime  = o => (o && Number.isFinite(o.mtime)) ? o.mtime : 0;
 
 /* ---------- default calendar (straight from the 8/13 recording) ---------- */
 function defaultBlocks(){
@@ -473,7 +481,8 @@ function normWeek(w){
     if(!DOM[s.domain] && s.domain!=='off') s.domain='off';
     if(!['open','moved','done'].includes(s.status)) s.status='open';
     s.age = (Number.isFinite(s.age) && s.age>0) ? Math.floor(s.age) : 1;
-    ['currentState','signal','done','deps'].forEach(f=>{ if(typeof s[f]!=='string') s[f]=String(s[f]==null?'':s[f]); });
+    ['currentState','signal','done','deps','logDraft'].forEach(f=>{ if(typeof s[f]!=='string') s[f]=String(s[f]==null?'':s[f]); });
+    if(!Number.isFinite(s.mtime)) s.mtime=0;
     if(!Array.isArray(s.log)) s.log=[];
     for(let j=s.log.length-1;j>=0;j--){
       const e=s.log[j];
@@ -482,6 +491,8 @@ function normWeek(w){
       if(typeof e.text!=='string') e.text=String(e.text==null?'':e.text);
     }
   }
+  if(!Array.isArray(w.removed)) w.removed=[];
+  w.removed=w.removed.filter(r=>r&&typeof r==='object'&&typeof r.id==='string');
   const st = (w.stages && typeof w.stages==='object') ? w.stages : (w.stages={});
   if(!st.sketch||typeof st.sketch!=='object') st.sketch={done:false,notes:''};
   if(!st.refine||typeof st.refine!=='object') st.refine={done:false,notes:''};
@@ -492,37 +503,80 @@ function normWeek(w){
   return w;
 }
 
-function load(){
+/* Reads one store key. Returns null if absent, and sets aside (never deletes) a
+   value that won't parse, so a corrupt primary can still be recovered by hand. */
+function readStore(k){
   let raw=null;
-  try{ raw=localStorage.getItem(KEY); }catch(e){ raw=null; }
-  S=null;
-  if(raw){
-    try{ S=JSON.parse(raw); }
-    catch(e){
-      // Don't let the first save() overwrite data we merely failed to parse.
-      try{ localStorage.setItem(KEY+'-corrupt-'+Date.now(), raw); }catch(_){}
-      console.warn('BPC: stored data was unreadable and has been set aside, not deleted.',e);
-      alert('Your saved BPC data could not be read, so the app has started fresh.\n\n'
-           +'The unreadable copy has been kept in this browser rather than erased — tell Claude and it can be recovered.');
-    }
+  try{ raw=localStorage.getItem(k); }catch(e){ return null; }
+  if(!raw) return null;
+  try{ return JSON.parse(raw); }
+  catch(e){
+    try{ localStorage.setItem(k+'-corrupt-'+Date.now(), raw); }catch(_){}
+    console.warn('BPC: '+k+' was unreadable and has been set aside, not deleted.',e);
+    return null;
   }
-  S = normalize(S);
+}
+
+function load(){
+  let d=readStore(KEY), from='primary';
+  if(!d){ d=readStore(BAK); if(d) from='backup'; }     // fall back to the last good copy
+  const recovered = from==='backup' && d;
+
+  S = normalize(d);
+  lastSeq = Number.isFinite(S.seq) ? S.seq : 0;
+
   const thisMon = iso(mondayOf(new Date()));
   if(!S.seeded && !S.weeks[thisMon]){ S.weeks[thisMon]=normWeek(seedWeek()); S.seeded=true; }
+
+  if(recovered){
+    const n=Object.keys(S.weeks).length;
+    setTimeout(()=>alert('The main copy of your BPC data could not be read, so the backup copy was '
+      +'restored instead ('+n+' week'+(n===1?'':'s')+').\n\nAnything from the last minute before the '
+      +'problem may be missing. The unreadable copy was kept, not erased.'),300);
+  }
 }
 
 let saveBroken=false;
 function save(){
   const stamp=new Date().toISOString();
   try{
-    localStorage.setItem(KEY,JSON.stringify(S));
-    S.savedAt=stamp; saveBroken=false;
+    /* Merge-on-write. Another tab (or the phone, on the same browser profile) may
+       have advanced the store since we last read it. Rebase our edits on top of
+       theirs rather than overwriting: this tab owns the week it is showing and the
+       calendar it just painted; every other week stays as they left it. */
+    const disk=readStore(KEY);
+    if(disk && Number.isFinite(disk.seq) && disk.seq>lastSeq){
+      const mine=S;
+      S=normalize(disk);
+      // every week this tab holds gets merged against the other tab's copy
+      Object.keys(mine.weeks).forEach(k=>{ S.weeks[k]=mergeWeek(mine.weeks[k], S.weeks[k]); });
+      if(mtime({mtime:mine.blocksMtime}) >= mtime({mtime:S.blocksMtime})){
+        S.blocks=mine.blocks; S.blocksMtime=mine.blocksMtime;
+      }
+      S.seeded = S.seeded || mine.seeded;
+    }
+    S.seq=(Number.isFinite(S.seq)?S.seq:0)+1;
+    S.writer=TAB;
+    S.savedAt=stamp;
+    lastSeq=S.seq;
+
+    const json=JSON.stringify(S);
+    // Keep a known-good copy, refreshed at most once a minute so typing stays cheap.
+    const now=Date.now();
+    if(now-bakAt>60000){
+      const prev=localStorage.getItem(KEY);
+      if(prev){ try{ JSON.parse(prev); localStorage.setItem(BAK,prev); }catch(_){ } }
+      bakAt=now;
+    }
+    localStorage.setItem(KEY,json);
+    saveBroken=false;
   }catch(e){
     // Safari private mode and a full quota both land here. Saying "Last saved"
     // over data that never persisted is the one lie this app must not tell.
     console.error('BPC save failed',e);
     if(!saveBroken){
       saveBroken=true;
+      S.savedAt=null;
       alert('This browser is refusing to save.\n\nNothing you type is being kept — likely Private Browsing or a full storage quota. '
            +'Use History → Export backup now, then reopen in a normal window.');
     }
@@ -531,6 +585,30 @@ function save(){
   if(el) el.textContent = saveBroken
     ? '⚠ NOT SAVING — this browser is refusing to store data. Export a backup.'
     : 'Last saved '+new Date(stamp).toLocaleString();
+}
+
+/* Merge one week from two tabs: newest edit wins per signal, additions from both
+   sides are kept, and an explicit delete on either side stays deleted. */
+function mergeWeek(mine, disk){
+  if(!disk) return mine;
+  if(!mine) return disk;
+  const gone=new Set([...(mine.removed||[]),...(disk.removed||[])].map(r=>r&&r.id).filter(Boolean));
+  const pick=new Map();
+  disk.signals.forEach(s=>pick.set(s.id,s));
+  mine.signals.forEach(s=>{
+    const d=pick.get(s.id);
+    pick.set(s.id, (!d || mtime(s)>=mtime(d)) ? s : d);
+  });
+  const out={signals:[],stages:{},removed:[...(mine.removed||[]),...(disk.removed||[])]
+    .filter((r,i,a)=>r&&r.id&&a.findIndex(x=>x.id===r.id)===i)};
+  const seen=new Set();
+  mine.signals.forEach(s=>{ if(!seen.has(s.id)&&!gone.has(s.id)){ out.signals.push(pick.get(s.id)); seen.add(s.id);} });
+  disk.signals.forEach(s=>{ if(!seen.has(s.id)&&!gone.has(s.id)){ out.signals.push(pick.get(s.id)); seen.add(s.id);} });
+  ['sketch','refine','reflect'].forEach(k=>{
+    const a=(mine.stages||{})[k], b=(disk.stages||{})[k];
+    out.stages[k] = mtime(a)>=mtime(b) ? (a||b) : (b||a);
+  });
+  return normWeek(out);
 }
 
 function week(k){
@@ -581,8 +659,8 @@ function renderStagePanel(){
         placeholder="What's stuck. What's working. What surprised you. Who needs something from you.">${esc(st.sketch.notes||'')}</textarea></label>
       <button class="btn ${st.sketch.done?'ghost':''}" id="sketchDone">${st.sketch.done?'✓ Sketched':'Mark sketch done'}</button>
     </div>`;
-    document.getElementById('sketchNotes').oninput=e=>{ st.sketch.notes=e.target.value; save(); };
-    document.getElementById('sketchDone').onclick=()=>{ st.sketch.done=!st.sketch.done; save(); renderWeek(); };
+    document.getElementById('sketchNotes').oninput=e=>{ st.sketch.notes=e.target.value; touch(st.sketch); save(); };
+    document.getElementById('sketchDone').onclick=()=>{ st.sketch.done=!st.sketch.done; touch(st.sketch); save(); renderWeek(); };
 
   } else if(curStage==='refine'){
     host.innerHTML=`<div class="panel">
@@ -599,8 +677,8 @@ function renderStagePanel(){
         placeholder="New data, a conversation that shifted things, a signal you're swapping out.">${esc(st.refine.notes||'')}</textarea></label>
       <button class="btn ${st.refine.done?'ghost':''}" id="refineDone">${st.refine.done?'✓ Locked':'Lock the three'}</button>
     </div>`;
-    document.getElementById('refineNotes').oninput=e=>{ st.refine.notes=e.target.value; save(); };
-    document.getElementById('refineDone').onclick=()=>{ st.refine.done=!st.refine.done; save(); renderWeek(); };
+    document.getElementById('refineNotes').oninput=e=>{ st.refine.notes=e.target.value; touch(st.refine); save(); };
+    document.getElementById('refineDone').onclick=()=>{ st.refine.done=!st.refine.done; touch(st.refine); save(); renderWeek(); };
 
   } else if(curStage==='execute'){
     const n=w.signals.reduce((a,s)=>a+(s.log||[]).length,0);
@@ -626,10 +704,10 @@ function renderStagePanel(){
       <button class="btn ${st.reflect.done?'ghost':''}" id="reflectDone">${st.reflect.done?'✓ Week closed':'Close the week'}</button>
       <button class="btn ghost" id="carryFwd">Carry open signals to next week →</button>
     </div>`;
-    document.getElementById('rMoved').oninput=e=>{ st.reflect.moved=e.target.value; save(); };
-    document.getElementById('rDidnt').oninput=e=>{ st.reflect.didnt=e.target.value; save(); };
-    document.getElementById('rEmerging').oninput=e=>{ st.reflect.emerging=e.target.value; save(); };
-    document.getElementById('reflectDone').onclick=()=>{ st.reflect.done=!st.reflect.done; save(); renderWeek(); };
+    document.getElementById('rMoved').oninput=e=>{ st.reflect.moved=e.target.value; touch(st.reflect); save(); };
+    document.getElementById('rDidnt').oninput=e=>{ st.reflect.didnt=e.target.value; touch(st.reflect); save(); };
+    document.getElementById('rEmerging').oninput=e=>{ st.reflect.emerging=e.target.value; touch(st.reflect); save(); };
+    document.getElementById('reflectDone').onclick=()=>{ st.reflect.done=!st.reflect.done; touch(st.reflect); save(); renderWeek(); };
     document.getElementById('carryFwd').onclick=carryForward;
   }
 }
@@ -694,7 +772,7 @@ function sigCard(s){
           : '<div class="empty">No moves logged yet.</div>'
       }</div>
       <div class="logadd">
-        <input type="text" data-log="${esc(s.id)}" placeholder="Log a move — what you actually did, in one line. ↵">
+        <input type="text" data-log="${esc(s.id)}" value="${esc(s.logDraft||'')}" placeholder="Log a move — what you actually did, in one line. ↵">
       </div>
     </div>
   </div>`;
@@ -703,31 +781,36 @@ function sigCard(s){
 function wireSignalCard(host,w){
   const find=id=>w.signals.find(s=>s.id===id);
   host.querySelectorAll('textarea[data-f]').forEach(t=>{
-    t.oninput=()=>{ const s=find(t.dataset.id); if(s){ s[t.dataset.f]=t.value; save(); } };
+    t.oninput=()=>{ const s=find(t.dataset.id); if(s){ s[t.dataset.f]=t.value; touch(s); save(); } };
   });
   host.querySelectorAll('select[data-dom]').forEach(sel=>{
-    sel.onchange=()=>{ const s=find(sel.dataset.dom); if(s){ s.domain=sel.value; save(); renderWeek(); } };
+    sel.onchange=()=>{ const s=find(sel.dataset.dom); if(s){ s.domain=sel.value; touch(s); save(); renderWeek(); } };
   });
   host.querySelectorAll('[data-mv]').forEach(b=>b.onclick=()=>{
-    const s=find(b.dataset.mv); s.status = s.status==='moved'?'open':'moved'; save(); renderWeek(); });
+    const s=find(b.dataset.mv); s.status = s.status==='moved'?'open':'moved'; touch(s); save(); renderWeek(); });
   host.querySelectorAll('[data-dn]').forEach(b=>b.onclick=()=>{
-    const s=find(b.dataset.dn); s.status = s.status==='done'?'open':'done'; save(); renderWeek(); });
+    const s=find(b.dataset.dn); s.status = s.status==='done'?'open':'done'; touch(s); save(); renderWeek(); });
   host.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{
     const s=find(b.dataset.rm);
     if(confirm('Remove this signal from the week?')){
-      w.signals=w.signals.filter(x=>x.id!==s.id); save(); renderWeek();
+      w.signals=w.signals.filter(x=>x.id!==s.id);
+      (w.removed=w.removed||[]).push({id:s.id,at:Date.now()});   // tombstone: stays deleted across tabs
+      save(); renderWeek();
     }});
   host.querySelectorAll('input[data-log]').forEach(inp=>{
+    // Persist what's typed as you type. Before this, a move you typed but never
+    // hit Enter on was gone the moment the page reloaded.
+    inp.oninput=()=>{ const s=find(inp.dataset.log); if(s){ s.logDraft=inp.value; touch(s); save(); } };
     inp.onkeydown=e=>{
       if(e.key!=='Enter'||!inp.value.trim()) return;
       const s=find(inp.dataset.log);
       s.log=s.log||[]; s.log.push({at:new Date().toISOString(),text:inp.value.trim()});
       if(s.status==='open') s.status='moved';
-      inp.value=''; save(); renderWeek();
+      s.logDraft=''; inp.value=''; touch(s); save(); renderWeek();
     };
   });
   host.querySelectorAll('[data-lx]').forEach(x=>x.onclick=()=>{
-    const s=find(x.dataset.lx); s.log.splice(+x.dataset.i,1); save(); renderWeek(); });
+    const s=find(x.dataset.lx); s.log.splice(+x.dataset.i,1); touch(s); save(); renderWeek(); });
 }
 
 function carryForward(){
@@ -853,6 +936,7 @@ function commitPaint(){
   S.blocks=kept;
   if(label!==null) S.blocks.push({d,s:hhmm(lo),e:hhmm(hi),t:paintType,l:label});
   S.blocks.sort((a,b)=>a.d-b.d||mins(a.s)-mins(b.s));
+  S.blocksMtime=Date.now();
   save(); renderCal();
 }
 function defaultLabel(t){
@@ -965,6 +1049,9 @@ function init(){
   load();
   curWeek=iso(mondayOf(new Date()));
   curStage=stageForToday();
+  // Commit immediately so the store exists from the first visit rather than from
+  // the first keystroke, and so `seq` starts advancing for the cross-tab merge.
+  if(!Number.isFinite(S.seq)) save();
   renderAll();
   if(S.savedAt) document.getElementById('savedAt').textContent='Last saved '+new Date(S.savedAt).toLocaleString();
 
@@ -993,6 +1080,20 @@ function init(){
 
   wireDragGuards();
 
+  /* Another tab on this browser just wrote. Don't yank a field out from under a
+     sentence in progress — save()'s merge already protects the other tab's work,
+     so we only refresh the view when he isn't mid-edit. */
+  window.addEventListener('storage', e=>{
+    if(e.key!==KEY || !e.newValue) return;
+    let d; try{ d=JSON.parse(e.newValue); }catch(_){ return; }
+    if(d.writer===TAB) return;
+    const el=document.activeElement;
+    if(el && (el.tagName==='TEXTAREA' || el.tagName==='INPUT')) return;
+    S=normalize(d); lastSeq=Number.isFinite(S.seq)?S.seq:0;
+    renderAll();
+  });
+
+
   document.querySelectorAll('#palette .swatch').forEach(b=>b.onclick=()=>{
     paintType=b.dataset.type;
     wireDragGuards();
@@ -1001,10 +1102,10 @@ function init(){
   });
   document.getElementById('calReset').onclick=()=>{
     if(confirm('Reset the grid to your standard rhythm? Custom blocks will be lost.')){
-      S.blocks=defaultBlocks(); save(); renderCal(); }
+      S.blocks=defaultBlocks(); S.blocksMtime=Date.now(); save(); renderCal(); }
   };
   document.getElementById('calClear').onclick=()=>{
-    if(confirm('Clear every block?')){ S.blocks=[]; save(); renderCal(); }
+    if(confirm('Clear every block?')){ S.blocks=[]; S.blocksMtime=Date.now(); save(); renderCal(); }
   };
   document.getElementById('calIcs').onclick=()=>{
     if(!S.blocks.length){ alert('Nothing to export — paint some blocks first.'); return; }
