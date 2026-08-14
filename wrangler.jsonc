@@ -1,0 +1,19 @@
+{
+  // micahstelter.ai — Worker + static assets.
+  //
+  // `name` MUST stay "micahstelter-site": it is what binds this config to the
+  // existing Worker. A different name would deploy a brand new Worker and leave
+  // the live site pointing at the old one.
+  //
+  // Assets are served first for any path that matches a file, so _redirects,
+  // _headers and 404.html keep working exactly as before. Only unmatched paths
+  // reach worker/index.js.
+  "name": "micahstelter-site",
+  "main": "worker/index.js",
+  "compatibility_date": "2026-08-14",
+  "assets": {
+    "directory": ".",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page"
+  }
+}

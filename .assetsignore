@@ -1,0 +1,5 @@
+# Files that must NOT be published as public static assets.
+# The old functions/ directory was served as readable source; this prevents a repeat.
+worker
+wrangler.jsonc
+.assetsignore
