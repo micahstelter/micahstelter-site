@@ -19,6 +19,8 @@
  * owns that logic for two tabs on one machine — one implementation, not two.
  */
 
+import { verifyAccess } from './access.js';
+
 const MAX_BYTES = 2 * 1024 * 1024;
 
 const json = (body, status = 200) =>
@@ -30,22 +32,6 @@ const json = (body, status = 200) =>
       'x-content-type-options': 'nosniff',
     },
   });
-
-/** Length-independent comparison, so timing reveals nothing about the secret. */
-function secretMatches(given, expected) {
-  if (typeof given !== 'string' || typeof expected !== 'string') return false;
-  const a = new TextEncoder().encode(given);
-  const b = new TextEncoder().encode(expected);
-  let diff = a.length ^ b.length;
-  const n = Math.max(a.length, b.length, 1);
-  for (let i = 0; i < n; i++) diff |= (a[i] || 0) ^ (b[i] || 0);
-  return diff === 0;
-}
-
-const bearer = (request) => {
-  const h = request.headers.get('Authorization') || '';
-  return h.startsWith('Bearer ') ? h.slice(7) : '';
-};
 
 // One CREATE per isolate rather than per request.
 let schemaReady = null;
@@ -73,12 +59,18 @@ export async function handleBpc(request, env) {
   if (!env.BPC_DB) {
     return json({ error: 'storage_unbound', message: 'The database is not connected to this site yet.' }, 503);
   }
-  if (!env.BPC_SECRET) {
-    return json({ error: 'secret_unset', message: 'The sync passphrase has not been set on the server yet.' }, 503);
-  }
-  // Auth before any database work, so an unauthenticated flood costs no queries.
-  if (!secretMatches(bearer(request), env.BPC_SECRET)) {
-    return json({ error: 'unauthorized', message: 'Wrong or missing passphrase.' }, 401);
+  // Identity before any database work, so an unauthenticated flood costs no queries.
+  const who = await verifyAccess(request, env);
+  if (!who.ok) {
+    if (who.reason === 'unconfigured') {
+      return json({ error: 'access_unconfigured', message: 'Sign-in is not set up on the server yet.' }, 503);
+    }
+    const expired = who.reason === 'expired' || who.reason === 'no_session';
+    return json({
+      error: expired ? 'signin_required' : 'forbidden',
+      reason: who.reason,
+      message: expired ? 'Your sign-in has expired.' : 'This Google account is not permitted.',
+    }, 401);
   }
 
   await ensureSchema(env.BPC_DB);

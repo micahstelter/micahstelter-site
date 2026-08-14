@@ -31,7 +31,7 @@ export default {
         ok: true,
         worker: true,
         d1: Boolean(env.BPC_DB),
-        secret: Boolean(env.BPC_SECRET),
+        accessConfigured: Boolean(env.ACCESS_TEAM_DOMAIN && env.ACCESS_AUD),
         time: new Date().toISOString(),
       });
     }

@@ -698,12 +698,17 @@ function week(k){
    the server is a shared copy the devices reconcile against.
    ===================================================================== */
 const SYNC_URL='/api/bpc';
-const TOKEN_KEY='bpc-momentum-token';
+/* Identity is the Cloudflare Access session, carried automatically as a
+   same-origin cookie. There is no passphrase to remember, nothing to type on a
+   phone, and no secret in localStorage for an XSS to steal. `syncOff` exists
+   only so a shared or borrowed browser can opt out. */
+const OFF_KEY='bpc-momentum-sync-off';
 let rseq=0, pushTimer=null, retryTimer=null, syncState='off', syncMsg='Not connected';
 let pushing=false, pushDirty=false, retryDelay=0, pendingRemote=null, pendingRender=false;
 
-function token(){ try{ return localStorage.getItem(TOKEN_KEY)||''; }catch(_){ return ''; } }
-function setToken(v){ try{ if(v) localStorage.setItem(TOKEN_KEY,v); else localStorage.removeItem(TOKEN_KEY); }catch(_){} }
+function syncOn(){ try{ return localStorage.getItem(OFF_KEY)!=='1'; }catch(_){ return true; } }
+function setSyncOn(v){ try{ if(v) localStorage.removeItem(OFF_KEY); else localStorage.setItem(OFF_KEY,'1'); }catch(_){} }
+const token = syncOn;   // every guard below reads the same switch
 function setSync(state,msg){ syncState=state; syncMsg=msg; paintSync(); }
 const typing = () => { const el=document.activeElement; return !!(el && (el.tagName==='TEXTAREA'||el.tagName==='INPUT')); };
 
@@ -720,18 +725,29 @@ function applyPending(){
 }
 
 async function api(method, body){
-  const headers={'Authorization':'Bearer '+token()};
+  const headers={};
   if(body) headers['content-type']='application/json';
-  const res=await fetch(SYNC_URL,{method,headers,body:body?JSON.stringify(body):undefined,cache:'no-store'});
+  const res=await fetch(SYNC_URL,{method,headers,body:body?JSON.stringify(body):undefined,
+                                  cache:'no-store',credentials:'same-origin'});
+  // An expired Access session answers with the sign-in page, not JSON. Treat that
+  // as "sign in again" rather than letting a JSON parse failure look like an outage.
+  const ct=res.headers.get('content-type')||'';
+  if(!ct.includes('application/json')){
+    return {status:res.status===200?401:res.status, data:{error:'signin_required'}};
+  }
   let data=null; try{ data=await res.json(); }catch(_){}
   return {status:res.status,data};
 }
 function explain(status,data){
-  if(data&&data.error==='storage_unbound') return 'Server storage isn’t connected yet';
-  if(data&&data.error==='secret_unset')    return 'Server passphrase isn’t set yet';
-  if(status===401) return 'Passphrase rejected';
+  const e=data&&data.error;
+  if(e==='storage_unbound')     return 'Server storage isn’t connected yet';
+  if(e==='access_unconfigured') return 'Sign-in isn’t set up on the server yet';
+  if(e==='signin_required')     return 'Sign in again to sync';
+  if(e==='forbidden')           return 'That Google account isn’t permitted';
+  if(status===401)              return 'Sign in again to sync';
   return (data&&data.message)||('Server error '+status);
 }
+const needsSignIn = () => /sign in again/i.test(syncMsg);
 
 async function pull(){
   if(!token()) return;
@@ -779,7 +795,8 @@ async function push(){
         // loop and retry against the revision the server just told us about
       }else{
         setSync('error',explain(status,data));
-        scheduleRetry(); done=true;
+        if(status!==401) scheduleRetry();   // don't hammer a login redirect
+        paintSync(); done=true;
       }
     }
     if(!done){ setSync('error','Another device keeps changing it — retrying'); scheduleRetry(); }
@@ -805,8 +822,8 @@ function flushOnExit(){
   if(!token() || !pushTimer) return;
   clearTimeout(pushTimer); pushTimer=null;
   try{
-    fetch(SYNC_URL,{method:'PUT',keepalive:true,
-      headers:{'Authorization':'Bearer '+token(),'content-type':'application/json'},
+    fetch(SYNC_URL,{method:'PUT',keepalive:true,credentials:'same-origin',
+      headers:{'content-type':'application/json'},
       body:JSON.stringify({store:S, baseRseq:rseq})});
   }catch(_){}
 }
@@ -820,34 +837,27 @@ function paintSync(){
   if(chip){ chip.className='syncchip s-'+syncState; chip.textContent = syncState==='off' ? '' : syncMsg; }
   const box=document.getElementById('syncBox');
   if(!box) return;
-  if(!token()){
-    box.innerHTML=`<p class="lede">This browser keeps its own copy. Connect with your passphrase and this
-      laptop and your phone share one.</p>
-      <div class="syncrow">
-        <input type="password" id="syncPass" placeholder="Sync passphrase" autocomplete="current-password">
-        <button class="btn" id="syncConnect">Connect</button>
-      </div>`;
-    const go=()=>{
-      const v=document.getElementById('syncPass').value.trim();
-      if(!v) return;
-      setToken(v);
-      paintSync();
-      pull().then(()=>{ if(/rejected/i.test(syncMsg)){ setToken(''); setSync('off','Not connected'); paintSync(); } });
-    };
-    document.getElementById('syncConnect').onclick=go;
-    document.getElementById('syncPass').onkeydown=e=>{ if(e.key==='Enter') go(); };
+  if(!syncOn()){
+    box.innerHTML=`<p class="lede">Syncing is paused on this device. Your weeks are kept here only.</p>
+      <div class="syncrow"><button class="btn" id="syncResume">Resume syncing</button></div>`;
+    document.getElementById('syncResume').onclick=()=>{ setSyncOn(true); setSync('busy','Checking…'); pull(); paintSync(); };
+  }else if(needsSignIn()){
+    box.innerHTML=`<p class="lede">Your sign-in expired. Reload and Google will sign you back in.</p>
+      <div class="syncrow"><button class="btn" id="syncSignin">Sign in again</button></div>`;
+    document.getElementById('syncSignin').onclick=()=>location.reload();
   }else{
-    box.innerHTML=`<p class="lede">This device shares one copy with your others. Edits sync a second or two
-      after you stop typing, and it keeps working offline — anything typed with no connection goes up when it returns.</p>
+    box.innerHTML=`<p class="lede">Signed in with Google, so this device shares one copy with your others.
+      Edits sync a second or two after you stop typing, and it keeps working offline — anything typed with
+      no connection goes up when the connection returns.</p>
       <div class="syncrow">
         <span class="syncchip s-${syncState}">${esc(syncMsg)}</span>
         <button class="btn ghost" id="syncNow">Sync now</button>
-        <button class="btn warn" id="syncOff">Disconnect this device</button>
+        <button class="btn warn" id="syncOff">Pause on this device</button>
       </div>`;
     document.getElementById('syncNow').onclick=()=>pull();
     document.getElementById('syncOff').onclick=()=>{
-      if(confirm('Stop syncing on this device?\n\nYour weeks stay on this browser, and the shared copy is left untouched.')){
-        setToken(''); rseq=0; clearTimeout(pushTimer); clearTimeout(retryTimer); setSync('off','Not connected');
+      if(confirm('Pause syncing on this device?\n\nYour weeks stay in this browser, and the shared copy is left untouched.')){
+        setSyncOn(false); rseq=0; clearTimeout(pushTimer); clearTimeout(retryTimer); setSync('off','Paused on this device');
       }
     };
   }
@@ -1317,10 +1327,10 @@ function init(){
 
   wireDragGuards();
   paintSync();
-  if(token()) pull();
+  if(syncOn()) pull();
   document.addEventListener('visibilitychange',()=>{
     if(document.hidden) flushOnExit();
-    else if(token()) pull();
+    else if(syncOn()) pull();
   });
 
   /* Another tab on this browser just wrote. Don't yank a field out from under a
