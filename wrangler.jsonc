@@ -15,5 +15,16 @@
     "directory": ".",
     "binding": "ASSETS",
     "not_found_handling": "404-page"
-  }
+  },
+  // Bindings live here, not in the dashboard: this project deploys with
+  // `wrangler deploy`, which treats this file as the source of truth and would
+  // drop anything added through the UI on the next build. Secrets are the
+  // exception — they are stored separately and survive deploys.
+  "d1_databases": [
+    {
+      "binding": "BPC_DB",
+      "database_name": "bpc-momentum",
+      "database_id": "375468b0-dd87-447a-8027-0471077b5446"
+    }
+  ]
 }

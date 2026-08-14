@@ -7,9 +7,10 @@
  * precedence for every path that matches a file, so the site behaves exactly as
  * it did before; this only handles paths no asset claims.
  *
- * PHASE A: routing only, plus a health endpoint to prove the Worker is live.
- * The sync API lands in phase B.
+ * Routes /api/bpc to the BPC Momentum sync API; everything else is the site.
  */
+
+import { handleBpc } from './bpc.js';
 
 const json = (body, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -20,6 +21,10 @@ const json = (body, status = 200) =>
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
+
+    if (url.pathname === '/api/bpc') {
+      return handleBpc(request, env);
+    }
 
     if (url.pathname === '/api/health') {
       return json({
