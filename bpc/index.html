@@ -209,6 +209,15 @@ td.slot .lbl{
 .win time{font-size:.62rem;color:var(--faint);letter-spacing:.07em;text-transform:uppercase;display:block;margin-bottom:.12rem}
 
 .datarow{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem}
+.syncrow{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+.syncrow input{max-width:16rem}
+.syncchip{font-size:.66rem;letter-spacing:.09em;text-transform:uppercase;font-weight:700;
+  padding:.3rem .6rem;border-radius:20px;white-space:nowrap;align-self:center}
+.syncchip.s-off{display:none}
+.syncchip.s-ok{background:#e8f0ea;color:var(--accent)}
+.syncchip.s-busy{background:#f5efdf;color:#8a6d2a}
+.syncchip.s-error{background:#f8e9e9;color:#9a3d3d}
+.tabs .syncchip{margin-left:auto}
 .saved{font-size:.68rem;color:var(--faint);letter-spacing:.06em}
 
 @media(max-width:820px){
@@ -251,6 +260,7 @@ td.slot .lbl{
     <button class="tab on" data-view="week">This Week</button>
     <button class="tab" data-view="cal">Block Calendar</button>
     <button class="tab" data-view="hist">History &amp; Wins</button>
+    <span class="syncchip s-off" id="syncChip"></span>
   </div>
 
   <!-- ============ THIS WEEK ============ -->
@@ -308,6 +318,10 @@ td.slot .lbl{
       <h2>Wins Log</h2>
       <p class="lede">Every signal you closed out, kept in one place.</p>
       <div class="wins" id="winsList"></div>
+    </div>
+    <div class="panel">
+      <h2>Sync Across Devices</h2>
+      <div id="syncBox"></div>
     </div>
     <div class="panel">
       <h2>Your Data</h2>
@@ -392,8 +406,31 @@ function stageForToday(){
 const uid = () => 's'+Math.random().toString(36).slice(2,9);
 /* Last-touched stamps. The cross-tab merge is only as good as its ability to tell
    which side edited a given signal most recently. */
-const touch  = o => { if(o) o.mtime=Date.now(); return o; };
+/* Stamps must be MONOTONIC, never raw wall-clock. Two devices' clocks disagree;
+   if a phone runs three minutes fast, a later laptop edit would stamp LOWER than
+   the value it was based on and lose the merge — destroying the newer work and
+   republishing the older text. Taking max(now, previous+1) means an edit is
+   always strictly newer than what it edited, whatever the clocks say. */
+const bump   = prev => Math.max(Date.now(), (Number.isFinite(prev)?prev:0)+1);
+const touch  = o => { if(o) o.mtime=bump(o.mtime); return o; };
 const mtime  = o => (o && Number.isFinite(o.mtime)) ? o.mtime : 0;
+/* Per-field stamps. Object-level stamps lose a whole signal to a one-word edit:
+   type into `currentState` on the laptop while the phone edits `deps`, and one
+   side's paragraph vanishes. Fields merge independently. */
+const TEXTF  = ['currentState','signal','done','deps','logDraft'];
+function touchField(s,f){
+  if(!s) return;
+  if(!s.fs || typeof s.fs!=='object') s.fs={};
+  s.fs[f]=bump(s.fs[f]);
+  touch(s);
+}
+/* Fall back to the signal's own stamp when a field has none. Data written by an
+   earlier version — or by any path that stamped the object but not the field —
+   would otherwise read as "never edited" and lose to a local tie. */
+const fstamp = (s,f) => {
+  const v = s && s.fs ? s.fs[f] : 0;
+  return (Number.isFinite(v) && v>0) ? v : mtime(s);
+};
 
 /* ---------- default calendar (straight from the 8/13 recording) ---------- */
 function defaultBlocks(){
@@ -417,22 +454,22 @@ function defaultBlocks(){
 function seedWeek(){
   return {
     signals:[
-      { id:uid(), domain:'brand', status:'open', age:1,
+      { id:'seed-brand', domain:'brand', status:'open', age:1,
         currentState:'Revenue plan for 2027 lives in my head. No shared draft anyone can work off of.',
         signal:'Get myself in the data and write the rough 2027 revenue plan — where revenue comes from, and what we cut.',
         done:'A written draft clear enough to throw against the wall with Caleb, VP of Sales, and Mark — and have them pull it apart and add to it.',
         deps:'2 hours blocked today for the data work. Success ratio, market response, momentum by line.', log:[] },
-      { id:uid(), domain:'people', status:'open', age:1,
+      { id:'seed-people', domain:'people', status:'open', age:1,
         currentState:'Caleb is our director of marketing. His comp plan and his future here aren’t clear to him yet.',
         signal:'Run a 2-hour conversation with Caleb that makes his comp plan and 3-year path clear, and pulls out what HE believes we can be.',
         done:'Caleb is motivated and bought in, his path is clear, and his read on the market is on the table shaping the 2027 plan.',
         deps:'Meeting is scheduled for next week. My 2027 thinking needs to be written down before we sit down.', log:[] },
-      { id:uid(), domain:'customer', status:'open', age:1,
+      { id:'seed-customer', domain:'customer', status:'open', age:1,
         currentState:'We say we’re building the most excellent historic-homes painting company in the nation. Nothing yet defines what the customer actually feels that makes it true.',
         signal:'Name the one experience standard — our version of Chick-fil-A’s "my pleasure" — that customers would feel on every job.',
         done:'One written standard, specific enough to train to and hold people to.',
         deps:'Falls out of the brand work. Don’t force it before the 2027 plan has shape.', log:[] },
-      { id:uid(), domain:'off', status:'open', age:1,
+      { id:'seed-building', domain:'off', status:'open', age:1,
         currentState:'Walked New Hope twice. Roseville walk is today at 2pm.',
         signal:'Walk Roseville, compare against New Hope and what else is in the market, and get an LOI moving.',
         done:'LOI sent on the building we want, with a Q1-or-sooner move in view.',
@@ -466,6 +503,7 @@ function normalize(d){
     && Number.isInteger(b.d) && b.d>=0 && b.d<5
     && /^\d{2}:\d{2}$/.test(b.s) && /^\d{2}:\d{2}$/.test(b.e) && mins(b.s)<mins(b.e))
     .map(b=>({d:b.d, s:b.s, e:b.e, t:['anchor','signal','think','rhythm'].includes(b.t)?b.t:'anchor', l:String(b.l==null?'':b.l)}));
+  if(!Number.isFinite(d.blocksMtime)) d.blocksMtime=0;
   if(typeof d.version!=='number') d.version=1;
   return d;
 }
@@ -483,6 +521,8 @@ function normWeek(w){
     s.age = (Number.isFinite(s.age) && s.age>0) ? Math.floor(s.age) : 1;
     ['currentState','signal','done','deps','logDraft'].forEach(f=>{ if(typeof s[f]!=='string') s[f]=String(s[f]==null?'':s[f]); });
     if(!Number.isFinite(s.mtime)) s.mtime=0;
+    if(!s.fs || typeof s.fs!=='object' || Array.isArray(s.fs)) s.fs={};
+    TEXTF.forEach(f=>{ if(!Number.isFinite(s.fs[f])) s.fs[f]=0; });
     if(!Array.isArray(s.log)) s.log=[];
     for(let j=s.log.length-1;j>=0;j--){
       const e=s.log[j];
@@ -537,7 +577,7 @@ function load(){
 }
 
 let saveBroken=false;
-function save(){
+function saveLocal(){
   const stamp=new Date().toISOString();
   try{
     /* Merge-on-write. Another tab (or the phone, on the same browser profile) may
@@ -546,14 +586,7 @@ function save(){
        calendar it just painted; every other week stays as they left it. */
     const disk=readStore(KEY);
     if(disk && Number.isFinite(disk.seq) && disk.seq>lastSeq){
-      const mine=S;
-      S=normalize(disk);
-      // every week this tab holds gets merged against the other tab's copy
-      Object.keys(mine.weeks).forEach(k=>{ S.weeks[k]=mergeWeek(mine.weeks[k], S.weeks[k]); });
-      if(mtime({mtime:mine.blocksMtime}) >= mtime({mtime:S.blocksMtime})){
-        S.blocks=mine.blocks; S.blocksMtime=mine.blocksMtime;
-      }
-      S.seeded = S.seeded || mine.seeded;
+      S = mergeStores(S, disk);
     }
     S.seq=(Number.isFinite(S.seq)?S.seq:0)+1;
     S.writer=TAB;
@@ -589,21 +622,49 @@ function save(){
 
 /* Merge one week from two tabs: newest edit wins per signal, additions from both
    sides are kept, and an explicit delete on either side stays deleted. */
+/* Reconcile one signal field by field, so simultaneous edits to DIFFERENT parts
+   of the same signal both survive. Move logs union rather than compete. */
+function mergeSignal(a,b){
+  if(!b) return a;
+  if(!a) return b;
+  const out = {...(mtime(a)>=mtime(b) ? a : b)};      // status/domain/age from the newer side
+  out.fs={};
+  TEXTF.forEach(f=>{
+    const fa=fstamp(a,f), fb=fstamp(b,f);
+    out[f] = fa>=fb ? a[f] : b[f];
+    out.fs[f]=Math.max(fa,fb);
+  });
+  const seen=new Set(); out.log=[];
+  [...(a.log||[]),...(b.log||[])].forEach(e=>{
+    const k=e.at+'|'+e.text;
+    if(!seen.has(k)){ seen.add(k); out.log.push(e); }
+  });
+  out.log.sort((x,y)=>String(x.at).localeCompare(String(y.at)));
+  out.mtime=Math.max(mtime(a),mtime(b));
+  return out;
+}
+
 function mergeWeek(mine, disk){
   if(!disk) return mine;
   if(!mine) return disk;
-  const gone=new Set([...(mine.removed||[]),...(disk.removed||[])].map(r=>r&&r.id).filter(Boolean));
+  /* A delete must not silently erase work done AFTER it. Keep the newest
+     tombstone time per id and let a later edit win over the delete. */
+  const gone=new Map();
+  [...(mine.removed||[]),...(disk.removed||[])].forEach(r=>{
+    if(r && r.id) gone.set(r.id, Math.max(gone.get(r.id)||0, Number(r.at)||0));
+  });
   const pick=new Map();
   disk.signals.forEach(s=>pick.set(s.id,s));
   mine.signals.forEach(s=>{
     const d=pick.get(s.id);
-    pick.set(s.id, (!d || mtime(s)>=mtime(d)) ? s : d);
+    pick.set(s.id, d ? mergeSignal(s,d) : s);
   });
   const out={signals:[],stages:{},removed:[...(mine.removed||[]),...(disk.removed||[])]
     .filter((r,i,a)=>r&&r.id&&a.findIndex(x=>x.id===r.id)===i)};
   const seen=new Set();
-  mine.signals.forEach(s=>{ if(!seen.has(s.id)&&!gone.has(s.id)){ out.signals.push(pick.get(s.id)); seen.add(s.id);} });
-  disk.signals.forEach(s=>{ if(!seen.has(s.id)&&!gone.has(s.id)){ out.signals.push(pick.get(s.id)); seen.add(s.id);} });
+  const alive=id=>{ const t=gone.get(id); const v=pick.get(id); return !(t && mtime(v)<=t); };
+  mine.signals.forEach(s=>{ if(!seen.has(s.id)&&alive(s.id)){ out.signals.push(pick.get(s.id)); seen.add(s.id);} });
+  disk.signals.forEach(s=>{ if(!seen.has(s.id)&&alive(s.id)){ out.signals.push(pick.get(s.id)); seen.add(s.id);} });
   ['sketch','refine','reflect'].forEach(k=>{
     const a=(mine.stages||{})[k], b=(disk.stages||{})[k];
     out.stages[k] = mtime(a)>=mtime(b) ? (a||b) : (b||a);
@@ -611,9 +672,185 @@ function mergeWeek(mine, disk){
   return normWeek(out);
 }
 
+/* Fold `mine` on top of `other`, week by week. Both the two-tab merge and the
+   server merge go through here, so there is exactly ONE reconciliation rule. */
+function mergeStores(mine, other){
+  const out=normalize(other);
+  Object.keys(mine.weeks).forEach(k=>{ out.weeks[k]=mergeWeek(mine.weeks[k], out.weeks[k]); });
+  if((mine.blocksMtime||0) >= (out.blocksMtime||0)){
+    out.blocks=mine.blocks; out.blocksMtime=mine.blocksMtime||0;
+  }
+  out.seeded = out.seeded || mine.seeded;
+  // `seq` is this browser's own cross-tab counter — a copy from another device
+  // carries its own, so take the high-water mark rather than moving backwards.
+  out.seq = Math.max(Number(mine.seq)||0, Number(out.seq)||0);
+  return out;
+}
+
 function week(k){
   if(!S.weeks[k]) S.weeks[k]={signals:[],stages:{}};
   return normWeek(S.weeks[k]);
+}
+
+/* =====================================================================
+   REMOTE SYNC — /api/bpc, D1-backed, behind a passphrase
+   localStorage stays the render source of truth so the tool works offline;
+   the server is a shared copy the devices reconcile against.
+   ===================================================================== */
+const SYNC_URL='/api/bpc';
+const TOKEN_KEY='bpc-momentum-token';
+let rseq=0, pushTimer=null, retryTimer=null, syncState='off', syncMsg='Not connected';
+let pushing=false, pushDirty=false, retryDelay=0, pendingRemote=null, pendingRender=false;
+
+function token(){ try{ return localStorage.getItem(TOKEN_KEY)||''; }catch(_){ return ''; } }
+function setToken(v){ try{ if(v) localStorage.setItem(TOKEN_KEY,v); else localStorage.removeItem(TOKEN_KEY); }catch(_){} }
+function setSync(state,msg){ syncState=state; syncMsg=msg; paintSync(); }
+const typing = () => { const el=document.activeElement; return !!(el && (el.tagName==='TEXTAREA'||el.tagName==='INPUT')); };
+
+/* Never rebuild the DOM under a cursor. renderAll() replaces innerHTML, which
+   would drop focus mid-sentence and send the rest of his typing nowhere. */
+function safeRenderAll(){
+  if(typing()){ pendingRender=true; return; }
+  renderAll();
+}
+function applyPending(){
+  if(typing()) return;
+  if(pendingRemote){ S=mergeStores(S,pendingRemote); pendingRemote=null; saveLocal(); pendingRender=true; }
+  if(pendingRender){ pendingRender=false; renderAll(); }
+}
+
+async function api(method, body){
+  const headers={'Authorization':'Bearer '+token()};
+  if(body) headers['content-type']='application/json';
+  const res=await fetch(SYNC_URL,{method,headers,body:body?JSON.stringify(body):undefined,cache:'no-store'});
+  let data=null; try{ data=await res.json(); }catch(_){}
+  return {status:res.status,data};
+}
+function explain(status,data){
+  if(data&&data.error==='storage_unbound') return 'Server storage isn’t connected yet';
+  if(data&&data.error==='secret_unset')    return 'Server passphrase isn’t set yet';
+  if(status===401) return 'Passphrase rejected';
+  return (data&&data.message)||('Server error '+status);
+}
+
+async function pull(){
+  if(!token()) return;
+  setSync('busy','Checking…');
+  try{
+    const {status,data}=await api('GET');
+    if(status!==200){ setSync('error',explain(status,data)); return; }
+    rseq=data.rseq||0;
+    if(data.store){
+      if(typing()){ pendingRemote=data.store; }      // fold it in when he stops
+      else { S=mergeStores(S,data.store); saveLocal(); renderAll(); }
+    }
+    setSync('ok','Synced');
+    schedulePush();                                   // publish our side of the merge
+  }catch(e){ setSync('error','No connection'); }
+}
+
+function schedulePush(){
+  if(!token()) return;
+  // An edit made while a push is in flight must not be swallowed: the old code
+  // returned early here and never re-armed, so that edit never reached the server.
+  if(pushing){ pushDirty=true; return; }
+  clearTimeout(pushTimer);
+  pushTimer=setTimeout(()=>{ push(); },1500);
+}
+
+async function push(){
+  if(!token() || pushing) return;
+  pushing=true; pushDirty=false;
+  clearTimeout(retryTimer);
+  setSync('busy','Saving…');
+  let attempt=0, done=false;
+  try{
+    while(attempt<3 && !done){
+      attempt++;
+      const {status,data}=await api('PUT',{store:S, baseRseq:rseq});
+      if(status===200){
+        rseq=data.rseq; retryDelay=0; done=true;
+        setSync('ok','Saved '+new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}));
+      }else if(status===409){
+        if(data&&data.store){
+          if(typing()) pendingRemote=data.store; else { S=mergeStores(S,data.store); saveLocal(); pendingRender=true; }
+        }
+        rseq=data&&Number.isFinite(data.rseq)?data.rseq:rseq;
+        // loop and retry against the revision the server just told us about
+      }else{
+        setSync('error',explain(status,data));
+        scheduleRetry(); done=true;
+      }
+    }
+    if(!done){ setSync('error','Another device keeps changing it — retrying'); scheduleRetry(); }
+  }catch(e){
+    setSync('error','No connection — saved on this device');
+    scheduleRetry();                                  // a failed push used to be dropped forever
+  }finally{
+    pushing=false;
+    if(pushDirty){ pushDirty=false; schedulePush(); }
+    applyPending();
+  }
+}
+
+function scheduleRetry(){
+  if(!token()) return;
+  retryDelay = retryDelay ? Math.min(retryDelay*2, 60000) : 5000;
+  clearTimeout(retryTimer);
+  retryTimer=setTimeout(()=>push(), retryDelay);
+}
+
+/* Closing the lid inside the debounce window used to lose the last edit. */
+function flushOnExit(){
+  if(!token() || !pushTimer) return;
+  clearTimeout(pushTimer); pushTimer=null;
+  try{
+    fetch(SYNC_URL,{method:'PUT',keepalive:true,
+      headers:{'Authorization':'Bearer '+token(),'content-type':'application/json'},
+      body:JSON.stringify({store:S, baseRseq:rseq})});
+  }catch(_){}
+}
+
+/* Everything calls save(). Write locally first — the tool must work with no
+   connection — then queue a push if sync is on. */
+function save(){ saveLocal(); schedulePush(); }
+
+function paintSync(){
+  const chip=document.getElementById('syncChip');
+  if(chip){ chip.className='syncchip s-'+syncState; chip.textContent = syncState==='off' ? '' : syncMsg; }
+  const box=document.getElementById('syncBox');
+  if(!box) return;
+  if(!token()){
+    box.innerHTML=`<p class="lede">This browser keeps its own copy. Connect with your passphrase and this
+      laptop and your phone share one.</p>
+      <div class="syncrow">
+        <input type="password" id="syncPass" placeholder="Sync passphrase" autocomplete="current-password">
+        <button class="btn" id="syncConnect">Connect</button>
+      </div>`;
+    const go=()=>{
+      const v=document.getElementById('syncPass').value.trim();
+      if(!v) return;
+      setToken(v);
+      paintSync();
+      pull().then(()=>{ if(/rejected/i.test(syncMsg)){ setToken(''); setSync('off','Not connected'); paintSync(); } });
+    };
+    document.getElementById('syncConnect').onclick=go;
+    document.getElementById('syncPass').onkeydown=e=>{ if(e.key==='Enter') go(); };
+  }else{
+    box.innerHTML=`<p class="lede">This device shares one copy with your others. Edits sync a second or two
+      after you stop typing, and it keeps working offline — anything typed with no connection goes up when it returns.</p>
+      <div class="syncrow">
+        <span class="syncchip s-${syncState}">${esc(syncMsg)}</span>
+        <button class="btn ghost" id="syncNow">Sync now</button>
+        <button class="btn warn" id="syncOff">Disconnect this device</button>
+      </div>`;
+    document.getElementById('syncNow').onclick=()=>pull();
+    document.getElementById('syncOff').onclick=()=>{
+      if(confirm('Stop syncing on this device?\n\nYour weeks stay on this browser, and the shared copy is left untouched.')){
+        setToken(''); rseq=0; clearTimeout(pushTimer); clearTimeout(retryTimer); setSync('off','Not connected');
+      }
+    };
+  }
 }
 
 /* =====================================================================
@@ -781,7 +1018,7 @@ function sigCard(s){
 function wireSignalCard(host,w){
   const find=id=>w.signals.find(s=>s.id===id);
   host.querySelectorAll('textarea[data-f]').forEach(t=>{
-    t.oninput=()=>{ const s=find(t.dataset.id); if(s){ s[t.dataset.f]=t.value; touch(s); save(); } };
+    t.oninput=()=>{ const s=find(t.dataset.id); if(s){ s[t.dataset.f]=t.value; touchField(s,t.dataset.f); save(); } };
   });
   host.querySelectorAll('select[data-dom]').forEach(sel=>{
     sel.onchange=()=>{ const s=find(sel.dataset.dom); if(s){ s.domain=sel.value; touch(s); save(); renderWeek(); } };
@@ -800,13 +1037,13 @@ function wireSignalCard(host,w){
   host.querySelectorAll('input[data-log]').forEach(inp=>{
     // Persist what's typed as you type. Before this, a move you typed but never
     // hit Enter on was gone the moment the page reloaded.
-    inp.oninput=()=>{ const s=find(inp.dataset.log); if(s){ s.logDraft=inp.value; touch(s); save(); } };
+    inp.oninput=()=>{ const s=find(inp.dataset.log); if(s){ s.logDraft=inp.value; touchField(s,'logDraft'); save(); } };
     inp.onkeydown=e=>{
       if(e.key!=='Enter'||!inp.value.trim()) return;
       const s=find(inp.dataset.log);
       s.log=s.log||[]; s.log.push({at:new Date().toISOString(),text:inp.value.trim()});
       if(s.status==='open') s.status='moved';
-      s.logDraft=''; inp.value=''; touch(s); save(); renderWeek();
+      s.logDraft=''; inp.value=''; touchField(s,'logDraft'); save(); renderWeek();
     };
   });
   host.querySelectorAll('[data-lx]').forEach(x=>x.onclick=()=>{
@@ -936,7 +1173,7 @@ function commitPaint(){
   S.blocks=kept;
   if(label!==null) S.blocks.push({d,s:hhmm(lo),e:hhmm(hi),t:paintType,l:label});
   S.blocks.sort((a,b)=>a.d-b.d||mins(a.s)-mins(b.s));
-  S.blocksMtime=Date.now();
+  S.blocksMtime=bump(S.blocksMtime);
   save(); renderCal();
 }
 function defaultLabel(t){
@@ -1079,6 +1316,12 @@ function init(){
   };
 
   wireDragGuards();
+  paintSync();
+  if(token()) pull();
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden) flushOnExit();
+    else if(token()) pull();
+  });
 
   /* Another tab on this browser just wrote. Don't yank a field out from under a
      sentence in progress — save()'s merge already protects the other tab's work,
@@ -1087,11 +1330,14 @@ function init(){
     if(e.key!==KEY || !e.newValue) return;
     let d; try{ d=JSON.parse(e.newValue); }catch(_){ return; }
     if(d.writer===TAB) return;
-    const el=document.activeElement;
-    if(el && (el.tagName==='TEXTAREA' || el.tagName==='INPUT')) return;
-    S=normalize(d); lastSeq=Number.isFinite(S.seq)?S.seq:0;
-    renderAll();
+    // Don't drop it when a field is focused — hold it and fold it in on blur,
+    // otherwise this tab renders stale text and his next keystroke republishes it.
+    if(typing()){ pendingRemote=d; return; }
+    S=mergeStores(S,d); lastSeq=Number.isFinite(S.seq)?S.seq:0;
+    saveLocal(); renderAll();
   });
+  document.addEventListener('focusout',()=>setTimeout(applyPending,0));
+  window.addEventListener('pagehide',flushOnExit);
 
 
   document.querySelectorAll('#palette .swatch').forEach(b=>b.onclick=()=>{
@@ -1102,10 +1348,10 @@ function init(){
   });
   document.getElementById('calReset').onclick=()=>{
     if(confirm('Reset the grid to your standard rhythm? Custom blocks will be lost.')){
-      S.blocks=defaultBlocks(); S.blocksMtime=Date.now(); save(); renderCal(); }
+      S.blocks=defaultBlocks(); S.blocksMtime=bump(S.blocksMtime); save(); renderCal(); }
   };
   document.getElementById('calClear').onclick=()=>{
-    if(confirm('Clear every block?')){ S.blocks=[]; S.blocksMtime=Date.now(); save(); renderCal(); }
+    if(confirm('Clear every block?')){ S.blocks=[]; S.blocksMtime=bump(S.blocksMtime); save(); renderCal(); }
   };
   document.getElementById('calIcs').onclick=()=>{
     if(!S.blocks.length){ alert('Nothing to export — paint some blocks first.'); return; }
@@ -1127,7 +1373,7 @@ function init(){
         const clean=normalize(d);
         const n=Object.keys(clean.weeks).length;
         if(confirm(`Replace everything in this browser with this backup?\n\n${n} week${n===1?'':'s'} and ${clean.blocks.length} calendar blocks will be restored. Your current data will be gone.`)){
-          S=clean; S.seeded=true; save(); curWeek=iso(mondayOf(new Date())); curStage=stageForToday(); renderAll();
+          S=clean; S.seeded=true; S.blocksMtime=bump(S.blocksMtime); save(); curWeek=iso(mondayOf(new Date())); curStage=stageForToday(); renderAll();
           alert('Backup restored — '+n+' week'+(n===1?'':'s')+'.');
         }
       }catch(err){ alert('Could not read that file: '+err.message); }
@@ -1136,7 +1382,7 @@ function init(){
   };
   document.getElementById('wipe').onclick=()=>{
     if(confirm('Erase every week, signal, and block from this browser? This cannot be undone.')){
-      localStorage.removeItem(KEY); S=blank(); S.seeded=true; save();
+      localStorage.removeItem(KEY); S=blank(); S.seeded=true; S.blocksMtime=bump(0); save();
       curWeek=iso(mondayOf(new Date())); renderAll();
     }
   };
