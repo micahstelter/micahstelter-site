@@ -173,7 +173,66 @@ label.fld > span{display:block;font-size:.66rem;letter-spacing:.11em;text-transf
 }
 .flagnote b{color:#5e4310}
 
-/* ---------- calendar ---------- */
+/* ---- folds: the coaching prompts are there when wanted, quiet when not ---- */
+.fold{margin-bottom:1rem}
+.fold > summary{
+  font-size:.72rem;letter-spacing:.05em;color:var(--muted);cursor:pointer;
+  padding:.3rem 0;list-style:none;
+}
+.fold > summary::-webkit-details-marker{display:none}
+.fold > summary::before{content:'▸ ';color:var(--faint)}
+.fold[open] > summary::before{content:'▾ '}
+.fold > summary:hover{color:var(--accent)}
+.fold[open] > summary{margin-bottom:.5rem}
+
+/* ---- candidates → proposed signals ---- */
+.propcount{font-size:.72rem;color:var(--muted);margin:.5rem 0 .6rem}
+.propcount b{color:var(--accent)}
+.props{display:grid;gap:.4rem}
+.prop{
+  display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;
+  background:var(--shade);border-radius:7px;padding:.45rem .6rem;border-left:2px solid var(--gold);
+}
+.prop .txt{font-size:.82rem;line-height:1.4;flex:1;min-width:11rem}
+.prop select{
+  font:inherit;font-size:.68rem;padding:.25rem .35rem;border:1px solid var(--line);
+  border-radius:5px;background:#fff;color:var(--muted);
+}
+.cutlist{margin-top:.6rem}
+.cutlist .row{font-size:.78rem;color:var(--muted);padding:.25rem 0;display:flex;gap:.6rem;align-items:center}
+.cutlist .row span{flex:1;text-decoration:line-through}
+.cutlist .row button{font:inherit;font-size:.68rem;background:none;border:none;color:var(--accent);cursor:pointer;padding:0}
+
+/* ---- milestones ---- */
+.msbox{margin-top:.8rem;border-top:1px dashed var(--line);padding-top:.7rem}
+.mslabel{font-size:.62rem;letter-spacing:.11em;text-transform:uppercase;color:var(--faint);margin-bottom:.4rem}
+.msrow{display:flex;gap:.5rem;align-items:center;font-size:.82rem;padding:.22rem 0}
+.msrow input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent);flex:none;cursor:pointer}
+.msrow .mstxt{flex:1;line-height:1.4}
+.msrow.on .mstxt{color:var(--muted);text-decoration:line-through}
+.msrow .msat{font-size:.68rem;color:var(--faint);letter-spacing:.05em;white-space:nowrap}
+.msrow .msat.due{color:#a3452f;font-weight:700}
+.msrow .x{cursor:pointer;color:var(--faint);font-size:.8rem;line-height:1}
+.msrow .x:hover{color:#a33}
+.msadd{display:flex;gap:.4rem;margin-top:.4rem;flex-wrap:wrap}
+.msadd input[type=text]{flex:1;min-width:11rem}
+.msadd input[type=date]{
+  font:inherit;font-size:.75rem;padding:.4rem .5rem;border:1px solid var(--line);
+  border-radius:7px;background:#fff;color:var(--muted);max-width:9.5rem;
+}
+.mscount{font-size:.63rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.mscount.all{color:var(--accent)}
+
+/* ---- the move log, folded until it's the day for it ---- */
+.logfold > summary{
+  font-size:.72rem;color:var(--muted);cursor:pointer;list-style:none;padding:.15rem 0;
+}
+.logfold > summary::-webkit-details-marker{display:none}
+.logfold > summary::before{content:'▸ ';color:var(--faint)}
+.logfold[open] > summary::before{content:'▾ '}
+.logfold > summary:hover{color:var(--accent)}
+
+/* ---------- calendar (PARKED — view removed 2026-08-17, engine kept) ---------- */
 .palette{display:flex;gap:.4rem;flex-wrap:wrap;align-items:center;margin-bottom:.9rem}
 .palette .lbl{font-size:.62rem;letter-spacing:.13em;text-transform:uppercase;color:var(--faint);margin-right:.2rem}
 .swatch{
@@ -282,9 +341,7 @@ td.slot .lbl{
     <div>
       <h1>BPC <em>Momentum</em></h1>
       <p class="hero-sub">
-        Each week, name the <b>three signals only you can move</b> — one in Brand, one in People,
-        one in Customer — then protect the time to move them. Culture isn't a fourth domain; it runs
-        through all three.
+        Name the <b>three signals only you can move</b> — one in Brand, one in People, one in Customer.
       </p>
     </div>
     <div class="weekpick">
@@ -300,7 +357,6 @@ td.slot .lbl{
 
   <div class="tabs">
     <button class="tab on" data-view="week">This Week</button>
-    <button class="tab" data-view="cal">Block Calendar</button>
     <button class="tab" data-view="hist">History &amp; Wins</button>
     <span class="syncchip s-off" id="syncChip"></span>
   </div>
@@ -320,35 +376,11 @@ td.slot .lbl{
     <div id="signals"></div>
   </section>
 
-  <!-- ============ CALENDAR ============ -->
-  <section class="view" id="v-cal">
-    <div class="panel">
-      <h2>Block Calendar Builder</h2>
-      <p class="lede">
-        Sketch how the week <em>should</em> run, then push it to Google Calendar. Anchors are the hours you
-        said don't move; everything else is yours to shape. Click and drag to paint.
-      </p>
-      <div class="palette" id="palette">
-        <span class="lbl">Paint</span>
-        <button class="swatch sw-anchor on" data-type="anchor">Anchor</button>
-        <button class="swatch sw-signal" data-type="signal">Signal work</button>
-        <button class="swatch sw-think" data-type="think">Thinking / offsite</button>
-        <button class="swatch sw-rhythm" data-type="rhythm">BPC rhythm</button>
-        <button class="swatch sw-open" data-type="open">Erase</button>
-      </div>
-      <div class="cal-wrap"><table class="cal" id="calTable"></table></div>
-      <div class="cal-foot">
-        <div class="cal-hint">
-          Painting asks for a label the first time you use a new block. Export drops a repeating
-          weekly <code>.ics</code> — open it and it lands in Google Calendar. Share the file and anyone
-          can run the same rhythm.
-        </div>
-        <button class="btn ghost" id="calReset">Reset to my rhythm</button>
-        <button class="btn ghost" id="calClear">Clear all</button>
-        <button class="btn" id="calIcs">Export to Calendar (.ics)</button>
-      </div>
-    </div>
-  </section>
+  <!-- The Block Calendar view is PARKED, not deleted (his call, 2026-08-17: the page was
+       too busy). The whole grid engine below — paint, carve, .ics export — is intact and
+       still under test; nothing he painted was thrown away. To bring it back, restore this
+       section and the tab beside "This Week", and re-arm the wiring in init(), which is
+       guarded on #calTable existing. -->
 
   <!-- ============ HISTORY ============ -->
   <section class="view" id="v-hist">
@@ -416,9 +448,15 @@ const domOf = id => DOM[id] || OFFDOM;
    ducking the same conversation and said nothing back. These drive the callouts
    that make it answer. */
 const movesAll = s => ((s.log||[]).length + (s.movesPrior||0));
+const msLive   = s => (s.ms||[]).filter(m=>!m.del);
+const msDone   = s => msLive(s).filter(m=>m.done).length;
+/* Evidence that a signal is actually moving: logged moves PLUS ticked milestones.
+   A ticked checkpoint is a move. Counting only the log would nag him for avoidance
+   on a signal he is visibly working through. */
+const evidence = s => movesAll(s) + msDone(s);
 function nagFor(s){
   if(!s || s.status==='done') return null;
-  const age=s.age||1, moves=movesAll(s);
+  const age=s.age||1, moves=evidence(s);
   if(age>=3 && moves===0) return {level:'hard',
     text:`Open ${age} weeks. Nothing logged, ever. Kill it, shrink it, or hand it to someone.`};
   if(age>=2 && moves===0) return {level:'hard',
@@ -476,7 +514,7 @@ const mtime  = o => (o && Number.isFinite(o.mtime)) ? o.mtime : 0;
 /* Per-field stamps. Object-level stamps lose a whole signal to a one-word edit:
    type into `currentState` on the laptop while the phone edits `deps`, and one
    side's paragraph vanishes. Fields merge independently. */
-const TEXTF  = ['currentState','signal','done','deps','logDraft'];
+const TEXTF  = ['currentState','signal','done','deps','logDraft','msDraft'];
 function touchField(s,f){
   if(!s) return;
   if(!s.fs || typeof s.fs!=='object') s.fs={};
@@ -517,7 +555,12 @@ function exampleWeek(){
         currentState:'Revenue plan for 2027 lives in my head. No shared draft anyone can work off of.',
         signal:'Get myself in the data and write the rough 2027 revenue plan — where revenue comes from, and what we cut.',
         done:'A written draft clear enough to throw against the wall with Caleb, VP of Sales, and Mark — and have them pull it apart and add to it.',
-        deps:'2 hours blocked today for the data work. Success ratio, market response, momentum by line.', log:[] },
+        deps:'2 hours blocked today for the data work. Success ratio, market response, momentum by line.', log:[],
+        // Seed ids are FIXED, not random — a re-seed on another device must not
+        // create a second copy of the same checkpoint.
+        ms:[{id:'ex-brand-m1', text:'Pull three years of production and success-ratio data', at:'', done:false, mt:1},
+            {id:'ex-brand-m2', text:'Draft the revenue lines and what gets cut', at:'', done:false, mt:1},
+            {id:'ex-brand-m3', text:'Send it to Caleb, VP of Sales, and Mark to pull apart', at:'', done:false, mt:1}] },
       { id:'ex-people', domain:'people', status:'open', age:1,
         currentState:'Caleb is our director of marketing. His comp plan and his future here aren’t clear to him yet.',
         signal:'Run a 2-hour conversation with Caleb that makes his comp plan and 3-year path clear, and pulls out what HE believes we can be.',
@@ -578,11 +621,25 @@ function normWeek(w){
     if(!DOM[s.domain] && s.domain!=='off') s.domain='off';
     if(!['open','moved','done'].includes(s.status)) s.status='open';
     s.age = (Number.isFinite(s.age) && s.age>0) ? Math.floor(s.age) : 1;
-    ['currentState','signal','done','deps','logDraft'].forEach(f=>{ if(typeof s[f]!=='string') s[f]=String(s[f]==null?'':s[f]); });
+    TEXTF.forEach(f=>{ if(typeof s[f]!=='string') s[f]=String(s[f]==null?'':s[f]); });
     if(!Number.isFinite(s.mtime)) s.mtime=0;
     if(!s.fs || typeof s.fs!=='object' || Array.isArray(s.fs)) s.fs={};
     TEXTF.forEach(f=>{ if(!Number.isFinite(s.fs[f])) s.fs[f]=0; });
     if(!Array.isArray(s.log)) s.log=[];
+    /* Milestones: the checkpoints on the way to a signal. Each carries its own
+       stamp so two devices adding different checkpoints to the same signal both
+       keep theirs — an array taken whole from "the newer side" would drop one. */
+    if(!Array.isArray(s.ms)) s.ms=[];
+    for(let j=s.ms.length-1;j>=0;j--){
+      const m=s.ms[j];
+      if(!m || typeof m!=='object'){ s.ms.splice(j,1); continue; }
+      if(typeof m.id!=='string' || !/^[A-Za-z0-9_-]+$/.test(m.id)) m.id=uid();
+      m.text=String(m.text==null?'':m.text);
+      m.at = (typeof m.at==='string' && /^\d{4}-\d{2}-\d{2}$/.test(m.at)) ? m.at : '';
+      m.done=!!m.done;
+      m.del=!!m.del;                       // tombstone — kept so a merge can't resurrect it
+      if(!Number.isFinite(m.mt)) m.mt=0;
+    }
     if(!Array.isArray(s.priorLog)) s.priorLog=[];
     if(!Number.isFinite(s.movesPrior)) s.movesPrior=0;
     for(let j=s.log.length-1;j>=0;j--){
@@ -600,6 +657,13 @@ function normWeek(w){
   if(!st.reflect||typeof st.reflect!=='object') st.reflect={done:false,moved:'',didnt:'',emerging:''};
   st.sketch.notes=String(st.sketch.notes==null?'':st.sketch.notes);
   st.sketch.candidates=String(st.sketch.candidates==null?'':st.sketch.candidates);
+  // A candidate is decided once: promoted to a signal, or cut on purpose. Both
+  // lists are keyed on the line's own text, so a decided line stops being proposed
+  // back at him every time he opens Monday.
+  ['picked','cut'].forEach(k=>{
+    if(!Array.isArray(st.sketch[k])) st.sketch[k]=[];
+    st.sketch[k]=st.sketch[k].filter(x=>typeof x==='string' && x.trim()).map(x=>x.trim());
+  });
   st.refine.notes=String(st.refine.notes==null?'':st.refine.notes);
   ['moved','didnt','emerging'].forEach(f=>st.reflect[f]=String(st.reflect[f]==null?'':st.reflect[f]));
   return w;
@@ -705,6 +769,15 @@ function mergeSignal(a,b){
     if(!seen.has(k)){ seen.add(k); out.log.push(e); }
   });
   out.log.sort((x,y)=>String(x.at).localeCompare(String(y.at)));
+  /* Milestones union by id, newest stamp per checkpoint. Add one on the phone while
+     ticking another on the laptop and both survive — the same rule the text fields
+     get, one level down. */
+  const byId=new Map();
+  [...(a.ms||[]),...(b.ms||[])].forEach(m=>{
+    const prev=byId.get(m.id);
+    if(!prev || (Number(m.mt)||0) > (Number(prev.mt)||0)) byId.set(m.id,m);
+  });
+  out.ms=[...byId.values()];
   out.mtime=Math.max(mtime(a),mtime(b));
   return out;
 }
@@ -963,46 +1036,128 @@ function renderRail(){
   });
 }
 
+/* =====================================================================
+   CANDIDATES → PROPOSED SIGNALS
+   The gap he hit on 2026-08-17: he ran Monday's sketch, dumped the week's pile
+   into the box, and the tool did nothing with it — the three slots still sat
+   empty waiting for him to retype. A candidate line and a signal are the same
+   sentence, so every undecided line is now proposed as a signal with a first
+   guess at its domain. Nothing is created automatically: naming the three is
+   his call. This only removes the retyping, and makes CUTTING a line an
+   explicit decision rather than a line that just sits there.
+   ===================================================================== */
+const GUESS=[
+  ['people',  /\b(hire|hiring|recruit|comp|compensation|1:1|one[- ]on[- ]one|team|train|coach|onboard|promot|path|leader|manager|culture|bonus|role|seat|org|review)/i],
+  ['customer',/\b(customer|client|homeowner|experience|promise|complaint|warranty|punch|quality|referral|nps|satisfaction|deliver|crew|jobsite|job site|estimate)/i],
+  ['brand',   /\b(brand|message|messaging|position|market|marketing|website|site|story|standard|craft|excellen|reputation|historic|photo|content|pitch|revenue|plan|forecast|vision)/i]
+];
+const guessDomain = line => (GUESS.find(([,re])=>re.test(line))||['off'])[0];
+
+/* Strip the bullet he types by reflex, so "- walk Roseville" and "walk Roseville"
+   are the same candidate and a decided line doesn't come back as new. Only a real
+   list marker goes: a greedy digit class turned "- 2027 revenue plan" into
+   "revenue plan" and ate the year he was writing about. */
+const candText = l => l.trim().replace(/^(?:[-–—•*]+|\d{1,2}[.)])\s+/,'').trim();
+function candidateLines(sk){
+  const decided=new Set([...(sk.picked||[]),...(sk.cut||[])]);
+  const out=[], seen=new Set();
+  String(sk.candidates||'').split('\n').forEach(l=>{
+    const t=candText(l);
+    if(!t || seen.has(t) || decided.has(t)) return;
+    seen.add(t); out.push(t);
+  });
+  return out;
+}
+
+/* Own container, rebuilt on its own. renderWeek() would rip the textarea out
+   from under the sentence he is typing. */
+function renderProposals(){
+  const host=document.getElementById('sketchProps');
+  if(!host) return;
+  const w=week(curWeek), sk=w.stages.sketch;
+  const lines=candidateLines(sk);
+  const total=String(sk.candidates||'').split('\n').map(candText).filter(Boolean).length;
+  const cut=sk.cut||[];
+
+  host.innerHTML =
+    (total?`<div class="propcount"><b>${total}</b> candidate${total===1?'':'s'} · <b>${lines.length}</b> still to decide</div>`:'')
+    + (lines.length?`<div class="props">${lines.map((t,i)=>`
+      <div class="prop">
+        <span class="txt">${esc(t)}</span>
+        <select data-pdom="${i}" title="Which domain">
+          ${DOMAINS.map(d=>`<option value="${esc(d.id)}" ${guessDomain(t)===d.id?'selected':''}>${d.label}</option>`).join('')}
+          <option value="off" ${guessDomain(t)==='off'?'selected':''}>Off-domain</option>
+        </select>
+        <button class="mini go" data-puse="${i}">Make it a signal</button>
+        <button class="mini" data-pcut="${i}" title="Defer, delegate, or stop — a decision, not a shrug">Cut</button>
+      </div>`).join('')}</div>`:'')
+    + (cut.length?`<details class="fold cutlist"><summary>${cut.length} cut this week</summary>
+        ${cut.map((t,i)=>`<div class="row"><span>${esc(t)}</span><button data-pback="${i}">put it back</button></div>`).join('')}
+      </details>`:'');
+
+  host.querySelectorAll('[data-puse]').forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.puse, t=lines[i];
+    const dom=host.querySelector(`select[data-pdom="${i}"]`).value;
+    // The framework is ONE per domain. A second is allowed, but not silently.
+    const taken=w.signals.some(s=>s.domain===dom && s.status!=='done');
+    if(taken && dom!=='off' && !confirm(`You already have a ${domOf(dom).label} signal open this week.\n\nAdd a second one? Three is the whole point.`)) return;
+    w.signals.push({id:uid(),domain:dom,status:'open',age:1,currentState:'',signal:t,done:'',deps:'',log:[],ms:[]});
+    sk.picked.push(t); touch(w.signals[w.signals.length-1]); touch(sk); save(); renderWeek();
+  });
+  host.querySelectorAll('[data-pcut]').forEach(b=>b.onclick=()=>{
+    sk.cut.push(lines[+b.dataset.pcut]); touch(sk); save(); renderProposals();
+  });
+  host.querySelectorAll('[data-pback]').forEach(b=>b.onclick=()=>{
+    sk.cut.splice(+b.dataset.pback,1); touch(sk); save(); renderProposals();
+  });
+}
+
 function renderStagePanel(){
   const w=week(curWeek), st=w.stages, host=document.getElementById('stagePanel');
 
   if(curStage==='sketch'){
     host.innerHTML=`<div class="panel">
       <h2>Monday — Sketch</h2>
-      <p class="lede">Thirty minutes after your 1:1s, while the week's noise is still fresh. Rough is the point.</p>
-      <h3>Run each candidate through the filter</h3>
-      <ul class="prompts">
-        <li><b>Only me?</b> Does this drive an outcome only I can steward — or is it a manager's job done well?</li>
-        <li><b>Avoiding it?</b> Is there something important I'm dodging that would move the needle if I took it on?</li>
-        <li><b>Defer or delegate?</b> What can I push without the business suffering? That's the killer question.</li>
-        <li><b>Stop doing?</b> What would I stop entirely if I were honest about its return?</li>
-        <li><b>Regret test.</b> In three years, which move will I wish I'd made this week?</li>
-      </ul>
-      <h3>Dump everything pulling at you</h3>
-      <p class="hint">Before you pick three. Nothing here is a commitment — it's the pile you cut down from.</p>
+      <p class="lede">Thirty minutes after your 1:1s. Dump the pile, then decide each line.</p>
+      <details class="fold"><summary>Show the filter (5 questions)</summary>
+        <ul class="prompts">
+          <li><b>Only me?</b> Does this drive an outcome only I can steward — or is it a manager's job done well?</li>
+          <li><b>Avoiding it?</b> Is there something important I'm dodging that would move the needle if I took it on?</li>
+          <li><b>Defer or delegate?</b> What can I push without the business suffering? That's the killer question.</li>
+          <li><b>Stop doing?</b> What would I stop entirely if I were honest about its return?</li>
+          <li><b>Regret test.</b> In three years, which move will I wish I'd made this week?</li>
+        </ul>
+      </details>
       <label class="fld"><textarea rows="6" id="sketchCandidates"
-        placeholder="One per line. Everything on your mind, in any order. You'll cut this to three.">${esc(st.sketch.candidates||'')}</textarea></label>
-      <h3>What came up in this week's 1:1s and leadership meeting</h3>
-      <label class="fld"><textarea rows="4" id="sketchNotes"
-        placeholder="What's stuck. What's working. What surprised you. Who needs something from you.">${esc(st.sketch.notes||'')}</textarea></label>
+        placeholder="Everything pulling at you, one per line. Nothing here is a commitment.">${esc(st.sketch.candidates||'')}</textarea></label>
+      <div id="sketchProps"></div>
+      <details class="fold"><summary>Notes from this week's 1:1s and leadership meeting</summary>
+        <label class="fld"><textarea rows="4" id="sketchNotes"
+          placeholder="What's stuck. What's working. What surprised you. Who needs something from you.">${esc(st.sketch.notes||'')}</textarea></label>
+      </details>
       <button class="btn ${st.sketch.done?'ghost':''}" id="sketchDone">${st.sketch.done?'✓ Sketched':'Mark sketch done'}</button>
     </div>`;
     document.getElementById('sketchNotes').oninput=e=>{ st.sketch.notes=e.target.value; touch(st.sketch); save(); };
-    document.getElementById('sketchCandidates').oninput=e=>{ st.sketch.candidates=e.target.value; touch(st.sketch); save(); };
+    document.getElementById('sketchCandidates').oninput=e=>{
+      st.sketch.candidates=e.target.value; touch(st.sketch); save();
+      renderProposals();                 // proposals keep up with the typing, focus stays put
+    };
     document.getElementById('sketchDone').onclick=()=>{ st.sketch.done=!st.sketch.done; touch(st.sketch); save(); renderWeek(); };
+    renderProposals();
 
   } else if(curStage==='refine'){
     host.innerHTML=`<div class="panel">
       <h2>Tuesday — Refine</h2>
       <p class="lede">You've had the leadership meeting and more context. Lock the three and get specific about what done looks like.</p>
-      <h3>The test before you commit</h3>
-      <ul class="prompts">
-        <li><b>Is it a move, or an outcome?</b> "Get the 2027 plan done" is an outcome. "Block two hours in the data and write the draft" is a move.</li>
-        <li><b>Would I know Friday?</b> If you can't tell whether it moved, it isn't written sharply enough.</li>
-        <li><b>What has to happen first?</b> Name the prep, and put it in Monday or Tuesday — not Wednesday.</li>
-      </ul>
-      <h3>What changed since Monday</h3>
-      <label class="fld"><textarea rows="4" id="refineNotes"
+      <details class="fold"><summary>Show the test before you commit (3 questions)</summary>
+        <ul class="prompts">
+          <li><b>Is it a move, or an outcome?</b> "Get the 2027 plan done" is an outcome. "Block two hours in the data and write the draft" is a move.</li>
+          <li><b>Would I know Friday?</b> If you can't tell whether it moved, it isn't written sharply enough.</li>
+          <li><b>What has to happen first?</b> Name the prep, and put it in Monday or Tuesday — not Wednesday.</li>
+        </ul>
+      </details>
+      <label class="fld"><span>What changed since Monday</span>
+        <textarea rows="4" id="refineNotes"
         placeholder="New data, a conversation that shifted things, a signal you're swapping out.">${esc(st.refine.notes||'')}</textarea></label>
       <button class="btn ${st.refine.done?'ghost':''}" id="refineDone">${st.refine.done?'✓ Locked':'Lock the three'}</button>
     </div>`;
@@ -1035,7 +1190,7 @@ function renderStagePanel(){
     const sigs=week(curWeek).signals;
     const done=sigs.filter(x=>x.status==='done').length;
     const moved=sigs.filter(x=>x.status==='moved').length;
-    const untouched=sigs.filter(x=>x.status==='open' && !(x.log||[]).length);
+    const untouched=sigs.filter(x=>x.status==='open' && !evidence(x));
     host.innerHTML=`<div class="panel">
       <h2>Friday — Reflect</h2>
       <p class="lede">Twenty minutes after the exec meeting. Read the week first — then write.</p>
@@ -1096,7 +1251,7 @@ function renderCarryBanner(){
     <div class="nag-head">${pending.length} signal${pending.length===1?'':'s'} you never closed out</div>
     <ul class="nag-list">${pending.map(p=>`<li><b>${esc(domOf(p.sig.domain).label)}</b> —
       ${esc(p.sig.signal||'(unnamed)')} <span class="nag-when">left open ${esc(prettyWeek(p.week))}${
-        movesAll(p.sig)===0?' · nothing ever logged':''}</span></li>`).join('')}</ul>
+        evidence(p.sig)===0?' · nothing ever logged':''}</span></li>`).join('')}</ul>
     <div class="nag-actions">
       <button class="btn" id="carryTake">Carry ${pending.length===1?'it':'them'} into this week</button>
       <button class="btn ghost" id="carryDrop">Close ${pending.length===1?'it':'them'} out</button>
@@ -1108,6 +1263,9 @@ function renderCarryBanner(){
     pending.forEach(p=>{
       w.signals.push({...p.sig, id:uid(), src:p.sig.src||p.sig.id, age:(p.sig.age||1)+1,
         status:'open', log:[], priorLog:[...(p.sig.priorLog||[]),...(p.sig.log||[])],
+        // Milestones travel with the signal, but as COPIES. A spread shares the
+        // array, so ticking a checkpoint this week would rewrite last week's history.
+        ms:(p.sig.ms||[]).map(m=>({...m})),
         movesPrior:(p.sig.movesPrior||0)+(p.sig.log||[]).length, mtime:bump(0)});
     });
     save(); renderWeek();
@@ -1157,10 +1315,13 @@ function renderSignals(){
 function sigCard(s){
   const d=domOf(s.domain);
   const off=!DOM[s.domain];
+  const ms=msLive(s), mdone=msDone(s);
+  const today=iso(new Date());
   return `<div class="sig ${s.status==='done'?'done':''} ${off?'offdom':''}" style="--dom:${d.color}" data-id="${esc(s.id)}">
     <div class="sig-top">
       <span class="dom-tag">${d.label}</span>
       ${s.age>1?`<span class="age">Week ${s.age}</span>`:''}
+      ${ms.length?`<span class="mscount ${mdone===ms.length?'all':''}">${mdone}/${ms.length} milestones</span>`:''}
       <span class="spacer"></span>
       <div class="sig-actions">
         <select class="mini" data-dom="${esc(s.id)}" title="Change domain">
@@ -1184,19 +1345,36 @@ function sigCard(s){
       <label class="fld full"><span>Dependencies — what has to happen first</span>
         <textarea rows="2" data-f="deps" data-id="${esc(s.id)}" placeholder="Prep, data, a conversation. Put it in Monday or Tuesday.">${esc(s.deps||'')}</textarea></label>
     </div>
-    <div class="logbox">
-      ${(s.priorLog||[]).length?`<details class="priorlog"><summary>${s.priorLog.length} move${s.priorLog.length===1?'':'s'} from earlier weeks</summary>
-        ${s.priorLog.map(e=>`<div class="logentry old"><time>${fmtDay(e.at)}</time><span>${esc(e.text)}</span></div>`).join('')}
-      </details>`:''}
-      <div class="entries">${
-        (s.log||[]).length
-          ? s.log.map((e,i)=>`<div class="logentry"><time>${fmtDay(e.at)}</time><span>${esc(e.text)}</span><span class="x" data-lx="${esc(s.id)}" data-i="${i}">✕</span></div>`).join('')
-          : '<div class="empty">No moves logged yet.</div>'
-      }</div>
-      <div class="logadd">
-        <input type="text" data-log="${esc(s.id)}" value="${esc(s.logDraft||'')}" placeholder="Log a move — what you actually did, in one line. ↵">
+    <div class="msbox">
+      ${ms.length?'<div class="mslabel">Milestones — the checkpoints on the way</div>':''}
+      ${ms.map(m=>`<div class="msrow ${m.done?'on':''}">
+        <input type="checkbox" data-mst="${esc(s.id)}" data-mid="${esc(m.id)}" ${m.done?'checked':''}>
+        <span class="mstxt">${esc(m.text)}</span>
+        ${m.at?`<span class="msat ${!m.done&&m.at<today?'due':''}">${esc(fmtDate(m.at))}</span>`:''}
+        <span class="x" data-msx="${esc(s.id)}" data-mid="${esc(m.id)}" title="Remove">✕</span>
+      </div>`).join('')}
+      <div class="msadd">
+        <input type="text" data-msnew="${esc(s.id)}" value="${esc(s.msDraft||'')}"
+               placeholder="Add a checkpoint — one step toward the move. ↵">
+        <input type="date" data-msat="${esc(s.id)}" title="Optional — when it should be hit">
       </div>
     </div>
+    <details class="logfold" ${(curStage==='execute'||String(s.logDraft||'').trim())?'open':''}>
+      <summary>${(s.log||[]).length?`${s.log.length} move${s.log.length===1?'':'s'} logged`:'Log a move'}</summary>
+      <div class="logbox">
+        ${(s.priorLog||[]).length?`<details class="priorlog"><summary>${s.priorLog.length} move${s.priorLog.length===1?'':'s'} from earlier weeks</summary>
+          ${s.priorLog.map(e=>`<div class="logentry old"><time>${fmtDay(e.at)}</time><span>${esc(e.text)}</span></div>`).join('')}
+        </details>`:''}
+        <div class="entries">${
+          (s.log||[]).length
+            ? s.log.map((e,i)=>`<div class="logentry"><time>${fmtDay(e.at)}</time><span>${esc(e.text)}</span><span class="x" data-lx="${esc(s.id)}" data-i="${i}">✕</span></div>`).join('')
+            : '<div class="empty">No moves logged yet.</div>'
+        }</div>
+        <div class="logadd">
+          <input type="text" data-log="${esc(s.id)}" value="${esc(s.logDraft||'')}" placeholder="What you actually did, in one line. ↵">
+        </div>
+      </div>
+    </details>
   </div>`;
 }
 
@@ -1233,6 +1411,37 @@ function wireSignalCard(host,w){
   });
   host.querySelectorAll('[data-lx]').forEach(x=>x.onclick=()=>{
     const s=find(x.dataset.lx); s.log.splice(+x.dataset.i,1); touch(s); save(); renderWeek(); });
+
+  /* ---- milestones ---- */
+  host.querySelectorAll('input[data-msnew]').forEach(inp=>{
+    // Same rule as the move log: what's typed is kept, Enter-or-not.
+    inp.oninput=()=>{ const s=find(inp.dataset.msnew); if(s){ s.msDraft=inp.value; touchField(s,'msDraft'); save(); } };
+    inp.onkeydown=e=>{
+      if(e.key!=='Enter'||!inp.value.trim()) return;
+      const s=find(inp.dataset.msnew);
+      const at=host.querySelector(`input[data-msat="${s.id}"]`);
+      s.ms=s.ms||[];
+      s.ms.push({id:uid(), text:inp.value.trim(), at:(at&&at.value)||'', done:false, mt:bump(0)});
+      s.msDraft=''; inp.value=''; if(at) at.value='';
+      touchField(s,'msDraft'); touch(s); save(); renderWeek();
+    };
+  });
+  const msFind=(sid,mid)=>{ const s=find(sid); return [s, s&&(s.ms||[]).find(m=>m.id===mid)]; };
+  host.querySelectorAll('input[data-mst]').forEach(cb=>cb.onchange=()=>{
+    const [s,m]=msFind(cb.dataset.mst,cb.dataset.mid);
+    if(!m) return;
+    m.done=cb.checked; m.mt=bump(m.mt); touch(s); save(); renderWeek();
+  });
+  host.querySelectorAll('[data-msx]').forEach(x=>x.onclick=()=>{
+    const [s,m]=msFind(x.dataset.msx,x.dataset.mid);
+    if(!m) return;
+    if(!confirm('Remove this milestone?')) return;
+    /* Soft delete, not a splice. The merge unions milestones by id, so a removed
+       row would come straight back from the other device's older copy. A stamped
+       tombstone beats that copy, and a later edit still beats the tombstone. */
+    m.del=true; m.text=''; m.done=false; m.mt=bump(m.mt);
+    touch(s); save(); renderWeek();
+  });
 }
 
 function carryForward(){
@@ -1250,6 +1459,8 @@ function carryForward(){
     if(nw.signals.some(x=>(x.src||x.id)===lineage)) return;
     nw.signals.push({...s, id:uid(), src:lineage, age:(s.age||1)+1, status:'open',
       log:[],
+      ms:(s.ms||[]).map(m=>({...m})),      // copies, not the same array — see renderCarryBanner
+
       // Week 2 used to start amnesiac: the thing Wednesday taught you stayed
       // behind in week 1's log and never appeared again.
       priorLog:[...(s.priorLog||[]), ...(s.log||[])],
@@ -1281,6 +1492,9 @@ const ampm=m=>{const h=Math.floor(m/60),x=m%60,p=h>=12?'p':'a',hh=h%12===0?12:h%
 function blockAt(d,m){ return S.blocks.find(b=>b.d===d && mins(b.s)<=m && m<mins(b.e)); }
 
 function renderCal(){
+  // The view is parked (2026-08-17). Painting still works if the grid is restored;
+  // with no table on the page this is a no-op rather than a crash.
+  if(!document.getElementById('calTable')) return;
   let html='<tr><th class="timecol"></th>'+DAYS.map(d=>`<th>${d}</th>`).join('')+'</tr>';
   for(let m=T0;m<T1;m+=STEP){
     const onHour=m%60===0;
@@ -1298,7 +1512,9 @@ function renderCal(){
 
 let drag=null;
 function wireCal(){
-  document.getElementById('calTable').querySelectorAll('td.slot').forEach(td=>{
+  const t=document.getElementById('calTable');
+  if(!t) return;
+  t.querySelectorAll('td.slot').forEach(td=>{
     td.addEventListener('pointerdown',e=>{
       if(e.button) return;                       // right/middle click
       drag={d:+td.dataset.d, a:+td.dataset.m, b:+td.dataset.m};
@@ -1445,7 +1661,8 @@ function renderHist(){
           <span class="dot"></span>
           <span>${esc(s.signal||'(unnamed)')}${s.age>1?` <span class="age">· week ${s.age}</span>`:''}
             ${lg.length?`<span class="hist-moves">${lg.map(e=>`<span class="hist-move">${esc(e.text)}</span>`).join('')}</span>`
-              :'<span class="hist-none">nothing logged</span>'}</span>
+              :(msDone(s)?`<span class="hist-moves"><span class="hist-move">${msDone(s)} of ${msLive(s).length} milestones ticked</span></span>`
+                         :'<span class="hist-none">nothing logged</span>')}</span>
           <span class="st st-${esc(s.status)}">${s.status}</span></div>`;
       }).join('')||'<div class="empty">No signals recorded.</div>'}
       ${(r.moved||r.didnt||r.emerging)?`<div class="hist-reflect">
@@ -1472,6 +1689,9 @@ function fmtDay(isoStr){
   const d=new Date(isoStr);
   return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()]+' '+(d.getMonth()+1)+'/'+d.getDate();
 }
+// A bare YYYY-MM-DD parses as UTC midnight, which reads as the day BEFORE in
+// every US timezone. Anchor it to local midnight instead.
+const fmtDate = at => fmtDay(at+'T00:00:00');
 
 /* Grow every textarea to its content. `rows="2"` was clipping his own signal
    mid-word on a phone — the single most common thing he opens the tool to read. */
@@ -1486,7 +1706,7 @@ function growAll(root){
 document.addEventListener('input',e=>{ if(e.target && e.target.tagName==='TEXTAREA') autoGrow(e.target); });
 window.addEventListener('resize',()=>growAll());
 
-function renderAll(){ renderWeek(); renderCal(); renderHist(); }
+function renderAll(){ renderWeek(); renderCal(); renderHist(); }   // renderCal is a no-op while the grid is parked
 
 function init(){
   load();
@@ -1546,25 +1766,28 @@ function init(){
   window.addEventListener('pagehide',flushOnExit);
 
 
-  document.querySelectorAll('#palette .swatch').forEach(b=>b.onclick=()=>{
-    paintType=b.dataset.type;
-    wireDragGuards();
-
-  document.querySelectorAll('#palette .swatch').forEach(x=>x.classList.toggle('on',x===b));
-  });
-  document.getElementById('calReset').onclick=()=>{
-    if(confirm('Reset the grid to your standard rhythm? Custom blocks will be lost.')){
-      S.blocks=defaultBlocks(); S.blocksMtime=bump(S.blocksMtime); save(); renderCal(); }
-  };
-  document.getElementById('calClear').onclick=()=>{
-    if(confirm('Clear every block?')){ S.blocks=[]; S.blocksMtime=bump(S.blocksMtime); save(); renderCal(); }
-  };
-  document.getElementById('calIcs').onclick=()=>{
-    if(!S.blocks.length){ alert('Nothing to export — paint some blocks first.'); return; }
-    if(S.icsExportedAt && !confirm('You have exported this before.\n\nGoogle Calendar will ADD these as new events rather than update the old ones. Delete the previous BPC blocks first, or you will see doubles.\n\nExport anyway?')) return;
-    S.icsExportedAt=new Date().toISOString(); save();
-    download(`bpc-momentum-${curWeek}.ics`, toIcs(), 'text/calendar');
-  };
+  /* Calendar wiring, armed only when the grid is on the page. The view is parked —
+     his painted blocks are still in storage and still exported by toIcs(), so
+     restoring the section brings the whole thing back with nothing lost. */
+  if(document.getElementById('calTable')){
+    document.querySelectorAll('#palette .swatch').forEach(b=>b.onclick=()=>{
+      paintType=b.dataset.type;
+      document.querySelectorAll('#palette .swatch').forEach(x=>x.classList.toggle('on',x===b));
+    });
+    document.getElementById('calReset').onclick=()=>{
+      if(confirm('Reset the grid to your standard rhythm? Custom blocks will be lost.')){
+        S.blocks=defaultBlocks(); S.blocksMtime=bump(S.blocksMtime); save(); renderCal(); }
+    };
+    document.getElementById('calClear').onclick=()=>{
+      if(confirm('Clear every block?')){ S.blocks=[]; S.blocksMtime=bump(S.blocksMtime); save(); renderCal(); }
+    };
+    document.getElementById('calIcs').onclick=()=>{
+      if(!S.blocks.length){ alert('Nothing to export — paint some blocks first.'); return; }
+      if(S.icsExportedAt && !confirm('You have exported this before.\n\nGoogle Calendar will ADD these as new events rather than update the old ones. Delete the previous BPC blocks first, or you will see doubles.\n\nExport anyway?')) return;
+      S.icsExportedAt=new Date().toISOString(); save();
+      download(`bpc-momentum-${curWeek}.ics`, toIcs(), 'text/calendar');
+    };
+  }
 
   document.getElementById('expJson').onclick=()=>
     download(`bpc-momentum-backup-${iso(new Date())}.json`, JSON.stringify(S,null,2), 'application/json');
