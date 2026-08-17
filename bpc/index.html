@@ -1047,7 +1047,9 @@ function renderRail(){
    explicit decision rather than a line that just sits there.
    ===================================================================== */
 const GUESS=[
-  ['people',  /\b(hire|hiring|recruit|comp|compensation|1:1|one[- ]on[- ]one|team|train|coach|onboard|promot|path|leader|manager|culture|bonus|role|seat|org|review)/i],
+  // `comp` must be a WHOLE word: as a prefix it swallowed "complaints", sending
+  // "biggest customer complaints" to People — exactly backwards.
+  ['people',  /\b(hire|hiring|recruit|comp\b|compensation|1:1|one[- ]on[- ]one|team|train|coach|onboard|promot|perform|path|leader|manager|culture|bonus|role|seat|org|review)/i],
   ['customer',/\b(customer|client|homeowner|experience|promise|complaint|warranty|punch|quality|referral|nps|satisfaction|deliver|crew|jobsite|job site|estimate)/i],
   ['brand',   /\b(brand|message|messaging|position|market|marketing|website|site|story|standard|craft|excellen|reputation|historic|photo|content|pitch|revenue|plan|forecast|vision)/i]
 ];
