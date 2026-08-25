@@ -13,3 +13,6 @@ tools/health/
 # Local test harnesses — they run against real localStorage, never deploy them
 _*.html
 **/_*.html
+# _mockserve.py backs the sync harness; same rule, so it never deploys either.
+_*.py
+**/_*.py

@@ -203,6 +203,24 @@ label.fld > span{display:block;font-size:.66rem;letter-spacing:.11em;text-transf
 .cutlist .row span{flex:1;text-decoration:line-through}
 .cutlist .row button{font:inherit;font-size:.68rem;background:none;border:none;color:var(--accent);cursor:pointer;padding:0}
 
+/* ---- the dump (one running pile, replaces the Monday-only sketch box) ---- */
+.dumpadd{display:flex;gap:.6rem;align-items:flex-start;margin-bottom:.8rem;flex-wrap:wrap}
+.dumpadd textarea{flex:1 1 22rem;min-width:14rem}
+.ordbtns{display:inline-flex;flex-direction:column;gap:2px;flex:0 0 auto}
+.ordbtns .ord{padding:0 .35rem;line-height:1.2;font-size:.7rem}
+.ordbtns .ord[disabled]{opacity:.25;cursor:default}
+.prop .txt{flex:1 1 12rem}
+
+/* ---- lock bar: Tuesday's step, inline under the stack ---- */
+.lockbar{display:flex;gap:.8rem;align-items:flex-start;flex-wrap:wrap;margin:.2rem 0 1.4rem}
+.lockbar .fold{flex:1 1 20rem;min-width:14rem}
+
+/* ---- close the week: folded until Friday ---- */
+.closefold>summary{cursor:pointer;display:flex;gap:.7rem;align-items:baseline;flex-wrap:wrap}
+.closefold>summary b{font-size:1.05rem}
+.closefold>summary .sub{font-size:.8rem;color:var(--muted)}
+.closefold[open]>summary{margin-bottom:.9rem}
+
 /* ---- milestones ---- */
 .msbox{margin-top:.8rem;border-top:1px dashed var(--line);padding-top:.7rem}
 .mslabel{font-size:.62rem;letter-spacing:.11em;text-transform:uppercase;color:var(--faint);margin-bottom:.4rem}
@@ -365,15 +383,17 @@ td.slot .lbl{
   <section class="view on" id="v-week">
     <div class="rail" id="rail"></div>
     <div id="carryBanner"></div>
-    <div id="stagePanel"></div>
-    <div class="sig-head">
+    <div id="dumpPanel"></div>
+    <div class="sig-head" id="secSignals">
       <div>
-        <h2>The Signal Stack</h2>
+        <h2>This Week's Three</h2>
         <div class="sub">One move per domain. Not the outcome — the move only you can make this week.</div>
       </div>
       <button class="mini" id="addOff">+ Off-domain signal</button>
     </div>
     <div id="signals"></div>
+    <div id="refineBox"></div>
+    <div id="closePanel"></div>
   </section>
 
   <!-- The Block Calendar view is PARKED, not deleted (his call, 2026-08-17: the page was
@@ -586,7 +606,36 @@ function exampleWeek(){
 let S, curWeek, curStage, paintType='anchor';
 
 function blank(){
-  return { version:1, weeks:{}, blocks:defaultBlocks(), savedAt:null, seeded:false };
+  return { version:1, weeks:{}, dump:[], blocks:defaultBlocks(), savedAt:null, seeded:false };
+}
+
+/* Lift every old per-week candidate pile into the one running dump.
+   Before 2026-08-25 the pile lived inside each week's sketch stage, so lines he
+   dumped in July are stranded in July. This walks them forward once.
+
+   Idempotent BY TEXT rather than by a version flag: a flag set locally would be
+   carried onto a device whose own store still holds un-lifted weeks, and those
+   lines would be lost. Deduping on the text means running it on every load —
+   including inside mergeStores — costs nothing and can never double up. Deleted
+   items count as seen, so a line he threw away does not come back next load. */
+function liftDump(d){
+  if(!Array.isArray(d.dump)) d.dump=[];
+  const seen=new Set(d.dump.map(i=>i.text));
+  let ord=Math.max(0,...d.dump.map(i=>Number(i.ord)||0));
+  Object.keys(d.weeks||{}).sort().forEach(k=>{
+    const sk=(d.weeks[k]&&d.weeks[k].stages||{}).sketch;
+    if(!sk) return;
+    const picked=new Set((sk.picked||[]).map(x=>String(x).trim()));
+    const cut=new Set((sk.cut||[]).map(x=>String(x).trim()));
+    const lines=[...String(sk.candidates||'').split('\n').map(candText), ...picked, ...cut];
+    lines.forEach(t=>{
+      if(!t || seen.has(t)) return;
+      seen.add(t);
+      d.dump.push({id:uid(), text:t, domain:guessDomain(t),
+                   status: picked.has(t) ? 'picked' : (cut.has(t) ? 'cut' : 'open'),
+                   ord:++ord, at:k, mt:1});
+    });
+  });
 }
 
 /* Every read path — boot, import, week() — goes through here, so a half-shaped
@@ -600,6 +649,24 @@ function normalize(d){
     if(!w || typeof w!=='object'){ delete d.weeks[k]; return; }
     normWeek(w);
   });
+  /* The dump lives OUTSIDE the weeks — see renderDump. Repaired here so a store
+     written by the four-view version, or a hand-edited backup, can never reach
+     the render code half-shaped. */
+  if(!Array.isArray(d.dump)) d.dump=[];
+  for(let i=d.dump.length-1;i>=0;i--){
+    const it=d.dump[i];
+    if(!it || typeof it!=='object'){ d.dump.splice(i,1); continue; }
+    if(typeof it.id!=='string' || !/^[A-Za-z0-9_-]+$/.test(it.id)) it.id=uid();
+    it.text=String(it.text==null?'':it.text).trim();
+    if(!it.text){ d.dump.splice(i,1); continue; }
+    if(!DOM[it.domain] && it.domain!=='off') it.domain='off';
+    if(!['open','picked','cut'].includes(it.status)) it.status='open';
+    if(!Number.isFinite(it.ord)) it.ord=i+1;
+    if(typeof it.at!=='string') it.at='';
+    it.del=!!it.del;                        // tombstone — kept so a merge can't resurrect it
+    if(!Number.isFinite(it.mt)) it.mt=0;
+  }
+  liftDump(d);
   if(!Array.isArray(d.blocks) || !d.blocks.length) d.blocks=defaultBlocks();
   d.blocks = d.blocks.filter(b=>b && typeof b==='object'
     && Number.isInteger(b.d) && b.d>=0 && b.d<5
@@ -818,6 +885,15 @@ function mergeStores(mine, other){
   if((mine.blocksMtime||0) >= (out.blocksMtime||0)){
     out.blocks=mine.blocks; out.blocksMtime=mine.blocksMtime||0;
   }
+  /* Dump items union by id, newest stamp per item — the same rule milestones get.
+     Reordering on the laptop while adding a line on the phone keeps both, and a
+     tombstone survives the other device's older copy. */
+  const dseen=new Map();
+  [...(out.dump||[]), ...(mine.dump||[])].forEach(it=>{
+    const prev=dseen.get(it.id);
+    if(!prev || (Number(it.mt)||0) > (Number(prev.mt)||0)) dseen.set(it.id,it);
+  });
+  out.dump=[...dseen.values()];
   out.seeded = out.seeded || mine.seeded;
   // `seq` is this browser's own cross-tab counter — a copy from another device
   // carries its own, so take the high-water mark rather than moving backwards.
@@ -1024,27 +1100,37 @@ function renderRail(){
       ? w.signals.some(s=>(s.log||[]).length)
       : !!(w.stages[st.id]&&w.stages[st.id].done);
     const now = isThisWeek && st.id===today;
-    return `<button class="stage ${curStage===st.id?'on':''} ${now?'today':''}" data-stage="${st.id}">
+    return `<button class="stage ${now?'today':''}" data-stage="${st.id}">
       ${done?'<span class="tick">✓</span>':(now?'<span class="nowdot"></span>':'')}
       <div class="stage-day">${st.day}</div>
       <div class="stage-name">${st.name}</div>
       <div class="stage-note">${st.note}</div>
     </button>`;
   }).join('');
+  /* The rail used to SWAP four separate panels, which meant three-quarters of the
+     week was always hidden behind a click. His call on 2026-08-25: "I need a one
+     page vs. four separate views." It is now a position indicator — it says where
+     you are in the rhythm and scrolls you there. Nothing hides. */
+  const JUMP={sketch:'secDump', refine:'secSignals', execute:'secSignals', reflect:'secClose'};
   document.querySelectorAll('.stage').forEach(b=>{
-    b.onclick=()=>{ curStage=b.dataset.stage; renderWeek(); };
+    b.onclick=()=>{
+      const el=document.getElementById(JUMP[b.dataset.stage]);
+      if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+    };
   });
 }
 
 /* =====================================================================
-   CANDIDATES → PROPOSED SIGNALS
-   The gap he hit on 2026-08-17: he ran Monday's sketch, dumped the week's pile
-   into the box, and the tool did nothing with it — the three slots still sat
-   empty waiting for him to retype. A candidate line and a signal are the same
-   sentence, so every undecided line is now proposed as a signal with a first
-   guess at its domain. Nothing is created automatically: naming the three is
-   his call. This only removes the retyping, and makes CUTTING a line an
-   explicit decision rather than a line that just sits there.
+   THE DUMP
+   Was a per-week textarea buried inside Monday's sketch panel, which is why it
+   felt like a Monday thing. His correction on 2026-08-25: "it's more of a
+   consistent brain dump though, not just Mondays." So it now lives OUTSIDE the
+   week — one running list that carries forward until a line is pulled up or cut.
+   A line dumped Thursday night is still sitting there next Monday.
+
+   Each line is decided exactly once: promoted to a signal, or cut on purpose.
+   Cutting stays an explicit decision rather than a line that just sits there —
+   defer, delegate and stop are the killer questions in his own filter.
    ===================================================================== */
 const GUESS=[
   // `comp` must be a WHOLE word: as a prefix it swallowed "complaints", sending
@@ -1056,173 +1142,218 @@ const GUESS=[
 const guessDomain = line => (GUESS.find(([,re])=>re.test(line))||['off'])[0];
 
 /* Strip the bullet he types by reflex, so "- walk Roseville" and "walk Roseville"
-   are the same candidate and a decided line doesn't come back as new. Only a real
-   list marker goes: a greedy digit class turned "- 2027 revenue plan" into
-   "revenue plan" and ate the year he was writing about. */
+   are the same line and a decided one doesn't come back as new. Only a real list
+   marker goes: a greedy digit class turned "- 2027 revenue plan" into "revenue
+   plan" and ate the year he was writing about. */
 const candText = l => l.trim().replace(/^(?:[-–—•*]+|\d{1,2}[.)])\s+/,'').trim();
-function candidateLines(sk){
-  const decided=new Set([...(sk.picked||[]),...(sk.cut||[])]);
-  const out=[], seen=new Set();
-  String(sk.candidates||'').split('\n').forEach(l=>{
+
+const dumpAll  = () => (S.dump||[]).filter(i=>!i.del);
+const dumpOpen = () => dumpAll().filter(i=>i.status==='open')
+                        .sort((a,b)=>(a.ord||0)-(b.ord||0) || String(a.at).localeCompare(String(b.at)));
+const dumpCut  = () => dumpAll().filter(i=>i.status==='cut');
+const dumpFind = id => (S.dump||[]).find(i=>i.id===id);
+
+/* Append, never prepend: his manual ordering lives at the top of the list, and
+   inserting above it would shuffle the priorities he just set. */
+function addDump(raw){
+  if(!Array.isArray(S.dump)) S.dump=[];
+  const have=new Set((S.dump||[]).map(i=>i.text));    // includes cut and deleted
+  let ord=Math.max(0,...(S.dump||[]).map(i=>Number(i.ord)||0));
+  let n=0;
+  String(raw||'').split('\n').forEach(l=>{
     const t=candText(l);
-    if(!t || seen.has(t) || decided.has(t)) return;
-    seen.add(t); out.push(t);
+    if(!t || have.has(t)) return;
+    have.add(t);
+    S.dump.push({id:uid(), text:t, domain:guessDomain(t), status:'open',
+                 ord:++ord, at:new Date().toISOString(), mt:bump(0)});
+    n++;
   });
-  return out;
+  return n;
 }
 
-/* Own container, rebuilt on its own. renderWeek() would rip the textarea out
-   from under the sentence he is typing. */
-function renderProposals(){
-  const host=document.getElementById('sketchProps');
+/* Swap the neighbour's slot rather than renumbering the list, so two devices
+   reordering different parts of the pile don't fight over every row. */
+function dumpMove(id,dir){
+  const list=dumpOpen(), i=list.findIndex(x=>x.id===id), j=i+dir;
+  if(i<0 || j<0 || j>=list.length) return;
+  const a=list[i], b=list[j];
+  const ao=Number(a.ord)||0, bo=Number(b.ord)||0;
+  a.ord=bo; b.ord=ao; a.mt=bump(a.mt); b.mt=bump(b.mt);
+}
+
+function renderDump(){
+  const host=document.getElementById('dumpPanel');
   if(!host) return;
-  const w=week(curWeek), sk=w.stages.sketch;
-  const lines=candidateLines(sk);
-  const total=String(sk.candidates||'').split('\n').map(candText).filter(Boolean).length;
-  const cut=sk.cut||[];
+  const w=week(curWeek), st=w.stages;
+  const open=dumpOpen(), cut=dumpCut();
+  const picked=dumpAll().filter(i=>i.status==='picked').length;
 
-  host.innerHTML =
-    (total?`<div class="propcount"><b>${total}</b> candidate${total===1?'':'s'} · <b>${lines.length}</b> still to decide</div>`:'')
-    + (lines.length?`<div class="props">${lines.map((t,i)=>`
-      <div class="prop">
-        <span class="txt">${esc(t)}</span>
-        <select data-pdom="${i}" title="Which domain">
-          ${DOMAINS.map(d=>`<option value="${esc(d.id)}" ${guessDomain(t)===d.id?'selected':''}>${d.label}</option>`).join('')}
-          <option value="off" ${guessDomain(t)==='off'?'selected':''}>Off-domain</option>
+  host.innerHTML=`<div class="panel" id="secDump">
+    <h2>The Dump</h2>
+    <p class="lede">Everything pulling at you, one line each. Add to it any day — this list carries week to week
+      until you pull a line into the week or cut it. Nothing here is a commitment.</p>
+    <div class="dumpadd">
+      <textarea rows="2" id="dumpIn" placeholder="What's on your mind? One per line, then Add."></textarea>
+      <button class="btn" id="dumpAddBtn">Add to the pile</button>
+    </div>
+    ${open.length||cut.length||picked?`<div class="propcount"><b>${open.length}</b> still to decide
+      · <b>${picked}</b> pulled into a week · <b>${cut.length}</b> cut</div>`:''}
+    <div class="props" id="dumpList">${open.map((it,i)=>`
+      <div class="prop" data-did="${esc(it.id)}">
+        <span class="ordbtns">
+          <button class="mini ord" data-dup="${esc(it.id)}" title="Move up" ${i===0?'disabled':''}>↑</button>
+          <button class="mini ord" data-ddn="${esc(it.id)}" title="Move down" ${i===open.length-1?'disabled':''}>↓</button>
+        </span>
+        <span class="txt">${esc(it.text)}</span>
+        <select data-ddom="${esc(it.id)}" title="Which domain">
+          ${DOMAINS.map(d=>`<option value="${esc(d.id)}" ${it.domain===d.id?'selected':''}>${d.label}</option>`).join('')}
+          <option value="off" ${!DOM[it.domain]?'selected':''}>Off-domain</option>
         </select>
-        <button class="mini go" data-puse="${i}">Make it a signal</button>
-        <button class="mini" data-pcut="${i}" title="Defer, delegate, or stop — a decision, not a shrug">Cut</button>
-      </div>`).join('')}</div>`:'')
-    + (cut.length?`<details class="fold cutlist"><summary>${cut.length} cut this week</summary>
-        ${cut.map((t,i)=>`<div class="row"><span>${esc(t)}</span><button data-pback="${i}">put it back</button></div>`).join('')}
-      </details>`:'');
+        <button class="mini go" data-duse="${esc(it.id)}">Pull into this week</button>
+        <button class="mini" data-dcut="${esc(it.id)}" title="Defer, delegate, or stop — a decision, not a shrug">Cut</button>
+      </div>`).join('')}</div>
+    ${open.length?'':'<div class="empty">Nothing waiting. Dump the pile whenever it shows up — you do not have to wait for Monday.</div>'}
+    ${cut.length?`<details class="fold cutlist"><summary>${cut.length} cut</summary>
+        ${cut.map(it=>`<div class="row"><span>${esc(it.text)}</span>
+          <button data-dback="${esc(it.id)}">put it back</button></div>`).join('')}
+      </details>`:''}
+    <details class="fold"><summary>Show the filter (5 questions)</summary>
+      <ul class="prompts">
+        <li><b>Only me?</b> Does this drive an outcome only I can steward — or is it a manager's job done well?</li>
+        <li><b>Avoiding it?</b> Is there something important I'm dodging that would move the needle if I took it on?</li>
+        <li><b>Defer or delegate?</b> What can I push without the business suffering? That's the killer question.</li>
+        <li><b>Stop doing?</b> What would I stop entirely if I were honest about its return?</li>
+        <li><b>Regret test.</b> In three years, which move will I wish I'd made this week?</li>
+      </ul>
+    </details>
+    <details class="fold" ${String(st.sketch.notes||'').trim()?'open':''}><summary>Notes on the week</summary>
+      <label class="fld"><textarea rows="4" id="sketchNotes"
+        placeholder="What's stuck. What's working. What surprised you. Who needs something from you.">${esc(st.sketch.notes||'')}</textarea></label>
+    </details>
+  </div>`;
 
-  host.querySelectorAll('[data-puse]').forEach(b=>b.onclick=()=>{
-    const i=+b.dataset.puse, t=lines[i];
-    const dom=host.querySelector(`select[data-pdom="${i}"]`).value;
+  const inp=document.getElementById('dumpIn');
+  const commit=()=>{
+    if(!inp.value.trim()) return;
+    addDump(inp.value);
+    inp.value=''; save(); renderDump();
+  };
+  document.getElementById('dumpAddBtn').onclick=commit;
+  // Enter adds; Shift+Enter keeps the newline, so a multi-line paste still works.
+  inp.onkeydown=e=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); commit(); } };
+
+  document.getElementById('sketchNotes').oninput=e=>{ st.sketch.notes=e.target.value; touch(st.sketch); save(); };
+
+  host.querySelectorAll('[data-ddom]').forEach(sel=>sel.onchange=()=>{
+    const it=dumpFind(sel.dataset.ddom); if(!it) return;
+    it.domain=sel.value; it.mt=bump(it.mt); save();
+  });
+  host.querySelectorAll('[data-dup]').forEach(b=>b.onclick=()=>{ dumpMove(b.dataset.dup,-1); save(); renderDump(); });
+  host.querySelectorAll('[data-ddn]').forEach(b=>b.onclick=()=>{ dumpMove(b.dataset.ddn, 1); save(); renderDump(); });
+
+  host.querySelectorAll('[data-duse]').forEach(b=>b.onclick=()=>{
+    const it=dumpFind(b.dataset.duse); if(!it) return;
+    const sel=host.querySelector(`select[data-ddom="${it.id}"]`);
+    const dom=sel?sel.value:it.domain;
     // The framework is ONE per domain. A second is allowed, but not silently.
     const taken=w.signals.some(s=>s.domain===dom && s.status!=='done');
     if(taken && dom!=='off' && !confirm(`You already have a ${domOf(dom).label} signal open this week.\n\nAdd a second one? Three is the whole point.`)) return;
-    w.signals.push({id:uid(),domain:dom,status:'open',age:1,currentState:'',signal:t,done:'',deps:'',log:[],ms:[]});
-    sk.picked.push(t); touch(w.signals[w.signals.length-1]); touch(sk); save(); renderWeek();
+    w.signals.push({id:uid(),domain:dom,status:'open',age:1,currentState:'',signal:it.text,done:'',deps:'',log:[],ms:[]});
+    touch(w.signals[w.signals.length-1]);
+    it.status='picked'; it.domain=dom; it.mt=bump(it.mt);
+    save(); renderWeek();
   });
-  host.querySelectorAll('[data-pcut]').forEach(b=>b.onclick=()=>{
-    sk.cut.push(lines[+b.dataset.pcut]); touch(sk); save(); renderProposals();
+  host.querySelectorAll('[data-dcut]').forEach(b=>b.onclick=()=>{
+    const it=dumpFind(b.dataset.dcut); if(!it) return;
+    it.status='cut'; it.mt=bump(it.mt); save(); renderDump();
   });
-  host.querySelectorAll('[data-pback]').forEach(b=>b.onclick=()=>{
-    sk.cut.splice(+b.dataset.pback,1); touch(sk); save(); renderProposals();
+  host.querySelectorAll('[data-dback]').forEach(b=>b.onclick=()=>{
+    const it=dumpFind(b.dataset.dback); if(!it) return;
+    it.status='open'; it.mt=bump(it.mt); save(); renderDump();
   });
 }
 
-function renderStagePanel(){
-  const w=week(curWeek), st=w.stages, host=document.getElementById('stagePanel');
-
-  if(curStage==='sketch'){
-    host.innerHTML=`<div class="panel">
-      <h2>Monday — Sketch</h2>
-      <p class="lede">Thirty minutes after your 1:1s. Dump the pile, then decide each line.</p>
-      <details class="fold"><summary>Show the filter (5 questions)</summary>
-        <ul class="prompts">
-          <li><b>Only me?</b> Does this drive an outcome only I can steward — or is it a manager's job done well?</li>
-          <li><b>Avoiding it?</b> Is there something important I'm dodging that would move the needle if I took it on?</li>
-          <li><b>Defer or delegate?</b> What can I push without the business suffering? That's the killer question.</li>
-          <li><b>Stop doing?</b> What would I stop entirely if I were honest about its return?</li>
-          <li><b>Regret test.</b> In three years, which move will I wish I'd made this week?</li>
-        </ul>
-      </details>
-      <label class="fld"><textarea rows="6" id="sketchCandidates"
-        placeholder="Everything pulling at you, one per line. Nothing here is a commitment.">${esc(st.sketch.candidates||'')}</textarea></label>
-      <div id="sketchProps"></div>
-      <details class="fold"><summary>Notes from this week's 1:1s and leadership meeting</summary>
-        <label class="fld"><textarea rows="4" id="sketchNotes"
-          placeholder="What's stuck. What's working. What surprised you. Who needs something from you.">${esc(st.sketch.notes||'')}</textarea></label>
-      </details>
-      <button class="btn ${st.sketch.done?'ghost':''}" id="sketchDone">${st.sketch.done?'✓ Sketched':'Mark sketch done'}</button>
-    </div>`;
-    document.getElementById('sketchNotes').oninput=e=>{ st.sketch.notes=e.target.value; touch(st.sketch); save(); };
-    document.getElementById('sketchCandidates').oninput=e=>{
-      st.sketch.candidates=e.target.value; touch(st.sketch); save();
-      renderProposals();                 // proposals keep up with the typing, focus stays put
-    };
-    document.getElementById('sketchDone').onclick=()=>{ st.sketch.done=!st.sketch.done; touch(st.sketch); save(); renderWeek(); };
-    renderProposals();
-
-  } else if(curStage==='refine'){
-    host.innerHTML=`<div class="panel">
-      <h2>Tuesday — Refine</h2>
-      <p class="lede">You've had the leadership meeting and more context. Lock the three and get specific about what done looks like.</p>
-      <details class="fold"><summary>Show the test before you commit (3 questions)</summary>
-        <ul class="prompts">
-          <li><b>Is it a move, or an outcome?</b> "Get the 2027 plan done" is an outcome. "Block two hours in the data and write the draft" is a move.</li>
-          <li><b>Would I know Friday?</b> If you can't tell whether it moved, it isn't written sharply enough.</li>
-          <li><b>What has to happen first?</b> Name the prep, and put it in Monday or Tuesday — not Wednesday.</li>
-        </ul>
-      </details>
-      <label class="fld"><span>What changed since Monday</span>
-        <textarea rows="4" id="refineNotes"
+/* =====================================================================
+   LOCK THE THREE — Tuesday, folded into the page under the stack.
+   The empty-"Done looks like" refusal is deliberate and came out of the
+   2026-08-14 review: the whole framework rests on "would I know Friday?", and
+   the button whose job is to enforce that used to check nothing. Don't soften it.
+   ===================================================================== */
+function renderRefine(){
+  const host=document.getElementById('refineBox');
+  if(!host) return;
+  const w=week(curWeek), st=w.stages;
+  if(!w.signals.length){ host.innerHTML=''; return; }
+  host.innerHTML=`<div class="lockbar">
+    <button class="btn ${st.refine.done?'ghost':''}" id="refineDone">${st.refine.done?'✓ Locked':'Lock the three'}</button>
+    <details class="fold" ${String(st.refine.notes||'').trim()?'open':''}>
+      <summary>What changed since Monday</summary>
+      <label class="fld"><textarea rows="3" id="refineNotes"
         placeholder="New data, a conversation that shifted things, a signal you're swapping out.">${esc(st.refine.notes||'')}</textarea></label>
-      <button class="btn ${st.refine.done?'ghost':''}" id="refineDone">${st.refine.done?'✓ Locked':'Lock the three'}</button>
-    </div>`;
-    document.getElementById('refineNotes').oninput=e=>{ st.refine.notes=e.target.value; touch(st.refine); save(); };
-    document.getElementById('refineDone').onclick=()=>{
-      if(!st.refine.done){
-        // The whole framework rests on "would I know Friday?" — the button whose
-        // job is to enforce that used to check nothing.
-        const vague=week(curWeek).signals.filter(x=>x.status!=='done' && !String(x.done||'').trim());
-        if(vague.length){
-          const names=vague.map(x=>'· '+domOf(x.domain).label+' — '+(x.signal||'(unnamed)').slice(0,60)).join('\n');
-          if(!confirm(`You couldn't tell on Friday whether ${vague.length===1?'this moved':'these moved'}:\n\n${names}\n\n"Done looks like" is empty. Lock anyway?`)) return;
-        }
+    </details>
+  </div>`;
+  document.getElementById('refineNotes').oninput=e=>{ st.refine.notes=e.target.value; touch(st.refine); save(); };
+  document.getElementById('refineDone').onclick=()=>{
+    if(!st.refine.done){
+      const vague=w.signals.filter(x=>x.status!=='done' && !String(x.done||'').trim());
+      if(vague.length){
+        const names=vague.map(x=>'· '+domOf(x.domain).label+' — '+(x.signal||'(unnamed)').slice(0,60)).join('\n');
+        if(!confirm(`You couldn't tell on Friday whether ${vague.length===1?'this moved':'these moved'}:\n\n${names}\n\n"Done looks like" is empty. Lock anyway?`)) return;
       }
-      st.refine.done=!st.refine.done; touch(st.refine); save(); renderWeek();
-    };
+    }
+    st.refine.done=!st.refine.done; touch(st.refine); save(); renderWeek();
+  };
+}
 
-  } else if(curStage==='execute'){
-    const n=w.signals.reduce((a,s)=>a+(s.log||[]).length,0);
-    host.innerHTML=`<div class="panel">
-      <h2>Wednesday &amp; Thursday — Execute</h2>
-      <p class="lede">
-        These are the two days that are actually yours. Log each move as you make it — that's the artifact
-        that says a signal moved, and it's what Friday reads from.
-        ${n?`<b>${n} move${n===1?'':'s'} logged this week.</b>`:'Nothing logged yet this week.'}
-      </p>
-    </div>`;
+/* =====================================================================
+   CLOSE THE WEEK — Friday's reflection, folded until it's Friday.
+   Was its own view; on one page it sits at the bottom and opens on the day it
+   matters, or the moment there is anything written in it. The scoreboard stays
+   ABOVE the boxes on purpose: a 2026-08-14 review found the tool recorded two
+   written confessions of ducking the same conversation and said nothing back.
+   ===================================================================== */
+function renderClose(){
+  const host=document.getElementById('closePanel');
+  if(!host) return;
+  const w=week(curWeek), st=w.stages;
+  const sigs=w.signals;
+  const done=sigs.filter(x=>x.status==='done').length;
+  const moved=sigs.filter(x=>x.status==='moved').length;
+  const untouched=sigs.filter(x=>x.status==='open' && !evidence(x));
+  const written=['moved','didnt','emerging'].some(f=>String(st.reflect[f]||'').trim());
+  const dow=new Date().getDay();
+  const isThisWeek = curWeek===iso(mondayOf(new Date()));
+  const open = written || st.reflect.done || !isThisWeek || dow===5 || dow===6;
 
-  } else {
-    const sigs=week(curWeek).signals;
-    const done=sigs.filter(x=>x.status==='done').length;
-    const moved=sigs.filter(x=>x.status==='moved').length;
-    const untouched=sigs.filter(x=>x.status==='open' && !evidence(x));
-    host.innerHTML=`<div class="panel">
-      <h2>Friday — Reflect</h2>
-      <p class="lede">Twenty minutes after the exec meeting. Read the week first — then write.</p>
-      <div class="score">
-        <div class="score-row">
-          <span class="score-n">${sigs.length}</span><span class="score-l">signals</span>
-          <span class="score-n">${done}</span><span class="score-l">closed</span>
-          <span class="score-n">${moved}</span><span class="score-l">moved</span>
-          <span class="score-n ${untouched.length?'bad':''}">${untouched.length}</span><span class="score-l">untouched</span>
-        </div>
-        ${untouched.length?`<div class="score-warn"><b>Nothing was logged against ${untouched.length===1?'this':'these'} all week:</b>
-          <ul>${untouched.map(x=>`<li>${esc(domOf(x.domain).label)} — ${esc(x.signal||'(unnamed)')}</li>`).join('')}</ul>
-          Say why below. "Ran out of time" is a symptom, not a reason.</div>`
-          :(sigs.length?'<div class="score-ok">Every signal has something logged against it.</div>':'')}
+  host.innerHTML=`<details class="panel closefold" id="secClose" ${open?'open':''}>
+    <summary><b>Close the week</b><span class="sub">Friday afternoon — read the week first, then write.</span></summary>
+    <div class="score">
+      <div class="score-row">
+        <span class="score-n">${sigs.length}</span><span class="score-l">signals</span>
+        <span class="score-n">${done}</span><span class="score-l">closed</span>
+        <span class="score-n">${moved}</span><span class="score-l">moved</span>
+        <span class="score-n ${untouched.length?'bad':''}">${untouched.length}</span><span class="score-l">untouched</span>
       </div>
-      <label class="fld"><span>What moved</span>
-        <textarea rows="3" id="rMoved" placeholder="Be specific. What's different now that wasn't Monday?">${esc(st.reflect.moved||'')}</textarea></label>
-      <label class="fld"><span>What didn't — and honestly, why</span>
-        <textarea rows="3" id="rDidnt" placeholder="Ran out of time is a symptom. What actually got in the way?">${esc(st.reflect.didnt||'')}</textarea></label>
-      <label class="fld"><span>What's emerging for next week</span>
-        <textarea rows="3" id="rEmerging" placeholder="What you're already sensing. Feeds Monday's sketch.">${esc(st.reflect.emerging||'')}</textarea></label>
-      <button class="btn ${st.reflect.done?'ghost':''}" id="reflectDone">${st.reflect.done?'✓ Week closed':'Close the week'}</button>
-      <button class="btn ghost" id="carryFwd">Carry open signals to next week →</button>
-    </div>`;
-    document.getElementById('rMoved').oninput=e=>{ st.reflect.moved=e.target.value; touch(st.reflect); save(); };
-    document.getElementById('rDidnt').oninput=e=>{ st.reflect.didnt=e.target.value; touch(st.reflect); save(); };
-    document.getElementById('rEmerging').oninput=e=>{ st.reflect.emerging=e.target.value; touch(st.reflect); save(); };
-    document.getElementById('reflectDone').onclick=()=>{ st.reflect.done=!st.reflect.done; touch(st.reflect); save(); renderWeek(); };
-    document.getElementById('carryFwd').onclick=carryForward;
-  }
+      ${untouched.length?`<div class="score-warn"><b>Nothing was logged against ${untouched.length===1?'this':'these'} all week:</b>
+        <ul>${untouched.map(x=>`<li>${esc(domOf(x.domain).label)} — ${esc(x.signal||'(unnamed)')}</li>`).join('')}</ul>
+        Say why below. "Ran out of time" is a symptom, not a reason.</div>`
+        :(sigs.length?'<div class="score-ok">Every signal has something logged against it.</div>':'')}
+    </div>
+    <label class="fld"><span>What moved</span>
+      <textarea rows="3" id="rMoved" placeholder="Be specific. What's different now that wasn't Monday?">${esc(st.reflect.moved||'')}</textarea></label>
+    <label class="fld"><span>What didn't — and honestly, why</span>
+      <textarea rows="3" id="rDidnt" placeholder="Ran out of time is a symptom. What actually got in the way?">${esc(st.reflect.didnt||'')}</textarea></label>
+    <label class="fld"><span>What's emerging for next week</span>
+      <textarea rows="3" id="rEmerging" placeholder="What you're already sensing. Goes back on the pile.">${esc(st.reflect.emerging||'')}</textarea></label>
+    <button class="btn ${st.reflect.done?'ghost':''}" id="reflectDone">${st.reflect.done?'✓ Week closed':'Close the week'}</button>
+    <button class="btn ghost" id="carryFwd">Carry open signals to next week →</button>
+  </details>`;
+
+  document.getElementById('rMoved').oninput=e=>{ st.reflect.moved=e.target.value; touch(st.reflect); save(); };
+  document.getElementById('rDidnt').oninput=e=>{ st.reflect.didnt=e.target.value; touch(st.reflect); save(); };
+  document.getElementById('rEmerging').oninput=e=>{ st.reflect.emerging=e.target.value; touch(st.reflect); save(); };
+  document.getElementById('reflectDone').onclick=()=>{ st.reflect.done=!st.reflect.done; touch(st.reflect); save(); renderWeek(); };
+  document.getElementById('carryFwd').onclick=carryForward;
 }
 
 /* Weeks you were away are the most important thing that happened. The tool used
@@ -1361,7 +1492,7 @@ function sigCard(s){
         <input type="date" data-msat="${esc(s.id)}" title="Optional — when it should be hit">
       </div>
     </div>
-    <details class="logfold" ${(curStage==='execute'||String(s.logDraft||'').trim())?'open':''}>
+    <details class="logfold" ${(stageForToday()==='execute'||String(s.logDraft||'').trim())?'open':''}>
       <summary>${(s.log||[]).length?`${s.log.length} move${s.log.length===1?'':'s'} logged`:'Log a move'}</summary>
       <div class="logbox">
         ${(s.priorLog||[]).length?`<details class="priorlog"><summary>${s.priorLog.length} move${s.priorLog.length===1?'':'s'} from earlier weeks</summary>
@@ -1479,7 +1610,7 @@ function carryForward(){
 
 function renderWeek(){
   document.getElementById('wkLabel').textContent=prettyWeek(curWeek);
-  renderRail(); renderCarryBanner(); renderStagePanel(); renderSignals(); growAll();
+  renderRail(); renderCarryBanner(); renderDump(); renderSignals(); renderRefine(); renderClose(); growAll();
 }
 
 /* =====================================================================
