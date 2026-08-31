@@ -1,0 +1,14 @@
+{
+  "name": "SPOTTED — Field Log",
+  "short_name": "SPOTTED",
+  "description": "A graffiti and street-art field log you play on a walk.",
+  "start_url": "/spotted/",
+  "scope": "/spotted/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#12130f",
+  "theme_color": "#12130f",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

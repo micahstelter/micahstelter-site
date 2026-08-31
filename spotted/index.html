@@ -1,0 +1,825 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<title>SPOTTED</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#12130f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SPOTTED">
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#12130f; --bg2:#1b1d17; --card:#22251d; --line:#33372b;
+  --ink:#eef0e6; --dim:#9aa08c; --green:#7bc47f; --gold:#e3b23c; --hot:#ff5c39;
+  --safe-b:env(safe-area-inset-bottom,0px);
+  font-size:16px;
+}
+html,body{margin:0;height:100%}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  overscroll-behavior-y:none; -webkit-font-smoothing:antialiased;
+}
+.serif{font-family:"Cormorant Garamond",Georgia,serif}
+.num{font-variant-numeric:tabular-nums lining-nums}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+input,textarea{font:inherit;color:inherit}
+
+/* ---------- shell ---------- */
+#app{display:flex;flex-direction:column;height:100dvh;max-width:640px;margin:0 auto;position:relative}
+header{padding:calc(env(safe-area-inset-top,0px) + 10px) 16px 10px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#191b15,#12130f)}
+.hrow{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.brand{font-size:1.6rem;letter-spacing:.14em;font-weight:700;margin:0}
+.brand small{display:block;font-family:-apple-system,sans-serif;font-size:.58rem;letter-spacing:.28em;color:var(--dim);font-weight:600;margin-top:2px}
+.rank{text-align:right;line-height:1.15}
+.rank b{display:block;font-size:.9rem;color:var(--gold);letter-spacing:.04em}
+.rank span{font-size:.68rem;color:var(--dim)}
+.xpbar{height:4px;background:#2b2f24;border-radius:99px;margin-top:9px;overflow:hidden}
+.xpbar i{display:block;height:100%;background:linear-gradient(90deg,var(--green),var(--gold));border-radius:99px;transition:width .5s}
+
+main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 16px calc(84px + var(--safe-b))}
+main.nopad{padding:0}
+.view{display:none}
+.view.on{display:block}
+
+nav{position:absolute;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(4,1fr);
+  background:rgba(18,19,15,.94);backdrop-filter:blur(14px);border-top:1px solid var(--line);
+  padding-bottom:var(--safe-b);z-index:900}
+nav button{padding:10px 0 11px;font-size:.62rem;letter-spacing:.14em;font-weight:700;color:var(--dim);text-transform:uppercase}
+nav button i{display:block;font-style:normal;font-size:1.22rem;margin-bottom:2px;filter:grayscale(1) opacity(.55)}
+nav button.on{color:var(--ink)}
+nav button.on i{filter:none}
+
+/* ---------- cards ---------- */
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+.lbl{font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);font-weight:700}
+
+.walkcard{display:flex;flex-direction:column;gap:12px;margin-bottom:16px}
+.wtop{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.dot{width:8px;height:8px;border-radius:99px;background:var(--dim);display:inline-block;margin-right:7px;vertical-align:1px}
+.dot.live{background:var(--hot);animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;text-align:center}
+.stats div b{display:block;font-size:1.42rem;font-weight:700;letter-spacing:-.02em}
+.stats div span{font-size:.56rem;letter-spacing:.14em;color:var(--dim);text-transform:uppercase;font-weight:700}
+.btn{border:1px solid var(--line);border-radius:99px;padding:8px 15px;font-size:.74rem;font-weight:600;background:#2a2e23}
+.btn.ghost{background:none}
+.btn:active{transform:scale(.96)}
+
+/* ---------- capture ---------- */
+.shoot{position:relative;width:100%;aspect-ratio:1/1;max-height:46dvh;margin:0 auto;display:block;
+  border-radius:26px;border:2px dashed #3d4232;background:radial-gradient(circle at 50% 42%,#242820,#191b15);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}
+.shoot:active{border-color:var(--gold);background:radial-gradient(circle at 50% 42%,#2c3126,#191b15)}
+.shoot .eye{font-size:3.4rem;line-height:1}
+.shoot b{font-size:1.5rem;letter-spacing:.24em;font-weight:700}
+.shoot span{font-size:.68rem;color:var(--dim);letter-spacing:.05em}
+.gps{margin-top:12px;text-align:center;font-size:.68rem;color:var(--dim)}
+.gps b{color:var(--green);font-weight:600}
+.gps.warn b{color:var(--gold)}
+
+.strip{display:flex;gap:8px;overflow-x:auto;padding:2px 0 4px;margin:0 -16px;padding-left:16px;padding-right:16px}
+.strip::-webkit-scrollbar{display:none}
+.tile{flex:0 0 76px;height:76px;border-radius:11px;overflow:hidden;position:relative;background:#2a2e23;border:1px solid var(--line)}
+.tile img{width:100%;height:100%;object-fit:cover;display:block}
+.tile em{position:absolute;left:0;right:0;bottom:0;font-style:normal;font-size:.52rem;font-weight:700;
+  letter-spacing:.06em;text-transform:uppercase;padding:3px 4px;background:linear-gradient(180deg,transparent,rgba(0,0,0,.85));text-align:center}
+
+/* ---------- sheet ---------- */
+#sheet{position:fixed;inset:0;z-index:1000;background:rgba(8,9,7,.72);backdrop-filter:blur(6px);display:none;align-items:flex-end;justify-content:center}
+#sheet.on{display:flex}
+.sheet{width:100%;max-width:640px;max-height:94dvh;overflow-y:auto;background:var(--bg2);
+  border-radius:22px 22px 0 0;border-top:1px solid var(--line);padding:16px 16px calc(20px + var(--safe-b))}
+.grab{width:38px;height:4px;border-radius:99px;background:#3d4232;margin:0 auto 14px}
+.prev{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:13px;background:#000;display:block}
+.kinds{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:14px 0 12px}
+.kind{border:1px solid var(--line);border-radius:12px;padding:9px 3px 8px;text-align:center;background:#22251d}
+.kind i{display:block;font-style:normal;font-size:1.24rem;margin-bottom:3px}
+.kind b{display:block;font-size:.6rem;font-weight:700;letter-spacing:.02em}
+.kind span{display:block;font-size:.56rem;color:var(--dim);margin-top:1px}
+.kind.on{border-color:var(--gold);background:#2e3122;box-shadow:0 0 0 1px var(--gold) inset}
+.fld{display:block;width:100%;background:#22251d;border:1px solid var(--line);border-radius:11px;padding:11px 13px;margin-bottom:8px;font-size:.92rem}
+.fld::placeholder{color:#6e7462}
+.sheetbtns{display:flex;gap:9px;margin-top:6px}
+.big{flex:1;padding:15px;border-radius:13px;text-align:center;font-weight:700;letter-spacing:.06em;font-size:.9rem}
+.big.go{background:var(--green);color:#10210f}
+.big.go[disabled]{opacity:.35}
+.big.no{background:#2a2e23;border:1px solid var(--line);flex:0 0 34%}
+.hint{font-size:.68rem;color:var(--dim);text-align:center;margin:9px 0 2px;min-height:1em}
+.hint b{color:var(--gold)}
+
+/* ---------- map ---------- */
+#map{position:absolute;inset:0}
+.mapwrap{position:relative;height:calc(100dvh - 148px - var(--safe-b));background:#1b1d17}
+.leaflet-container{background:#1b1d17}
+/* Darkens the standard OSM tiles to match the app. Only the tile pane is
+   filtered, so pins, the walk line and popups keep their true colors. */
+.leaflet-tile-pane{filter:invert(1) hue-rotate(180deg) brightness(.74) contrast(1.08) saturate(.22)}
+.mapnote{position:absolute;left:14px;right:14px;top:14px;z-index:500;background:rgba(18,19,15,.9);
+  border:1px solid var(--line);border-radius:11px;padding:11px 13px;font-size:.76rem;color:var(--dim)}
+.pin{border-radius:99px;border:2px solid #12130f;box-shadow:0 1px 5px rgba(0,0,0,.6)}
+.leaflet-popup-content-wrapper{background:var(--card);color:var(--ink);border-radius:12px}
+.leaflet-popup-tip{background:var(--card)}
+.leaflet-popup-content{margin:10px 12px;font-size:.8rem}
+.leaflet-popup-content img{width:100%;border-radius:8px;margin-bottom:6px;display:block}
+.leaflet-control-attribution{background:rgba(18,19,15,.8)!important;color:#6e7462!important}
+.leaflet-control-attribution a{color:#8a9179!important}
+
+/* ---------- book ---------- */
+.counts{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:12px 0 18px}
+.cnt{border:1px solid var(--line);border-radius:12px;padding:9px 3px;text-align:center;background:var(--card)}
+.cnt i{display:block;font-style:normal;font-size:1.16rem}
+.cnt b{display:block;font-size:1.16rem;font-weight:700;margin-top:2px}
+.cnt span{display:block;font-size:.54rem;letter-spacing:.06em;color:var(--dim);text-transform:uppercase}
+.cnt.zero{opacity:.32}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.grid .tile{flex:none;width:100%;height:auto;aspect-ratio:1/1}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);border-radius:99px;padding:5px 11px;font-size:.72rem;background:var(--card)}
+.chip b{color:var(--gold)}
+.badges{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}
+.badge{border:1px solid var(--line);border-radius:12px;padding:10px 11px;background:var(--card);display:flex;gap:9px;align-items:center}
+.badge i{font-style:normal;font-size:1.3rem}
+.badge b{display:block;font-size:.76rem}
+.badge span{display:block;font-size:.62rem;color:var(--dim);line-height:1.3}
+.badge.locked{opacity:.34}
+h2.sec{font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin:22px 0 9px;font-weight:700}
+h2.sec:first-child{margin-top:2px}
+.empty{text-align:center;color:var(--dim);font-size:.84rem;padding:34px 20px;line-height:1.6}
+
+/* ---------- walks list ---------- */
+.wrow{display:flex;justify-content:space-between;align-items:center;gap:12px;border:1px solid var(--line);
+  border-radius:12px;padding:11px 13px;background:var(--card);margin-bottom:7px}
+.wrow b{font-size:.86rem}
+.wrow span{font-size:.66rem;color:var(--dim)}
+.wrow .pts{font-size:1.15rem;font-weight:700;color:var(--gold)}
+
+/* ---------- detail ---------- */
+#detail{position:fixed;inset:0;z-index:1100;background:rgba(8,9,7,.94);display:none;flex-direction:column}
+#detail.on{display:flex}
+#detail img{flex:1;min-height:0;width:100%;object-fit:contain}
+.dmeta{padding:14px 16px calc(16px + var(--safe-b));border-top:1px solid var(--line);background:var(--bg2)}
+.dmeta h3{margin:0 0 3px;font-size:1.05rem}
+.dmeta p{margin:0 0 10px;font-size:.74rem;color:var(--dim);line-height:1.5}
+.dbtns{display:flex;gap:8px}
+.dtop{position:absolute;top:calc(env(safe-area-inset-top,0px) + 8px);right:12px;z-index:2}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(96px + var(--safe-b));z-index:1200;
+  background:var(--green);color:#10210f;font-weight:700;font-size:.82rem;padding:11px 18px;border-radius:99px;
+  opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;box-shadow:0 6px 22px rgba(0,0,0,.5);text-align:center}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(-6px)}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="hrow">
+      <h1 class="brand serif">SPOTTED<small>FIELD LOG</small></h1>
+      <div class="rank"><b id="rankName">Toy</b><span class="num" id="rankPts">0 pts</span></div>
+    </div>
+    <div class="xpbar"><i id="xp" style="width:0%"></i></div>
+  </header>
+
+  <main id="main">
+    <!-- SPOT -->
+    <section class="view on" id="v-spot">
+      <div class="card walkcard">
+        <div class="wtop">
+          <div class="lbl"><span class="dot" id="wdot"></span><span id="wlabel">No walk running</span></div>
+          <button class="btn" id="walkBtn">Start walk</button>
+        </div>
+        <div class="stats num">
+          <div><b id="s-finds">0</b><span>Finds</span></div>
+          <div><b id="s-pts">0</b><span>Points</span></div>
+          <div><b id="s-mi">0.0</b><span>Miles</span></div>
+          <div><b id="s-time">0:00</b><span>Time</span></div>
+        </div>
+      </div>
+
+      <button class="shoot" id="shoot">
+        <span class="eye">👁️</span>
+        <b>SPOT IT</b>
+        <span>Camera opens · then pick what it is</span>
+      </button>
+      <div class="gps" id="gpsline">Locating…</div>
+
+      <h2 class="sec">Latest finds</h2>
+      <div class="strip" id="strip"><div class="empty" style="padding:14px 0">Nothing yet. Go for a walk.</div></div>
+    </section>
+
+    <!-- MAP -->
+    <section class="view" id="v-map">
+      <div class="mapwrap"><div id="map"></div><div class="mapnote" id="mapnote">Loading map…</div></div>
+    </section>
+
+    <!-- BOOK -->
+    <section class="view" id="v-book">
+      <h2 class="sec">The count</h2>
+      <div class="counts" id="counts"></div>
+      <h2 class="sec">Names on the wall</h2>
+      <div class="chips" id="writers"></div>
+      <h2 class="sec">Badges</h2>
+      <div class="badges" id="badges"></div>
+      <h2 class="sec">Everything found</h2>
+      <div class="grid" id="grid"></div>
+    </section>
+
+    <!-- WALKS -->
+    <section class="view" id="v-walks">
+      <h2 class="sec">Lifetime</h2>
+      <div class="card"><div class="stats num">
+        <div><b id="l-finds">0</b><span>Finds</span></div>
+        <div><b id="l-walks">0</b><span>Walks</span></div>
+        <div><b id="l-mi">0.0</b><span>Miles</span></div>
+        <div><b id="l-cells">0</b><span>Blocks</span></div>
+      </div></div>
+      <h2 class="sec">Walk history</h2>
+      <div id="walklist"></div>
+      <h2 class="sec">Your data</h2>
+      <div class="card" style="font-size:.76rem;color:var(--dim);line-height:1.55">
+        Everything lives in this browser only — photos included. Nothing is uploaded.
+        Export makes one file with every photo in it; keep a copy somewhere safe.
+        <div class="dbtns" style="margin-top:11px">
+          <button class="btn" id="expBtn">Export all</button>
+          <button class="btn ghost" id="impBtn">Import</button>
+        </div>
+        <div class="num" id="usage" style="margin-top:10px"></div>
+      </div>
+    </section>
+  </main>
+
+  <nav>
+    <button class="on" data-v="spot"><i>👁️</i>Spot</button>
+    <button data-v="map"><i>🗺️</i>Map</button>
+    <button data-v="book"><i>📓</i>Book</button>
+    <button data-v="walks"><i>🥾</i>Walks</button>
+  </nav>
+</div>
+
+<!-- capture sheet -->
+<div id="sheet">
+  <div class="sheet">
+    <div class="grab"></div>
+    <img class="prev" id="prev" alt="">
+    <div class="kinds" id="kinds"></div>
+    <input class="fld" id="fWriter" placeholder="Writer / crew name (optional)" autocomplete="off" autocapitalize="characters" spellcheck="false">
+    <input class="fld" id="fNote" placeholder="Note — where, colors, what stood out (optional)" autocomplete="off">
+    <div class="hint" id="shint"></div>
+    <div class="sheetbtns">
+      <button class="big no" id="cancelBtn">Toss it</button>
+      <button class="big go" id="saveBtn" disabled>Pick one above</button>
+    </div>
+  </div>
+</div>
+
+<!-- detail -->
+<div id="detail">
+  <div class="dtop"><button class="btn" id="dClose">Close</button></div>
+  <img id="dImg" alt="">
+  <div class="dmeta">
+    <h3 id="dTitle"></h3>
+    <p id="dSub"></p>
+    <div class="dbtns">
+      <button class="btn" id="dMap">Show on map</button>
+      <button class="btn ghost" id="dDel" style="color:var(--hot)">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="cam" accept="image/*" capture="environment" style="display:none">
+<input type="file" id="imp" accept="application/json,.json" style="display:none">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script>
+/* =========================================================================
+   SPOTTED — a graffiti field log you play on a walk.
+   Everything is client-side. Photos and pins live in IndexedDB on this
+   device; nothing leaves the phone. See /spotted/README-ish notes in the
+   vault (output/spotted-field-log.md) for the design rationale.
+   ========================================================================= */
+
+/* ---------- the taxonomy. Points track effort + rarity, roughly. ---------- */
+const KINDS = {
+  slap:    {n:'Slap',    i:'🏷️', p:5,   c:'#6ee7b7', d:'Sticker'},
+  tag:     {n:'Tag',     i:'✍️', p:10,  c:'#fbbf24', d:'Handstyle'},
+  throwie: {n:'Throwie', i:'🫧', p:25,  c:'#fb7185', d:'Bubble'},
+  stencil: {n:'Stencil', i:'🖼️', p:30,  c:'#a78bfa', d:'Cut + spray'},
+  paste:   {n:'Paste',   i:'📰', p:35,  c:'#38bdf8', d:'Wheatpaste'},
+  piece:   {n:'Piece',   i:'🎨', p:60,  c:'#f97316', d:'Full burner'},
+  mural:   {n:'Mural',   i:'🧱', p:75,  c:'#34d399', d:'Production'},
+  roller:  {n:'Roller',  i:'🚀', p:100, c:'#e879f9', d:'Way up high'},
+};
+const KEYS = Object.keys(KINDS);
+
+const RANKS = [
+  [0,'Toy'],[250,'Scout'],[750,'Spotter'],[1750,'Bencher'],
+  [3500,'Archivist'],[6500,'Curator'],[12000,'King of the Line'],
+];
+
+const BADGES = [
+  {id:'first', i:'🥇', n:'First Blood',  d:'Log your first find',            t:f=>f.finds.length>=1},
+  {id:'range', i:'🌈', n:'Full Range',   d:'Find all eight kinds',           t:f=>KEYS.every(k=>f.byKind[k]>0)},
+  {id:'ton',   i:'💯', n:'Century',      d:'100 finds logged',               t:f=>f.finds.length>=100},
+  {id:'miles', i:'🥾', n:'Ten Miles',    d:'Walk 10 miles logging',          t:f=>f.miles>=10},
+  {id:'night', i:'🌙', n:'Night Shift',  d:'10 finds after dark',            t:f=>f.night>=10},
+  {id:'cells', i:'🧭', n:'Cartographer', d:'25 different blocks',            t:f=>f.cells>=25},
+  {id:'hand',  i:'👑', n:'Known Hand',   d:'Same writer five times',         t:f=>f.topWriter>=5},
+  {id:'roll',  i:'🔥', n:'On a Roll',    d:'10 finds in one walk',           t:f=>f.bestWalk>=10},
+];
+
+/* ---------- tiny IndexedDB layer ---------- */
+const DB = new Promise((res, rej) => {
+  const r = indexedDB.open('spotted', 1);
+  r.onupgradeneeded = () => {
+    const db = r.result;
+    if (!db.objectStoreNames.contains('finds')) {
+      const s = db.createObjectStore('finds', {keyPath:'id'});
+      s.createIndex('ts','ts'); s.createIndex('walkId','walkId');
+    }
+    if (!db.objectStoreNames.contains('walks')) db.createObjectStore('walks', {keyPath:'id'});
+    if (!db.objectStoreNames.contains('meta'))  db.createObjectStore('meta',  {keyPath:'k'});
+  };
+  r.onsuccess = () => res(r.result);
+  r.onerror = () => rej(r.error);
+});
+async function dbPut(store, val){ const db = await DB; return new Promise((res,rej)=>{
+  const t = db.transaction(store,'readwrite'); t.objectStore(store).put(val);
+  t.oncomplete = ()=>res(val); t.onerror = ()=>rej(t.error); }); }
+async function dbAll(store){ const db = await DB; return new Promise((res,rej)=>{
+  const t = db.transaction(store); const q = t.objectStore(store).getAll();
+  q.onsuccess = ()=>res(q.result||[]); q.onerror = ()=>rej(q.error); }); }
+async function dbDel(store, key){ const db = await DB; return new Promise((res,rej)=>{
+  const t = db.transaction(store,'readwrite'); t.objectStore(store).delete(key);
+  t.oncomplete = ()=>res(); t.onerror = ()=>rej(t.error); }); }
+
+/* ---------- state ---------- */
+let finds = [], walks = [], walk = null;
+let pos = null, watchId = null, wakeLock = null, map = null, layer = null, trackLine = null;
+let pending = null;              // {full, thumb, url, lat, lng, acc}
+let chosenKind = null;
+const urls = new Map();          // findId -> objectURL for the thumb
+
+const $ = s => document.querySelector(s);
+const el = (t, c, h) => { const e = document.createElement(t); if(c) e.className=c; if(h!=null) e.innerHTML=h; return e; };
+
+/* ---------- geo helpers ---------- */
+const R = 6371000;
+function haversine(a, b){
+  const p = Math.PI/180, dla=(b.lat-a.lat)*p, dlo=(b.lng-a.lng)*p;
+  const x = Math.sin(dla/2)**2 + Math.cos(a.lat*p)*Math.cos(b.lat*p)*Math.sin(dlo/2)**2;
+  return 2*R*Math.asin(Math.sqrt(x));
+}
+// ~100m grid. Good enough to say "you've never logged this block before".
+function cellOf(lat, lng){ return Math.round(lat/0.0009) + ':' + Math.round(lng/0.0012); }
+const miles = m => m/1609.344;
+
+/* ---------- scoring ---------- */
+function isNight(d){ const h = d.getHours(); return h >= 20 || h < 6; }
+function scoreFind(kind, writer, lat, lng, when){
+  let pts = KINDS[kind].p; const why = [];
+  if (lat != null) {
+    const c = cellOf(lat,lng);
+    if (!finds.some(f => f.cell === c)) { pts += 20; why.push('Fresh block +20'); }
+  }
+  if (writer) {
+    const w = writer.trim().toUpperCase();
+    const seen = finds.filter(f => f.writer && f.writer.toUpperCase() === w).length;
+    if (seen) { pts += 10; why.push('Known hand +10'); }
+    else { pts += 15; why.push('New name +15'); }
+  }
+  if (isNight(when)) { pts += 5; why.push('Night shift +5'); }
+  if (walk) {
+    const n = finds.filter(f => f.walkId === walk.id).length + 1;
+    if (n % 5 === 0) { pts += 15; why.push('On a roll +15'); }
+  }
+  return {pts, why};
+}
+function lifetimePts(){
+  return finds.reduce((s,f)=>s+f.pts,0) + Math.round(walks.reduce((s,w)=>s+miles(w.dist||0),0)*10);
+}
+function rankOf(p){
+  let cur = RANKS[0], next = null;
+  for (let i=0;i<RANKS.length;i++){ if (p >= RANKS[i][0]) cur = RANKS[i]; else { next = RANKS[i]; break; } }
+  return {name:cur[1], base:cur[0], next};
+}
+
+/* ---------- image processing ---------- */
+async function loadBitmap(file){
+  try { return await createImageBitmap(file, {imageOrientation:'from-image'}); }
+  catch(e){
+    return new Promise((res,rej)=>{
+      const img = new Image(), u = URL.createObjectURL(file);
+      img.onload = ()=>{ URL.revokeObjectURL(u); res(img); };
+      img.onerror = ()=>{ URL.revokeObjectURL(u); rej(new Error('bad image')); };
+      img.src = u;
+    });
+  }
+}
+function resize(bmp, max, q){
+  const w = bmp.width, h = bmp.height, s = Math.min(1, max/Math.max(w,h));
+  const c = document.createElement('canvas');
+  c.width = Math.round(w*s); c.height = Math.round(h*s);
+  c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+  return new Promise(res => c.toBlob(b => res(b), 'image/jpeg', q));
+}
+
+/* ---------- location ---------- */
+function startWatch(){
+  if (!navigator.geolocation) { $('#gpsline').innerHTML = 'This browser has no GPS.'; return; }
+  if (watchId != null) return;
+  watchId = navigator.geolocation.watchPosition(p => {
+    const next = {lat:p.coords.latitude, lng:p.coords.longitude, acc:p.coords.accuracy, t:Date.now()};
+    // Only extend the walk path on a believable move — GPS noise otherwise
+    // inflates distance by a mile an hour while you stand still.
+    if (walk && pos && next.acc <= 35) {
+      const d = haversine(pos, next);
+      if (d >= 4 && d < 250) { walk.dist = (walk.dist||0) + d; walk.path.push([+next.lat.toFixed(5), +next.lng.toFixed(5)]); saveWalk(); }
+    }
+    pos = next; paintGps(); paintWalk();
+  }, err => {
+    $('#gpsline').className = 'gps warn';
+    $('#gpsline').innerHTML = err.code === 1
+      ? 'Location is <b>off</b> — finds still save, they just won’t land on the map.'
+      : 'No fix yet — <b>keep walking</b>, it usually lands in a few seconds.';
+  }, {enableHighAccuracy:true, maximumAge:4000, timeout:20000});
+}
+function paintGps(){
+  const g = $('#gpsline');
+  if (!pos) { g.className='gps'; g.textContent = 'Locating…'; return; }
+  const acc = Math.round(pos.acc);
+  g.className = 'gps' + (acc > 40 ? ' warn' : '');
+  g.innerHTML = `GPS <b>${acc <= 15 ? 'locked' : acc <= 40 ? 'good' : 'rough'}</b> · ±${acc} m`;
+}
+
+/* ---------- walks ---------- */
+function newWalk(){
+  const w = {id:'w'+Date.now(), start:Date.now(), end:null, dist:0, path:[]};
+  walks.push(w); walk = w; dbPut('walks', w);
+  startWatch(); requestWake();
+  return w;
+}
+function saveWalk(){ if (walk) dbPut('walks', walk); }
+function endWalk(){
+  if (!walk) return;
+  walk.end = Date.now(); dbPut('walks', walk); walk = null;
+  releaseWake(); paintWalk(); paintWalks();
+}
+async function requestWake(){
+  try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch(e){}
+}
+function releaseWake(){ try { wakeLock && wakeLock.release(); } catch(e){} wakeLock = null; }
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && walk && !wakeLock) requestWake();
+});
+
+function walkStats(w){
+  const fs = finds.filter(f => f.walkId === w.id);
+  const pts = fs.reduce((s,f)=>s+f.pts,0) + Math.round(miles(w.dist||0)*10);
+  return {n:fs.length, pts, mi:miles(w.dist||0), mins:Math.round(((w.end||Date.now())-w.start)/60000)};
+}
+const hhmm = mins => Math.floor(mins/60) + ':' + String(mins%60).padStart(2,'0');
+
+/* ---------- painting ---------- */
+function paintRank(){
+  const p = lifetimePts(), r = rankOf(p);
+  $('#rankName').textContent = r.name;
+  $('#rankPts').textContent = p.toLocaleString() + ' pts';
+  const span = r.next ? r.next[0]-r.base : 1;
+  $('#xp').style.width = (r.next ? Math.min(100,((p-r.base)/span)*100) : 100) + '%';
+}
+function paintWalk(){
+  const live = !!walk;
+  $('#wdot').className = 'dot' + (live ? ' live' : '');
+  $('#walkBtn').textContent = live ? 'End walk' : 'Start walk';
+  if (!live) {
+    $('#wlabel').textContent = 'No walk running';
+    const t = finds.filter(f => new Date(f.ts).toDateString() === new Date().toDateString());
+    $('#s-finds').textContent = t.length;
+    $('#s-pts').textContent = t.reduce((s,f)=>s+f.pts,0);
+    $('#s-mi').textContent = '0.0'; $('#s-time').textContent = '0:00';
+    return;
+  }
+  const s = walkStats(walk);
+  $('#wlabel').textContent = 'Walk in progress';
+  $('#s-finds').textContent = s.n;
+  $('#s-pts').textContent = s.pts;
+  $('#s-mi').textContent = s.mi.toFixed(1);
+  $('#s-time').textContent = hhmm(s.mins);
+}
+function thumbURL(f){
+  if (!urls.has(f.id) && f.thumb) urls.set(f.id, URL.createObjectURL(f.thumb));
+  return urls.get(f.id) || '';
+}
+function tileFor(f){
+  const t = el('button','tile');
+  t.innerHTML = `<img src="${thumbURL(f)}" alt=""><em>${KINDS[f.kind].n}</em>`;
+  t.onclick = () => openDetail(f);
+  return t;
+}
+function paintStrip(){
+  const s = $('#strip'); s.innerHTML = '';
+  const recent = finds.slice().sort((a,b)=>b.ts-a.ts).slice(0,12);
+  if (!recent.length) { s.appendChild(el('div','empty','Nothing yet. Go for a walk.')); return; }
+  recent.forEach(f => s.appendChild(tileFor(f)));
+}
+function paintBook(){
+  const byKind = {}; KEYS.forEach(k => byKind[k] = finds.filter(f=>f.kind===k).length);
+  const c = $('#counts'); c.innerHTML = '';
+  KEYS.forEach(k => {
+    const d = el('div','cnt' + (byKind[k] ? '' : ' zero'));
+    d.innerHTML = `<i>${KINDS[k].i}</i><b class="num">${byKind[k]}</b><span>${KINDS[k].n}</span>`;
+    c.appendChild(d);
+  });
+
+  const w = {}; finds.forEach(f => { if (f.writer) { const k = f.writer.toUpperCase(); w[k]=(w[k]||0)+1; } });
+  const wr = $('#writers'); wr.innerHTML = '';
+  const names = Object.entries(w).sort((a,b)=>b[1]-a[1]);
+  if (!names.length) wr.appendChild(el('div','empty','No names logged yet. Type one when you save a find and it starts a list.'));
+  names.forEach(([n,ct]) => wr.appendChild(el('span','chip', `${n} <b class="num">${ct}</b>`)));
+
+  const st = {
+    finds, byKind,
+    miles: walks.reduce((s,x)=>s+miles(x.dist||0),0),
+    night: finds.filter(f=>isNight(new Date(f.ts))).length,
+    cells: new Set(finds.filter(f=>f.cell).map(f=>f.cell)).size,
+    topWriter: names.length ? names[0][1] : 0,
+    bestWalk: walks.reduce((m,x)=>Math.max(m, finds.filter(f=>f.walkId===x.id).length), 0),
+  };
+  const b = $('#badges'); b.innerHTML = '';
+  BADGES.forEach(bd => {
+    const got = bd.t(st);
+    b.appendChild(el('div','badge'+(got?'':' locked'), `<i>${bd.i}</i><div><b>${bd.n}</b><span>${bd.d}</span></div>`));
+  });
+
+  const g = $('#grid'); g.innerHTML = '';
+  const all = finds.slice().sort((a,b)=>b.ts-a.ts);
+  if (!all.length) g.appendChild(el('div','empty','The book is empty.'));
+  all.forEach(f => g.appendChild(tileFor(f)));
+}
+function paintWalks(){
+  $('#l-finds').textContent = finds.length;
+  $('#l-walks').textContent = walks.filter(w=>w.end || w===walk).length;
+  $('#l-mi').textContent = walks.reduce((s,x)=>s+miles(x.dist||0),0).toFixed(1);
+  $('#l-cells').textContent = new Set(finds.filter(f=>f.cell).map(f=>f.cell)).size;
+
+  const list = $('#walklist'); list.innerHTML = '';
+  const ws = walks.slice().sort((a,b)=>b.start-a.start);
+  if (!ws.length) { list.appendChild(el('div','empty','No walks logged yet.')); return; }
+  ws.forEach(w => {
+    const s = walkStats(w);
+    const d = new Date(w.start);
+    const row = el('div','wrow');
+    row.innerHTML = `<div><b>${d.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'})}${w.end?'':' · live'}</b>
+      <span class="num">${s.n} finds · ${s.mi.toFixed(1)} mi · ${hhmm(s.mins)}</span></div>
+      <div class="pts num">${s.pts}</div>`;
+    list.appendChild(row);
+  });
+  navigator.storage && navigator.storage.estimate && navigator.storage.estimate().then(e => {
+    $('#usage').textContent = `Using ${(e.usage/1048576).toFixed(1)} MB of about ${(e.quota/1073741824).toFixed(1)} GB available.`;
+  });
+}
+function paintAll(){ paintRank(); paintWalk(); paintStrip(); paintBook(); paintWalks(); paintMap(); }
+
+/* ---------- map ---------- */
+function initMap(){
+  if (map || typeof L === 'undefined') return;
+  map = L.map('map', {zoomControl:false, attributionControl:true}).setView([44.9778,-93.2650], 13);
+  L.control.zoom({position:'bottomright'}).addTo(map);
+  // Plain OpenStreetMap tiles: no API key, no account, no bill. The dark look
+  // comes from a CSS filter on the tile pane (see .leaflet-tile-pane) rather
+  // than a dark tile provider — CARTO's dark tiles now require a key.
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom:19, attribution:'&copy; OpenStreetMap'
+  }).addTo(map);
+  layer = L.layerGroup().addTo(map);
+  trackLine = L.layerGroup().addTo(map);
+}
+function paintMap(){
+  if (!map) return;
+  const note = $('#mapnote');
+  layer.clearLayers(); trackLine.clearLayers();
+  const pts = finds.filter(f => f.lat != null);
+  walks.forEach(w => { if (w.path && w.path.length > 1)
+    L.polyline(w.path, {color:'#7bc47f', weight:3, opacity:.4}).addTo(trackLine); });
+  pts.forEach(f => {
+    const k = KINDS[f.kind];
+    const m = L.circleMarker([f.lat,f.lng], {
+      radius: 6 + Math.min(6, k.p/20), color:'#12130f', weight:2,
+      fillColor:k.c, fillOpacity:.95, className:'pin'
+    }).addTo(layer);
+    m.on('click', () => {
+      m.bindPopup(`<img src="${thumbURL(f)}" alt=""><b>${k.n}</b>${f.writer?' · '+f.writer:''}<br>
+        <span style="color:#9aa08c">${new Date(f.ts).toLocaleString([], {month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})} · ${f.pts} pts</span>`).openPopup();
+    });
+  });
+  if (pts.length) { note.style.display='none'; }
+  else { note.style.display='block'; note.textContent = 'No located finds yet. Once a find has GPS on it, it lands here.'; }
+  if (!map._fitOnce && pts.length) {
+    map.fitBounds(L.latLngBounds(pts.map(f=>[f.lat,f.lng])).pad(0.25));
+    map._fitOnce = true;
+  }
+}
+
+/* ---------- capture flow ---------- */
+$('#shoot').onclick = () => $('#cam').click();
+$('#cam').onchange = async e => {
+  const file = e.target.files && e.target.files[0];
+  e.target.value = '';
+  if (!file) return;
+  if (!walk) newWalk();
+  toast('Processing…');
+  try {
+    const bmp = await loadBitmap(file);
+    const [full, thumb] = await Promise.all([resize(bmp,1400,.82), resize(bmp,360,.7)]);
+    if (bmp.close) bmp.close();
+    pending = {full, thumb, url:URL.createObjectURL(thumb),
+               lat: pos ? pos.lat : null, lng: pos ? pos.lng : null, acc: pos ? pos.acc : null};
+    chosenKind = null;
+    $('#prev').src = pending.url;
+    $('#fWriter').value = ''; $('#fNote').value = '';
+    $('#shint').textContent = pending.lat == null ? 'No GPS on this one — it saves, but it won’t map.' : '';
+    paintKinds();
+    $('#saveBtn').disabled = true; $('#saveBtn').textContent = 'Pick one above';
+    $('#sheet').classList.add('on');
+  } catch(err){ toast('That photo didn’t open. Try again.'); }
+};
+function paintKinds(){
+  const k = $('#kinds'); k.innerHTML = '';
+  KEYS.forEach(key => {
+    const K = KINDS[key];
+    const b = el('button','kind'+(chosenKind===key?' on':''));
+    b.innerHTML = `<i>${K.i}</i><b>${K.n}</b><span class="num">${K.p}</span>`;
+    b.onclick = () => {
+      chosenKind = key; paintKinds();
+      const s = scoreFind(key, $('#fWriter').value.trim(), pending.lat, pending.lng, new Date());
+      $('#saveBtn').disabled = false;
+      $('#saveBtn').textContent = 'Save · ' + s.pts + ' pts';
+      $('#shint').innerHTML = s.why.length ? s.why.map(w=>'<b>'+w+'</b>').join(' · ') : K.d;
+    };
+    k.appendChild(b);
+  });
+}
+$('#fWriter').oninput = () => { if (chosenKind) {
+  const s = scoreFind(chosenKind, $('#fWriter').value.trim(), pending.lat, pending.lng, new Date());
+  $('#saveBtn').textContent = 'Save · ' + s.pts + ' pts';
+  $('#shint').innerHTML = s.why.map(w=>'<b>'+w+'</b>').join(' · ');
+}};
+$('#cancelBtn').onclick = closeSheet;
+function closeSheet(){
+  $('#sheet').classList.remove('on');
+  if (pending) URL.revokeObjectURL(pending.url);
+  pending = null; chosenKind = null;
+}
+$('#saveBtn').onclick = async () => {
+  if (!pending || !chosenKind) return;
+  const now = new Date();
+  const writer = $('#fWriter').value.trim().toUpperCase();
+  const s = scoreFind(chosenKind, writer, pending.lat, pending.lng, now);
+  const f = {
+    id: 'f' + Date.now() + Math.random().toString(36).slice(2,6),
+    ts: now.getTime(), kind: chosenKind, writer: writer || null,
+    note: $('#fNote').value.trim() || null,
+    lat: pending.lat, lng: pending.lng, acc: pending.acc,
+    cell: pending.lat != null ? cellOf(pending.lat, pending.lng) : null,
+    pts: s.pts, why: s.why, walkId: walk ? walk.id : null,
+    full: pending.full, thumb: pending.thumb,
+  };
+  finds.push(f);
+  await dbPut('finds', f);
+  closeSheet();
+  paintAll();
+  toast(`+${s.pts} · ${KINDS[chosenKind].n}${s.why.length ? ' · ' + s.why[0] : ''}`);
+};
+
+/* ---------- detail ---------- */
+let detailFind = null, detailURL = null;
+function openDetail(f){
+  detailFind = f;
+  if (detailURL) { URL.revokeObjectURL(detailURL); detailURL = null; }
+  const blob = f.full || f.thumb;
+  if (blob) { detailURL = URL.createObjectURL(blob); $('#dImg').src = detailURL; }
+  else { $('#dImg').removeAttribute('src'); }
+  const K = KINDS[f.kind];
+  $('#dTitle').textContent = K.n + (f.writer ? ' — ' + f.writer : '');
+  const bits = [new Date(f.ts).toLocaleString([], {weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}),
+                f.pts + ' pts'];
+  if (f.why && f.why.length) bits.push(f.why.join(' · '));
+  if (f.note) bits.push('“' + f.note + '”');
+  if (f.lat == null) bits.push('no location');
+  $('#dSub').textContent = bits.join(' · ');
+  $('#dMap').style.display = f.lat == null ? 'none' : '';
+  $('#detail').classList.add('on');
+}
+$('#dClose').onclick = () => { $('#detail').classList.remove('on'); };
+$('#dMap').onclick = () => {
+  const f = detailFind; $('#detail').classList.remove('on'); go('map');
+  setTimeout(() => { if (map && f.lat != null) map.setView([f.lat,f.lng], 18); }, 260);
+};
+$('#dDel').onclick = async () => {
+  const f = detailFind;
+  if (!confirm('Delete this find? It is gone for good.')) return;
+  finds = finds.filter(x => x.id !== f.id);
+  if (urls.has(f.id)) { URL.revokeObjectURL(urls.get(f.id)); urls.delete(f.id); }
+  await dbDel('finds', f.id);
+  $('#detail').classList.remove('on');
+  paintAll(); toast('Deleted');
+};
+
+/* ---------- walk button + nav ---------- */
+$('#walkBtn').onclick = () => {
+  if (walk) { const s = walkStats(walk); endWalk(); toast(`Walk done · ${s.n} finds · ${s.pts} pts`); }
+  else { newWalk(); paintWalk(); toast('Walk started'); }
+  paintRank();
+};
+function go(v){
+  document.querySelectorAll('.view').forEach(x => x.classList.toggle('on', x.id === 'v-'+v));
+  document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
+  $('#main').classList.toggle('nopad', v === 'map');
+  if (v === 'map') {
+    initMap();
+    if (typeof L === 'undefined') {
+      const n = $('#mapnote'); n.style.display = 'block';
+      n.textContent = 'The map library didn’t load — you’re probably offline. Everything else still works and your finds are safe; open this again on signal and they’ll all be here.';
+    }
+    setTimeout(() => { if (map) { map.invalidateSize(); paintMap(); } }, 60);
+  }
+  if (v === 'book') paintBook();
+  if (v === 'walks') paintWalks();
+}
+document.querySelectorAll('nav button').forEach(b => b.onclick = () => go(b.dataset.v));
+
+/* ---------- toast ---------- */
+let toastT = null;
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('on');
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 2400);
+}
+
+/* ---------- export / import ---------- */
+const blobToDataURL = b => new Promise(res => { const r = new FileReader(); r.onload = () => res(r.result); r.readAsDataURL(b); });
+const dataURLToBlob = async d => (await fetch(d)).blob();
+
+$('#expBtn').onclick = async () => {
+  toast('Packing ' + finds.length + ' finds…');
+  const out = {v:1, exported:new Date().toISOString(), walks, finds:[]};
+  for (const f of finds) {
+    const c = Object.assign({}, f);
+    c.full = f.full ? await blobToDataURL(f.full) : null;
+    c.thumb = f.thumb ? await blobToDataURL(f.thumb) : null;
+    out.finds.push(c);
+  }
+  const b = new Blob([JSON.stringify(out)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(b);
+  a.download = 'spotted-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  toast('Exported (' + (b.size/1048576).toFixed(1) + ' MB)');
+};
+$('#impBtn').onclick = () => $('#imp').click();
+$('#imp').onchange = async e => {
+  const file = e.target.files && e.target.files[0]; e.target.value = '';
+  if (!file) return;
+  try {
+    const data = JSON.parse(await file.text());
+    if (!data.finds) throw new Error('not a spotted file');
+    let added = 0;
+    for (const c of data.finds) {
+      if (finds.some(f => f.id === c.id)) continue;
+      const f = Object.assign({}, c);
+      f.full = c.full ? await dataURLToBlob(c.full) : null;
+      f.thumb = c.thumb ? await dataURLToBlob(c.thumb) : null;
+      finds.push(f); await dbPut('finds', f); added++;
+    }
+    for (const w of (data.walks||[])) if (!walks.some(x => x.id === w.id)) { walks.push(w); await dbPut('walks', w); }
+    paintAll(); toast('Imported ' + added + ' finds');
+  } catch(err){ toast('That file didn’t read as a SPOTTED export.'); }
+};
+
+/* ---------- boot ---------- */
+(async function boot(){
+  finds = await dbAll('finds');
+  walks = await dbAll('walks');
+  // An unfinished walk older than 4 hours was almost certainly abandoned.
+  const open = walks.filter(w => !w.end).sort((a,b)=>b.start-a.start)[0];
+  if (open) {
+    if (Date.now() - open.start > 4*3600*1000) { open.end = open.start; await dbPut('walks', open); }
+    else { walk = open; requestWake(); }
+  }
+  startWatch();
+  paintAll();
+  setInterval(() => { if (walk) paintWalk(); }, 15000);
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+  window.__spotted = () => ({finds, walks, walk, pos, pts:lifetimePts()});
+})();
+</script>
+</body>
+</html>
