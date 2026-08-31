@@ -7,10 +7,12 @@
  * precedence for every path that matches a file, so the site behaves exactly as
  * it did before; this only handles paths no asset claims.
  *
- * Routes /api/bpc to the BPC Momentum sync API; everything else is the site.
+ * Routes /api/bpc to the BPC Momentum sync API and /api/spot to the SPOTTED
+ * photo reader; everything else is the site.
  */
 
 import { handleBpc } from './bpc.js';
+import { handleSpot } from './spot.js';
 
 const json = (body, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -26,12 +28,17 @@ export default {
       return handleBpc(request, env);
     }
 
+    if (url.pathname === '/api/spot') {
+      return handleSpot(request, env);
+    }
+
     if (url.pathname === '/api/health') {
       return json({
         ok: true,
         worker: true,
         d1: Boolean(env.BPC_DB),
         accessConfigured: Boolean(env.ACCESS_TEAM_DOMAIN && env.ACCESS_AUD),
+        spotReader: Boolean(env.ANTHROPIC_API_KEY),
         time: new Date().toISOString(),
       });
     }

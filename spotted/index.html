@@ -53,16 +53,19 @@ main.nopad{padding:0}
 nav{position:absolute;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(4,1fr);
   background:rgba(18,19,15,.94);backdrop-filter:blur(14px);border-top:1px solid var(--line);
   padding-bottom:var(--safe-b);z-index:900}
-nav button{padding:10px 0 11px;font-size:.62rem;letter-spacing:.14em;font-weight:700;color:var(--dim);text-transform:uppercase}
+nav button{padding:10px 0 11px;font-size:.62rem;letter-spacing:.14em;font-weight:700;color:var(--dim);text-transform:uppercase;position:relative}
 nav button i{display:block;font-style:normal;font-size:1.22rem;margin-bottom:2px;filter:grayscale(1) opacity(.55)}
 nav button.on{color:var(--ink)}
 nav button.on i{filter:none}
+nav button em{position:absolute;top:4px;right:calc(50% - 22px);background:var(--hot);color:#fff;font-style:normal;
+  font-size:.56rem;font-weight:700;min-width:16px;height:16px;line-height:16px;border-radius:99px;padding:0 4px;display:none}
+nav button em.on{display:block}
 
 /* ---------- cards ---------- */
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
 .lbl{font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);font-weight:700}
 
-.walkcard{display:flex;flex-direction:column;gap:12px;margin-bottom:16px}
+.walkcard{display:flex;flex-direction:column;gap:12px;margin-bottom:14px}
 .wtop{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .dot{width:8px;height:8px;border-radius:99px;background:var(--dim);display:inline-block;margin-right:7px;vertical-align:1px}
 .dot.live{background:var(--hot);animation:pulse 1.6s infinite}
@@ -75,16 +78,17 @@ nav button.on i{filter:none}
 .btn:active{transform:scale(.96)}
 
 /* ---------- capture ---------- */
-.shoot{position:relative;width:100%;aspect-ratio:1/1;max-height:46dvh;margin:0 auto;display:block;
+.shoot{position:relative;width:100%;aspect-ratio:1/1;max-height:44dvh;margin:0 auto;
   border-radius:26px;border:2px dashed #3d4232;background:radial-gradient(circle at 50% 42%,#242820,#191b15);
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}
 .shoot:active{border-color:var(--gold);background:radial-gradient(circle at 50% 42%,#2c3126,#191b15)}
 .shoot .eye{font-size:3.4rem;line-height:1}
 .shoot b{font-size:1.5rem;letter-spacing:.24em;font-weight:700}
 .shoot span{font-size:.68rem;color:var(--dim);letter-spacing:.05em}
-.gps{margin-top:12px;text-align:center;font-size:.68rem;color:var(--dim)}
-.gps b{color:var(--green);font-weight:600}
-.gps.warn b{color:var(--gold)}
+.statusline{margin-top:11px;text-align:center;font-size:.7rem;color:var(--dim);line-height:1.6}
+.statusline b{color:var(--green);font-weight:600}
+.statusline.warn b{color:var(--gold)}
+.statusline button{color:var(--gold);text-decoration:underline;font-size:.7rem;font-weight:600}
 
 .strip{display:flex;gap:8px;overflow-x:auto;padding:2px 0 4px;margin:0 -16px;padding-left:16px;padding-right:16px}
 .strip::-webkit-scrollbar{display:none}
@@ -92,29 +96,41 @@ nav button.on i{filter:none}
 .tile img{width:100%;height:100%;object-fit:cover;display:block}
 .tile em{position:absolute;left:0;right:0;bottom:0;font-style:normal;font-size:.52rem;font-weight:700;
   letter-spacing:.06em;text-transform:uppercase;padding:3px 4px;background:linear-gradient(180deg,transparent,rgba(0,0,0,.85));text-align:center}
+.tile em.wait{color:var(--gold)}
+.tile.spin::after{content:'';position:absolute;top:6px;right:6px;width:9px;height:9px;border-radius:99px;
+  border:2px solid rgba(227,178,60,.35);border-top-color:var(--gold);animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
 
-/* ---------- sheet ---------- */
-#sheet{position:fixed;inset:0;z-index:1000;background:rgba(8,9,7,.72);backdrop-filter:blur(6px);display:none;align-items:flex-end;justify-content:center}
-#sheet.on{display:flex}
-.sheet{width:100%;max-width:640px;max-height:94dvh;overflow-y:auto;background:var(--bg2);
-  border-radius:22px 22px 0 0;border-top:1px solid var(--line);padding:16px 16px calc(20px + var(--safe-b))}
-.grab{width:38px;height:4px;border-radius:99px;background:#3d4232;margin:0 auto 14px}
-.prev{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:13px;background:#000;display:block}
-.kinds{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:14px 0 12px}
+/* ---------- review banner ---------- */
+.banner{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#2b2c1d;
+  border:1px solid #4a4622;border-radius:13px;padding:12px 14px;margin-bottom:14px}
+.banner b{display:block;font-size:.86rem}
+.banner span{display:block;font-size:.68rem;color:var(--dim);margin-top:1px}
+.banner .btn{background:var(--gold);color:#1a1706;border-color:transparent;flex:0 0 auto}
+
+/* ---------- reviewer ---------- */
+#review{position:fixed;inset:0;z-index:1050;background:var(--bg);display:none;flex-direction:column}
+#review.on{display:flex}
+.rvtop{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:calc(env(safe-area-inset-top,0px) + 10px) 16px 10px;border-bottom:1px solid var(--line)}
+.rvtop b{font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+#rvImg{flex:1;min-height:0;width:100%;object-fit:contain;background:#000}
+.rvbody{padding:12px 16px calc(14px + var(--safe-b));border-top:1px solid var(--line);background:var(--bg2)}
+.rvnote{font-size:.78rem;color:var(--dim);line-height:1.5;margin-bottom:10px;min-height:1em}
+.rvnote b{color:var(--ink)}
+.kinds{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:10px}
 .kind{border:1px solid var(--line);border-radius:12px;padding:9px 3px 8px;text-align:center;background:#22251d}
 .kind i{display:block;font-style:normal;font-size:1.24rem;margin-bottom:3px}
-.kind b{display:block;font-size:.6rem;font-weight:700;letter-spacing:.02em}
+.kind b{display:block;font-size:.6rem;font-weight:700}
 .kind span{display:block;font-size:.56rem;color:var(--dim);margin-top:1px}
 .kind.on{border-color:var(--gold);background:#2e3122;box-shadow:0 0 0 1px var(--gold) inset}
 .fld{display:block;width:100%;background:#22251d;border:1px solid var(--line);border-radius:11px;padding:11px 13px;margin-bottom:8px;font-size:.92rem}
 .fld::placeholder{color:#6e7462}
-.sheetbtns{display:flex;gap:9px;margin-top:6px}
-.big{flex:1;padding:15px;border-radius:13px;text-align:center;font-weight:700;letter-spacing:.06em;font-size:.9rem}
+.sheetbtns{display:flex;gap:9px}
+.big{flex:1;padding:14px;border-radius:13px;text-align:center;font-weight:700;letter-spacing:.05em;font-size:.86rem}
 .big.go{background:var(--green);color:#10210f}
-.big.go[disabled]{opacity:.35}
-.big.no{background:#2a2e23;border:1px solid var(--line);flex:0 0 34%}
-.hint{font-size:.68rem;color:var(--dim);text-align:center;margin:9px 0 2px;min-height:1em}
-.hint b{color:var(--gold)}
+.big.no{background:#2a2e23;border:1px solid var(--line)}
+.big.kill{background:none;border:1px solid var(--line);color:var(--hot);flex:0 0 30%}
 
 /* ---------- map ---------- */
 #map{position:absolute;inset:0}
@@ -125,7 +141,7 @@ nav button.on i{filter:none}
 .leaflet-tile-pane{filter:invert(1) hue-rotate(180deg) brightness(.74) contrast(1.08) saturate(.22)}
 .mapnote{position:absolute;left:14px;right:14px;top:14px;z-index:500;background:rgba(18,19,15,.9);
   border:1px solid var(--line);border-radius:11px;padding:11px 13px;font-size:.76rem;color:var(--dim)}
-.pin{border-radius:99px;border:2px solid #12130f;box-shadow:0 1px 5px rgba(0,0,0,.6)}
+.pin{border-radius:99px}
 .leaflet-popup-content-wrapper{background:var(--card);color:var(--ink);border-radius:12px}
 .leaflet-popup-tip{background:var(--card)}
 .leaflet-popup-content{margin:10px 12px;font-size:.8rem}
@@ -165,15 +181,15 @@ h2.sec:first-child{margin-top:2px}
 /* ---------- detail ---------- */
 #detail{position:fixed;inset:0;z-index:1100;background:rgba(8,9,7,.94);display:none;flex-direction:column}
 #detail.on{display:flex}
-#detail img{flex:1;min-height:0;width:100%;object-fit:contain}
+#dImg{flex:1;min-height:0;width:100%;object-fit:contain}
 .dmeta{padding:14px 16px calc(16px + var(--safe-b));border-top:1px solid var(--line);background:var(--bg2)}
 .dmeta h3{margin:0 0 3px;font-size:1.05rem}
 .dmeta p{margin:0 0 10px;font-size:.74rem;color:var(--dim);line-height:1.5}
-.dbtns{display:flex;gap:8px}
+.dbtns{display:flex;gap:8px;flex-wrap:wrap}
 .dtop{position:absolute;top:calc(env(safe-area-inset-top,0px) + 8px);right:12px;z-index:2}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(96px + var(--safe-b));z-index:1200;
   background:var(--green);color:#10210f;font-weight:700;font-size:.82rem;padding:11px 18px;border-radius:99px;
-  opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;box-shadow:0 6px 22px rgba(0,0,0,.5);text-align:center}
+  opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;box-shadow:0 6px 22px rgba(0,0,0,.5);text-align:center;max-width:88vw}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(-6px)}
 </style>
 </head>
@@ -206,9 +222,9 @@ h2.sec:first-child{margin-top:2px}
       <button class="shoot" id="shoot">
         <span class="eye">👁️</span>
         <b>SPOT IT</b>
-        <span>Camera opens · then pick what it is</span>
+        <span>Shoot it and keep walking</span>
       </button>
-      <div class="gps" id="gpsline">Locating…</div>
+      <div class="statusline" id="statusline">Locating…</div>
 
       <h2 class="sec">Latest finds</h2>
       <div class="strip" id="strip"><div class="empty" style="padding:14px 0">Nothing yet. Go for a walk.</div></div>
@@ -221,6 +237,7 @@ h2.sec:first-child{margin-top:2px}
 
     <!-- BOOK -->
     <section class="view" id="v-book">
+      <div id="reviewBanner"></div>
       <h2 class="sec">The count</h2>
       <div class="counts" id="counts"></div>
       <h2 class="sec">Names on the wall</h2>
@@ -244,13 +261,14 @@ h2.sec:first-child{margin-top:2px}
       <div id="walklist"></div>
       <h2 class="sec">Your data</h2>
       <div class="card" style="font-size:.76rem;color:var(--dim);line-height:1.55">
-        Everything lives in this browser only — photos included. Nothing is uploaded.
-        Export makes one file with every photo in it; keep a copy somewhere safe.
+        Photos and pins live in this browser only. Export makes one file with every photo in it —
+        keep a copy somewhere safe, because a cleared browser is a cleared collection.
         <div class="dbtns" style="margin-top:11px">
           <button class="btn" id="expBtn">Export all</button>
           <button class="btn ghost" id="impBtn">Import</button>
         </div>
         <div class="num" id="usage" style="margin-top:10px"></div>
+        <div id="readerState" style="margin-top:8px"></div>
       </div>
     </section>
   </main>
@@ -258,23 +276,26 @@ h2.sec:first-child{margin-top:2px}
   <nav>
     <button class="on" data-v="spot"><i>👁️</i>Spot</button>
     <button data-v="map"><i>🗺️</i>Map</button>
-    <button data-v="book"><i>📓</i>Book</button>
+    <button data-v="book"><i>📓</i>Book<em id="navBadge"></em></button>
     <button data-v="walks"><i>🥾</i>Walks</button>
   </nav>
 </div>
 
-<!-- capture sheet -->
-<div id="sheet">
-  <div class="sheet">
-    <div class="grab"></div>
-    <img class="prev" id="prev" alt="">
-    <div class="kinds" id="kinds"></div>
-    <input class="fld" id="fWriter" placeholder="Writer / crew name (optional)" autocomplete="off" autocapitalize="characters" spellcheck="false">
-    <input class="fld" id="fNote" placeholder="Note — where, colors, what stood out (optional)" autocomplete="off">
-    <div class="hint" id="shint"></div>
+<!-- reviewer -->
+<div id="review">
+  <div class="rvtop">
+    <b id="rvCount"></b>
+    <button class="btn" id="rvClose">Done</button>
+  </div>
+  <img id="rvImg" alt="">
+  <div class="rvbody">
+    <div class="rvnote" id="rvNote"></div>
+    <div class="kinds" id="rvKinds"></div>
+    <input class="fld" id="rvWriter" placeholder="Writer / crew (optional)" autocomplete="off" autocapitalize="characters" spellcheck="false">
     <div class="sheetbtns">
-      <button class="big no" id="cancelBtn">Toss it</button>
-      <button class="big go" id="saveBtn" disabled>Pick one above</button>
+      <button class="big kill" id="rvTrash">Delete</button>
+      <button class="big no" id="rvSkip">Skip</button>
+      <button class="big go" id="rvYes" style="display:none">Yep</button>
     </div>
   </div>
 </div>
@@ -288,6 +309,7 @@ h2.sec:first-child{margin-top:2px}
     <p id="dSub"></p>
     <div class="dbtns">
       <button class="btn" id="dMap">Show on map</button>
+      <button class="btn" id="dEdit">Change</button>
       <button class="btn ghost" id="dDel" style="color:var(--hot)">Delete</button>
     </div>
   </div>
@@ -301,9 +323,16 @@ h2.sec:first-child{margin-top:2px}
 <script>
 /* =========================================================================
    SPOTTED — a graffiti field log you play on a walk.
-   Everything is client-side. Photos and pins live in IndexedDB on this
-   device; nothing leaves the phone. See /spotted/README-ish notes in the
-   vault (output/spotted-field-log.md) for the design rationale.
+
+   The whole design rests on one rule Micah set: capture must cost nothing on a
+   walk. Shoot it and keep moving. Nothing is typed, nothing is chosen, no sheet
+   opens. Identifying the photo happens afterwards — the reader on the site does
+   it automatically when there is signal, and if it can't, the Book holds a
+   one-tap-per-photo queue he can clear in a minute on the couch.
+
+   Photos and pins live in IndexedDB on this device. The only thing that ever
+   leaves the phone is a small copy of a photo sent to /api/spot to be read, and
+   only while that reader is switched on.
    ========================================================================= */
 
 /* ---------- the taxonomy. Points track effort + rarity, roughly. ---------- */
@@ -325,15 +354,20 @@ const RANKS = [
 ];
 
 const BADGES = [
-  {id:'first', i:'🥇', n:'First Blood',  d:'Log your first find',            t:f=>f.finds.length>=1},
-  {id:'range', i:'🌈', n:'Full Range',   d:'Find all eight kinds',           t:f=>KEYS.every(k=>f.byKind[k]>0)},
-  {id:'ton',   i:'💯', n:'Century',      d:'100 finds logged',               t:f=>f.finds.length>=100},
-  {id:'miles', i:'🥾', n:'Ten Miles',    d:'Walk 10 miles logging',          t:f=>f.miles>=10},
-  {id:'night', i:'🌙', n:'Night Shift',  d:'10 finds after dark',            t:f=>f.night>=10},
-  {id:'cells', i:'🧭', n:'Cartographer', d:'25 different blocks',            t:f=>f.cells>=25},
-  {id:'hand',  i:'👑', n:'Known Hand',   d:'Same writer five times',         t:f=>f.topWriter>=5},
-  {id:'roll',  i:'🔥', n:'On a Roll',    d:'10 finds in one walk',           t:f=>f.bestWalk>=10},
+  {id:'first', i:'🥇', n:'First Blood',  d:'Log your first find',    t:f=>f.scored>=1},
+  {id:'range', i:'🌈', n:'Full Range',   d:'Find all eight kinds',   t:f=>KEYS.every(k=>f.byKind[k]>0)},
+  {id:'ton',   i:'💯', n:'Century',      d:'100 finds logged',       t:f=>f.scored>=100},
+  {id:'miles', i:'🥾', n:'Ten Miles',    d:'Walk 10 miles logging',  t:f=>f.miles>=10},
+  {id:'night', i:'🌙', n:'Night Shift',  d:'10 finds after dark',    t:f=>f.night>=10},
+  {id:'cells', i:'🧭', n:'Cartographer', d:'25 different blocks',    t:f=>f.cells>=25},
+  {id:'hand',  i:'👑', n:'Known Hand',   d:'Same writer five times', t:f=>f.topWriter>=5},
+  {id:'roll',  i:'🔥', n:'On a Roll',    d:'10 finds in one walk',   t:f=>f.bestWalk>=10},
 ];
+
+const READ_ENDPOINT = '/api/spot';
+const READ_TOKEN = 'spotted-field-log-v1';
+const MAX_TRIES = 3;              // then it falls to the manual queue
+const CONFIDENT = 0.6;            // below this, ask him to confirm
 
 /* ---------- tiny IndexedDB layer ---------- */
 const DB = new Promise((res, rej) => {
@@ -363,8 +397,7 @@ async function dbDel(store, key){ const db = await DB; return new Promise((res,r
 /* ---------- state ---------- */
 let finds = [], walks = [], walk = null;
 let pos = null, watchId = null, wakeLock = null, map = null, layer = null, trackLine = null;
-let pending = null;              // {full, thumb, url, lat, lng, acc}
-let chosenKind = null;
+let readerOff = false, reading = false;
 const urls = new Map();          // findId -> objectURL for the thumb
 
 const $ = s => document.querySelector(s);
@@ -381,29 +414,32 @@ function haversine(a, b){
 function cellOf(lat, lng){ return Math.round(lat/0.0009) + ':' + Math.round(lng/0.0012); }
 const miles = m => m/1609.344;
 
-/* ---------- scoring ---------- */
+/* ---------- scoring ----------
+   Judged against the finds that came BEFORE this one in time, never against
+   whatever happens to be identified first. Order of identification must not
+   change what a walk was worth. */
 function isNight(d){ const h = d.getHours(); return h >= 20 || h < 6; }
-function scoreFind(kind, writer, lat, lng, when){
+function scoreFind(f, kind, writer){
   let pts = KINDS[kind].p; const why = [];
-  if (lat != null) {
-    const c = cellOf(lat,lng);
-    if (!finds.some(f => f.cell === c)) { pts += 20; why.push('Fresh block +20'); }
-  }
+  const earlier = finds.filter(x => x.id !== f.id && x.ts < f.ts);
+
+  if (f.cell && !earlier.some(x => x.cell === f.cell)) { pts += 20; why.push('Fresh block +20'); }
   if (writer) {
     const w = writer.trim().toUpperCase();
-    const seen = finds.filter(f => f.writer && f.writer.toUpperCase() === w).length;
-    if (seen) { pts += 10; why.push('Known hand +10'); }
+    if (earlier.some(x => x.writer && x.writer.toUpperCase() === w)) { pts += 10; why.push('Known hand +10'); }
     else { pts += 15; why.push('New name +15'); }
   }
-  if (isNight(when)) { pts += 5; why.push('Night shift +5'); }
-  if (walk) {
-    const n = finds.filter(f => f.walkId === walk.id).length + 1;
+  if (isNight(new Date(f.ts))) { pts += 5; why.push('Night shift +5'); }
+  if (f.walkId) {
+    const n = earlier.filter(x => x.walkId === f.walkId).length + 1;
     if (n % 5 === 0) { pts += 15; why.push('On a roll +15'); }
   }
   return {pts, why};
 }
+const scored = () => finds.filter(f => f.kind);
+const unread = () => finds.filter(f => !f.kind || f.check);
 function lifetimePts(){
-  return finds.reduce((s,f)=>s+f.pts,0) + Math.round(walks.reduce((s,w)=>s+miles(w.dist||0),0)*10);
+  return finds.reduce((s,f)=>s+(f.pts||0),0) + Math.round(walks.reduce((s,w)=>s+miles(w.dist||0),0)*10);
 }
 function rankOf(p){
   let cur = RANKS[0], next = null;
@@ -423,17 +459,38 @@ async function loadBitmap(file){
     });
   }
 }
-function resize(bmp, max, q){
-  const w = bmp.width, h = bmp.height, s = Math.min(1, max/Math.max(w,h));
+function scaleTo(src, max){
+  const w = src.width, h = src.height, s = Math.min(1, max/Math.max(w,h));
   const c = document.createElement('canvas');
   c.width = Math.round(w*s); c.height = Math.round(h*s);
-  c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
-  return new Promise(res => c.toBlob(b => res(b), 'image/jpeg', q));
+  c.getContext('2d').drawImage(src, 0, 0, c.width, c.height);
+  return c;
 }
+const toBlob = (c, q) => new Promise(res => c.toBlob(b => res(b), 'image/jpeg', q));
+
+/* Three sizes off ONE expensive draw. A phone photo is ~12 megapixels; drawing
+   that bitmap once per output size cost about a second each on a laptop, which
+   is a second he is standing still on a sidewalk. Scaling down in a cascade —
+   12MP to 1400, then 1400 to 800, then 800 to 360 — pays the big draw once and
+   makes the other two nearly free. */
+async function derive(file){
+  const bmp = await loadBitmap(file);
+  const c1 = scaleTo(bmp, 1400);
+  if (bmp.close) bmp.close();
+  const c2 = scaleTo(c1, 800);
+  const c3 = scaleTo(c2, 360);
+  const [full, read, thumb] = await Promise.all([toBlob(c1,.82), toBlob(c2,.8), toBlob(c3,.7)]);
+  return {full, read, thumb};
+}
+const blobToB64 = b => new Promise(res => {
+  const r = new FileReader();
+  r.onload = () => res(String(r.result).split(',')[1] || '');
+  r.readAsDataURL(b);
+});
 
 /* ---------- location ---------- */
 function startWatch(){
-  if (!navigator.geolocation) { $('#gpsline').innerHTML = 'This browser has no GPS.'; return; }
+  if (!navigator.geolocation) { paintStatus('This browser has no GPS.'); return; }
   if (watchId != null) return;
   watchId = navigator.geolocation.watchPosition(p => {
     const next = {lat:p.coords.latitude, lng:p.coords.longitude, acc:p.coords.accuracy, t:Date.now()};
@@ -443,20 +500,13 @@ function startWatch(){
       const d = haversine(pos, next);
       if (d >= 4 && d < 250) { walk.dist = (walk.dist||0) + d; walk.path.push([+next.lat.toFixed(5), +next.lng.toFixed(5)]); saveWalk(); }
     }
-    pos = next; paintGps(); paintWalk();
+    pos = next; paintStatus(); paintWalk();
   }, err => {
-    $('#gpsline').className = 'gps warn';
-    $('#gpsline').innerHTML = err.code === 1
+    pos = null;
+    paintStatus(err.code === 1
       ? 'Location is <b>off</b> — finds still save, they just won’t land on the map.'
-      : 'No fix yet — <b>keep walking</b>, it usually lands in a few seconds.';
+      : 'No fix yet — <b>keep walking</b>, it usually lands in a few seconds.', true);
   }, {enableHighAccuracy:true, maximumAge:4000, timeout:20000});
-}
-function paintGps(){
-  const g = $('#gpsline');
-  if (!pos) { g.className='gps'; g.textContent = 'Locating…'; return; }
-  const acc = Math.round(pos.acc);
-  g.className = 'gps' + (acc > 40 ? ' warn' : '');
-  g.innerHTML = `GPS <b>${acc <= 15 ? 'locked' : acc <= 40 ? 'good' : 'rough'}</b> · ±${acc} m`;
 }
 
 /* ---------- walks ---------- */
@@ -477,15 +527,72 @@ async function requestWake(){
 }
 function releaseWake(){ try { wakeLock && wakeLock.release(); } catch(e){} wakeLock = null; }
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible' && walk && !wakeLock) requestWake();
+  if (document.visibilityState === 'visible') {
+    if (walk && !wakeLock) requestWake();
+    drainQueue();
+  }
 });
+window.addEventListener('online', () => { readerOff = false; drainQueue(); });
 
 function walkStats(w){
   const fs = finds.filter(f => f.walkId === w.id);
-  const pts = fs.reduce((s,f)=>s+f.pts,0) + Math.round(miles(w.dist||0)*10);
+  const pts = fs.reduce((s,f)=>s+(f.pts||0),0) + Math.round(miles(w.dist||0)*10);
   return {n:fs.length, pts, mi:miles(w.dist||0), mins:Math.round(((w.end||Date.now())-w.start)/60000)};
 }
 const hhmm = mins => Math.floor(mins/60) + ':' + String(mins%60).padStart(2,'0');
+
+/* =========================================================================
+   The reader. Sends a small copy of each unidentified photo to /api/spot and
+   writes back the kind, a note and any legible writer name. It is allowed to
+   fail — offline, no API key, a decline — and when it does the photo simply
+   waits in the manual queue instead. Nothing here ever blocks the camera.
+   ========================================================================= */
+async function drainQueue(){
+  if (reading || readerOff || !navigator.onLine) { paintStatus(); return; }
+  const queue = finds.filter(f => !f.kind && f.read && (f.tries||0) < MAX_TRIES);
+  if (!queue.length) return;
+
+  reading = true; paintStatus(); paintStrip();
+  for (const f of queue) {
+    if (readerOff || !navigator.onLine) break;
+    let out = null;
+    try {
+      const res = await fetch(READ_ENDPOINT, {
+        method:'POST',
+        headers:{'content-type':'application/json','x-spotted-token':READ_TOKEN},
+        body: JSON.stringify({b64: await blobToB64(f.read), media_type:'image/jpeg'}),
+      });
+      if (res.status === 503 || res.status === 401) { readerOff = true; break; }   // reading is switched off
+      if (res.status === 429) { readerOff = true; toast('Hit today’s reading limit — tap to identify.'); break; }
+      if (!res.ok) throw new Error('read failed ' + res.status);
+      out = await res.json();
+    } catch (e) {
+      f.tries = (f.tries||0) + 1;
+      await dbPut('finds', f);
+      continue;
+    }
+    await applyRead(f, out);
+  }
+  reading = false;
+  paintAll();
+}
+
+async function applyRead(f, out){
+  const kind = KEYS.includes(out.kind) ? out.kind : null;
+  f.note = out.note || null;
+  f.writer = (out.writer || '').trim().toUpperCase() || null;
+  f.conf = out.confidence;
+  f.read = null;                                  // the copy sent for reading is done with
+  if (!kind) {
+    // "none" — the model says this isn't graffiti. Don't score it, just ask.
+    f.kind = null; f.pts = 0; f.check = true; f.tries = MAX_TRIES;
+  } else {
+    const s = scoreFind(f, kind, f.writer);
+    f.kind = kind; f.pts = s.pts; f.why = s.why; f.auto = true;
+    f.check = typeof out.confidence === 'number' && out.confidence < CONFIDENT;
+  }
+  await dbPut('finds', f);
+}
 
 /* ---------- painting ---------- */
 function paintRank(){
@@ -495,6 +602,19 @@ function paintRank(){
   const span = r.next ? r.next[0]-r.base : 1;
   $('#xp').style.width = (r.next ? Math.min(100,((p-r.base)/span)*100) : 100) + '%';
 }
+function paintStatus(msg, warn){
+  const s = $('#statusline');
+  if (msg) { s.className = 'statusline' + (warn ? ' warn' : ''); s.innerHTML = msg; s._locked = true; return; }
+  const waiting = finds.filter(f => !f.kind).length;
+  const bits = [];
+  if (!pos) bits.push('Locating…');
+  else bits.push(`GPS <b>${pos.acc<=15?'locked':pos.acc<=40?'good':'rough'}</b> · ±${Math.round(pos.acc)} m`);
+  if (reading) bits.push('Reading your photos…');
+  else if (waiting && readerOff) bits.push(`<b>${waiting}</b> waiting for you to identify`);
+  else if (waiting) bits.push(`<b>${waiting}</b> waiting to be read`);
+  s.className = 'statusline';
+  s.innerHTML = bits.join(' · ');
+}
 function paintWalk(){
   const live = !!walk;
   $('#wdot').className = 'dot' + (live ? ' live' : '');
@@ -503,7 +623,7 @@ function paintWalk(){
     $('#wlabel').textContent = 'No walk running';
     const t = finds.filter(f => new Date(f.ts).toDateString() === new Date().toDateString());
     $('#s-finds').textContent = t.length;
-    $('#s-pts').textContent = t.reduce((s,f)=>s+f.pts,0);
+    $('#s-pts').textContent = t.reduce((s,f)=>s+(f.pts||0),0);
     $('#s-mi').textContent = '0.0'; $('#s-time').textContent = '0:00';
     return;
   }
@@ -519,8 +639,9 @@ function thumbURL(f){
   return urls.get(f.id) || '';
 }
 function tileFor(f){
-  const t = el('button','tile');
-  t.innerHTML = `<img src="${thumbURL(f)}" alt=""><em>${KINDS[f.kind].n}</em>`;
+  const t = el('button','tile' + (!f.kind && reading ? ' spin' : ''));
+  const label = f.kind ? KINDS[f.kind].n : '· · ·';
+  t.innerHTML = `<img src="${thumbURL(f)}" alt=""><em class="${f.kind?'':'wait'}">${label}</em>`;
   t.onclick = () => openDetail(f);
   return t;
 }
@@ -530,7 +651,24 @@ function paintStrip(){
   if (!recent.length) { s.appendChild(el('div','empty','Nothing yet. Go for a walk.')); return; }
   recent.forEach(f => s.appendChild(tileFor(f)));
 }
+function paintBanner(){
+  const q = unread();
+  const b = $('#reviewBanner'); b.innerHTML = '';
+  const badge = $('#navBadge');
+  badge.textContent = q.length; badge.className = q.length ? 'on' : '';
+  if (!q.length) return;
+  const noKind = q.filter(f=>!f.kind).length;
+  const row = el('div','banner');
+  row.innerHTML = `<div><b>${q.length} to identify</b><span>${
+    noKind === q.length ? 'One tap each — takes a minute' : 'A few the reader wasn’t sure about'
+  }</span></div>`;
+  const go = el('button','btn','Start');
+  go.onclick = () => openReview();
+  row.appendChild(go);
+  b.appendChild(row);
+}
 function paintBook(){
+  paintBanner();
   const byKind = {}; KEYS.forEach(k => byKind[k] = finds.filter(f=>f.kind===k).length);
   const c = $('#counts'); c.innerHTML = '';
   KEYS.forEach(k => {
@@ -542,13 +680,13 @@ function paintBook(){
   const w = {}; finds.forEach(f => { if (f.writer) { const k = f.writer.toUpperCase(); w[k]=(w[k]||0)+1; } });
   const wr = $('#writers'); wr.innerHTML = '';
   const names = Object.entries(w).sort((a,b)=>b[1]-a[1]);
-  if (!names.length) wr.appendChild(el('div','empty','No names logged yet. Type one when you save a find and it starts a list.'));
+  if (!names.length) wr.appendChild(el('div','empty','No names yet. They appear as the reader picks them off the wall.'));
   names.forEach(([n,ct]) => wr.appendChild(el('span','chip', `${n} <b class="num">${ct}</b>`)));
 
   const st = {
-    finds, byKind,
+    scored: scored().length, byKind,
     miles: walks.reduce((s,x)=>s+miles(x.dist||0),0),
-    night: finds.filter(f=>isNight(new Date(f.ts))).length,
+    night: scored().filter(f=>isNight(new Date(f.ts))).length,
     cells: new Set(finds.filter(f=>f.cell).map(f=>f.cell)).size,
     topWriter: names.length ? names[0][1] : 0,
     bestWalk: walks.reduce((m,x)=>Math.max(m, finds.filter(f=>f.walkId===x.id).length), 0),
@@ -572,7 +710,7 @@ function paintWalks(){
 
   const list = $('#walklist'); list.innerHTML = '';
   const ws = walks.slice().sort((a,b)=>b.start-a.start);
-  if (!ws.length) { list.appendChild(el('div','empty','No walks logged yet.')); return; }
+  if (!ws.length) { list.appendChild(el('div','empty','No walks logged yet.')); }
   ws.forEach(w => {
     const s = walkStats(w);
     const d = new Date(w.start);
@@ -585,8 +723,11 @@ function paintWalks(){
   navigator.storage && navigator.storage.estimate && navigator.storage.estimate().then(e => {
     $('#usage').textContent = `Using ${(e.usage/1048576).toFixed(1)} MB of about ${(e.quota/1073741824).toFixed(1)} GB available.`;
   });
+  $('#readerState').innerHTML = readerOff
+    ? 'Photo reading is <b style="color:var(--gold)">off</b> — you identify finds yourself in the Book.'
+    : 'Photo reading is <b style="color:var(--green)">on</b>. A small copy of each photo is sent to be read; the original never leaves this device.';
 }
-function paintAll(){ paintRank(); paintWalk(); paintStrip(); paintBook(); paintWalks(); paintMap(); }
+function paintAll(){ paintRank(); paintStatus(); paintWalk(); paintStrip(); paintBook(); paintWalks(); paintMap(); }
 
 /* ---------- map ---------- */
 function initMap(){
@@ -594,8 +735,7 @@ function initMap(){
   map = L.map('map', {zoomControl:false, attributionControl:true}).setView([44.9778,-93.2650], 13);
   L.control.zoom({position:'bottomright'}).addTo(map);
   // Plain OpenStreetMap tiles: no API key, no account, no bill. The dark look
-  // comes from a CSS filter on the tile pane (see .leaflet-tile-pane) rather
-  // than a dark tile provider — CARTO's dark tiles now require a key.
+  // comes from a CSS filter on the tile pane — CARTO's dark tiles now need a key.
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom:19, attribution:'&copy; OpenStreetMap'
   }).addTo(map);
@@ -610,14 +750,14 @@ function paintMap(){
   walks.forEach(w => { if (w.path && w.path.length > 1)
     L.polyline(w.path, {color:'#7bc47f', weight:3, opacity:.4}).addTo(trackLine); });
   pts.forEach(f => {
-    const k = KINDS[f.kind];
+    const k = f.kind ? KINDS[f.kind] : null;
     const m = L.circleMarker([f.lat,f.lng], {
-      radius: 6 + Math.min(6, k.p/20), color:'#12130f', weight:2,
-      fillColor:k.c, fillOpacity:.95, className:'pin'
+      radius: k ? 6 + Math.min(6, k.p/20) : 5, color:'#12130f', weight:2,
+      fillColor: k ? k.c : '#6e7462', fillOpacity: k ? .95 : .6, className:'pin'
     }).addTo(layer);
     m.on('click', () => {
-      m.bindPopup(`<img src="${thumbURL(f)}" alt=""><b>${k.n}</b>${f.writer?' · '+f.writer:''}<br>
-        <span style="color:#9aa08c">${new Date(f.ts).toLocaleString([], {month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})} · ${f.pts} pts</span>`).openPopup();
+      m.bindPopup(`<img src="${thumbURL(f)}" alt=""><b>${k ? k.n : 'Not identified yet'}</b>${f.writer?' · '+f.writer:''}<br>
+        <span style="color:#9aa08c">${new Date(f.ts).toLocaleString([], {month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}${k?' · '+f.pts+' pts':''}</span>`).openPopup();
     });
   });
   if (pts.length) { note.style.display='none'; }
@@ -628,76 +768,120 @@ function paintMap(){
   }
 }
 
-/* ---------- capture flow ---------- */
+/* =========================================================================
+   Capture. Two taps: SPOT IT, then shoot. That is the whole interaction.
+   ========================================================================= */
 $('#shoot').onclick = () => $('#cam').click();
-$('#cam').onchange = async e => {
+$('#cam').onchange = e => {
   const file = e.target.files && e.target.files[0];
   e.target.value = '';
   if (!file) return;
   if (!walk) newWalk();
-  toast('Processing…');
-  try {
-    const bmp = await loadBitmap(file);
-    const [full, thumb] = await Promise.all([resize(bmp,1400,.82), resize(bmp,360,.7)]);
-    if (bmp.close) bmp.close();
-    pending = {full, thumb, url:URL.createObjectURL(thumb),
-               lat: pos ? pos.lat : null, lng: pos ? pos.lng : null, acc: pos ? pos.acc : null};
-    chosenKind = null;
-    $('#prev').src = pending.url;
-    $('#fWriter').value = ''; $('#fNote').value = '';
-    $('#shint').textContent = pending.lat == null ? 'No GPS on this one — it saves, but it won’t map.' : '';
-    paintKinds();
-    $('#saveBtn').disabled = true; $('#saveBtn').textContent = 'Pick one above';
-    $('#sheet').classList.add('on');
-  } catch(err){ toast('That photo didn’t open. Try again.'); }
+  // Stamp the moment and the place NOW. Decoding a 12-megapixel photo takes a
+  // second or two, and he is still walking during it — reading `pos` afterwards
+  // would pin the find to wherever he had got to, not to the wall.
+  const at = {ts: Date.now(), pos: pos ? {lat:pos.lat, lng:pos.lng, acc:pos.acc} : null,
+              walkId: walk ? walk.id : null};
+  toast('Got it');
+  // Deliberately not awaited: the confirmation is already on screen and the
+  // camera is free again. The find appears in the strip when it is ready.
+  saveCapture(file, at);
 };
-function paintKinds(){
-  const k = $('#kinds'); k.innerHTML = '';
+
+async function saveCapture(file, at){
+  try {
+    // The keeper, the grid thumb, and a small copy for the reader (dropped the
+    // moment it has been read).
+    const {full, thumb, read} = await derive(file);
+    const f = {
+      id: 'f' + at.ts + Math.random().toString(36).slice(2,6),
+      ts: at.ts, kind: null, writer: null, note: null,
+      lat: at.pos ? at.pos.lat : null, lng: at.pos ? at.pos.lng : null, acc: at.pos ? at.pos.acc : null,
+      cell: at.pos ? cellOf(at.pos.lat, at.pos.lng) : null,
+      pts: 0, why: [], walkId: at.walkId, tries: 0,
+      full, thumb, read,
+    };
+    finds.push(f);
+    await dbPut('finds', f);
+    const n = at.walkId ? finds.filter(x=>x.walkId===at.walkId).length : finds.length;
+    toast(`Got it · ${n} this walk`);
+    paintRank(); paintWalk(); paintStrip(); paintBanner(); paintStatus();
+    drainQueue();
+  } catch(err){ toast('That photo didn’t save. Try again.'); }
+}
+
+/* =========================================================================
+   The reviewer. Walks the unidentified pile one photo at a time; a tap on a
+   kind saves it and moves straight to the next. Works with no signal.
+   ========================================================================= */
+let rvQueue = [], rvAt = 0;
+function openReview(list){
+  rvQueue = (list || unread()).slice().sort((a,b)=>a.ts-b.ts);
+  rvAt = 0;
+  if (!rvQueue.length) { toast('Nothing to identify'); return; }
+  $('#review').classList.add('on');
+  paintReview();
+}
+let rvURL = null;
+function paintReview(){
+  if (rvAt >= rvQueue.length) { closeReview(); return; }
+  const f = rvQueue[rvAt];
+  $('#rvCount').textContent = `${rvAt+1} of ${rvQueue.length}`;
+  if (rvURL) URL.revokeObjectURL(rvURL);
+  const blob = f.full || f.thumb;
+  if (blob) { rvURL = URL.createObjectURL(blob); $('#rvImg').src = rvURL; }
+  else $('#rvImg').removeAttribute('src');
+
+  $('#rvWriter').value = f.writer || '';
+  const note = $('#rvNote');
+  if (f.note && f.kind) note.innerHTML = `Read as <b>${KINDS[f.kind].n}</b> — ${f.note}`;
+  else if (f.note) note.innerHTML = `<b>Doesn’t look like graffiti.</b> ${f.note}`;
+  else note.textContent = 'What is it?';
+  $('#rvYes').style.display = f.kind ? '' : 'none';
+
+  const k = $('#rvKinds'); k.innerHTML = '';
   KEYS.forEach(key => {
     const K = KINDS[key];
-    const b = el('button','kind'+(chosenKind===key?' on':''));
+    const b = el('button','kind' + (f.kind===key ? ' on' : ''));
     b.innerHTML = `<i>${K.i}</i><b>${K.n}</b><span class="num">${K.p}</span>`;
-    b.onclick = () => {
-      chosenKind = key; paintKinds();
-      const s = scoreFind(key, $('#fWriter').value.trim(), pending.lat, pending.lng, new Date());
-      $('#saveBtn').disabled = false;
-      $('#saveBtn').textContent = 'Save · ' + s.pts + ' pts';
-      $('#shint').innerHTML = s.why.length ? s.why.map(w=>'<b>'+w+'</b>').join(' · ') : K.d;
-    };
+    b.onclick = () => assign(f, key);
     k.appendChild(b);
   });
 }
-$('#fWriter').oninput = () => { if (chosenKind) {
-  const s = scoreFind(chosenKind, $('#fWriter').value.trim(), pending.lat, pending.lng, new Date());
-  $('#saveBtn').textContent = 'Save · ' + s.pts + ' pts';
-  $('#shint').innerHTML = s.why.map(w=>'<b>'+w+'</b>').join(' · ');
-}};
-$('#cancelBtn').onclick = closeSheet;
-function closeSheet(){
-  $('#sheet').classList.remove('on');
-  if (pending) URL.revokeObjectURL(pending.url);
-  pending = null; chosenKind = null;
-}
-$('#saveBtn').onclick = async () => {
-  if (!pending || !chosenKind) return;
-  const now = new Date();
-  const writer = $('#fWriter').value.trim().toUpperCase();
-  const s = scoreFind(chosenKind, writer, pending.lat, pending.lng, now);
-  const f = {
-    id: 'f' + Date.now() + Math.random().toString(36).slice(2,6),
-    ts: now.getTime(), kind: chosenKind, writer: writer || null,
-    note: $('#fNote').value.trim() || null,
-    lat: pending.lat, lng: pending.lng, acc: pending.acc,
-    cell: pending.lat != null ? cellOf(pending.lat, pending.lng) : null,
-    pts: s.pts, why: s.why, walkId: walk ? walk.id : null,
-    full: pending.full, thumb: pending.thumb,
-  };
-  finds.push(f);
+async function assign(f, kind){
+  const writer = $('#rvWriter').value.trim().toUpperCase() || null;
+  f.writer = writer;
+  const s = scoreFind(f, kind, writer);
+  f.kind = kind; f.pts = s.pts; f.why = s.why; f.check = false; f.auto = false; f.read = null;
   await dbPut('finds', f);
-  closeSheet();
-  paintAll();
-  toast(`+${s.pts} · ${KINDS[chosenKind].n}${s.why.length ? ' · ' + s.why[0] : ''}`);
+  toast(`+${s.pts} · ${KINDS[kind].n}${s.why.length ? ' · ' + s.why[0] : ''}`);
+  rvAt++; paintReview(); paintRank();
+}
+$('#rvSkip').onclick = () => { rvAt++; paintReview(); };
+$('#rvYes').onclick  = async () => {
+  const f = rvQueue[rvAt];
+  const writer = $('#rvWriter').value.trim().toUpperCase() || null;
+  if (writer !== f.writer) { f.writer = writer; const s = scoreFind(f, f.kind, writer); f.pts = s.pts; f.why = s.why; }
+  f.check = false; await dbPut('finds', f);
+  rvAt++; paintReview(); paintRank();
 };
+$('#rvTrash').onclick = async () => {
+  const f = rvQueue[rvAt];
+  await removeFind(f);
+  rvQueue.splice(rvAt,1); paintReview();
+};
+$('#rvClose').onclick = closeReview;
+function closeReview(){
+  $('#review').classList.remove('on');
+  if (rvURL) { URL.revokeObjectURL(rvURL); rvURL = null; }
+  paintAll();
+}
+
+async function removeFind(f){
+  finds = finds.filter(x => x.id !== f.id);
+  if (urls.has(f.id)) { URL.revokeObjectURL(urls.get(f.id)); urls.delete(f.id); }
+  await dbDel('finds', f.id);
+}
 
 /* ---------- detail ---------- */
 let detailFind = null, detailURL = null;
@@ -706,19 +890,22 @@ function openDetail(f){
   if (detailURL) { URL.revokeObjectURL(detailURL); detailURL = null; }
   const blob = f.full || f.thumb;
   if (blob) { detailURL = URL.createObjectURL(blob); $('#dImg').src = detailURL; }
-  else { $('#dImg').removeAttribute('src'); }
-  const K = KINDS[f.kind];
-  $('#dTitle').textContent = K.n + (f.writer ? ' — ' + f.writer : '');
-  const bits = [new Date(f.ts).toLocaleString([], {weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}),
-                f.pts + ' pts'];
+  else $('#dImg').removeAttribute('src');
+
+  const K = f.kind ? KINDS[f.kind] : null;
+  $('#dTitle').textContent = (K ? K.n : 'Not identified yet') + (f.writer ? ' — ' + f.writer : '');
+  const bits = [new Date(f.ts).toLocaleString([], {weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})];
+  if (K) bits.push(f.pts + ' pts');
   if (f.why && f.why.length) bits.push(f.why.join(' · '));
   if (f.note) bits.push('“' + f.note + '”');
+  if (f.auto) bits.push('read automatically' + (f.check ? ', worth a look' : ''));
   if (f.lat == null) bits.push('no location');
   $('#dSub').textContent = bits.join(' · ');
   $('#dMap').style.display = f.lat == null ? 'none' : '';
   $('#detail').classList.add('on');
 }
 $('#dClose').onclick = () => { $('#detail').classList.remove('on'); };
+$('#dEdit').onclick = () => { const f = detailFind; $('#detail').classList.remove('on'); openReview([f]); };
 $('#dMap').onclick = () => {
   const f = detailFind; $('#detail').classList.remove('on'); go('map');
   setTimeout(() => { if (map && f.lat != null) map.setView([f.lat,f.lng], 18); }, 260);
@@ -726,9 +913,7 @@ $('#dMap').onclick = () => {
 $('#dDel').onclick = async () => {
   const f = detailFind;
   if (!confirm('Delete this find? It is gone for good.')) return;
-  finds = finds.filter(x => x.id !== f.id);
-  if (urls.has(f.id)) { URL.revokeObjectURL(urls.get(f.id)); urls.delete(f.id); }
-  await dbDel('finds', f.id);
+  await removeFind(f);
   $('#detail').classList.remove('on');
   paintAll(); toast('Deleted');
 };
@@ -747,11 +932,11 @@ function go(v){
     initMap();
     if (typeof L === 'undefined') {
       const n = $('#mapnote'); n.style.display = 'block';
-      n.textContent = 'The map library didn’t load — you’re probably offline. Everything else still works and your finds are safe; open this again on signal and they’ll all be here.';
+      n.textContent = 'The map library didn’t load — you’re probably offline. Everything else still works and your finds are safe.';
     }
     setTimeout(() => { if (map) { map.invalidateSize(); paintMap(); } }, 60);
   }
-  if (v === 'book') paintBook();
+  if (v === 'book') { paintBook(); drainQueue(); }
   if (v === 'walks') paintWalks();
 }
 document.querySelectorAll('nav button').forEach(b => b.onclick = () => go(b.dataset.v));
@@ -774,6 +959,7 @@ $('#expBtn').onclick = async () => {
     const c = Object.assign({}, f);
     c.full = f.full ? await blobToDataURL(f.full) : null;
     c.thumb = f.thumb ? await blobToDataURL(f.thumb) : null;
+    delete c.read;                                  // the reader copy is scratch, not archive
     out.finds.push(c);
   }
   const b = new Blob([JSON.stringify(out)], {type:'application/json'});
@@ -797,6 +983,7 @@ $('#imp').onchange = async e => {
       const f = Object.assign({}, c);
       f.full = c.full ? await dataURLToBlob(c.full) : null;
       f.thumb = c.thumb ? await dataURLToBlob(c.thumb) : null;
+      f.read = null;
       finds.push(f); await dbPut('finds', f); added++;
     }
     for (const w of (data.walks||[])) if (!walks.some(x => x.id === w.id)) { walks.push(w); await dbPut('walks', w); }
@@ -816,9 +1003,10 @@ $('#imp').onchange = async e => {
   }
   startWatch();
   paintAll();
+  drainQueue();
   setInterval(() => { if (walk) paintWalk(); }, 15000);
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
-  window.__spotted = () => ({finds, walks, walk, pos, pts:lifetimePts()});
+  window.__spotted = () => ({finds, walks, walk, pos, readerOff, reading, pts:lifetimePts(), waiting:unread().length});
 })();
 </script>
 </body>
