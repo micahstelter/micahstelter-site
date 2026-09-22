@@ -13,6 +13,9 @@
  */
 
 const MODEL = 'claude-sonnet-5';
+// Used when no Anthropic key is set: Cloudflare's own models, billed to the
+// Cloudflare account's free daily allowance, no secret required.
+const CF_MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
 const MAX_CHARS = 40_000;         // ~40 minutes of talking
 const DAILY_CAP = 200;            // translations per UTC day, across everyone
 const SHARED_TOKEN = 'beza-babble-v1';
@@ -89,7 +92,7 @@ export async function handleBabble(request, env) {
     return json({ error: 'unauthorized' }, 401);
   }
 
-  if (!env.ANTHROPIC_API_KEY) {
+  if (!env.ANTHROPIC_API_KEY && !env.AI) {
     return json(
       { error: 'not_configured', message: 'The translator isn’t switched on yet. Tell Micah!' },
       503
@@ -121,6 +124,8 @@ export async function handleBabble(request, env) {
     `Format: ${FORMATS[format]}\n` +
     (to ? `It's going to: ${to}\n` : '') +
     `\nHere is the babble:\n<babble>\n${babble}\n</babble>`;
+
+  if (!env.ANTHROPIC_API_KEY) return viaCloudflare(env, ask, format);
 
   let res;
   try {
@@ -159,4 +164,24 @@ export async function handleBabble(request, env) {
   if (!out) return json({ error: 'empty_reply', message: 'Came back blank — try again.' }, 502);
 
   return json({ result: out, format, model: msg.model });
+}
+
+/* No Anthropic key: run the same prompt on Cloudflare Workers AI. */
+async function viaCloudflare(env, ask, format) {
+  let r;
+  try {
+    r = await env.AI.run(CF_MODEL, {
+      messages: [
+        { role: 'system', content: SYSTEM },
+        { role: 'user', content: ask },
+      ],
+      max_tokens: 1500,
+      temperature: 0.4,
+    });
+  } catch (e) {
+    return json({ error: 'upstream_error', detail: String(e).slice(0, 400), message: 'The translator hiccuped. Try again.' }, 502);
+  }
+  const out = (r && typeof r.response === 'string' ? r.response : '').trim();
+  if (!out) return json({ error: 'empty_reply', message: 'Came back blank — try again.' }, 502);
+  return json({ result: out, format, model: CF_MODEL });
 }

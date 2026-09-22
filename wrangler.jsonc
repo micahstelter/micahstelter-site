@@ -20,6 +20,8 @@
   // `wrangler deploy`, which treats this file as the source of truth and would
   // drop anything added through the UI on the next build. Secrets are the
   // exception — they are stored separately and survive deploys.
+  // Cloudflare Workers AI — lets /api/babble run with no API key at all.
+  "ai": { "binding": "AI" },
   "d1_databases": [
     {
       "binding": "BPC_DB",

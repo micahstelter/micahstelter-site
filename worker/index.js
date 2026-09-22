@@ -45,7 +45,7 @@ export default {
         d1: Boolean(env.BPC_DB),
         accessConfigured: Boolean(env.ACCESS_TEAM_DOMAIN && env.ACCESS_AUD),
         spotReader: Boolean(env.ANTHROPIC_API_KEY),
-        babble: Boolean(env.ANTHROPIC_API_KEY),
+        babble: Boolean(env.ANTHROPIC_API_KEY || env.AI),
         time: new Date().toISOString(),
       });
     }
