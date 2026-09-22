@@ -349,9 +349,10 @@
       if (!res.ok || !data.result) throw new Error(data.message || 'Something went sideways. Try again.');
       out.textContent = data.result;
       const before = words(text), after = words(data.result);
-      $('stat').textContent = before > after
-        ? `${before} words → ${after}. That's ${Math.round((1 - after / before) * 100)}% less babble.`
-        : '';
+      // Only brag when it actually shrank — on a short note it hasn't, and
+      // "7% less babble" reads as a failure.
+      const cut = before ? Math.round((1 - after / before) * 100) : 0;
+      $('stat').textContent = cut >= 25 ? `${before} words → ${after}. That's ${cut}% less babble.` : '';
       outCard.style.display = 'block';
       outCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } catch (e) {
