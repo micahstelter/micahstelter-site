@@ -8,11 +8,13 @@
  * it did before; this only handles paths no asset claims.
  *
  * Routes /api/bpc to the BPC Momentum sync API and /api/spot to the SPOTTED
- * photo reader; everything else is the site.
+ * photo reader, /api/babble to the Beza Babble Translator; everything else is
+ * the site.
  */
 
 import { handleBpc } from './bpc.js';
 import { handleSpot } from './spot.js';
+import { handleBabble } from './babble.js';
 
 const json = (body, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -32,6 +34,10 @@ export default {
       return handleSpot(request, env);
     }
 
+    if (url.pathname === '/api/babble') {
+      return handleBabble(request, env);
+    }
+
     if (url.pathname === '/api/health') {
       return json({
         ok: true,
@@ -39,6 +45,7 @@ export default {
         d1: Boolean(env.BPC_DB),
         accessConfigured: Boolean(env.ACCESS_TEAM_DOMAIN && env.ACCESS_AUD),
         spotReader: Boolean(env.ANTHROPIC_API_KEY),
+        babble: Boolean(env.ANTHROPIC_API_KEY),
         time: new Date().toISOString(),
       });
     }

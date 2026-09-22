@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Beza Babble Translator</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#fff4ea">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fff4ea;
+    --card: #ffffff;
+    --ink: #2b1d2f;
+    --muted: #7a6a7d;
+    --accent: #e8506b;
+    --accent-2: #ff9f43;
+    --soft: #fde3d6;
+    --line: #f1d6c8;
+    --ok: #2e9e6b;
+    --shadow: 0 10px 30px rgba(120, 50, 60, .10);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1420;
+      --card: #281d2d;
+      --ink: #fbeff2;
+      --muted: #b9a6bd;
+      --soft: #3a2a40;
+      --line: #3e2e44;
+      --shadow: 0 10px 30px rgba(0, 0, 0, .35);
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font: 17px/1.5 Nunito, system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    padding: max(20px, env(safe-area-inset-top)) 16px max(32px, env(safe-area-inset-bottom));
+  }
+  main { max-width: 640px; margin: 0 auto; }
+
+  header { text-align: center; margin: 8px 0 22px; }
+  .hero { position: relative; left: -40px; width: 150px; height: 150px; margin: 0 auto 6px; }
+  .hero img {
+    width: 150px; height: 150px; border-radius: 50%; object-fit: cover; object-position: 50% 30%;
+    border: 5px solid var(--card);
+    box-shadow: 0 0 0 3px var(--accent), var(--shadow);
+  }
+  .speech {
+    position: absolute; top: 4px; left: 128px;
+    background: var(--card); color: var(--ink);
+    border: 2px solid var(--line); border-radius: 18px 18px 18px 4px;
+    padding: 6px 12px; font-weight: 800; font-size: 14px; white-space: nowrap;
+    box-shadow: var(--shadow);
+    animation: bob 3s ease-in-out infinite;
+  }
+  .speech.two {
+    top: 48px; left: 140px; border-radius: 18px 18px 18px 4px;
+    background: linear-gradient(100deg, var(--accent), var(--accent-2)); color: #fff; border-color: transparent;
+    animation-delay: 1.5s;
+  }
+  @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+  h1 {
+    font-family: Fraunces, Georgia, serif;
+    font-weight: 800;
+    font-size: clamp(34px, 9vw, 52px);
+    line-height: 1.02;
+    margin: 6px 0 8px;
+    background: linear-gradient(100deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .tag { color: var(--muted); margin: 0; font-size: 17px; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    padding: 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 16px;
+  }
+  .label {
+    font-weight: 800;
+    font-size: 13px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 10px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .count { font-weight: 600; letter-spacing: 0; text-transform: none; }
+
+  .mic-row { display: flex; flex-direction: column; align-items: center; gap: 8px; margin: 4px 0 14px; }
+  #mic {
+    width: 92px; height: 92px; border-radius: 50%;
+    border: 0; cursor: pointer;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #fff; font-size: 38px;
+    box-shadow: 0 8px 22px rgba(232, 80, 107, .35);
+    transition: transform .15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #mic:active { transform: scale(.95); }
+  #mic.on { animation: pulse 1.4s infinite; }
+  @keyframes pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(232, 80, 107, .55); }
+    70%  { box-shadow: 0 0 0 22px rgba(232, 80, 107, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(232, 80, 107, 0); }
+  }
+  #micHint { color: var(--muted); font-size: 15px; text-align: center; }
+
+  textarea, input[type=text] {
+    width: 100%;
+    border: 1.5px solid var(--line);
+    background: var(--bg);
+    color: var(--ink);
+    border-radius: 16px;
+    padding: 14px;
+    font: inherit;
+    outline: none;
+  }
+  textarea { min-height: 170px; resize: vertical; }
+  textarea:focus, input:focus { border-color: var(--accent); }
+  .interim { color: var(--muted); font-style: italic; min-height: 1.5em; margin: 6px 2px 0; font-size: 15px; }
+
+  .modes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .mode {
+    border: 1.5px solid var(--line); background: var(--bg); color: var(--ink);
+    border-radius: 14px; padding: 12px 6px; font: inherit; font-weight: 800; font-size: 15px;
+    cursor: pointer; line-height: 1.2;
+  }
+  .mode small { display: block; font-weight: 600; color: var(--muted); font-size: 12px; margin-top: 2px; }
+  .mode[aria-pressed=true] { border-color: var(--accent); background: var(--soft); }
+
+  .to { margin-top: 12px; }
+
+  #go {
+    width: 100%; border: 0; border-radius: 18px; padding: 18px;
+    font: inherit; font-weight: 800; font-size: 19px; color: #fff; cursor: pointer;
+    background: linear-gradient(100deg, var(--accent), var(--accent-2));
+    box-shadow: 0 8px 22px rgba(232, 80, 107, .30);
+    margin-bottom: 16px;
+  }
+  #go:disabled { opacity: .6; cursor: default; }
+
+  #outCard { display: none; }
+  #out { white-space: pre-wrap; font-size: 18px; line-height: 1.55; }
+  .actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+  .btn {
+    flex: 1 1 0; min-width: 90px;
+    border: 1.5px solid var(--line); background: var(--bg); color: var(--ink);
+    border-radius: 14px; padding: 12px; font: inherit; font-weight: 800; cursor: pointer;
+  }
+  .btn.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .stat { color: var(--muted); font-size: 14px; margin-top: 10px; }
+
+  .err { color: var(--accent); font-weight: 700; text-align: center; margin: -4px 0 16px; min-height: 1em; }
+
+  details { color: var(--muted); font-size: 15px; }
+  details summary { cursor: pointer; font-weight: 800; }
+  details p { margin: 8px 0 0; }
+  footer { text-align: center; color: var(--muted); font-size: 13px; margin-top: 22px; }
+  .clear { background: none; border: 0; color: var(--muted); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; padding: 0; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="hero">
+      <img src="beza.jpg" alt="Beza, smiling">
+      <div class="speech" aria-hidden="true">blah blah blah…</div>
+      <div class="speech two" aria-hidden="true">✨ got it!</div>
+    </div>
+    <h1>Beza Babble Translator</h1>
+    <p class="tag">Say it all. Send the short version.</p>
+  </header>
+
+  <section class="card">
+    <p class="label"><span>1 · Babble away</span> <button class="clear" id="clear" type="button">Clear</button></p>
+    <div class="mic-row" id="micRow">
+      <button id="mic" type="button" aria-label="Start talking">🎙️</button>
+      <div id="micHint">Tap and talk as long as you want</div>
+    </div>
+    <textarea id="babble" placeholder="…or type it, or paste the transcript of a voice memo here."></textarea>
+    <div class="interim" id="interim"></div>
+    <p class="label" style="margin:8px 0 0"><span></span><span class="count" id="count"></span></p>
+  </section>
+
+  <section class="card">
+    <p class="label">2 · Make it</p>
+    <div class="modes" role="group" aria-label="Format">
+      <button class="mode" type="button" data-mode="text" aria-pressed="true">💌 A text<small>short &amp; sweet</small></button>
+      <button class="mode" type="button" data-mode="bullets" aria-pressed="false">📝 Bullets<small>just the points</small></button>
+      <button class="mode" type="button" data-mode="email" aria-pressed="false">✉️ Email<small>tidy &amp; clear</small></button>
+    </div>
+    <div class="to">
+      <input type="text" id="to" placeholder="Who's it for? (optional — e.g. Erich)" autocomplete="off">
+    </div>
+  </section>
+
+  <button id="go" type="button">✨ Translate my babble</button>
+  <div class="err" id="err" role="alert"></div>
+
+  <section class="card" id="outCard" aria-live="polite">
+    <p class="label">3 · Send this</p>
+    <div id="out"></div>
+    <div class="actions">
+      <button class="btn primary" id="copy" type="button">Copy</button>
+      <button class="btn" id="share" type="button">Send…</button>
+      <button class="btn" id="again" type="button">Try again</button>
+    </div>
+    <div class="stat" id="stat"></div>
+  </section>
+
+  <details class="card">
+    <summary>Already recorded a voice memo?</summary>
+    <p><b>Voice Memos app:</b> open the memo, tap the transcript icon (the little speech bubble), select all the text, copy, and paste it into the box above.</p>
+    <p><b>A voice text in Messages:</b> the words show up under the audio — press and hold to copy them.</p>
+    <p><b>No mic button above?</b> Tap the box and use the 🎤 on your keyboard instead.</p>
+  </details>
+
+  <footer>
+    Nothing you say is saved here — it's translated and forgotten.<br>
+    Made with love by Micah 🤍
+  </footer>
+</main>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const box = $('babble'), interim = $('interim'), mic = $('mic'), hint = $('micHint');
+  const go = $('go'), err = $('err'), outCard = $('outCard'), out = $('out');
+  let mode = 'text';
+
+  // Keep her words if the page reloads or the phone locks mid-babble.
+  const KEY = 'beza-babble-draft';
+  try { box.value = localStorage.getItem(KEY) || ''; } catch (e) {}
+  const save = () => { try { localStorage.setItem(KEY, box.value); } catch (e) {} };
+
+  const words = (s) => (s.trim().match(/\S+/g) || []).length;
+  const updateCount = () => {
+    const n = words(box.value);
+    $('count').textContent = n ? `${n} words` : '';
+  };
+  box.addEventListener('input', () => { save(); updateCount(); });
+  updateCount();
+
+  $('clear').onclick = () => {
+    box.value = ''; save(); updateCount();
+    outCard.style.display = 'none'; err.textContent = '';
+    box.focus();
+  };
+
+  document.querySelectorAll('.mode').forEach((b) => {
+    b.onclick = () => {
+      mode = b.dataset.mode;
+      document.querySelectorAll('.mode').forEach((x) => x.setAttribute('aria-pressed', x === b));
+    };
+  });
+
+  /* ---------- Voice ----------
+     Browser speech recognition. Phones stop listening after a pause, so while
+     she has the mic on we quietly restart it — she can talk for minutes. */
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let rec = null, listening = false;
+
+  if (!SR) {
+    $('micRow').style.display = 'none';
+    box.placeholder = 'Type it, paste a voice memo transcript, or tap here and use the 🎤 on your keyboard.';
+  } else {
+    const start = () => {
+      rec = new SR();
+      rec.lang = navigator.language || 'en-US';
+      rec.continuous = true;
+      rec.interimResults = true;
+      rec.onresult = (e) => {
+        let live = '';
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          const r = e.results[i];
+          if (r.isFinal) {
+            const t = r[0].transcript.trim();
+            if (t) box.value = (box.value.trim() ? box.value.trimEnd() + ' ' : '') + t;
+            save(); updateCount();
+          } else {
+            live += r[0].transcript;
+          }
+        }
+        interim.textContent = live;
+      };
+      rec.onerror = (e) => {
+        if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+          stop();
+          err.textContent = 'Your browser blocked the mic — allow it, or use the 🎤 on your keyboard.';
+        }
+      };
+      rec.onend = () => { if (listening) { try { rec.start(); } catch (e) {} } };
+      rec.start();
+    };
+    const stop = () => {
+      listening = false;
+      if (rec) { try { rec.stop(); } catch (e) {} }
+      mic.classList.remove('on'); mic.textContent = '🎙️';
+      mic.setAttribute('aria-label', 'Start talking');
+      hint.textContent = box.value.trim() ? 'Tap to keep going' : 'Tap and talk as long as you want';
+      interim.textContent = '';
+    };
+    mic.onclick = () => {
+      err.textContent = '';
+      if (listening) return stop();
+      try {
+        listening = true; start();
+        mic.classList.add('on'); mic.textContent = '⏹';
+        mic.setAttribute('aria-label', 'Stop talking');
+        hint.textContent = "I'm listening… tap when you're done";
+      } catch (e) {
+        stop();
+        err.textContent = "Couldn't start the mic — try the 🎤 on your keyboard.";
+      }
+    };
+    window.__stopMic = stop;
+  }
+
+  /* ---------- Translate ---------- */
+  const translate = async () => {
+    if (window.__stopMic) window.__stopMic();
+    const text = box.value.trim();
+    err.textContent = '';
+    if (!text) { err.textContent = 'Say or type something first 🙂'; return; }
+
+    go.disabled = true;
+    const lines = ['✨ Untangling…', '✨ Finding the point…', '✨ Trimming the extras…'];
+    let i = 0; go.textContent = lines[0];
+    const tick = setInterval(() => { go.textContent = lines[++i % lines.length]; }, 1400);
+
+    try {
+      const res = await fetch('/api/babble', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', 'x-babble-token': 'beza-babble-v1' },
+        body: JSON.stringify({ text, format: mode, to: $('to').value }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.result) throw new Error(data.message || 'Something went sideways. Try again.');
+      out.textContent = data.result;
+      const before = words(text), after = words(data.result);
+      $('stat').textContent = before > after
+        ? `${before} words → ${after}. That's ${Math.round((1 - after / before) * 100)}% less babble.`
+        : '';
+      outCard.style.display = 'block';
+      outCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (e) {
+      err.textContent = e.message;
+    } finally {
+      clearInterval(tick);
+      go.disabled = false; go.textContent = '✨ Translate my babble';
+    }
+  };
+  go.onclick = translate;
+  $('again').onclick = translate;
+
+  $('copy').onclick = async () => {
+    try { await navigator.clipboard.writeText(out.textContent); }
+    catch (e) {
+      const r = document.createRange(); r.selectNodeContents(out);
+      const s = getSelection(); s.removeAllRanges(); s.addRange(r); document.execCommand('copy');
+    }
+    $('copy').textContent = 'Copied ✓';
+    setTimeout(() => { $('copy').textContent = 'Copy'; }, 1600);
+  };
+
+  if (navigator.share) {
+    $('share').onclick = () => navigator.share({ text: out.textContent }).catch(() => {});
+  } else {
+    $('share').style.display = 'none';
+  }
+})();
+</script>
+</body>
+</html>
