@@ -376,6 +376,8 @@
       .tb-search { width: 100%; order: 99; }
       .view-select { min-width: 140px; flex: 1; }
     }
+    /* PDF/PNG export: html2canvas paints soft shadows as gray smudges — flatten them */
+    .exporting, .exporting * { transition: none !important; box-shadow: none !important; text-shadow: none !important; filter: none !important; }
   </style>
 </head>
 <body>
@@ -1263,9 +1265,13 @@
       const inner = document.getElementById('chartInner');
       const prevZoom = inner.style.zoom;
       inner.style.zoom = 1;
-      const canvas = await html2canvas(inner, { backgroundColor: '#faf9f7', scale: 2 });
-      inner.style.zoom = prevZoom;
-      return canvas;
+      inner.classList.add('exporting');
+      try {
+        return await html2canvas(inner, { backgroundColor: '#faf9f7', scale: 2 });
+      } finally {
+        inner.classList.remove('exporting');
+        inner.style.zoom = prevZoom;
+      }
     }
     async function exportPNG() {
       if (!people().length) { toast('Nothing to export in this view'); return; }
@@ -1293,7 +1299,7 @@
         const w = canvas.width * r, h = canvas.height * r;
         pdf.setFont('helvetica', 'normal'); pdf.setFontSize(9); pdf.setTextColor(160);
         pdf.text(activeView().name + ' — ' + new Date().toLocaleDateString(), 24, 24);
-        pdf.addImage(canvas.toDataURL('image/png'), 'PNG',
+        pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG',
           (pdf.internal.pageSize.getWidth() - w) / 2, 40, w, h);
         pdf.save(viewSlug() + '-' + new Date().toISOString().slice(0,10) + '.pdf');
         toast('PDF downloaded');
