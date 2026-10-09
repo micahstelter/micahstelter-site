@@ -23,7 +23,7 @@
       min-height: 100vh; padding: 2.5rem 2rem;
       transition: background 0.3s;
     }
-    .container { max-width: 1100px; margin: 0 auto; }
+    .container { max-width: none; margin: 0 auto; }
 
     .breadcrumb {
       font-size: 0.7rem; color: #a0a09a; margin-bottom: 2rem;
@@ -75,7 +75,8 @@
       display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap;
       padding: 0.75rem; background: #fff;
       border: 1px solid rgba(0,0,0,0.06); border-radius: 10px;
-      margin-bottom: 1.25rem;
+      margin-bottom: 0.75rem;
+      position: sticky; top: 0.5rem; z-index: 20;
     }
     .tb-btn {
       font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase;
@@ -111,9 +112,19 @@
       overflow: auto; background: #fff;
       border: 1px solid rgba(0,0,0,0.06); border-radius: 12px;
       padding: 2.5rem 1.5rem; min-height: 420px;
+      height: calc(100vh - 6rem);   /* its own window: scrolls both ways, toolbar stays pinned above */
+      text-align: center; cursor: grab;
       background-image: radial-gradient(rgba(0,0,0,0.035) 1px, transparent 1px);
       background-size: 22px 22px;
     }
+    .chart-scroll.panning { cursor: grabbing; user-select: none; }
+
+    /* -- Full-screen working mode: just the toolbar and the chart -- */
+    body.focus { padding: 0.6rem; }
+    body.focus .breadcrumb, body.focus .hero, body.focus .viewbar, body.focus .footer { display: none; }
+    body.focus .container { height: calc(100vh - 1.2rem); display: flex; flex-direction: column; }
+    body.focus .toolbar { position: static; margin-bottom: 0.6rem; }
+    body.focus .chart-scroll { flex: 1; height: auto; min-height: 0; }
     #chartInner { display: inline-block; min-width: 100%; text-align: center; position: relative; }
     .empty-note { color: #b0b0a8; font-size: 0.85rem; padding: 3rem 1rem; }
 
@@ -160,12 +171,13 @@
     }
     .tree li {
       display: flex; flex-direction: column; align-items: center;
-      position: relative; padding: 26px 7px 0;
+      position: relative; padding: calc(26px + var(--drop, 0px)) 7px 0;
     }
-    .tree > li { padding-top: 0; }
+    /* --drop pushes a card below its raised (executive-row) peers; set per <li> in render */
+    .tree > li { padding-top: var(--drop, 0px); }
     .tree li::before, .tree li::after {
       content: ''; position: absolute; top: 0; right: 50%;
-      border-top: 1.5px solid #cfcec8; width: 50%; height: 26px;
+      border-top: 1.5px solid #cfcec8; width: 50%; height: calc(26px + var(--drop, 0px));
     }
     .tree li::after { right: auto; left: 50%; border-left: 1.5px solid #cfcec8; }
     .tree li:only-child::after, .tree li:only-child::before { border-top: none; }
@@ -422,6 +434,8 @@
         <span class="zoom-pct" id="zoomPct">100%</span>
         <button class="zoom-btn" onclick="setZoom(0.1)">+</button>
       </div>
+      <button class="tb-btn" onclick="fitZoom()" title="Shrink the whole chart to fit the window">Fit</button>
+      <button class="tb-btn" id="focusBtn" onclick="toggleFocus()" title="Hide everything but the chart (Esc to exit)">Full Screen</button>
       <span class="save-state" id="saveState"></span>
     </div>
 
@@ -466,6 +480,15 @@
       </div>
       <div class="field"><label>Manager (solid line)</label><select id="f-manager"></select></div>
       <div class="field"><label>Dotted-line to (secondary)</label><select id="f-dotted"></select></div>
+      <div class="field">
+        <label>Row placement (among people with the same manager)</label>
+        <select id="f-tier">
+          <option value="">Auto — executive titles (CEO, COO, CFO, Chief, President) sit higher</option>
+          <option value="exec">Executive row — sits above peers</option>
+          <option value="std">Standard row</option>
+          <option value="low">Lower row — sits below peers</option>
+        </select>
+      </div>
       <div class="field"><label>Email</label><input id="f-email" type="email" placeholder="name@company.com"></div>
       <div class="field"><label>Phone</label><input id="f-phone" placeholder="(555) 555-5555"></div>
       <div class="modal-actions">
@@ -747,6 +770,16 @@
       }
       return false;
     }
+    // Row placement among siblings: 0 = executive row, 1 = standard, 2 = lower.
+    // Manual choice wins; otherwise C-suite style titles are raised automatically.
+    const TIER_STEP = 64;   // px a card drops per row below its highest peer
+    const EXEC_TITLE = /\b(ceo|coo|cfo|cto|cmo|cro|cio|chief|owner|founder)\b|(?<!vice[\s-])\bpresident\b/i;
+    function tierOf(p) {
+      if (p.tier === 'exec') return 0;
+      if (p.tier === 'std') return 1;
+      if (p.tier === 'low') return 2;
+      return EXEC_TITLE.test(p.title || '') ? 0 : 1;
+    }
     function displayName(p) { return p.titleOnly ? (p.title || 'Open role') : p.name; }
     function initials(p) {
       const base = p.titleOnly ? (p.title || '') : (p.name || p.title || '');
@@ -800,7 +833,12 @@
       const nameCounts = {};
       ppl.forEach(pp => { if (pp.name && !pp.titleOnly) { const k = normName(pp.name); nameCounts[k] = (nameCounts[k] || 0) + 1; } });
 
-      function nodeHtml(p) {
+      // Siblings on a lower row than their highest peer get a longer drop line
+      function groupHtml(list) {
+        const top = Math.min.apply(null, list.map(tierOf));
+        return list.map(p => nodeHtml(p, (tierOf(p) - top) * TIER_STEP)).join('');
+      }
+      function nodeHtml(p, drop) {
         const kids = childrenOf(p.id);
         const isCollapsed = collapsed.has(p.id);
         const match = q && ((p.titleOnly ? '' : p.name.toLowerCase()).includes(q) || (p.title||'').toLowerCase().includes(q) || (p.dept||'').toLowerCase().includes(q));
@@ -810,7 +848,7 @@
         const titleBlock = p.titleOnly
           ? '<div class="p-title solo">' + esc(p.title || 'Open role') + '</div>'
           : '<div class="p-name">' + esc(p.name) + '</div><div class="p-title">' + esc(p.title || '—') + '</div>';
-        let html = '<li>' +
+        let html = '<li style="--drop:' + (drop || 0) + 'px">' +
           '<div class="' + cls.join(' ') + '" draggable="true" data-id="' + p.id + '" ' +
                'ondragstart="onDragStart(event)" ondragend="onDragEnd(event)" ' +
                'ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)" ' +
@@ -830,7 +868,7 @@
             (kids.length ? '<button class="collapse-toggle" onclick="event.stopPropagation(); toggleCollapse(\'' + p.id + '\')">' + (isCollapsed ? '+' : '−') + '</button>' : '') +
           '</div>';
         if (kids.length && !isCollapsed) {
-          html += '<ul>' + kids.map(nodeHtml).join('') + '</ul>';
+          html += '<ul>' + groupHtml(kids) + '</ul>';
         }
         html += '</li>';
         return html;
@@ -852,7 +890,7 @@
       if (!ppl.length) {
         inner.innerHTML = band + '<div class="empty-note">This view is empty. Click <strong>+ Add Person</strong> to start building "' + esc(activeView().name) + '".</div>';
       } else {
-        inner.innerHTML = band + legend + '<ul class="tree">' + roots.map(nodeHtml).join('') +
+        inner.innerHTML = band + legend + '<ul class="tree">' + groupHtml(roots) +
           '</ul><svg id="dottedLayer" class="dotted-layer"></svg>';
       }
 
@@ -1019,10 +1057,12 @@
     }
 
     // -- Modal --------------------------------
+    // Alphabetical, so a manager is findable in a 100-person chart
+    function byName() { return people().slice().sort((a, b) => displayName(a).localeCompare(displayName(b))); }
     function fillManagerSelect(excludeId, current) {
       const sel = document.getElementById('f-manager');
       const opts = ['<option value="">— No manager (top level) —</option>'];
-      people().forEach(p => {
+      byName().forEach(p => {
         if (p.id === excludeId) return;
         if (excludeId && isDescendant(p.id, excludeId)) return;
         opts.push('<option value="' + p.id + '"' + (p.id === current ? ' selected' : '') + '>' + esc(displayName(p)) + '</option>');
@@ -1034,7 +1074,7 @@
     function fillDottedSelect(selfId, current) {
       const sel = document.getElementById('f-dotted');
       const opts = ['<option value="">— None —</option>'];
-      people().forEach(p => {
+      byName().forEach(p => {
         if (p.id === selfId) return;
         opts.push('<option value="' + p.id + '"' + (p.id === current ? ' selected' : '') + '>' + esc(displayName(p)) + '</option>');
       });
@@ -1181,6 +1221,7 @@
       toggleTitleOnly();
       fillManagerSelect(id, p.managerId || '');
       fillDottedSelect(id, p.dottedManagerId || '');
+      document.getElementById('f-tier').value = p.tier || '';
       document.getElementById('deleteBtn').style.display = '';
       document.getElementById('modalOverlay').classList.add('open');
     }
@@ -1196,6 +1237,7 @@
       toggleTitleOnly();
       fillManagerSelect(null, '');
       fillDottedSelect(null, '');
+      document.getElementById('f-tier').value = '';
       document.getElementById('deleteBtn').style.display = 'none';
       document.getElementById('modalOverlay').classList.add('open');
       setTimeout(() => document.getElementById('f-name').focus(), 50);
@@ -1223,6 +1265,7 @@
         phone: document.getElementById('f-phone').value.trim(),
         managerId: document.getElementById('f-manager').value || null,
         dottedManagerId: document.getElementById('f-dotted').value || null,
+        tier: document.getElementById('f-tier').value || null,
         photo: pendingPhoto || null
       };
       if (editingId) {
@@ -1250,12 +1293,59 @@
     }
 
     // -- Zoom ---------------------------------
-    function setZoom(delta) {
-      zoom = Math.min(1.5, Math.max(0.4, Math.round((zoom + delta) * 10) / 10));
+    function applyZoom(z) {
+      zoom = Math.min(1.5, Math.max(0.2, z));
       document.getElementById('chartInner').style.zoom = zoom;
       document.getElementById('zoomPct').textContent = Math.round(zoom * 100) + '%';
       requestAnimationFrame(drawDotted);
     }
+    function setZoom(delta) { applyZoom(Math.round((zoom + delta) * 10) / 10); }
+    // Shrink (never enlarge past 100%) so the whole chart is visible in the window
+    function fitZoom() {
+      const sc = document.getElementById('chartScroll');
+      const inner = document.getElementById('chartInner');
+      const tree = inner.querySelector('.tree');
+      if (!tree) return;
+      applyZoom(1);
+      const cs = getComputedStyle(sc);
+      const availW = sc.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+      const availH = sc.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+      const w = tree.scrollWidth + 120;      // room for dotted lines routed outside the cards
+      const h = inner.scrollHeight;
+      applyZoom(Math.floor(Math.min(1, availW / w, availH / h) * 100) / 100);
+      sc.scrollLeft = (sc.scrollWidth - sc.clientWidth) / 2;
+      sc.scrollTop = 0;
+    }
+    function toggleFocus(force) {
+      const on = document.body.classList.toggle('focus', force);
+      document.getElementById('focusBtn').textContent = on ? 'Exit Full Screen' : 'Full Screen';
+      requestAnimationFrame(drawDotted);
+    }
+    // Drag empty canvas to pan; pinch or Ctrl/Cmd + scroll to zoom toward the pointer
+    (function () {
+      const sc = document.getElementById('chartScroll');
+      let pan = null;
+      sc.addEventListener('mousedown', e => {
+        if (e.button !== 0 || e.target.closest('.person')) return;
+        pan = { x: e.clientX, y: e.clientY, l: sc.scrollLeft, t: sc.scrollTop };
+        sc.classList.add('panning'); e.preventDefault();
+      });
+      window.addEventListener('mousemove', e => {
+        if (!pan) return;
+        sc.scrollLeft = pan.l - (e.clientX - pan.x);
+        sc.scrollTop = pan.t - (e.clientY - pan.y);
+      });
+      window.addEventListener('mouseup', () => { pan = null; sc.classList.remove('panning'); });
+      sc.addEventListener('wheel', e => {
+        if (!(e.ctrlKey || e.metaKey)) return;
+        e.preventDefault();
+        const r = sc.getBoundingClientRect();
+        const mx = e.clientX - r.left, my = e.clientY - r.top, z0 = zoom;
+        const cx = (sc.scrollLeft + mx) / z0, cy = (sc.scrollTop + my) / z0;
+        applyZoom(zoom * Math.exp(-Math.max(-20, Math.min(20, e.deltaY)) * 0.01));
+        sc.scrollLeft = cx * zoom - mx; sc.scrollTop = cy * zoom - my;
+      }, { passive: false });
+    })();
 
     // -- Export -------------------------------
     function viewSlug() {
@@ -1336,7 +1426,12 @@
     }
 
     // Keyboard: Esc closes modal
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeDirectory(); } });
+    document.addEventListener('keydown', e => {
+      if (e.key !== 'Escape') return;
+      const anyOpen = document.querySelector('.modal-overlay.open, .color-overlay.open');
+      closeModal(); closeDirectory();
+      if (!anyOpen && document.body.classList.contains('focus')) toggleFocus(false);
+    });
 
     seedDirectory();
     render();
@@ -1421,6 +1516,19 @@ saveModal = function () {
     if (p) { p.openSeat = openSeat; persist(); render(); }
   }
 };
+// Filling an open seat: putting a name on it clears the OPEN flag and un-hides the name.
+// (Before, the box stayed ticked, which forced the card back to title-only on every save.)
+(function () {
+  const nameEl = document.getElementById('f-name');
+  const cb = document.getElementById('f-openseat');
+  const to = document.getElementById('f-titleonly');
+  if (!nameEl || !cb || !to) return;
+  const showName = () => { if (to.checked) { to.checked = false; toggleTitleOnly(); } };
+  nameEl.addEventListener('input', () => { if (cb.checked && nameEl.value.trim()) { cb.checked = false; showName(); } });
+  cb.addEventListener('change', () => { if (!cb.checked && nameEl.value.trim()) showName(); });
+  const _fillFromDirectory = fillFromDirectory;
+  fillFromDirectory = function (en) { _fillFromDirectory(en); cb.checked = false; };
+})();
 function styleOpenSeats(){
   let n = 0;
   people().forEach(p => {
@@ -1432,7 +1540,12 @@ function styleOpenSeats(){
   if (n > 0) { const st = document.getElementById('stats'); if (st && !/open seat/i.test(st.textContent)) st.innerHTML += ' &nbsp;·&nbsp; <strong>' + n + '</strong> open ' + (n === 1 ? 'seat' : 'seats'); }
 }
 const _origRender = render;
-render = function () { _origRender.apply(this, arguments); styleOpenSeats(); };
+render = function () {
+  // keep your place in a big chart when a save redraws it
+  const sc = document.getElementById('chartScroll'); const l = sc.scrollLeft, t = sc.scrollTop;
+  _origRender.apply(this, arguments); styleOpenSeats();
+  sc.scrollLeft = l; sc.scrollTop = t;
+};
 render();
 
 </script>
