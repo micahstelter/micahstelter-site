@@ -88,6 +88,19 @@
     .tb-btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
     .tb-btn.primary:hover { background: var(--accent-dark); }
     .tb-btn.danger:hover { border-color: #c84a4a; color: #c84a4a; }
+    /* -- View-only shared copy -- */
+    body.readonly .viewbar, body.readonly .footer, body.readonly .tb-sep, body.readonly #saveState,
+    body.readonly .toolbar .tb-btn:not(.ro-ok) { display: none; }
+    body.readonly .person { cursor: default; }
+    .head-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; font-variant-numeric: tabular-nums; }
+    .head-table th { font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: #a0a09a; font-weight: 600; padding: 0.3rem 0.4rem; text-align: right; }
+    .head-table th:first-child, .head-table td:first-child { text-align: left; }
+    .head-table td { padding: 0.5rem 0.4rem; border-top: 1px solid rgba(0,0,0,0.06); text-align: right; }
+    .head-table tr.total td { font-weight: 700; border-top: 2px solid rgba(0,0,0,0.15); }
+    .head-table .sw-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 0.45rem; }
+    .head-note { font-size: 0.72rem; color: #6b6b67; margin-top: 0.8rem; line-height: 1.5; }
+    .share-row { display: flex; gap: 0.5rem; }
+    .share-row input { flex: 1; min-width: 0; padding: 0.6rem 0.75rem; font-size: 0.75rem; border: 1px solid rgba(0,0,0,0.1); border-radius: 7px; background: #fff; color: #4a4a46; }
     .tb-btn.stale { border-color: #e89528; color: #a8660f; }
     .pdf-opt {
       display: block; width: 100%; text-align: left; padding: 0.8rem 0.9rem; margin-bottom: 0.55rem;
@@ -233,6 +246,8 @@
       border-color: #2a9d6a; border-style: dashed;
       box-shadow: 0 0 0 4px rgba(42,157,106,0.15);
     }
+    .person.drop-before { border-color: #2a9d6a; box-shadow: -6px 0 0 0 #2a9d6a; }
+    .person.drop-after  { border-color: #2a9d6a; box-shadow: 6px 0 0 0 #2a9d6a; }
     .person.drop-no { border-color: #c84a4a; box-shadow: 0 0 0 4px rgba(200,74,74,0.1); }
     .person.dim { opacity: 0.25; }
     .person.hit { border-color: #e89528; box-shadow: 0 0 0 4px rgba(232,149,40,0.18); }
@@ -256,6 +271,12 @@
       padding: 0.18rem 0.5rem; border-radius: 99px;
       background: rgba(0,0,0,0.04); color: #6b6b67;
     }
+    .p-team { font-size: 0.58rem; color: #6b6b67; margin-top: 0.4rem; letter-spacing: 0.03em; }
+    .count-line {
+      font-size: 0.66rem; letter-spacing: 0.1em; text-transform: uppercase; color: #8a8a84;
+      margin: 0 auto 1.4rem;
+    }
+    .count-line strong { color: var(--accent); font-weight: 700; }
     .report-badge {
       position: absolute; top: -8px; right: -8px;
       min-width: 20px; height: 20px; padding: 0 5px; border-radius: 99px;
@@ -429,7 +450,7 @@
     <div class="hero fade-in fade-in-d1">
       <div>
         <h1>Org Chart <em>Builder</em></h1>
-        <p class="hero-sub">Build a chart per business, switch between saved views, and re-org by dragging cards.</p>
+        <p class="hero-sub" id="heroSub">Build a chart per business, switch between saved views, and re-org by dragging cards.</p>
       </div>
       <div class="stats-line" id="stats"></div>
     </div>
@@ -453,11 +474,15 @@
       <button class="tb-btn" id="undoBtn" onclick="undo()" title="Undo the last change (Cmd+Z)" disabled>Undo</button>
       <button class="tb-btn" id="redoBtn" onclick="redo()" title="Redo (Shift+Cmd+Z)" disabled>Redo</button>
       <div class="tb-sep"></div>
-      <button class="tb-btn" onclick="exportPNG()">PNG</button>
-      <button class="tb-btn" onclick="exportPDF()">PDF</button>
+      <button class="tb-btn ro-ok" onclick="exportPNG()">PNG</button>
+      <button class="tb-btn ro-ok" onclick="exportPDF()">PDF</button>
       <button class="tb-btn" onclick="exportJSON()" title="Save just the chart you are looking at">Save File</button>
       <button class="tb-btn" onclick="document.getElementById('importFile').click()" title="Load a saved chart, or restore a full backup">Load File</button>
       <button class="tb-btn" id="backupBtn" onclick="exportAll()" title="Save every chart, the people directory and your colors into one file">Back Up All</button>
+      <button class="tb-btn" onclick="openShare()" title="Make a view-only link to this chart">Share Link</button>
+      <div class="tb-sep"></div>
+      <button class="tb-btn ro-ok" onclick="openHead()" title="Filled and open seats by department">Headcount</button>
+      <button class="tb-btn" onclick="autoOrder()" title="Drop any hand-set left-to-right order and go back to automatic grouping">Auto Order</button>
       <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(event)">
       <div class="tb-spacer"></div>
       <input class="tb-search" id="search" placeholder="Search people..." oninput="render()">
@@ -467,8 +492,8 @@
         <button class="zoom-btn" onclick="setZoom(0.1)">+</button>
       </div>
       <button class="tb-btn" id="stackBtn" onclick="toggleStack()" title="Stack bottom-level teams of 4+ in two columns instead of one long row">Stack: On</button>
-      <button class="tb-btn" onclick="fitZoom()" title="Shrink the whole chart to fit the window">Fit</button>
-      <button class="tb-btn" id="focusBtn" onclick="toggleFocus()" title="Hide everything but the chart (Esc to exit)">Full Screen</button>
+      <button class="tb-btn ro-ok" onclick="fitZoom()" title="Shrink the whole chart to fit the window">Fit</button>
+      <button class="tb-btn ro-ok" id="focusBtn" onclick="toggleFocus()" title="Hide everything but the chart (Esc to exit)">Full Screen</button>
       <span class="save-state" id="saveState"></span>
     </div>
 
@@ -545,6 +570,28 @@
     </div>
   </div>
 
+  <!-- Headcount -->
+  <div class="modal-overlay" id="headOverlay" onclick="if(event.target===this) closeHead()">
+    <div class="modal">
+      <h2>Head<em>count</em></h2>
+      <div id="headBody"></div>
+      <div class="modal-actions"><button class="m-btn cancel" onclick="closeHead()">Close</button></div>
+    </div>
+  </div>
+
+  <!-- Share link -->
+  <div class="modal-overlay" id="shareOverlay" onclick="if(event.target===this) closeShare()">
+    <div class="modal">
+      <h2>Share <em>Link</em></h2>
+      <div class="share-row">
+        <input id="shareUrl" readonly onclick="this.select()">
+        <button class="m-btn save" onclick="copyShare()">Copy</button>
+      </div>
+      <p class="head-note">Anyone with this link can look at this chart but can't change it, and it never touches your saved charts. It is a snapshot of the chart as it is right now — make a new link after you edit. Names, titles and departments are included; photos, emails and phone numbers are left out.</p>
+      <div class="modal-actions"><button class="m-btn cancel" onclick="closeShare()">Close</button></div>
+    </div>
+  </div>
+
   <!-- PDF layout chooser -->
   <div class="modal-overlay" id="pdfOverlay" onclick="if(event.target===this) closePdf()">
     <div class="modal">
@@ -561,6 +608,9 @@
   <script>
     const STORAGE_KEY = 'orgchart-store-v2';
     const LEGACY_KEY = 'orgchart-data-v1';
+    // A "#v=..." link is a view-only shared copy: it never reads or writes this browser's saved charts
+    const READONLY = location.hash.indexOf('#v=') === 0;
+    window.addEventListener('hashchange', () => { if (location.hash.indexOf('#v=') === 0) location.reload(); });
 
     const DEFAULT_PEOPLE = [
       { id: 'micah',    name: 'Micah Stelter',      title: 'CEO',           dept: 'Leadership',           email: 'micah@aleph-mgmt.com', phone: '', managerId: null, titleOnly: false },
@@ -641,7 +691,7 @@
     };
     const THEME_ORDER = ['neutral', 'aleph', 'aleph-holdings', 'paris-painting', 'paris-exteriors'];
 
-    let store = loadStore();      // { activeViewId, views: [ {id, name, people} ], directory: [] }
+    let store = READONLY ? { activeViewId: 'shared', views: [{ id: 'shared', name: 'Shared chart', people: [], theme: 'neutral' }], directory: [] } : loadStore();      // { activeViewId, views: [ {id, name, people} ], directory: [] }
     if (!Array.isArray(store.directory)) store.directory = [];
     let collapsed = new Set();
     let pageFilter = null;        // Set of ids while a PDF page is being drawn, else null
@@ -698,6 +748,7 @@
     }
 
     function persist(silent) {
+      if (READONLY) return;
       const snap = JSON.stringify(store);
       if (lastSnap !== null && snap !== lastSnap && !silent && !undoTick) {
         undoStack.push(lastSnap);
@@ -872,8 +923,11 @@
     function orderPeers(list) {
       const firstSeen = {};
       list.forEach((p, i) => { const k = (p.title || '').trim().toLowerCase(); if (!(k in firstSeen)) firstSeen[k] = i; });
-      return list.map((p, i) => ({ p, i, t: tierOf(p), r: rankOf(p), f: firstSeen[(p.title || '').trim().toLowerCase()] }))
-        .sort((a, b) => a.t - b.t || a.r - b.r || a.f - b.f || a.i - b.i)
+      // A group you have arranged by hand keeps your order; anyone added later goes on the end
+      const manual = list.some(p => typeof p.order === 'number');
+      return list.map((p, i) => ({ p, i, t: tierOf(p), r: rankOf(p), f: firstSeen[(p.title || '').trim().toLowerCase()],
+                                   o: manual ? (typeof p.order === 'number' ? p.order : 1e9) : 0 }))
+        .sort((a, b) => a.o - b.o || a.t - b.t || a.r - b.r || a.f - b.f || a.i - b.i)
         .map(x => x.p);
     }
     function displayName(p) { return p.titleOnly ? (p.title || 'Open role') : p.name; }
@@ -949,7 +1003,7 @@
           ? '<div class="p-title solo">' + esc(p.title || 'Open role') + '</div>'
           : '<div class="p-name">' + esc(p.name) + '</div><div class="p-title">' + esc(p.title || '—') + '</div>';
         let html = '<li style="--drop:' + (drop || 0) + 'px">' +
-          '<div class="' + cls.join(' ') + '" draggable="true" data-id="' + p.id + '" ' +
+          '<div class="' + cls.join(' ') + '" draggable="' + !READONLY + '" data-id="' + p.id + '" ' +
                'ondragstart="onDragStart(event)" ondragend="onDragEnd(event)" ' +
                'ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)" ' +
                'onclick="openEdit(\'' + p.id + '\')" title="' + esc(p.email || '') + '">' +
@@ -959,6 +1013,12 @@
               : '<div class="avatar" style="background:' + deptColor(p.dept) + '">' + esc(initials(p)) + '</div>') +
             titleBlock +
             (p.dept ? '<div class="p-dept">' + esc(p.dept) + '</div>' : '') +
+            (function () {
+              // leaders with more than one layer under them show their whole team size
+              if (!allKids.some(k => childrenOf(k.id).length)) return '';
+              const t = headStats(teamOf(p.id));
+              return '<div class="p-team">Team of ' + t.people + (t.open ? ' · ' + t.open + ' open' : '') + '</div>';
+            })() +
             (function () {
               const k = p.name && !p.titleOnly ? normName(p.name) : '';
               if (!k || nameCounts[k] < 2) return '';
@@ -994,7 +1054,10 @@
       if (!ppl.length) {
         inner.innerHTML = band + '<div class="empty-note">This view is empty. Click <strong>+ Add Person</strong> to start building "' + esc(activeView().name) + '".</div>';
       } else {
-        inner.innerHTML = band + legend + '<ul class="tree">' + groupHtml(roots) +
+        const hs = headStats(ppl);
+        const countLine = '<div class="count-line"><strong>' + hs.people + '</strong> ' + (hs.people === 1 ? 'person' : 'people') +
+          (hs.open ? ' &nbsp;·&nbsp; <strong>' + hs.open + '</strong> open ' + (hs.open === 1 ? 'seat' : 'seats') : '') + '</div>';
+        inner.innerHTML = band + countLine + legend + '<ul class="tree">' + groupHtml(roots) +
           '</ul><svg id="dottedLayer" class="dotted-layer"></svg>';
       }
 
@@ -1002,7 +1065,7 @@
       const managers = ppl.filter(p => childrenOf(p.id).length).length;
       const depts = new Set(ppl.map(p => (p.dept || '').trim().toLowerCase()).filter(Boolean)).size;
       document.getElementById('stats').innerHTML =
-        '<strong>' + ppl.length + '</strong> people &nbsp;·&nbsp; <strong>' + managers + '</strong> managers &nbsp;·&nbsp; <strong>' + depts + '</strong> departments';
+        '<strong>' + headStats(ppl).people + '</strong> people &nbsp;·&nbsp; <strong>' + managers + '</strong> managers &nbsp;·&nbsp; <strong>' + depts + '</strong> departments';
 
       // Dept datalist
       const seen = new Set();
@@ -1132,9 +1195,37 @@
       if (isDescendant(targetId, dragId)) return false; // can't report to your own report
       return true;
     }
+    // Outer quarters of a card = "place beside it"; the middle = "report to it"
+    function dropZone(e) {
+      const r = e.currentTarget.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width;
+      return x < 0.25 ? 'before' : x > 0.75 ? 'after' : 'on';
+    }
+    // Staff counts. A person holding two seats is one head; an open seat is nobody yet.
+    function headStats(list) {
+      const filled = list.filter(p => !p.openSeat);
+      const named = filled.filter(p => p.name && p.name.trim()).map(p => normName(p.name));
+      const people = new Set(named).size + (filled.length - named.length);
+      return { seats: list.length, open: list.length - filled.length, filled: filled.length, people };
+    }
+    function teamOf(id) { return [].concat(...childrenOf(id).map(k => [k].concat(teamOf(k.id)))); }
+    function managerOf(p) { return p.managerId && byId(p.managerId) ? p.managerId : null; }
+    function validBeside(targetId) {
+      if (!dragId || dragId === targetId) return false;
+      const pm = managerOf(byId(targetId));
+      if (pm === dragId || (pm && isDescendant(pm, dragId))) return false;
+      return true;
+    }
+    function clearDrop(el) { el.classList.remove('drop-ok', 'drop-no', 'drop-before', 'drop-after'); }
     function onDragOver(e) {
       const targetId = e.currentTarget.dataset.id;
-      if (validDrop(targetId)) {
+      const zone = dropZone(e);
+      clearDrop(e.currentTarget);
+      if (zone !== 'on' && validBeside(targetId)) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        e.currentTarget.classList.add('drop-' + zone);
+      } else if (zone === 'on' && validDrop(targetId)) {
         e.preventDefault();
         e.dataTransfer.dropEffect = 'move';
         e.currentTarget.classList.add('drop-ok');
@@ -1142,22 +1233,123 @@
         e.currentTarget.classList.add('drop-no');
       }
     }
-    function onDragLeave(e) {
-      e.currentTarget.classList.remove('drop-ok', 'drop-no');
+    function onDragLeave(e) { clearDrop(e.currentTarget); }
+    // Put a card immediately left/right of another, under that card's manager
+    function placeBeside(id, targetId, zone) {
+      const moved = byId(id);
+      const pm = managerOf(byId(targetId));
+      moved.managerId = pm;
+      const group = pm ? childrenOf(pm) : people().filter(p => !managerOf(p));
+      const sibs = orderPeers(group).filter(p => p.id !== id);
+      sibs.splice(sibs.findIndex(p => p.id === targetId) + (zone === 'after' ? 1 : 0), 0, moved);
+      sibs.forEach((p, i) => { p.order = i; });
     }
     function onDrop(e) {
       e.preventDefault();
-      e.currentTarget.classList.remove('drop-ok', 'drop-no');
+      const zone = dropZone(e);
+      clearDrop(e.currentTarget);
       const targetId = e.currentTarget.dataset.id;
       const id = e.dataTransfer.getData('text/plain') || dragId;
       if (!id) return;
       dragId = id;
+      if (zone !== 'on') {
+        if (!validBeside(targetId)) return;
+        placeBeside(id, targetId, zone);
+        persist(); render();
+        toast(displayName(byId(id)) + ' moved ' + (zone === 'before' ? 'before ' : 'after ') + displayName(byId(targetId)));
+        return;
+      }
       if (!validDrop(targetId)) return;
       const moved = byId(id);
       moved.managerId = targetId;
+      delete moved.order;                    // new team: joins at the end / automatic spot
       collapsed.delete(targetId);
       persist(); render();
       toast(displayName(moved) + ' now reports to ' + displayName(byId(targetId)));
+    }
+    function autoOrder() {
+      const set = people().filter(p => typeof p.order === 'number');
+      if (!set.length) { toast('Already in automatic order'); return; }
+      set.forEach(p => { delete p.order; });
+      persist(); render();
+      toast('Back to automatic order');
+    }
+
+    // -- Headcount by department --------------
+    function openHead() {
+      const rows = {}; const keys = [];
+      people().forEach(p => {
+        const d = (p.dept || '').trim(); const k = d.toLowerCase();
+        if (!rows[k]) { rows[k] = { name: d || 'No department', filled: 0, open: 0 }; keys.push(k); }
+        p.openSeat ? rows[k].open++ : rows[k].filled++;
+      });
+      keys.sort((a, b) => (a === '') - (b === '') || rows[a].name.localeCompare(rows[b].name));
+      let f = 0, o = 0;
+      const body = keys.map(k => {
+        const r = rows[k]; f += r.filled; o += r.open;
+        return '<tr><td><span class="sw-dot" style="background:' + (k ? deptColor(k) : '#cfcec8') + '"></span>' + esc(r.name) +
+          '</td><td>' + r.filled + '</td><td>' + (r.open || '–') + '</td><td>' + (r.filled + r.open) + '</td></tr>';
+      }).join('');
+      // one person holding two seats is one head
+      const dup = f - headStats(people()).people;
+      document.getElementById('headBody').innerHTML = people().length
+        ? '<table class="head-table"><tr><th>Department</th><th>Filled</th><th>Open</th><th>Seats</th></tr>' + body +
+          '<tr class="total"><td>Total</td><td>' + f + '</td><td>' + (o || '–') + '</td><td>' + (f + o) + '</td></tr></table>' +
+          (dup ? '<p class="head-note">' + dup + ' filled seat' + (dup === 1 ? ' is' : 's are') + ' a second seat for someone already counted, so this chart has <strong>' + (f - dup) + ' people</strong> in ' + f + ' filled seats.</p>'
+                 : '<p class="head-note">This chart has <strong>' + f + ' ' + (f === 1 ? 'person' : 'people') + '</strong>' + (o ? ' and ' + o + ' open ' + (o === 1 ? 'seat' : 'seats') + ' to fill' : '') + '.</p>')
+        : '<p class="head-note">No one in this chart yet.</p>';
+      document.getElementById('headOverlay').classList.add('open');
+    }
+    function closeHead() { document.getElementById('headOverlay').classList.remove('open'); }
+
+    // -- View-only share link: the chart itself rides in the link, nothing is uploaded --
+    async function packShare(obj) {
+      const stream = new Blob([JSON.stringify(obj)]).stream().pipeThrough(new CompressionStream('deflate-raw'));
+      const bytes = new Uint8Array(await new Response(stream).arrayBuffer());
+      let bin = ''; bytes.forEach(b => { bin += String.fromCharCode(b); });
+      return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    }
+    async function unpackShare(str) {
+      const bin = atob(str.replace(/-/g, '+').replace(/_/g, '/'));
+      const stream = new Blob([Uint8Array.from(bin, c => c.charCodeAt(0))]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+      return JSON.parse(await new Response(stream).text());
+    }
+    function shareData() {
+      const v = activeView(), ppl = v.people;
+      const idx = {}; ppl.forEach((p, i) => { idx[p.id] = i; });
+      const at = id => (id != null && id in idx) ? idx[id] : -1;
+      const colors = {};
+      ppl.forEach(p => { const k = (p.dept || '').trim().toLowerCase(); if (k) colors[k] = deptColor(k); });
+      return { n: v.name, t: v.theme || 'neutral', s: v.stack === false ? 0 : 1, d: Date.now(), c: colors,
+        p: ppl.map(p => [p.name || '', p.title || '', p.dept || '', at(p.managerId), at(p.dottedManagerId),
+                         (p.titleOnly ? 1 : 0) + (p.openSeat ? 2 : 0), p.tier || '', typeof p.order === 'number' ? p.order : -1]) };
+    }
+    function loadShared(d) {
+      const people = d.p.map((a, i) => {
+        const p = { id: 's' + i, name: a[0], title: a[1], dept: a[2], managerId: a[3] >= 0 ? 's' + a[3] : null,
+                    dottedManagerId: a[4] >= 0 ? 's' + a[4] : null, titleOnly: !!(a[5] & 1), openSeat: !!(a[5] & 2), tier: a[6] || null };
+        if (a[7] >= 0) p.order = a[7];
+        return p;
+      });
+      store = { activeViewId: 'shared', directory: [], deptColors: d.c || {},
+                views: [{ id: 'shared', name: d.n || 'Shared chart', people, theme: THEMES[d.t] ? d.t : 'neutral', stack: d.s !== 0 }] };
+      document.title = (d.n || 'Org chart') + ' — view only';
+      document.getElementById('heroSub').textContent = 'View-only copy of "' + (d.n || 'Org chart') + '"' +
+        (d.d ? ', shared ' + new Date(d.d).toLocaleDateString() : '') + '. It may not show later changes.';
+    }
+    async function openShare() {
+      if (!people().length) { toast('Nothing to share in this view'); return; }
+      try {
+        document.getElementById('shareUrl').value = location.origin + location.pathname + '#v=' + await packShare(shareData());
+        document.getElementById('shareOverlay').classList.add('open');
+      } catch (e) { toast('Could not build the link: ' + e.message); }
+    }
+    function closeShare() { document.getElementById('shareOverlay').classList.remove('open'); }
+    async function copyShare() {
+      const el = document.getElementById('shareUrl');
+      try { await navigator.clipboard.writeText(el.value); }
+      catch (e) { el.select(); document.execCommand('copy'); }
+      toast('Link copied');
     }
 
     // -- Modal --------------------------------
@@ -1310,7 +1502,7 @@
 
     function openEdit(id) {
       const p = byId(id);
-      if (!p) return;
+      if (!p || READONLY) return;
       editingId = id;
       document.getElementById('modalTitle').innerHTML = 'Edit <em>' + esc((displayName(p) || 'Person').split(' ')[0]) + '</em>';
       document.getElementById('f-titleonly').checked = !!p.titleOnly;
@@ -1373,6 +1565,7 @@
         photo: pendingPhoto || null
       };
       if (editingId) {
+        if ((byId(editingId).managerId || null) !== data.managerId) delete byId(editingId).order;
         Object.assign(byId(editingId), data);
         toast('Updated ' + displayName(data));
       } else {
@@ -1632,7 +1825,7 @@
       }
       if (e.key !== 'Escape') return;
       const anyOpen = document.querySelector('.modal-overlay.open, .color-overlay.open');
-      closeModal(); closeDirectory(); closePdf();
+      closeModal(); closeDirectory(); closePdf(); closeHead(); closeShare();
       if (!anyOpen && document.body.classList.contains('focus')) toggleFocus(false);
     });
 
@@ -1752,6 +1945,15 @@ render = function () {
   sc.scrollLeft = l; sc.scrollTop = t;
 };
 render();
+if (READONLY) (async () => {
+  document.body.classList.add('readonly');
+  try {
+    loadShared(await unpackShare(location.hash.slice(3)));
+    render(); requestAnimationFrame(fitZoom);
+  } catch (e) {
+    document.getElementById('chartInner').innerHTML = '<div class="empty-note">This shared link is damaged or incomplete — ask for a fresh one.</div>';
+  }
+})();
 
 </script>
 </body>
