@@ -88,6 +88,7 @@
     .tb-btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
     .tb-btn.primary:hover { background: var(--accent-dark); }
     .tb-btn.danger:hover { border-color: #c84a4a; color: #c84a4a; }
+    .tb-btn:disabled { opacity: 0.35; cursor: default; pointer-events: none; }
     .tb-sep { width: 1px; height: 22px; background: rgba(0,0,0,0.08); margin: 0 0.3rem; }
     .tb-spacer { flex: 1; }
     .tb-search {
@@ -165,7 +166,7 @@
     .tree, .tree ul { list-style: none; }
     .tree { display: inline-flex; }
     .tree ul { display: flex; justify-content: center; position: relative; padding-top: 26px; }
-    .tree ul ul::before {
+    .tree ul::before {
       content: ''; position: absolute; top: 0; left: 50%;
       border-left: 1.5px solid #cfcec8; height: 26px;
     }
@@ -186,6 +187,24 @@
     .tree li:last-child::before { border-right: 1.5px solid #cfcec8; border-radius: 0 6px 0 0; }
     .tree li:first-child::after { border-radius: 6px 0 0 0; }
     .tree > li::before, .tree > li::after { display: none; }
+
+    /* -- Stacked team: a manager's bottom-level reports in two columns off a centre trunk -- */
+    .tree ul.stack {
+      display: grid; grid-template-columns: auto auto; justify-content: center;
+      column-gap: 28px; row-gap: 14px; margin: 0 12px;
+    }
+    .tree ul.stack > li { padding: 0; }
+    .tree ul.stack > li::before {
+      display: block; content: ''; position: absolute; top: 40px; left: 100%; right: auto;
+      width: 14px; height: 0; border: none; border-top: 1.5px solid #cfcec8; border-radius: 0;
+    }
+    .tree ul.stack > li:nth-child(even)::before { left: auto; right: 100%; }
+    .tree ul.stack > li::after {
+      display: block; content: ''; position: absolute; top: -14px; left: calc(100% + 13.25px); right: auto;
+      width: 0; height: calc(100% + 14px); border: none; border-left: 1.5px solid #cfcec8; border-radius: 0;
+    }
+    .tree ul.stack > li:nth-child(even)::after { display: none; }
+    .tree ul.stack > li:nth-child(odd):nth-last-child(-n+2)::after { height: 54.75px; }   /* trunk ends at the last row */
 
     /* -- Person card ------------------- */
     .person {
@@ -422,6 +441,9 @@
       <button class="tb-btn primary" onclick="openAdd()">+ Add Person</button>
       <button class="tb-btn" onclick="openDirectory()">Directory</button>
       <div class="tb-sep"></div>
+      <button class="tb-btn" id="undoBtn" onclick="undo()" title="Undo the last change (Cmd+Z)" disabled>Undo</button>
+      <button class="tb-btn" id="redoBtn" onclick="redo()" title="Redo (Shift+Cmd+Z)" disabled>Redo</button>
+      <div class="tb-sep"></div>
       <button class="tb-btn" onclick="exportPNG()">PNG</button>
       <button class="tb-btn" onclick="exportPDF()">PDF</button>
       <button class="tb-btn" onclick="exportJSON()">Save File</button>
@@ -434,6 +456,7 @@
         <span class="zoom-pct" id="zoomPct">100%</span>
         <button class="zoom-btn" onclick="setZoom(0.1)">+</button>
       </div>
+      <button class="tb-btn" id="stackBtn" onclick="toggleStack()" title="Stack bottom-level teams of 4+ in two columns instead of one long row">Stack: On</button>
       <button class="tb-btn" onclick="fitZoom()" title="Shrink the whole chart to fit the window">Fit</button>
       <button class="tb-btn" id="focusBtn" onclick="toggleFocus()" title="Hide everything but the chart (Esc to exit)">Full Screen</button>
       <span class="save-state" id="saveState"></span>
@@ -627,9 +650,44 @@
       return { activeViewId: v.id, views: [v] };
     }
 
+    // -- Undo / redo: every saved change keeps the state it replaced (this session only) --
+    const UNDO_MAX = 25;
+    let undoStack = [], redoStack = [], lastSnap = null, undoTick = false;
+    function updateUndoBtns() {
+      const u = document.getElementById('undoBtn'), r = document.getElementById('redoBtn');
+      if (u) u.disabled = !undoStack.length;
+      if (r) r.disabled = !redoStack.length;
+    }
+    function restoreSnap(snap, msg) {
+      lastSnap = snap;
+      store = JSON.parse(snap);
+      try { localStorage.setItem(STORAGE_KEY, snap); } catch (e) {}
+      closeModal(); render(); updateUndoBtns(); toast(msg);
+    }
+    function undo() {
+      if (!undoStack.length) { toast('Nothing to undo'); return; }
+      redoStack.push(lastSnap);
+      restoreSnap(undoStack.pop(), 'Undone');
+    }
+    function redo() {
+      if (!redoStack.length) { toast('Nothing to redo'); return; }
+      undoStack.push(lastSnap);
+      restoreSnap(redoStack.pop(), 'Redone');
+    }
+
     function persist(silent) {
+      const snap = JSON.stringify(store);
+      if (lastSnap !== null && snap !== lastSnap && !silent && !undoTick) {
+        undoStack.push(lastSnap);
+        if (undoStack.length > UNDO_MAX) undoStack.shift();
+        redoStack = [];
+        undoTick = true;                       // one save = one undo step, even if it persists twice
+        Promise.resolve().then(() => { undoTick = false; });
+      }
+      lastSnap = snap;
+      updateUndoBtns();
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+        localStorage.setItem(STORAGE_KEY, snap);
       } catch (err) {
         toast('Storage full — use Save File to back up, or remove a few photos');
         return;
@@ -849,6 +907,8 @@
       const nameCounts = {};
       ppl.forEach(pp => { if (pp.name && !pp.titleOnly) { const k = normName(pp.name); nameCounts[k] = (nameCounts[k] || 0) + 1; } });
 
+      const stackOn = activeView().stack !== false;
+      document.getElementById('stackBtn').textContent = 'Stack: ' + (stackOn ? 'On' : 'Off');
       // Siblings on a lower row than their highest peer get a longer drop line
       function groupHtml(list) {
         const top = Math.min.apply(null, list.map(tierOf));
@@ -884,7 +944,11 @@
             (kids.length ? '<button class="collapse-toggle" onclick="event.stopPropagation(); toggleCollapse(\'' + p.id + '\')">' + (isCollapsed ? '+' : '−') + '</button>' : '') +
           '</div>';
         if (kids.length && !isCollapsed) {
-          html += '<ul>' + groupHtml(kids) + '</ul>';
+          // 4+ reports who manage no one: stack them so the chart doesn't sprawl sideways
+          const stack = stackOn && kids.length >= 4 && kids.every(k => !childrenOf(k.id).length);
+          html += stack
+            ? '<ul class="stack">' + orderPeers(kids).map(k => nodeHtml(k, 0)).join('') + '</ul>'
+            : '<ul>' + groupHtml(kids) + '</ul>';
         }
         html += '</li>';
         return html;
@@ -1332,6 +1396,12 @@
       sc.scrollLeft = (sc.scrollWidth - sc.clientWidth) / 2;
       sc.scrollTop = 0;
     }
+    function toggleStack() {
+      const v = activeView();
+      v.stack = v.stack === false;
+      persist(); render();
+      toast(v.stack ? 'Teams stacked' : 'Teams side by side');
+    }
     function toggleFocus(force) {
       const on = document.body.classList.toggle('focus', force);
       document.getElementById('focusBtn').textContent = on ? 'Exit Full Screen' : 'Full Screen';
@@ -1443,6 +1513,13 @@
 
     // Keyboard: Esc closes modal
     document.addEventListener('keydown', e => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z') {
+        // leave normal text undo alone while typing in a field or a pop-up
+        if (/^(input|textarea|select)$/i.test(e.target.tagName) || document.querySelector('.modal-overlay.open, .color-overlay.open')) return;
+        e.preventDefault();
+        e.shiftKey ? redo() : undo();
+        return;
+      }
       if (e.key !== 'Escape') return;
       const anyOpen = document.querySelector('.modal-overlay.open, .color-overlay.open');
       closeModal(); closeDirectory();
@@ -1556,6 +1633,7 @@ function styleOpenSeats(){
   if (n > 0) { const st = document.getElementById('stats'); if (st && !/open seat/i.test(st.textContent)) st.innerHTML += ' &nbsp;·&nbsp; <strong>' + n + '</strong> open ' + (n === 1 ? 'seat' : 'seats'); }
 }
 const _origRender = render;
+lastSnap = JSON.stringify(store);
 render = function () {
   // keep your place in a big chart when a save redraws it
   const sc = document.getElementById('chartScroll'); const l = sc.scrollLeft, t = sc.scrollTop;
