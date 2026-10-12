@@ -88,6 +88,15 @@
     .tb-btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
     .tb-btn.primary:hover { background: var(--accent-dark); }
     .tb-btn.danger:hover { border-color: #c84a4a; color: #c84a4a; }
+    .tb-btn.stale { border-color: #e89528; color: #a8660f; }
+    .pdf-opt {
+      display: block; width: 100%; text-align: left; padding: 0.8rem 0.9rem; margin-bottom: 0.55rem;
+      background: #fff; border: 1px solid rgba(0,0,0,0.1); border-radius: 9px; cursor: pointer;
+      font-family: inherit; transition: border-color 0.2s;
+    }
+    .pdf-opt:hover { border-color: var(--accent); }
+    .pdf-opt strong { display: block; font-size: 0.85rem; color: #1a1a18; margin-bottom: 0.15rem; }
+    .pdf-opt span { font-size: 0.72rem; color: #6b6b67; line-height: 1.4; }
     .tb-btn:disabled { opacity: 0.35; cursor: default; pointer-events: none; }
     .tb-sep { width: 1px; height: 22px; background: rgba(0,0,0,0.08); margin: 0 0.3rem; }
     .tb-spacer { flex: 1; }
@@ -446,8 +455,9 @@
       <div class="tb-sep"></div>
       <button class="tb-btn" onclick="exportPNG()">PNG</button>
       <button class="tb-btn" onclick="exportPDF()">PDF</button>
-      <button class="tb-btn" onclick="exportJSON()">Save File</button>
-      <button class="tb-btn" onclick="document.getElementById('importFile').click()">Load File</button>
+      <button class="tb-btn" onclick="exportJSON()" title="Save just the chart you are looking at">Save File</button>
+      <button class="tb-btn" onclick="document.getElementById('importFile').click()" title="Load a saved chart, or restore a full backup">Load File</button>
+      <button class="tb-btn" id="backupBtn" onclick="exportAll()" title="Save every chart, the people directory and your colors into one file">Back Up All</button>
       <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(event)">
       <div class="tb-spacer"></div>
       <input class="tb-search" id="search" placeholder="Search people..." oninput="render()">
@@ -467,7 +477,7 @@
     </div>
 
     <div class="footer">
-      <span>Views auto-save in this browser · use Save File for a portable backup of the current view</span>
+      <span>Charts auto-save in this browser only · <span id="backupNote"></span></span>
       <span id="lastEdit"></span>
     </div>
   </div>
@@ -532,6 +542,17 @@
       <div class="modal-actions">
         <button class="m-btn cancel" onclick="closeDirectory()">Close</button>
       </div>
+    </div>
+  </div>
+
+  <!-- PDF layout chooser -->
+  <div class="modal-overlay" id="pdfOverlay" onclick="if(event.target===this) closePdf()">
+    <div class="modal">
+      <h2>Export <em>PDF</em></h2>
+      <button class="pdf-opt" onclick="runPdf('fit')"><strong>One letter page</strong><span>The whole chart shrunk onto a single page. Best for small charts.</span></button>
+      <button class="pdf-opt" onclick="runPdf('teams')"><strong>One page per team</strong><span>A leadership page first, then a page for each leader's team with the top person repeated above it. Best for printing a big chart.</span></button>
+      <button class="pdf-opt" onclick="runPdf('poster')"><strong>Poster</strong><span>One large page at full size. Best for zooming in on screen or sending to a large-format printer.</span></button>
+      <div class="modal-actions"><button class="m-btn cancel" onclick="closePdf()">Cancel</button></div>
     </div>
   </div>
 
@@ -623,6 +644,7 @@
     let store = loadStore();      // { activeViewId, views: [ {id, name, people} ], directory: [] }
     if (!Array.isArray(store.directory)) store.directory = [];
     let collapsed = new Set();
+    let pageFilter = null;        // Set of ids while a PDF page is being drawn, else null
     let editingId = null;         // null = adding new
     let zoom = 1;
 
@@ -901,7 +923,8 @@
       renderThemeSelect();
       const ppl = people();
       const q = document.getElementById('search').value.trim().toLowerCase();
-      const roots = ppl.filter(p => !p.managerId || !byId(p.managerId));
+      const onPage = p => !pageFilter || pageFilter.has(p.id);   // PDF "page per team" draws a slice
+      const roots = ppl.filter(p => (!p.managerId || !byId(p.managerId)) && onPage(p));
 
       // Count how many tiles each named person occupies (for the dual-seat marker)
       const nameCounts = {};
@@ -915,7 +938,8 @@
         return orderPeers(list).map(p => nodeHtml(p, (tierOf(p) - top) * TIER_STEP)).join('');
       }
       function nodeHtml(p, drop) {
-        const kids = childrenOf(p.id);
+        const allKids = childrenOf(p.id);
+        const kids = allKids.filter(onPage);
         const isCollapsed = collapsed.has(p.id);
         const match = q && ((p.titleOnly ? '' : p.name.toLowerCase()).includes(q) || (p.title||'').toLowerCase().includes(q) || (p.dept||'').toLowerCase().includes(q));
         const cls = ['person'];
@@ -929,7 +953,7 @@
                'ondragstart="onDragStart(event)" ondragend="onDragEnd(event)" ' +
                'ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)" ' +
                'onclick="openEdit(\'' + p.id + '\')" title="' + esc(p.email || '') + '">' +
-            (kids.length ? '<div class="report-badge">' + kids.length + '</div>' : '') +
+            (allKids.length ? '<div class="report-badge">' + allKids.length + '</div>' : '') +
             (p.photo
               ? '<div class="avatar photo" style="background-image:url(\'' + p.photo + '\')"></div>'
               : '<div class="avatar" style="background:' + deptColor(p.dept) + '">' + esc(initials(p)) + '</div>') +
@@ -1461,25 +1485,99 @@
         toast('PNG downloaded');
       } catch (e) { toast('Export failed: ' + e.message); }
     }
-    async function exportPDF() {
+    function exportPDF() {
       if (!people().length) { toast('Nothing to export in this view'); return; }
+      document.getElementById('pdfOverlay').classList.add('open');
+    }
+    function closePdf() { document.getElementById('pdfOverlay').classList.remove('open'); }
+    async function runPdf(mode) {
+      closePdf();
       toast('Rendering PDF...');
       try {
-        const canvas = await capture();
-        const { jsPDF } = window.jspdf;
-        const landscape = canvas.width >= canvas.height;
-        const pdf = new jsPDF({ orientation: landscape ? 'l' : 'p', unit: 'pt', format: 'letter' });
-        const pw = pdf.internal.pageSize.getWidth() - 48;
-        const ph = pdf.internal.pageSize.getHeight() - 64;
-        const r = Math.min(pw / canvas.width, ph / canvas.height);
-        const w = canvas.width * r, h = canvas.height * r;
-        pdf.setFont('helvetica', 'normal'); pdf.setFontSize(9); pdf.setTextColor(160);
-        pdf.text(activeView().name + ' — ' + new Date().toLocaleDateString(), 24, 24);
-        pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG',
-          (pdf.internal.pageSize.getWidth() - w) / 2, 40, w, h);
-        pdf.save(viewSlug() + '-' + new Date().toISOString().slice(0,10) + '.pdf');
+        const pdf = await buildPdf(mode);
+        pdf.save(viewSlug() + (mode === 'fit' ? '' : '-' + mode) + '-' + new Date().toISOString().slice(0,10) + '.pdf');
         toast('PDF downloaded');
       } catch (e) { toast('Export failed: ' + e.message); }
+    }
+    // Leadership page, then one page per direct report who runs a team (top person repeated above)
+    function teamPages() {
+      const subtree = id => [id].concat(...childrenOf(id).map(k => subtree(k.id)));
+      const pages = [];
+      people().filter(p => !p.managerId || !byId(p.managerId)).forEach(r => {
+        const kids = childrenOf(r.id);
+        const leads = kids.filter(k => childrenOf(k.id).length);
+        if (!leads.length) { pages.push({ label: displayName(r), ids: new Set(subtree(r.id)) }); return; }
+        pages.push({ label: displayName(r) + ' — leadership', ids: new Set([r.id].concat(kids.map(k => k.id))) });
+        leads.forEach(m => pages.push({ label: displayName(m) + "'s team", ids: new Set([r.id].concat(subtree(m.id))) }));
+      });
+      return pages;
+    }
+    function pdfLetterPage(pdf, canvas, label) {
+      const landscape = canvas.width >= canvas.height;
+      const { jsPDF } = window.jspdf;
+      if (!pdf) pdf = new jsPDF({ orientation: landscape ? 'l' : 'p', unit: 'pt', format: 'letter' });
+      else pdf.addPage('letter', landscape ? 'l' : 'p');
+      const pw = pdf.internal.pageSize.getWidth() - 48;
+      const ph = pdf.internal.pageSize.getHeight() - 64;
+      const r = Math.min(pw / canvas.width, ph / canvas.height);
+      const w = canvas.width * r, h = canvas.height * r;
+      pdf.setFont('helvetica', 'normal'); pdf.setFontSize(9); pdf.setTextColor(160);
+      pdf.text(label + ' — ' + new Date().toLocaleDateString(), 24, 24);
+      pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG',
+        (pdf.internal.pageSize.getWidth() - w) / 2, 40, w, h);
+      return pdf;
+    }
+    async function buildPdf(mode) {
+      const { jsPDF } = window.jspdf;
+      const name = activeView().name;
+      if (mode === 'teams') {
+        const pages = teamPages();
+        const savedCollapsed = collapsed;
+        collapsed = new Set();               // every team prints fully opened
+        let pdf = null;
+        try {
+          for (let i = 0; i < pages.length; i++) {
+            toast('Rendering page ' + (i + 1) + ' of ' + pages.length + '...');
+            pageFilter = pages[i].ids; render();
+            pdf = pdfLetterPage(pdf, await capture(), name + ' · ' + pages[i].label);
+          }
+        } finally { pageFilter = null; collapsed = savedCollapsed; render(); }
+        return pdf;
+      }
+      const canvas = await capture();
+      if (mode === 'poster') {
+        // full size: 1 screen pixel = 0.75pt (canvas is captured at 2x); PDF pages top out at 200in
+        const k = Math.min(0.375, 14300 / (canvas.width + 128), 14300 / (canvas.height + 160));
+        const w = canvas.width * k, h = canvas.height * k;
+        const pdf = new jsPDF({ orientation: w + 48 >= h + 64 ? 'l' : 'p', unit: 'pt', format: [w + 48, h + 64] });
+        pdf.setFont('helvetica', 'normal'); pdf.setFontSize(9); pdf.setTextColor(160);
+        pdf.text(name + ' — ' + new Date().toLocaleDateString(), 24, 24);
+        pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 24, 40, w, h);
+        return pdf;
+      }
+      return pdfLetterPage(null, canvas, name);
+    }
+    // -- Full backup: every chart + directory + colors in one file --
+    const BACKUP_KEY = 'orgchart-last-backup';
+    function updateBackupNote() {
+      let t = 0;
+      try { t = parseInt(localStorage.getItem(BACKUP_KEY), 10) || 0; } catch (e) {}
+      const days = t ? Math.floor((Date.now() - t) / 86400000) : null;
+      document.getElementById('backupNote').textContent = t
+        ? 'last full backup ' + (days === 0 ? 'today' : days === 1 ? 'yesterday' : days + ' days ago')
+        : 'no full backup yet — use Back Up All';
+      document.getElementById('backupBtn').classList.toggle('stale', days === null || days > 14);
+    }
+    function exportAll() {
+      const blob = new Blob([JSON.stringify({ type: 'orgchart-backup', exportedAt: new Date().toISOString(), store })], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.download = 'org-charts-backup-' + new Date().toISOString().slice(0,10) + '.json';
+      a.href = URL.createObjectURL(blob);
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      try { localStorage.setItem(BACKUP_KEY, String(Date.now())); } catch (e) {}
+      updateBackupNote();
+      toast('Backed up ' + store.views.length + ' chart' + (store.views.length === 1 ? '' : 's') + ' — keep the file somewhere safe');
     }
     function exportJSON() {
       const v = activeView();
@@ -1498,6 +1596,18 @@
       reader.onload = () => {
         try {
           const parsed = JSON.parse(reader.result);
+          if (parsed && parsed.type === 'orgchart-backup') {
+            const b = parsed.store;
+            if (!b || !Array.isArray(b.views) || !b.views.length || !b.views.every(v => v.id && Array.isArray(v.people))) throw new Error('Backup file is damaged');
+            const when = parsed.exportedAt ? new Date(parsed.exportedAt).toLocaleDateString() : 'unknown date';
+            if (!confirm('Replace the ' + store.views.length + ' chart(s) in this browser with the ' + b.views.length + ' in this backup (saved ' + when + ')?\n\nUndo brings the current ones back, until you close this page.')) return;
+            if (!Array.isArray(b.directory)) b.directory = [];
+            if (!b.deptColors) b.deptColors = {};
+            if (!b.views.some(v => v.id === b.activeViewId)) b.activeViewId = b.views[0].id;
+            store = b; collapsed.clear(); persist(); render();
+            toast('Restored ' + b.views.length + ' chart' + (b.views.length === 1 ? '' : 's') + ' from backup');
+            return;
+          }
           const arr = Array.isArray(parsed) ? parsed : parsed.people;
           if (!Array.isArray(arr) || !arr.every(p => p.id && (p.name || p.title))) throw new Error('Unrecognized format');
           const name = (parsed.view || file.name.replace(/\.json$/i, '') || 'Imported view').trim();
@@ -1522,7 +1632,7 @@
       }
       if (e.key !== 'Escape') return;
       const anyOpen = document.querySelector('.modal-overlay.open, .color-overlay.open');
-      closeModal(); closeDirectory();
+      closeModal(); closeDirectory(); closePdf();
       if (!anyOpen && document.body.classList.contains('focus')) toggleFocus(false);
     });
 
@@ -1634,6 +1744,7 @@ function styleOpenSeats(){
 }
 const _origRender = render;
 lastSnap = JSON.stringify(store);
+updateBackupNote();
 render = function () {
   // keep your place in a big chart when a save redraws it
   const sc = document.getElementById('chartScroll'); const l = sc.scrollLeft, t = sc.scrollTop;
