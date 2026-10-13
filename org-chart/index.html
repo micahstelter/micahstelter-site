@@ -566,6 +566,16 @@
       <div class="field"><label>Manager (solid line)</label><select id="f-manager"></select></div>
       <div class="field"><label>Dotted-line to (secondary)</label><select id="f-dotted"></select></div>
       <div class="field">
+        <label>Dotted line route</label>
+        <select id="f-dotroute">
+          <option value="">Auto — around the nearer outside edge</option>
+          <option value="left">Around the left side</option>
+          <option value="right">Around the right side</option>
+          <option value="direct">Direct — shortest path between the two cards</option>
+          <option value="custom">Custom — where I dragged it</option>
+        </select>
+      </div>
+      <div class="field">
         <label>Row placement (among people with the same manager)</label>
         <select id="f-tier">
           <option value="">Auto — executive titles (CEO, COO, CFO, Chief, President) sit higher</option>
@@ -1145,9 +1155,11 @@
     }
 
     // -- Draw dotted (secondary) reporting lines ----
+    let dottedMeta = {};   // per dotted line: where its higher card sits, so a drag can be saved relative to it
     function drawDotted() {
       const svg = document.getElementById('dottedLayer');
       if (!svg) return;
+      dottedMeta = {};
       const inner = document.getElementById('chartInner');
       const innerRect = inner.getBoundingClientRect();
       const z = zoom || 1;
@@ -1200,8 +1212,11 @@
         if (!fromEl || !toEl) return;   // skip if either is inside a collapsed branch
         const A = rectOf(toEl), B = rectOf(fromEl);
 
-        // Same row & adjacent: short direct side-to-side link (clear gap between them)
-        if (Math.abs(A.cy - B.cy) < 6) {
+        const custom = typeof p.dottedDx === 'number';
+        const route = custom ? 'custom' : (p.dottedSide || '');
+
+        // Same row: short side-to-side link under the cards (unless a side or a dragged spot was chosen)
+        if (Math.abs(A.cy - B.cy) < 6 && route !== 'left' && route !== 'right' && route !== 'custom') {
           const left = A.left <= B.left ? A : B, right = A.left <= B.left ? B : A;
           const lx = left.right + 2, rx = right.left - 2, y = left.cy;
           const dip = Math.min(26, (rx - lx) * 0.4 + 6);
@@ -1211,30 +1226,83 @@
           return;
         }
 
-        // Different rows: route through the nearer outer gutter (beyond all cards).
         const hi = A.cy <= B.cy ? A : B;   // higher card
         const lo = A.cy <= B.cy ? B : A;   // lower card
-        const costLeft  = (hi.left - minL) + (lo.left - minL);
-        const costRight = (maxR - hi.right) + (maxR - lo.right);
-        const side = costLeft <= costRight ? -1 : 1;
-        const n = side < 0 ? leftN++ : rightN++;
-        const gx = side < 0 ? (minL - MARGIN - n * 12) : (maxR + MARGIN + n * 12);
+
+        // Direct: down from the higher card, straight across, into the top of the lower one
+        if (route === 'direct') {
+          const y = hi.bottom + GAP;
+          segs.push(stroke(roundedPath([{ x: hi.cx, y: hi.bottom }, { x: hi.cx, y: y }, { x: lo.cx, y: y }, { x: lo.cx, y: lo.top }], 10)));
+          segs.push(dot(hi.cx, hi.bottom, 3));
+          segs.push(dot(lo.cx, lo.top, 3));
+          return;
+        }
+
+        // Otherwise the line runs up, across to a vertical lane, down, and back in.
+        // The lane is the outer gutter (auto / left / right) or wherever it was dragged.
+        let gx;
+        if (custom) {
+          gx = hi.cx + p.dottedDx;
+        } else {
+          const costLeft  = (hi.left - minL) + (lo.left - minL);
+          const costRight = (maxR - hi.right) + (maxR - lo.right);
+          const side = route === 'left' ? -1 : route === 'right' ? 1 : (costLeft <= costRight ? -1 : 1);
+          const n = side < 0 ? leftN++ : rightN++;
+          gx = side < 0 ? (minL - MARGIN - n * 12) : (maxR + MARGIN + n * 12);
+        }
         const bandHi = hi.top - GAP;       // empty band just above the higher card's row
         const bandLo = lo.bottom + GAP;    // empty band just below the lower card's row
         const pts = [
           { x: hi.cx, y: hi.top },         // exit higher card from its top
           { x: hi.cx, y: bandHi },
           { x: gx,    y: bandHi },
-          { x: gx,    y: bandLo },         // travel vertically in the outer gutter
+          { x: gx,    y: bandLo },         // travel vertically in the lane
           { x: lo.cx, y: bandLo },
           { x: lo.cx, y: lo.bottom }       // enter lower card from its bottom
         ];
         segs.push(stroke(roundedPath(pts, 10)));
         segs.push(dot(hi.cx, hi.top, 3));
         segs.push(dot(lo.cx, lo.bottom, 3));
+        dottedMeta[p.id] = { hicx: hi.cx };
+        // grab handle on the lane (not drawn in exports or view-only copies)
+        if (!READONLY && !inner.classList.contains('exporting')) {
+          segs.push('<circle class="dot-handle" data-id="' + p.id + '" cx="' + gx + '" cy="' + ((bandHi + bandLo) / 2) +
+            '" r="6" fill="#fff" stroke="' + lineColor + '" stroke-width="2" style="pointer-events:all;cursor:ew-resize">' +
+            '<title>Drag sideways to move this line · double-click to put it back</title></circle>');
+        }
       });
       svg.innerHTML = segs.join('');
     }
+    // Drag a line's handle sideways to put its vertical run where you want it
+    (function () {
+      const inner = document.getElementById('chartInner');
+      let drag = null;
+      inner.addEventListener('mousedown', e => {
+        const h = e.target.closest ? e.target.closest('.dot-handle') : null;
+        if (!h || e.button !== 0) return;
+        e.preventDefault(); e.stopPropagation();          // don't pan the canvas
+        drag = { id: h.getAttribute('data-id'), moved: false };
+      });
+      window.addEventListener('mousemove', e => {
+        if (!drag) return;
+        const p = byId(drag.id), meta = dottedMeta[drag.id];
+        if (!p || !meta) return;
+        p.dottedDx = Math.round((e.clientX - inner.getBoundingClientRect().left) / (zoom || 1) - meta.hicx);
+        drag.moved = true;
+        drawDotted();
+      });
+      window.addEventListener('mouseup', () => {
+        if (drag && drag.moved) { persist(); toast('Line moved — double-click its handle to put it back'); }
+        drag = null;
+      });
+      inner.addEventListener('dblclick', e => {
+        const h = e.target.closest ? e.target.closest('.dot-handle') : null;
+        const p = h && byId(h.getAttribute('data-id'));
+        if (!p || typeof p.dottedDx !== 'number') return;
+        delete p.dottedDx;
+        persist(); render(); toast('Line back to automatic');
+      });
+    })();
     let _redrawT;
     window.addEventListener('resize', () => { clearTimeout(_redrawT); _redrawT = setTimeout(drawDotted, 120); });
 
@@ -1468,13 +1536,16 @@
       ppl.forEach(p => { const k = (p.dept || '').trim().toLowerCase(); if (k) colors[k] = deptColor(k); });
       return { n: v.name, t: v.theme || 'neutral', s: v.stack === false ? 0 : 1, d: Date.now(), c: colors,
         p: ppl.map(p => [p.name || '', p.title || '', p.dept || '', at(p.managerId), at(p.dottedManagerId),
-                         (p.titleOnly ? 1 : 0) + (p.openSeat ? 2 : 0), p.tier || '', typeof p.order === 'number' ? p.order : -1]) };
+                         (p.titleOnly ? 1 : 0) + (p.openSeat ? 2 : 0), p.tier || '', typeof p.order === 'number' ? p.order : -1,
+                         p.dottedSide || '', typeof p.dottedDx === 'number' ? p.dottedDx : null]) };
     }
     function loadShared(d) {
       const people = d.p.map((a, i) => {
         const p = { id: 's' + i, name: a[0], title: a[1], dept: a[2], managerId: a[3] >= 0 ? 's' + a[3] : null,
                     dottedManagerId: a[4] >= 0 ? 's' + a[4] : null, titleOnly: !!(a[5] & 1), openSeat: !!(a[5] & 2), tier: a[6] || null };
         if (a[7] >= 0) p.order = a[7];
+        if (a[8]) p.dottedSide = a[8];
+        if (typeof a[9] === 'number') p.dottedDx = a[9];
         return p;
       });
       store = { activeViewId: 'shared', directory: [], deptColors: d.c || {},
@@ -1724,6 +1795,7 @@
       fillManagerSelect(id, p.managerId || '');
       fillDottedSelect(id, p.dottedManagerId || '');
       document.getElementById('f-tier').value = p.tier || '';
+      document.getElementById('f-dotroute').value = typeof p.dottedDx === 'number' ? 'custom' : (p.dottedSide || '');
       document.getElementById('deleteBtn').style.display = '';
       document.getElementById('modalOverlay').classList.add('open');
     }
@@ -1740,6 +1812,7 @@
       fillManagerSelect(null, '');
       fillDottedSelect(null, '');
       document.getElementById('f-tier').value = '';
+      document.getElementById('f-dotroute').value = '';
       document.getElementById('deleteBtn').style.display = 'none';
       document.getElementById('modalOverlay').classList.add('open');
       setTimeout(() => document.getElementById('f-name').focus(), 50);
@@ -1797,6 +1870,9 @@
         tier: document.getElementById('f-tier').value || null,
         photo: pendingPhoto || null
       };
+      const route = document.getElementById('f-dotroute').value;
+      data.dottedSide = route === 'custom' ? null : (route || null);
+      if (route !== 'custom' || !data.dottedManagerId) data.dottedDx = null;   // picking a route drops a dragged position
       if (editingId) {
         if ((byId(editingId).managerId || null) !== data.managerId) delete byId(editingId).order;
         Object.assign(byId(editingId), data);
@@ -1893,11 +1969,13 @@
       const prevZoom = inner.style.zoom;
       inner.style.zoom = 1;
       inner.classList.add('exporting');
+      drawDotted();                           // redraw the dotted lines without their grab handles
       try {
         return await html2canvas(inner, { backgroundColor: '#faf9f7', scale: 2 });
       } finally {
         inner.classList.remove('exporting');
         inner.style.zoom = prevZoom;
+        drawDotted();
       }
     }
     async function exportPNG() {
