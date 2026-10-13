@@ -302,6 +302,9 @@
       z-index: 3; opacity: 0; transition: opacity 0.15s;
     }
     .person.has-kids .add-under { left: calc(50% + 26px); }
+    /* copy button, on unnamed seats only: one click = one more of the same seat */
+    .add-under.dup-seat { left: calc(50% - 26px); background: #fff; color: var(--accent); border: 1px solid var(--accent); }
+    .add-under.dup-seat svg { display: block; }
     .person:hover .add-under, .add-under:focus { opacity: 1; }
     @media (hover: none) { .add-under { opacity: 0.85; } }
     .exporting .add-under { display: none; }
@@ -1042,6 +1045,8 @@
               return '<div class="dual-badge" title="' + esc(p.name + ' also holds: ' + others.join(', ')) + '">&#8862; Dual seat</div>';
             })() +
             (kids.length ? '<button class="collapse-toggle" onclick="event.stopPropagation(); toggleCollapse(\'' + p.id + '\')">' + (isCollapsed ? '+' : '−') + '</button>' : '') +
+            (READONLY || !(p.titleOnly || p.openSeat) ? '' : '<button class="add-under dup-seat" title="Add another ' + esc(p.title || 'seat') + ' seat like this one" onclick="event.stopPropagation(); duplicateSeat(\'' + p.id + '\')">' +
+              '<svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="3.5" y="3.5" width="6.5" height="6.5" rx="1"/><path d="M7.5 1H2a1 1 0 0 0-1 1v5.5"/></svg></button>') +
             (READONLY ? '' : '<button class="add-under" title="Add a role under ' + esc(displayName(p)) + '" onclick="event.stopPropagation(); openAddUnder(\'' + p.id + '\')">+</button>') +
           '</div>';
         if (kids.length && !isCollapsed) {
@@ -1640,6 +1645,22 @@
       document.getElementById('f-manager').value = managerId; syncCombo('f-manager');
       document.getElementById('f-dept').value = m.dept || '';
       setTimeout(() => document.getElementById('f-title').focus(), 80);
+    }
+
+    // One more of the same unfilled seat: same title, department, manager and settings; no name, no team
+    function duplicateSeat(id) {
+      const p = byId(id);
+      if (!p || READONLY) return;
+      const copy = { ...p, id: uid('p'), name: '', email: '', phone: '', photo: null, dottedManagerId: p.dottedManagerId || null };
+      delete copy.order;
+      people().push(copy);
+      const pm = managerOf(p);
+      const group = pm ? childrenOf(pm) : people().filter(x => !managerOf(x));
+      // a hand-ordered group needs it slotted next to the original; automatic order already keeps matching titles together
+      if (group.some(x => typeof x.order === 'number')) placeBeside(copy.id, id, 'after');
+      persist(); render();
+      const same = group.filter(x => (x.titleOnly || x.openSeat) && normName(x.title) === normName(p.title)).length;
+      toast('Added another ' + (p.title || 'seat') + ' — ' + same + ' under this manager now');
     }
 
     function resetDirSearch() {
