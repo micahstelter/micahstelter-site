@@ -1067,8 +1067,8 @@
             titleBlock +
             (p.dept ? '<div class="p-dept">' + esc(p.dept) + '</div>' : '') +
             (function () {
-              // leaders with more than one layer under them show their whole team size
-              if (!allKids.some(k => childrenOf(k.id).length)) return '';
+              // everyone with a team shows its size: all levels below, open seats listed apart
+              if (!allKids.length) return '';
               const t = headStats(teamOf(p.id));
               return '<div class="p-team">Team of ' + t.people + (t.open ? ' · ' + t.open + ' open' : '') + '</div>';
             })() +
