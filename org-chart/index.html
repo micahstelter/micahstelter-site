@@ -1130,7 +1130,7 @@
         const countLine = '<div class="count-line"><strong>' + hs.people + '</strong> ' + (hs.people === 1 ? 'person' : 'people') +
           (hs.open ? ' &nbsp;·&nbsp; <strong>' + hs.open + '</strong> open ' + (hs.open === 1 ? 'seat' : 'seats') : '') + '</div>';
         inner.innerHTML = band + countLine + legend + '<ul class="tree">' + groupHtml(roots) +
-          '</ul><svg id="dottedLayer" class="dotted-layer"></svg>';
+          '</ul><svg id="dottedLayer" class="dotted-layer"></svg><svg id="dottedHandles" class="dotted-layer" style="z-index:6"></svg>';
       }
 
       // Stats
@@ -1160,6 +1160,7 @@
       const svg = document.getElementById('dottedLayer');
       if (!svg) return;
       dottedMeta = {};
+      const handles = [];   // drawn on a layer above the cards, so a handle is never stuck behind one
       const inner = document.getElementById('chartInner');
       const innerRect = inner.getBoundingClientRect();
       const z = zoom || 1;
@@ -1266,12 +1267,14 @@
         dottedMeta[p.id] = { hicx: hi.cx };
         // grab handle on the lane (not drawn in exports or view-only copies)
         if (!READONLY && !inner.classList.contains('exporting')) {
-          segs.push('<circle class="dot-handle" data-id="' + p.id + '" cx="' + gx + '" cy="' + ((bandHi + bandLo) / 2) +
+          handles.push('<circle class="dot-handle" data-id="' + p.id + '" cx="' + gx + '" cy="' + ((bandHi + bandLo) / 2) +
             '" r="6" fill="#fff" stroke="' + lineColor + '" stroke-width="2" style="pointer-events:all;cursor:ew-resize">' +
             '<title>Drag sideways to move this line · double-click to put it back</title></circle>');
         }
       });
       svg.innerHTML = segs.join('');
+      const hsvg = document.getElementById('dottedHandles');
+      if (hsvg) hsvg.innerHTML = handles.join('');
     }
     // Drag a line's handle sideways to put its vertical run where you want it
     (function () {
