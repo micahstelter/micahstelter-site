@@ -106,6 +106,14 @@
     .in-list li { font-size: 0.82rem; line-height: 1.45; padding: 0.42rem 0; border-top: 1px solid rgba(0,0,0,0.06); font-variant-numeric: tabular-nums; }
     .in-sub { color: #6b6b67; font-size: 0.72rem; }
     .in-tag { display: inline-block; font-size: 0.54rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700; padding: 0.1rem 0.4rem; border-radius: 99px; background: rgba(232,149,40,0.16); color: #a8660f; margin-left: 0.35rem; vertical-align: 1px; }
+    .rv-item { padding: 0.75rem 0; border-top: 1px solid rgba(0,0,0,0.08); }
+    .rv-head { font-size: 0.86rem; margin-bottom: 0.4rem; }
+    .rv-row { display: flex; align-items: center; gap: 0.6rem; padding: 0.25rem 0; font-size: 0.8rem; }
+    .rv-row .rv-val { flex: 1; min-width: 0; }
+    .rv-btn { font-size: 0.62rem; letter-spacing: 0.05em; text-transform: uppercase; padding: 0.35rem 0.6rem; border-radius: 6px; cursor: pointer;
+      border: 1px solid rgba(0,0,0,0.14); background: #fff; color: #4a4a46; white-space: nowrap; transition: all 0.2s; }
+    .rv-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .rv-btn.quiet { border-color: transparent; color: #a0a09a; padding-left: 0; }
     .in-none { font-size: 0.78rem; color: #a0a09a; padding: 0.3rem 0; }
     .share-row { display: flex; gap: 0.5rem; }
     .share-row input { flex: 1; min-width: 0; padding: 0.6rem 0.75rem; font-size: 0.75rem; border: 1px solid rgba(0,0,0,0.1); border-radius: 7px; background: #fff; color: #4a4a46; }
@@ -495,6 +503,7 @@
       <button class="tb-btn primary" onclick="newView()">+ New View</button>
       <button class="tb-btn" onclick="openRollup(false)" title="A chart drawn live from other charts — e.g. Paris Brands from Paris Painting + Paris Home Exteriors">+ Roll-Up</button>
       <button class="tb-btn" id="rollSrcBtn" onclick="openRollup(true)" style="display:none" title="Choose which charts feed this roll-up">Sources</button>
+      <button class="tb-btn" id="rollRevBtn" onclick="openReview()" style="display:none" title="Where the source charts disagree about the same person">Review</button>
       <button class="tb-btn" onclick="renameView()">Rename</button>
       <button class="tb-btn" onclick="duplicateView()">Duplicate</button>
       <button class="tb-btn danger" onclick="deleteView()">Delete View</button>
@@ -628,6 +637,16 @@
       <h2>Head<em>count</em></h2>
       <div id="headBody"></div>
       <div class="modal-actions"><button class="m-btn cancel" onclick="closeHead()">Close</button></div>
+    </div>
+  </div>
+
+  <!-- Roll-up review: where the source charts disagree -->
+  <div class="modal-overlay" id="revOverlay" onclick="if(event.target===this) closeReview()">
+    <div class="modal wide">
+      <h2>Review <em>Differences</em></h2>
+      <p class="head-note" style="margin:-0.6rem 0 0.2rem">Where the charts feeding this roll-up say different things about the same person. Fixing one here changes the source charts; Undo reverses it.</p>
+      <div id="revBody"></div>
+      <div class="modal-actions"><button class="m-btn cancel" onclick="closeReview()">Close</button></div>
     </div>
   </div>
 
@@ -936,6 +955,81 @@
       else { v = { id: uid(), name, people: [], theme: themeKey(), rollup: ids }; store.views.push(v); store.activeViewId = v.id; collapsed.clear(); }
       closeRollup(); persist(); render(); requestAnimationFrame(fitZoom);
       toast('"' + name + '" now follows ' + ids.length + ' chart' + (ids.length === 1 ? '' : 's'));
+      if (rollupIssues(v).some(x => !x.acked)) openReview();     // straight to anything the charts disagree on
+    }
+    // -- Roll-up review: every place the source charts disagree about the same person --
+    let reviewIssues = [];
+    function rollupIssues(v) {
+      const ppl = v.id === activeView().id ? people() : buildRollup(v);
+      const ack = v.ack || {}, issues = [];
+      const srcCard = (p, vid) => { const sv = store.views.find(x => x.id === vid); return (sv && sv.people.find(x => x.id === p.srcIds[vid])) || {}; };
+      const mgrName = p => { const m = ppl.find(x => x.id === p.managerId); return m ? displayName(m) : 'top of chart'; };
+      // 1. same card in two charts, different title or department
+      ppl.filter(p => p.src.length > 1).forEach(p => ['title', 'dept'].forEach(f => {
+        const vals = p.src.map(vid => ({ vid, val: (srcCard(p, vid)[f] || '').trim() }));
+        if (new Set(vals.map(x => x.val.toLowerCase())).size < 2) return;
+        const key = f + '|' + normName(p.name || p.title) + '|' + vals.map(x => x.val.toLowerCase()).join('~');
+        issues.push({ kind: f, key, p, vals, acked: !!ack[key] });
+      }));
+      // 2. same person in two charts, but not at the same spot — so they show twice
+      const byName = {};
+      ppl.forEach(p => { if (!p.group && !p.openSeat && p.name && p.name.trim()) (byName[normName(p.name)] = byName[normName(p.name)] || []).push(p); });
+      Object.keys(byName).forEach(k => {
+        const nodes = byName[k];
+        if (new Set([].concat(...nodes.map(nd => nd.src))).size < 2) return;
+        const lined = new Set([].concat(...nodes.filter(nd => nd.src.length > 1).map(nd => nd.src)));
+        const loose = nodes.filter(nd => nd.src.length === 1 && !lined.has(nd.src[0]));   // a chart whose seat matched nothing
+        if (!loose.length) return;
+        const show = (lined.size ? nodes.filter(nd => nd.src.length > 1).concat(loose) : nodes).map(nd => ({ nd, mgr: mgrName(nd) }));
+        const key = 'spot|' + k + '|' + show.map(x => x.nd.src.join('+') + ':' + normName(x.nd.title) + '>' + normName(x.mgr)).join('~');
+        issues.push({ kind: 'spot', key, name: nodes[0].name.trim(), show, acked: !!ack[key] });
+      });
+      return issues;
+    }
+    function openReview() {
+      if (!isRollup()) return;
+      renderReview();
+      document.getElementById('revOverlay').classList.add('open');
+    }
+    function closeReview() { document.getElementById('revOverlay').classList.remove('open'); }
+    function renderReview() {
+      reviewIssues = rollupIssues(activeView());
+      const word = { title: 'title', dept: 'department' };
+      const item = (it, i) => {
+        if (it.kind === 'spot') {
+          return '<div class="rv-item"><div class="rv-head"><strong>' + esc(it.name) + '</strong> sits in a different spot in each chart, so shows twice here</div>' +
+            it.show.map(x => '<div class="rv-row"><span class="rv-val">' + esc(x.nd.src.map(viewName).join(' + ')) + ': <strong>' + esc(x.nd.title || 'no title') +
+              '</strong> <span class="in-sub">under ' + esc(x.mgr) + '</span></span>' +
+              '<button class="rv-btn" onclick="reviewOpen(' + i + ',\'' + x.nd.id + '\')">Open</button></div>').join('') +
+            '<div class="rv-row"><button class="rv-btn quiet" onclick="reviewAck(' + i + ')">' + (it.acked ? 'Bring back' : 'That\'s intended — leave as is') + '</button></div></div>';
+        }
+        return '<div class="rv-item"><div class="rv-head"><strong>' + esc(displayName(it.p)) + '</strong> has a different ' + word[it.kind] + ' in each chart</div>' +
+          it.vals.map((x, j) => '<div class="rv-row"><span class="rv-val">' + esc(viewName(x.vid)) + ': <strong>' + esc(x.val || '(blank)') + '</strong></span>' +
+            '<button class="rv-btn" onclick="reviewUse(' + i + ',' + j + ')">Use this in ' + (it.vals.length === 2 ? 'both' : 'all') + '</button></div>').join('') +
+          '<div class="rv-row"><button class="rv-btn quiet" onclick="reviewAck(' + i + ')">' + (it.acked ? 'Bring back' : 'That\'s intended — leave as is') + '</button></div></div>';
+      };
+      const open = reviewIssues.map((it, i) => it.acked ? '' : item(it, i)).join('');
+      const left = reviewIssues.map((it, i) => it.acked ? item(it, i) : '').join('');
+      document.getElementById('revBody').innerHTML =
+        (open || '<div class="in-none" style="padding:1rem 0">Nothing to sort out — the charts line up.</div>') +
+        (left ? '<div class="in-h">Left as is</div>' + left : '');
+    }
+    function reviewUse(i, j) {
+      const it = reviewIssues[i]; if (!it || it.kind === 'spot') return;
+      const val = it.vals[j].val;
+      it.p.src.forEach(vid => { const sv = store.views.find(x => x.id === vid); const c = sv && sv.people.find(x => x.id === it.p.srcIds[vid]); if (c) c[it.kind] = val; });
+      persist(); render(); renderReview();
+      toast('Set to "' + (val || 'blank') + '" in ' + it.p.src.length + ' charts');
+    }
+    function reviewAck(i) {
+      const it = reviewIssues[i]; if (!it) return;
+      const v = activeView(); v.ack = v.ack || {};
+      if (it.acked) delete v.ack[it.key]; else v.ack[it.key] = true;
+      persist(); render(); renderReview();
+    }
+    function reviewOpen(i, nodeId) {
+      const nd = byId(nodeId); if (!nd) return;
+      closeReview(); jumpToSource(nd);
     }
     // Clicking a card in a roll-up opens that person where they actually live
     function jumpToSource(p) {
@@ -1013,6 +1107,10 @@
         .map(v => '<option value="' + v.id + '"' + (v.id === store.activeViewId ? ' selected' : '') + '>' + esc(v.name) + (Array.isArray(v.rollup) ? ' (roll-up)' : '') + '</option>')
         .join('');
       document.getElementById('rollSrcBtn').style.display = isRollup() ? '' : 'none';
+      const rb = document.getElementById('rollRevBtn'), todo = isRollup() ? rollupIssues(activeView()).filter(x => !x.acked).length : 0;
+      rb.style.display = isRollup() ? '' : 'none';
+      rb.textContent = todo ? 'Review (' + todo + ')' : 'Review';
+      rb.classList.toggle('stale', todo > 0);
     }
     function switchView(id) {
       if (!store.views.some(v => v.id === id)) return;
@@ -2293,7 +2391,7 @@
       }
       if (e.key !== 'Escape') return;
       const anyOpen = document.querySelector('.modal-overlay.open, .color-overlay.open');
-      closeModal(); closeDirectory(); closePdf(); closeHead(); closeShare(); closeInsights(); closeRollup();
+      closeModal(); closeDirectory(); closePdf(); closeHead(); closeShare(); closeInsights(); closeRollup(); closeReview();
       if (!anyOpen && document.body.classList.contains('focus')) toggleFocus(false);
     });
 
