@@ -365,7 +365,8 @@
     }
     .dir-results.open { display: block; }
     .dir-item { display: flex; align-items: center; gap: 0.6rem; padding: 0.5rem 0.7rem; cursor: pointer; }
-    .dir-item:hover { background: rgba(0,0,0,0.04); }
+    .dir-item:hover, .dir-item.hi { background: rgba(0,0,0,0.05); }
+    .combo { position: relative; }
     .dir-av { width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0; background-size: cover; background-position: center;
       display: flex; align-items: center; justify-content: center; color: #fff; font-size: 0.6rem; font-weight: 600; }
     .dir-meta { min-width: 0; }
@@ -1361,9 +1362,10 @@
       byName().forEach(p => {
         if (p.id === excludeId) return;
         if (excludeId && isDescendant(p.id, excludeId)) return;
-        opts.push('<option value="' + p.id + '"' + (p.id === current ? ' selected' : '') + '>' + esc(displayName(p)) + '</option>');
+        opts.push(personOption(p, current));
       });
       sel.innerHTML = opts.join('');
+      syncCombo('f-manager');
     }
 
     // Dotted-line target: any other person (secondary relationship, no hierarchy limits)
@@ -1372,10 +1374,69 @@
       const opts = ['<option value="">— None —</option>'];
       byName().forEach(p => {
         if (p.id === selfId) return;
-        opts.push('<option value="' + p.id + '"' + (p.id === current ? ' selected' : '') + '>' + esc(displayName(p)) + '</option>');
+        opts.push(personOption(p, current));
       });
       sel.innerHTML = opts.join('');
+      syncCombo('f-dotted');
     }
+
+    // -- Lookup fields: type a name instead of scrolling a list of everyone --
+    // The real <select> stays (hidden) as the value holder; this is the face on it.
+    function personOption(p, current) {
+      const sub = [p.titleOnly ? '' : p.title, p.dept].filter(Boolean).join(' · ');
+      return '<option value="' + p.id + '"' + (p.id === current ? ' selected' : '') + ' data-sub="' + esc(sub) +
+        '" data-mgr="' + (childrenOf(p.id).length ? 1 : 0) + '">' + esc(displayName(p)) + '</option>';
+    }
+    const combos = {};
+    function syncCombo(selId) { if (combos[selId]) combos[selId](); }
+    function buildCombo(selId, placeholder) {
+      const sel = document.getElementById(selId);
+      sel.style.display = 'none';
+      const wrap = document.createElement('div');
+      wrap.className = 'combo';
+      wrap.innerHTML = '<input autocomplete="off" placeholder="' + placeholder + '"><div class="dir-results"></div>';
+      sel.parentNode.insertBefore(wrap, sel);
+      const input = wrap.firstChild, box = wrap.lastChild;
+      let items = [], hi = 0;
+      const label = () => { const o = sel.options[sel.selectedIndex]; return o && o.value ? o.textContent : ''; };
+      const close = () => box.classList.remove('open');
+      const pick = v => { sel.value = v; input.value = label(); close(); };
+      const draw = () => {
+        const q = input.value === label() ? '' : normName(input.value);   // untouched = show the short list
+        const all = Array.from(sel.options).filter(o => o.value);
+        const list = (q ? all.filter(o => normName(o.textContent + ' ' + o.dataset.sub).includes(q))
+                              .sort((a, b) => b.dataset.mgr - a.dataset.mgr)
+                        : all.filter(o => o.dataset.mgr === '1')).slice(0, 40);
+        items = (q ? [] : [{ v: '', t: sel.options[0].textContent, s: '' }])
+          .concat(list.map(o => ({ v: o.value, t: o.textContent, s: o.dataset.sub })));
+        if (hi >= items.length) hi = 0;
+        box.innerHTML = items.map((it, i) => '<div class="dir-item' + (i === hi ? ' hi' : '') + '" data-i="' + i + '"><div class="dir-meta"><div class="dir-nm">' +
+            esc(it.t) + '</div>' + (it.s ? '<div class="dir-sub">' + esc(it.s) + '</div>' : '') + '</div></div>').join('') +
+          (q ? (items.length ? '' : '<div class="dir-empty">No one matches.</div>')
+             : '<div class="dir-empty">Showing managers — type a name to search everyone.</div>');
+        box.classList.add('open');
+      };
+      input.addEventListener('focus', () => { input.select(); hi = 0; draw(); });
+      input.addEventListener('input', () => { hi = 0; draw(); });
+      input.addEventListener('keydown', e => {
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+          e.preventDefault();
+          if (items.length) { hi = (hi + (e.key === 'ArrowDown' ? 1 : items.length - 1)) % items.length; draw(); }
+        } else if (e.key === 'Enter' && box.classList.contains('open') && items[hi]) {
+          e.preventDefault(); pick(items[hi].v);
+        }
+      });
+      // leaving the field: empty = none, half-typed = keep what was chosen
+      input.addEventListener('blur', () => { if (!input.value.trim()) sel.value = ''; input.value = label(); close(); });
+      box.addEventListener('mousedown', e => {
+        e.preventDefault();
+        const it = e.target.closest('.dir-item');
+        if (it) { pick(items[+it.dataset.i].v); input.blur(); }
+      });
+      combos[selId] = () => { input.value = label(); close(); };
+    }
+    buildCombo('f-manager', 'Type a name — blank means top level');
+    buildCombo('f-dotted', 'Type a name — blank means none');
 
     function toggleTitleOnly() {
       const on = document.getElementById('f-titleonly').checked;
