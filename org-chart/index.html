@@ -99,6 +99,14 @@
     .head-table tr.total td { font-weight: 700; border-top: 2px solid rgba(0,0,0,0.15); }
     .head-table .sw-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 0.45rem; }
     .head-note { font-size: 0.72rem; color: #6b6b67; margin-top: 0.8rem; line-height: 1.5; }
+    .modal.wide { max-width: 620px; }
+    .in-h { font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); font-weight: 700; margin: 1.2rem 0 0.35rem; }
+    .in-lead { font-size: 0.85rem; line-height: 1.55; color: #1a1a18; }
+    .in-list { list-style: none; }
+    .in-list li { font-size: 0.82rem; line-height: 1.45; padding: 0.42rem 0; border-top: 1px solid rgba(0,0,0,0.06); font-variant-numeric: tabular-nums; }
+    .in-sub { color: #6b6b67; font-size: 0.72rem; }
+    .in-tag { display: inline-block; font-size: 0.54rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700; padding: 0.1rem 0.4rem; border-radius: 99px; background: rgba(232,149,40,0.16); color: #a8660f; margin-left: 0.35rem; vertical-align: 1px; }
+    .in-none { font-size: 0.78rem; color: #a0a09a; padding: 0.3rem 0; }
     .share-row { display: flex; gap: 0.5rem; }
     .share-row input { flex: 1; min-width: 0; padding: 0.6rem 0.75rem; font-size: 0.75rem; border: 1px solid rgba(0,0,0,0.1); border-radius: 7px; background: #fff; color: #4a4a46; }
     .tb-btn.stale { border-color: #e89528; color: #a8660f; }
@@ -500,6 +508,7 @@
       <button class="tb-btn" onclick="openShare()" title="Make a view-only link to this chart">Share Link</button>
       <div class="tb-sep"></div>
       <button class="tb-btn ro-ok" onclick="openHead()" title="Filled and open seats by department">Headcount</button>
+      <button class="tb-btn" onclick="openInsights()" title="Who is carrying the most, seats to hire, and structure worth a second look">Insights</button>
       <button class="tb-btn" onclick="autoOrder()" title="Drop any hand-set left-to-right order and go back to automatic grouping">Auto Order</button>
       <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(event)">
       <div class="tb-spacer"></div>
@@ -594,6 +603,19 @@
       <h2>Head<em>count</em></h2>
       <div id="headBody"></div>
       <div class="modal-actions"><button class="m-btn cancel" onclick="closeHead()">Close</button></div>
+    </div>
+  </div>
+
+  <!-- Insights -->
+  <div class="modal-overlay" id="insOverlay" onclick="if(event.target===this) closeInsights()">
+    <div class="modal wide">
+      <h2>Org <em>Insights</em></h2>
+      <div id="insBody"></div>
+      <p class="head-note">This reads the structure of the chart only. It can't see workload, performance, or plans that aren't drawn here.</p>
+      <div class="modal-actions">
+        <button class="m-btn save" onclick="copyOutline()">Copy chart as text</button>
+        <button class="m-btn cancel" onclick="closeInsights()">Close</button>
+      </div>
     </div>
   </div>
 
@@ -1339,6 +1361,90 @@
     }
     function closeHead() { document.getElementById('headOverlay').classList.remove('open'); }
 
+    // -- Insights: structural signals read off the chart (numbers first, his call what they mean) --
+    const WIDE_SPAN = 8;   // direct reports at which a manager gets the "wide" tag
+    function openInsights() {
+      const ppl = people();
+      if (!ppl.length) { toast('Nothing to read in this view'); return; }
+      const hs = headStats(ppl);
+      const who = p => '<strong>' + esc(displayName(p)) + '</strong>' + (p.titleOnly || !p.title ? '' : ' <span class="in-sub">' + esc(p.title) + '</span>');
+      const plural = (n, w) => n + ' ' + w + (n === 1 ? '' : 's');
+      const list = rows => rows.length ? '<ul class="in-list">' + rows.map(r => '<li>' + r + '</li>').join('') + '</ul>' : '<div class="in-none">Nothing stands out.</div>';
+      const roots = ppl.filter(p => !managerOf(p));
+      const depth = p => 1 + Math.max(0, ...childrenOf(p.id).map(depth));
+      const layers = Math.max(...roots.map(depth));
+      const mgrs = ppl.filter(p => childrenOf(p.id).length)
+        .map(p => ({ p, direct: childrenOf(p.id).length, team: headStats(teamOf(p.id)) }))
+        .sort((a, b) => b.direct - a.direct || b.team.people - a.team.people);
+      const avg = mgrs.length ? (mgrs.reduce((t, m) => t + m.direct, 0) / mgrs.length).toFixed(1) : '0';
+
+      // people sitting in more than one seat
+      const seatsBy = {};
+      ppl.forEach(p => { if (!p.openSeat && p.name && p.name.trim()) (seatsBy[normName(p.name)] = seatsBy[normName(p.name)] || []).push(p); });
+      const dual = Object.values(seatsBy).filter(a => a.length > 1);
+      const dualNames = new Set(dual.map(a => normName(a[0].name)));
+
+      const carrying = mgrs.slice(0, 5).map(m =>
+        who(m.p) + ' — ' + plural(m.direct, 'direct report') +
+        (m.team.people > m.direct ? ', team of ' + m.team.people : '') +
+        (m.team.open ? ', ' + m.team.open + ' open' : '') +
+        (m.direct >= WIDE_SPAN ? '<span class="in-tag">wide</span>' : '') +
+        (m.p.openSeat ? '<span class="in-tag">open seat</span>' : '') +
+        (!m.p.openSeat && dualNames.has(normName(m.p.name)) ? '<span class="in-tag">two seats</span>' : ''));
+      const dualRows = dual.map(a => '<strong>' + esc(a[0].name.trim()) + '</strong> holds ' + a.length + ' seats: ' + a.map(p => esc(p.title || 'untitled')).join(', '));
+
+      // seats to hire
+      const open = ppl.filter(p => p.openSeat);
+      const byDept = {};
+      ppl.forEach(p => { const k = (p.dept || '').trim() || 'No department'; const r = byDept[k] = byDept[k] || { seats: 0, open: 0 }; r.seats++; if (p.openSeat) r.open++; });
+      const deptRows = Object.keys(byDept).filter(k => byDept[k].open).sort((a, b) => byDept[b].open - byDept[a].open)
+        .map(k => '<strong>' + esc(k) + '</strong> — ' + byDept[k].open + ' open of ' + plural(byDept[k].seats, 'seat') + ' (' + Math.round(byDept[k].open / byDept[k].seats * 100) + '%)');
+      const byRole = {};
+      open.forEach(p => { const m = managerOf(p); const k = normName(p.title) + '|' + (m || ''); const r = byRole[k] = byRole[k] || { title: p.title || 'Untitled seat', m, n: 0 }; r.n++; });
+      const roleRows = Object.values(byRole).sort((a, b) => b.n - a.n)
+        .map(r => '<strong>' + r.n + ' × ' + esc(r.title) + '</strong>' + (r.m ? ' <span class="in-sub">under ' + esc(displayName(byId(r.m))) + '</span>' : ' <span class="in-sub">top level</span>'));
+      const leaderless = open.filter(p => childrenOf(p.id).length)
+        .map(p => 'The open <strong>' + esc(p.title || 'seat') + '</strong> seat has ' + plural(headStats(teamOf(p.id)).people, 'person').replace('persons', 'people') + ' under it and no one in it');
+
+      // structure worth a second look
+      const look = [];
+      mgrs.filter(m => m.direct === 1).forEach(m => look.push(who(m.p) + ' manages one person — a layer with a single report'));
+      mgrs.filter(m => m.direct >= WIDE_SPAN && !m.p.openSeat && dualNames.has(normName(m.p.name)))
+        .forEach(m => look.push(who(m.p) + ' has ' + m.direct + ' direct reports and also holds a second seat'));
+      if (roots.length > 1) look.push(roots.length + ' cards sit at the top with no manager: ' + roots.map(r => esc(displayName(r))).join(', '));
+      const noDept = ppl.filter(p => !(p.dept || '').trim()).length;
+      if (noDept) look.push(plural(noDept, 'card') + ' ' + (noDept === 1 ? 'has' : 'have') + ' no department, so the department counts are short by that many');
+      const big = mgrs.filter(m => roots.indexOf(m.p) < 0 && hs.people > 0 && m.team.people / hs.people >= 0.5)[0];
+      if (big) look.push(who(big.p) + '\'s team is ' + Math.round(big.team.people / hs.people * 100) + '% of the people on this chart');
+
+      document.getElementById('insBody').innerHTML =
+        '<p class="in-lead"><strong>' + plural(hs.people, 'person').replace('persons', 'people') + '</strong> in ' + plural(hs.filled, 'filled seat') +
+          (hs.open ? ', plus <strong>' + plural(hs.open, 'open seat') + '</strong>' : '') + '. ' +
+          plural(layers, 'layer') + ' top to bottom. ' + plural(mgrs.length, 'person').replace('persons', 'people') + ' manage others, averaging ' + avg + ' direct reports.</p>' +
+        '<div class="in-h">Who is carrying the most</div>' + list(carrying) +
+        (dualRows.length ? '<div class="in-h">People in more than one seat</div>' + list(dualRows) : '') +
+        '<div class="in-h">Seats to hire</div>' +
+          (open.length ? list(leaderless.concat(deptRows)) + '<div class="in-h">By role</div>' + list(roleRows) : '<div class="in-none">No open seats on this chart.</div>') +
+        '<div class="in-h">Worth a second look</div>' + list(look);
+      document.getElementById('insOverlay').classList.add('open');
+    }
+    function closeInsights() { document.getElementById('insOverlay').classList.remove('open'); }
+    // Plain-text outline of the chart, for pasting into a note, an email, or Claude
+    function outlineText() {
+      const v = activeView(), hs = headStats(v.people);
+      const line = (p, d) => '  '.repeat(d) + '- ' + (p.openSeat ? 'OPEN SEAT' : (p.name && !p.titleOnly ? p.name : 'Unnamed')) +
+        (p.title ? ' — ' + p.title : '') + ((p.dept || '').trim() ? ' [' + p.dept.trim() + ']' : '') +
+        (childrenOf(p.id).length ? ' (' + childrenOf(p.id).length + ' direct)' : '');
+      const walk = (p, d) => [line(p, d)].concat(...orderPeers(childrenOf(p.id)).map(k => walk(k, d + 1)));
+      return v.name + ' — ' + hs.people + ' people, ' + hs.open + ' open seats\n' +
+        [].concat(...orderPeers(v.people.filter(p => !managerOf(p))).map(r => walk(r, 0))).join('\n');
+    }
+    async function copyOutline() {
+      const text = outlineText();
+      try { await navigator.clipboard.writeText(text); toast('Chart copied as text'); }
+      catch (e) { toast('Could not copy — try again with the page in front'); }
+    }
+
     // -- View-only share link: the chart itself rides in the link, nothing is uploaded --
     async function packShare(obj) {
       const stream = new Blob([JSON.stringify(obj)]).stream().pipeThrough(new CompressionStream('deflate-raw'));
@@ -1950,7 +2056,7 @@
       }
       if (e.key !== 'Escape') return;
       const anyOpen = document.querySelector('.modal-overlay.open, .color-overlay.open');
-      closeModal(); closeDirectory(); closePdf(); closeHead(); closeShare();
+      closeModal(); closeDirectory(); closePdf(); closeHead(); closeShare(); closeInsights();
       if (!anyOpen && document.body.classList.contains('focus')) toggleFocus(false);
     });
 
