@@ -493,6 +493,8 @@
       <span class="viewbar-label">View</span>
       <select class="view-select" id="viewSelect" onchange="switchView(this.value)"></select>
       <button class="tb-btn primary" onclick="newView()">+ New View</button>
+      <button class="tb-btn" onclick="openRollup(false)" title="A chart drawn live from other charts — e.g. Paris Brands from Paris Painting + Paris Home Exteriors">+ Roll-Up</button>
+      <button class="tb-btn" id="rollSrcBtn" onclick="openRollup(true)" style="display:none" title="Choose which charts feed this roll-up">Sources</button>
       <button class="tb-btn" onclick="renameView()">Rename</button>
       <button class="tb-btn" onclick="duplicateView()">Duplicate</button>
       <button class="tb-btn danger" onclick="deleteView()">Delete View</button>
@@ -626,6 +628,20 @@
       <h2>Head<em>count</em></h2>
       <div id="headBody"></div>
       <div class="modal-actions"><button class="m-btn cancel" onclick="closeHead()">Close</button></div>
+    </div>
+  </div>
+
+  <!-- Roll-up builder -->
+  <div class="modal-overlay" id="rollOverlay" onclick="if(event.target===this) closeRollup()">
+    <div class="modal">
+      <h2 id="rollTitle">New <em>Roll-Up</em></h2>
+      <p class="head-note" style="margin:-0.6rem 0 0.9rem">A roll-up is drawn live from the charts you tick, so it always matches them. People who appear in more than one chart at the same spot are shown once. You edit in the source charts; the roll-up is view-only.</p>
+      <div class="field"><label>Name</label><input id="roll-name" placeholder="e.g. Paris Brands 2027"></div>
+      <div class="field"><label>Charts that feed it (higher in the list wins when titles differ)</label><div id="roll-list"></div></div>
+      <div class="modal-actions">
+        <button class="m-btn save" onclick="saveRollup()">Save</button>
+        <button class="m-btn cancel" onclick="closeRollup()">Cancel</button>
+      </div>
     </div>
   </div>
 
@@ -797,7 +813,7 @@
     }
     function restoreSnap(snap, msg) {
       lastSnap = snap;
-      store = JSON.parse(snap);
+      store = JSON.parse(snap); storeRev++;
       try { localStorage.setItem(STORAGE_KEY, snap); } catch (e) {}
       closeModal(); render(); updateUndoBtns(); toast(msg);
     }
@@ -813,6 +829,7 @@
     }
 
     function persist(silent) {
+      storeRev++;                            // any saved change makes roll-ups recompute
       if (READONLY) return;
       const snap = JSON.stringify(store);
       if (lastSnap !== null && snap !== lastSnap && !silent && !undoTick) {
@@ -844,7 +861,92 @@
     function activeView() {
       return store.views.find(v => v.id === store.activeViewId) || store.views[0];
     }
-    function people() { return activeView().people; }
+    // -- Roll-up views: a chart computed live from other charts (never stored, never edited) --
+    let storeRev = 0, rollCache = null;
+    function isRollup() { return Array.isArray(activeView().rollup); }
+    function locked() { return READONLY || isRollup(); }
+    function people() {
+      const v = activeView();
+      if (!Array.isArray(v.rollup)) return v.people;
+      if (!rollCache || rollCache.id !== v.id || rollCache.rev !== storeRev) rollCache = { id: v.id, rev: storeRev, people: buildRollup(v) };
+      return rollCache.people;
+    }
+    function rollupSources(v) {
+      return (v.rollup || []).map(id => store.views.find(x => x.id === id)).filter(x => x && !Array.isArray(x.rollup));
+    }
+    // Walk each source chart from the top. A card joins an existing one when it has the same
+    // name under the same (already merged) manager in a different chart; everything else is added as is.
+    function buildRollup(v) {
+      const out = [], slots = {}, maps = [];
+      rollupSources(v).forEach((sv, si) => {
+        const idMap = {}; maps.push(idMap);
+        const has = id => sv.people.some(p => p.id === id);
+        const keyOf = (p, parentId) =>
+          p.group ? 'g:' + normName(p.name || p.title)
+          : (!p.openSeat && p.name && p.name.trim()) ? 'n:' + normName(p.name)
+          : (parentId === null && p.title) ? 'g:' + normName(p.title)      // same-titled top card = same body
+          : null;                                                          // unnamed seats never merge
+        const walk = (p, parentId) => {
+          const k = keyOf(p, parentId), slot = k ? (parentId || '') + '|' + k : null;
+          let node = slot ? slots[slot] : null;
+          if (node && node.src.indexOf(sv.id) >= 0) node = null;           // twice in one chart: keep both
+          if (node) {
+            node.src.push(sv.id); node.srcIds[sv.id] = p.id;
+            if ((p.title || '').trim() !== (node.title || '').trim()) node.altTitles.push({ view: sv.name, title: p.title || '' });
+            if (!node.photo && p.photo) node.photo = p.photo;
+            if (p.group) node.group = true;
+          } else {
+            node = Object.assign({}, p, { id: 'r' + sv.id + '-' + p.id, managerId: parentId, dottedManagerId: null,
+              src: [sv.id], srcIds: { [sv.id]: p.id }, altTitles: [], _dot: p.dottedManagerId ? [si, p.dottedManagerId] : null });
+            if (typeof p.order === 'number') node.order = si * 1000 + p.order; else delete node.order;
+            out.push(node);
+            if (slot && !slots[slot]) slots[slot] = node;
+          }
+          idMap[p.id] = node.id;
+          sv.people.filter(c => c.managerId === p.id).forEach(c => walk(c, node.id));
+        };
+        sv.people.filter(p => !p.managerId || !has(p.managerId)).forEach(r => walk(r, null));
+      });
+      out.forEach(nd => { if (nd._dot) nd.dottedManagerId = maps[nd._dot[0]][nd._dot[1]] || null; delete nd._dot; });
+      return out;
+    }
+    function openRollup(editing) {
+      if (editing && !isRollup()) return;
+      const cur = editing ? activeView() : null;
+      openRollup.editing = cur ? cur.id : null;
+      document.getElementById('rollTitle').innerHTML = cur ? 'Roll-Up <em>Sources</em>' : 'New <em>Roll-Up</em>';
+      document.getElementById('roll-name').value = cur ? cur.name : '';
+      const picked = cur ? cur.rollup : [];
+      const charts = store.views.filter(v => !Array.isArray(v.rollup));
+      document.getElementById('roll-list').innerHTML = charts.length ? charts.map(v =>
+        '<div class="check-row" style="margin-bottom:0.4rem"><input type="checkbox" id="rs-' + v.id + '" value="' + v.id + '"' + (picked.indexOf(v.id) >= 0 ? ' checked' : '') + '>' +
+        '<label for="rs-' + v.id + '">' + esc(v.name) + ' <span class="in-sub">· ' + v.people.length + ' cards</span></label></div>').join('')
+        : '<div class="dir-empty">Build a chart first, then roll it up.</div>';
+      document.getElementById('rollOverlay').classList.add('open');
+      if (!cur) setTimeout(() => document.getElementById('roll-name').focus(), 50);
+    }
+    function closeRollup() { document.getElementById('rollOverlay').classList.remove('open'); }
+    function saveRollup() {
+      const name = document.getElementById('roll-name').value.trim();
+      const ids = Array.from(document.querySelectorAll('#roll-list input:checked')).map(i => i.value);
+      if (!name) { document.getElementById('roll-name').focus(); return; }
+      if (!ids.length) { toast('Tick at least one chart to feed it'); return; }
+      let v = openRollup.editing ? store.views.find(x => x.id === openRollup.editing) : null;
+      if (v) { v.name = name; v.rollup = ids; }
+      else { v = { id: uid(), name, people: [], theme: themeKey(), rollup: ids }; store.views.push(v); store.activeViewId = v.id; collapsed.clear(); }
+      closeRollup(); persist(); render(); requestAnimationFrame(fitZoom);
+      toast('"' + name + '" now follows ' + ids.length + ' chart' + (ids.length === 1 ? '' : 's'));
+    }
+    // Clicking a card in a roll-up opens that person where they actually live
+    function jumpToSource(p) {
+      const sv = store.views.find(v => v.id === p.src[0]);
+      if (!sv) return;
+      const from = activeView().name, pid = p.srcIds[sv.id];
+      store.activeViewId = sv.id; collapsed.clear(); persist(true); render();
+      const el = document.querySelector('.person[data-id="' + pid + '"]');
+      if (el) { el.scrollIntoView({ block: 'center', inline: 'center' }); el.classList.add('hit'); setTimeout(() => el.classList.remove('hit'), 2500); }
+      toast('Opened in ' + sv.name + ' — edit here and ' + from + ' follows');
+    }
 
     // -- People directory (reusable across every view) ----
     const normName = s => (s || '').trim().toLowerCase();
@@ -908,8 +1010,9 @@
     function renderViewSelect() {
       const sel = document.getElementById('viewSelect');
       sel.innerHTML = store.views
-        .map(v => '<option value="' + v.id + '"' + (v.id === store.activeViewId ? ' selected' : '') + '>' + esc(v.name) + '</option>')
+        .map(v => '<option value="' + v.id + '"' + (v.id === store.activeViewId ? ' selected' : '') + '>' + esc(v.name) + (Array.isArray(v.rollup) ? ' (roll-up)' : '') + '</option>')
         .join('');
+      document.getElementById('rollSrcBtn').style.display = isRollup() ? '' : 'none';
     }
     function switchView(id) {
       if (!store.views.some(v => v.id === id)) return;
@@ -931,6 +1034,7 @@
       const name = (prompt('Name for the duplicate:', cur.name + ' (copy)') || '').trim();
       if (!name) return;
       const v = { id: uid(), name, people: JSON.parse(JSON.stringify(cur.people)), theme: cur.theme || 'neutral' };
+      if (Array.isArray(cur.rollup)) v.rollup = cur.rollup.slice();
       store.views.push(v); store.activeViewId = v.id;
       collapsed.clear(); persist(); render();
       toast('Duplicated as "' + name + '"');
@@ -995,6 +1099,7 @@
         .sort((a, b) => a.o - b.o || a.t - b.t || a.r - b.r || a.f - b.f || a.i - b.i)
         .map(x => x.p);
     }
+    function viewName(id) { const v = store.views.find(x => x.id === id); return v ? v.name : 'a removed chart'; }
     function displayName(p) { return p.titleOnly ? (p.title || 'Open role') : p.name; }
     function initials(p) {
       const base = p.titleOnly ? (p.title || '') : (p.name || p.title || '');
@@ -1074,10 +1179,10 @@
           ? '<div class="p-title solo">' + esc(p.title || 'Open role') + '</div>'
           : '<div class="p-name">' + esc(p.name) + '</div><div class="p-title">' + esc(p.title || '—') + '</div>';
         let html = '<li style="--drop:' + (drop || 0) + 'px">' +
-          '<div class="' + cls.join(' ') + '" draggable="' + !READONLY + '" data-id="' + p.id + '" ' +
+          '<div class="' + cls.join(' ') + '" draggable="' + !locked() + '" data-id="' + p.id + '" ' +
                'ondragstart="onDragStart(event)" ondragend="onDragEnd(event)" ' +
                'ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)" ' +
-               'onclick="openEdit(\'' + p.id + '\')" title="' + esc(p.email || '') + '">' +
+               'onclick="openEdit(\'' + p.id + '\')" title="' + esc(p.src ? 'In ' + p.src.map(viewName).join(' + ') + ' — click to open it there' : (p.email || '')) + '">' +
             (allKids.length ? '<div class="report-badge">' + allKids.length + '</div>' : '') +
             (p.group ? '' : p.photo
               ? '<div class="avatar photo" style="background-image:url(\'' + p.photo + '\')"></div>'
@@ -1096,10 +1201,12 @@
               const others = ppl.filter(o => o.id !== p.id && !o.titleOnly && normName(o.name) === k).map(o => o.title || '(untitled seat)');
               return '<div class="dual-badge" title="' + esc(p.name + ' also holds: ' + others.join(', ')) + '">&#8862; Dual seat</div>';
             })() +
+            (p.src && p.src.length > 1 ? '<div class="dual-badge" title="' + esc('Shared by ' + p.src.map(viewName).join(' + ') +
+              (p.altTitles.length ? ' — title differs: ' + p.altTitles.map(a => a.view + ' says "' + (a.title || 'none') + '"').join('; ') : '')) + '">&#8862; Shared' + (p.altTitles.length ? ' · title differs' : '') + '</div>' : '') +
             (kids.length ? '<button class="collapse-toggle" onclick="event.stopPropagation(); toggleCollapse(\'' + p.id + '\')">' + (isCollapsed ? '+' : '−') + '</button>' : '') +
-            (READONLY || !(p.titleOnly || p.openSeat) ? '' : '<button class="add-under dup-seat" title="Add another ' + esc(p.title || 'seat') + ' seat like this one" onclick="event.stopPropagation(); duplicateSeat(\'' + p.id + '\')">' +
+            (locked() || !(p.titleOnly || p.openSeat) ? '' : '<button class="add-under dup-seat" title="Add another ' + esc(p.title || 'seat') + ' seat like this one" onclick="event.stopPropagation(); duplicateSeat(\'' + p.id + '\')">' +
               '<svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="3.5" y="3.5" width="6.5" height="6.5" rx="1"/><path d="M7.5 1H2a1 1 0 0 0-1 1v5.5"/></svg></button>') +
-            (READONLY ? '' : '<button class="add-under" title="Add a role under ' + esc(displayName(p)) + '" onclick="event.stopPropagation(); openAddUnder(\'' + p.id + '\')">+</button>') +
+            (locked() ? '' : '<button class="add-under" title="Add a role under ' + esc(displayName(p)) + '" onclick="event.stopPropagation(); openAddUnder(\'' + p.id + '\')">+</button>') +
           '</div>';
         if (kids.length && !isCollapsed) {
           // 4+ reports who manage no one: stack them so the chart doesn't sprawl sideways
@@ -1142,12 +1249,16 @@
           '</div>'
         : '';
       if (!ppl.length) {
-        inner.innerHTML = band + '<div class="empty-note">This view is empty. Click <strong>+ Add Person</strong> to start building "' + esc(activeView().name) + '".</div>';
+        inner.innerHTML = band + (isRollup()
+          ? '<div class="empty-note">This roll-up has nothing feeding it yet. Click <strong>Sources</strong> and tick the charts to combine.</div>'
+          : '<div class="empty-note">This view is empty. Click <strong>+ Add Person</strong> to start building "' + esc(activeView().name) + '".</div>');
       } else {
         const hs = headStats(ppl);
         const countLine = '<div class="count-line"><strong>' + hs.people + '</strong> ' + (hs.people === 1 ? 'person' : 'people') +
           (hs.open ? ' &nbsp;·&nbsp; <strong>' + hs.open + '</strong> open ' + (hs.open === 1 ? 'seat' : 'seats') : '') + '</div>';
-        inner.innerHTML = band + countLine + legend + '<ul class="tree">' + groupHtml(roots) +
+        const rollLine = isRollup() ? '<div class="count-line" style="margin-bottom:0.5rem">Roll-up of ' +
+          rollupSources(activeView()).map(x => esc(x.name)).join(' + ') + '</div>' : '';
+        inner.innerHTML = band + rollLine + countLine + legend + '<ul class="tree">' + groupHtml(roots) +
           '</ul><svg id="dottedLayer" class="dotted-layer"></svg><svg id="dottedHandles" class="dotted-layer" style="z-index:6"></svg>';
       }
 
@@ -1284,7 +1395,7 @@
         segs.push(dot(lo.cx, lo.bottom, 3));
         dottedMeta[p.id] = { hicx: hi.cx };
         // grab handle on the lane (not drawn in exports or view-only copies)
-        if (!READONLY && !inner.classList.contains('exporting')) {
+        if (!locked() && !inner.classList.contains('exporting')) {
           handles.push('<circle class="dot-handle" data-id="' + p.id + '" cx="' + gx + '" cy="' + ((bandHi + bandLo) / 2) +
             '" r="6" fill="#fff" stroke="' + lineColor + '" stroke-width="2" style="pointer-events:all;cursor:ew-resize">' +
             '<title>Drag sideways to move this line · double-click to put it back</title></circle>');
@@ -1421,6 +1532,7 @@
       toast(displayName(moved) + ' now reports to ' + displayName(byId(targetId)));
     }
     function autoOrder() {
+      if (isRollup()) { toast('A roll-up follows the order in its source charts'); return; }
       const set = people().filter(p => typeof p.order === 'number');
       if (!set.length) { toast('Already in automatic order'); return; }
       set.forEach(p => { delete p.order; });
@@ -1507,6 +1619,8 @@
       mgrs.filter(m => m.direct >= WIDE_SPAN && !m.p.openSeat && dualNames.has(normName(m.p.name)))
         .forEach(m => look.push(who(m.p) + ' has ' + m.direct + ' direct reports and also holds a second seat'));
       if (roots.length > 1) look.push(roots.length + ' cards sit at the top with no manager: ' + roots.map(r => esc(displayName(r))).join(', '));
+      ppl.filter(p => p.altTitles && p.altTitles.length).forEach(p => look.push(who(p) + ' has a different title in ' +
+        p.altTitles.map(a => esc(a.view) + ': "' + esc(a.title || 'none') + '"').join(', ')));
       const noDept = ppl.filter(p => !(p.dept || '').trim()).length;
       if (noDept) look.push(plural(noDept, 'card') + ' ' + (noDept === 1 ? 'has' : 'have') + ' no department, so the department counts are short by that many');
       const big = mgrs.filter(m => roots.indexOf(m.p) < 0 && hs.people > 0 && m.team.people / hs.people >= 0.5)[0];
@@ -1526,7 +1640,7 @@
     function closeInsights() { document.getElementById('insOverlay').classList.remove('open'); }
     // Plain-text outline of the chart, for pasting into a note, an email, or Claude
     function outlineText() {
-      const v = activeView(), hs = headStats(v.people);
+      const v = { name: activeView().name, people: people() }, hs = headStats(v.people);
       const line = (p, d) => '  '.repeat(d) + '- ' + (p.group ? '[GOVERNING BODY] ' + displayName(p) + (p.members ? ' (' + p.members + ')' : '') : p.openSeat ? 'OPEN SEAT' : (p.name && !p.titleOnly ? p.name : 'Unnamed')) +
         (p.title && !(p.group && p.titleOnly) ? ' — ' + p.title : '') + ((p.dept || '').trim() ? ' [' + p.dept.trim() + ']' : '') +
         (childrenOf(p.id).length ? ' (' + childrenOf(p.id).length + ' direct)' : '');
@@ -1553,7 +1667,7 @@
       return JSON.parse(await new Response(stream).text());
     }
     function shareData() {
-      const v = activeView(), ppl = v.people;
+      const v = activeView(), ppl = people();
       const idx = {}; ppl.forEach((p, i) => { idx[p.id] = i; });
       const at = id => (id != null && id in idx) ? idx[id] : -1;
       const colors = {};
@@ -1780,6 +1894,7 @@
     function addFromDirectory(en) {
       const d = dirFind(decodeURIComponent(en));
       if (!d) return;
+      if (isRollup()) { toast('This is a roll-up — add people in the charts that feed it'); return; }
       people().push({ id: uid('p'), name: d.name, title: d.title || '', dept: d.dept || '',
         email: d.email || '', phone: d.phone || '', photo: d.photo || null,
         managerId: null, dottedManagerId: null, titleOnly: false });
@@ -1811,6 +1926,7 @@
     function openEdit(id) {
       const p = byId(id);
       if (!p || READONLY) return;
+      if (isRollup()) { jumpToSource(p); return; }
       editingId = id;
       document.getElementById('modalTitle').innerHTML = 'Edit <em>' + esc((displayName(p) || 'Person').split(' ')[0]) + '</em>';
       document.getElementById('f-titleonly').checked = !!p.titleOnly;
@@ -1835,6 +1951,7 @@
     }
 
     function openAdd() {
+      if (isRollup()) { toast('This is a roll-up — add people in the charts that feed it'); return; }
       editingId = null;
       document.getElementById('modalTitle').innerHTML = 'Add <em>Person</em>';
       document.getElementById('f-titleonly').checked = false;
@@ -1858,7 +1975,7 @@
     // "+" on a card: new role already pointed at that manager, in their department
     function openAddUnder(managerId) {
       const m = byId(managerId);
-      if (!m || READONLY) return;
+      if (!m || locked()) return;
       openAdd();
       document.getElementById('modalTitle').innerHTML = 'Add under <em>' + esc(displayName(m)) + '</em>';
       document.getElementById('f-manager').value = managerId; syncCombo('f-manager');
@@ -1869,7 +1986,7 @@
     // One more of the same unfilled seat: same title, department, manager and settings; no name, no team
     function duplicateSeat(id) {
       const p = byId(id);
-      if (!p || READONLY) return;
+      if (!p || locked()) return;
       const copy = { ...p, id: uid('p'), name: '', email: '', phone: '', photo: null, dottedManagerId: p.dottedManagerId || null };
       delete copy.order;
       people().push(copy);
@@ -2125,7 +2242,7 @@
     }
     function exportJSON() {
       const v = activeView();
-      const blob = new Blob([JSON.stringify({ exportedAt: new Date().toISOString(), view: v.name, theme: v.theme || 'neutral', people: v.people }, null, 2)], { type: 'application/json' });
+      const blob = new Blob([JSON.stringify({ exportedAt: new Date().toISOString(), view: v.name, theme: v.theme || 'neutral', people: people() }, null, 2)], { type: 'application/json' });
       const a = document.createElement('a');
       a.download = viewSlug() + '-' + new Date().toISOString().slice(0,10) + '.json';
       a.href = URL.createObjectURL(blob);
@@ -2176,7 +2293,7 @@
       }
       if (e.key !== 'Escape') return;
       const anyOpen = document.querySelector('.modal-overlay.open, .color-overlay.open');
-      closeModal(); closeDirectory(); closePdf(); closeHead(); closeShare(); closeInsights();
+      closeModal(); closeDirectory(); closePdf(); closeHead(); closeShare(); closeInsights(); closeRollup();
       if (!anyOpen && document.body.classList.contains('focus')) toggleFocus(false);
     });
 
