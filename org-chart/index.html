@@ -729,7 +729,9 @@
         fontHead: "'Lato', sans-serif"
       }
     };
-    const THEME_ORDER = ['neutral', 'aleph', 'aleph-holdings', 'paris-painting', 'paris-exteriors'];
+    // Clarity: the Paris orange-and-charcoal colors with no brand name — the band is just the chart's own title
+    THEMES['clarity'] = Object.assign({}, THEMES['paris-painting'], { label: 'Clarity', mark: '', cleanTitle: true });
+    const THEME_ORDER = ['neutral', 'clarity', 'aleph', 'aleph-holdings', 'paris-painting', 'paris-exteriors'];
 
     let store = READONLY ? { activeViewId: 'shared', views: [{ id: 'shared', name: 'Shared chart', people: [], theme: 'neutral' }], directory: [] } : loadStore();      // { activeViewId, views: [ {id, name, people} ], directory: [] }
     if (!Array.isArray(store.directory)) store.directory = [];
@@ -1100,6 +1102,7 @@
       const inner = document.getElementById('chartInner');
       const t = theme();
       const band = themeKey() === 'neutral' ? '' :
+        t.cleanTitle ? '<div class="brand-band"><span class="bb-name">' + esc(activeView().name) + '</span></div>' :
         '<div class="brand-band"><span class="bb-mark">' + esc(t.mark) + '</span>' +
         '<span class="bb-name">' + esc(t.label) + '</span>' +
         '<span class="bb-sub">' + esc(activeView().name) + '</span></div>';
