@@ -293,6 +293,18 @@
       display: flex; align-items: center; justify-content: center;
       transition: all 0.2s; z-index: 2;
     }
+    /* "+" on a card: add a role directly under this person (appears on hover) */
+    .add-under {
+      position: absolute; bottom: -11px; left: 50%; transform: translateX(-50%);
+      width: 21px; height: 21px; border-radius: 50%; border: none;
+      background: var(--accent); color: #fff; font-size: 0.9rem; line-height: 1; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 3; opacity: 0; transition: opacity 0.15s;
+    }
+    .person.has-kids .add-under { left: calc(50% + 26px); }
+    .person:hover .add-under, .add-under:focus { opacity: 1; }
+    @media (hover: none) { .add-under { opacity: 0.85; } }
+    .exporting .add-under { display: none; }
     .collapse-toggle:hover { border-color: #2a4a3e; color: #2a4a3e; }
 
     /* -- Modal ------------------------- */
@@ -1001,6 +1013,7 @@
         const match = q && ((p.titleOnly ? '' : p.name.toLowerCase()).includes(q) || (p.title||'').toLowerCase().includes(q) || (p.dept||'').toLowerCase().includes(q));
         const cls = ['person'];
         if (p.titleOnly) cls.push('role-only');
+        if (kids.length) cls.push('has-kids');
         if (q) cls.push(match ? 'hit' : 'dim');
         const titleBlock = p.titleOnly
           ? '<div class="p-title solo">' + esc(p.title || 'Open role') + '</div>'
@@ -1029,6 +1042,7 @@
               return '<div class="dual-badge" title="' + esc(p.name + ' also holds: ' + others.join(', ')) + '">&#8862; Dual seat</div>';
             })() +
             (kids.length ? '<button class="collapse-toggle" onclick="event.stopPropagation(); toggleCollapse(\'' + p.id + '\')">' + (isCollapsed ? '+' : '−') + '</button>' : '') +
+            (READONLY ? '' : '<button class="add-under" title="Add a role under ' + esc(displayName(p)) + '" onclick="event.stopPropagation(); openAddUnder(\'' + p.id + '\')">+</button>') +
           '</div>';
         if (kids.length && !isCollapsed) {
           // 4+ reports who manage no one: stack them so the chart doesn't sprawl sideways
@@ -1617,6 +1631,17 @@
       setTimeout(() => document.getElementById('f-name').focus(), 50);
     }
 
+    // "+" on a card: new role already pointed at that manager, in their department
+    function openAddUnder(managerId) {
+      const m = byId(managerId);
+      if (!m || READONLY) return;
+      openAdd();
+      document.getElementById('modalTitle').innerHTML = 'Add under <em>' + esc(displayName(m)) + '</em>';
+      document.getElementById('f-manager').value = managerId; syncCombo('f-manager');
+      document.getElementById('f-dept').value = m.dept || '';
+      setTimeout(() => document.getElementById('f-title').focus(), 80);
+    }
+
     function resetDirSearch() {
       const s = document.getElementById('f-dir-search'); if (s) s.value = '';
       const box = document.getElementById('f-dir-results'); if (box) { box.classList.remove('open'); box.innerHTML = ''; }
@@ -1648,6 +1673,7 @@
         toast('Updated ' + displayName(data));
       } else {
         people().push({ id: uid('p'), ...data });
+        if (data.managerId) collapsed.delete(data.managerId);   // open the branch so the new card shows
         toast('Added ' + displayName(data));
       }
       dirUpsert(data);
@@ -1979,6 +2005,9 @@ openAdd = function () { _openAdd(); const cb = document.getElementById('f-opense
 const _saveModal = saveModal;
 saveModal = function () {
   const cb = document.getElementById('f-openseat');
+  // a new role with a title and no name is an open seat
+  if (cb && !cb.checked && !editingId && !document.getElementById('f-name').value.trim() &&
+      document.getElementById('f-title').value.trim() && !document.getElementById('f-titleonly').checked) cb.checked = true;
   const openSeat = !!(cb && cb.checked);
   const wasEditing = editingId;
   if (openSeat) { const to = document.getElementById('f-titleonly'); if (to && !to.checked) { to.checked = true; if (typeof toggleTitleOnly === 'function') toggleTitleOnly(); } }
