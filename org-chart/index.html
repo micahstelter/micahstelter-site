@@ -904,7 +904,8 @@
           p.group ? 'g:' + normName(p.name || p.title)
           : (!p.openSeat && p.name && p.name.trim()) ? 'n:' + normName(p.name)
           : (parentId === null && p.title) ? 'g:' + normName(p.title)      // same-titled top card = same body
-          : null;                                                          // unnamed seats never merge
+          : (!p.openSeat && p.title) ? 't:' + normName(p.title)            // unnamed function box (e.g. "Wallogy & Tech Systems")
+          : null;                                                          // open seats never merge — each is a hire
         const walk = (p, parentId) => {
           const k = keyOf(p, parentId), slot = k ? (parentId || '') + '|' + k : null;
           let node = slot ? slots[slot] : null;
