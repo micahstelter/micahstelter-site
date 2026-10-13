@@ -215,6 +215,8 @@
       display: grid; grid-template-columns: auto auto; justify-content: center;
       column-gap: 28px; row-gap: 14px; margin: 0 12px;
     }
+    .tree li.stack-holder > ul.stack { padding-top: 0; margin: 0 12px; }      /* the holder's own drop line feeds the trunk */
+    .tree li.stack-holder > ul.stack::before { display: none; }
     .tree ul.stack > li { padding: 0; }
     .tree ul.stack > li::before {
       display: block; content: ''; position: absolute; top: 40px; left: 100%; right: auto;
@@ -1030,10 +1032,25 @@
           '</div>';
         if (kids.length && !isCollapsed) {
           // 4+ reports who manage no one: stack them so the chart doesn't sprawl sideways
-          const stack = stackOn && kids.length >= 4 && kids.every(k => !childrenOf(k.id).length);
-          html += stack
-            ? '<ul class="stack">' + orderPeers(kids).map(k => nodeHtml(k, 0)).join('') + '</ul>'
-            : '<ul>' + groupHtml(kids) + '</ul>';
+          const leaves = kids.filter(k => !childrenOf(k.id).length);
+          if (stackOn && leaves.length >= 4 && leaves.length === kids.length) {
+            html += '<ul class="stack">' + orderPeers(kids).map(k => nodeHtml(k, 0)).join('') + '</ul>';
+          } else if (stackOn && leaves.length >= 4) {
+            // Mixed team: reports who run their own team stay as branches,
+            // the rest stack together in one block beside them
+            const top = Math.min.apply(null, kids.map(tierOf));
+            let placed = false;
+            html += '<ul>' + orderPeers(kids).map(k => {
+              if (childrenOf(k.id).length) return nodeHtml(k, (tierOf(k) - top) * TIER_STEP);
+              if (placed) return '';
+              placed = true;
+              const drop = (Math.min.apply(null, leaves.map(tierOf)) - top) * TIER_STEP;
+              return '<li class="stack-holder" style="--drop:' + drop + 'px"><ul class="stack">' +
+                orderPeers(leaves).map(l => nodeHtml(l, 0)).join('') + '</ul></li>';
+            }).join('') + '</ul>';
+          } else {
+            html += '<ul>' + groupHtml(kids) + '</ul>';
+          }
         }
         html += '</li>';
         return html;
