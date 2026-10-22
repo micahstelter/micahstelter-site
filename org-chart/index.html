@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     /* -- Brand theme variables (overridden by applyTheme) -- */
     :root {
@@ -523,6 +524,8 @@
       <button class="tb-btn ro-ok" onclick="exportPDF()">PDF</button>
       <button class="tb-btn" onclick="exportJSON()" title="Save just the chart you are looking at">Save File</button>
       <button class="tb-btn" onclick="document.getElementById('importFile').click()" title="Load a saved chart, or restore a full backup">Load File</button>
+      <button class="tb-btn" onclick="driveSave()" title="Save the chart you are looking at to the Paris Organizational Chart folder in Google Drive">Save to Drive</button>
+      <button class="tb-btn" onclick="openDrive()" title="Open a chart saved in the Paris Organizational Chart folder">Open from Drive</button>
       <button class="tb-btn" id="backupBtn" onclick="exportAll()" title="Save every chart, the people directory and your colors into one file">Back Up All</button>
       <button class="tb-btn" onclick="openShare()" title="Make a view-only link to this chart">Share Link</button>
       <div class="tb-sep"></div>
@@ -627,6 +630,18 @@
       <div class="dir-list" id="dir-list"></div>
       <div class="modal-actions">
         <button class="m-btn cancel" onclick="closeDirectory()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Google Drive folder -->
+  <div class="modal-overlay" id="driveOverlay" onclick="if(event.target===this) closeDrive()">
+    <div class="modal">
+      <h2>Open from <em>Drive</em></h2>
+      <p style="font-size:0.75rem;color:#6b6b67;margin:-0.6rem 0 0.9rem;">Charts saved in <a id="driveFolderLink" target="_blank" rel="noopener" style="color:var(--accent);">Paris Organizational Chart</a>. A chart opens as a new view; a full backup replaces everything.</p>
+      <div class="dir-list" id="drive-list"></div>
+      <div class="modal-actions">
+        <button class="m-btn cancel" onclick="closeDrive()">Close</button>
       </div>
     </div>
   </div>
@@ -2353,9 +2368,13 @@
       const file = e.target.files[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = () => {
+      reader.onload = () => loadChartText(reader.result, file.name);
+      reader.readAsText(file);
+      e.target.value = '';
+    }
+    function loadChartText(text, fileName) {
         try {
-          const parsed = JSON.parse(reader.result);
+          const parsed = JSON.parse(text);
           if (parsed && parsed.type === 'orgchart-backup') {
             const b = parsed.store;
             if (!b || !Array.isArray(b.views) || !b.views.length || !b.views.every(v => v.id && Array.isArray(v.people))) throw new Error('Backup file is damaged');
@@ -2370,16 +2389,94 @@
           }
           const arr = Array.isArray(parsed) ? parsed : parsed.people;
           if (!Array.isArray(arr) || !arr.every(p => p.id && (p.name || p.title))) throw new Error('Unrecognized format');
-          const name = (parsed.view || file.name.replace(/\.json$/i, '') || 'Imported view').trim();
+          const name = (parsed.view || fileName.replace(/\.json$/i, '') || 'Imported view').trim();
           const v = { id: uid(), name, people: arr.map(p => ({ titleOnly: false, ...p })), theme: THEMES[parsed.theme] ? parsed.theme : 'neutral' };
           store.views.push(v); store.activeViewId = v.id;
           collapsed.clear(); persist(); render();
           toast('Loaded "' + name + '" as a new view (' + arr.length + ' people)');
         } catch (err) { toast('Could not load file: ' + err.message); }
-      };
-      reader.readAsText(file);
-      e.target.value = '';
     }
+
+    // -- Google Drive: one fixed folder (Paris Organizational Chart, work Shared Drive) --
+    const DRIVE_FOLDER_ID = '1bDihgYT_WOHfNPG5uRQHZN8IOHrtkO5J';
+    const DRIVE_FOLDER_URL = 'https://drive.google.com/drive/folders/' + DRIVE_FOLDER_ID;
+    const DRIVE_CLIENT_ID = '219652046890-67ipm1ep18ihum9ujr4ft31bfa00kcft.apps.googleusercontent.com';   // OAuth web client from Google Cloud (origin: https://micahstelter.ai)
+    const DRIVE_API = 'https://www.googleapis.com/drive/v3/files';
+    let driveToken = null, driveTokenExp = 0, driveTokenClient = null;
+    function driveAuth() {
+      if (driveToken && Date.now() < driveTokenExp - 60000) return Promise.resolve(driveToken);
+      if (!DRIVE_CLIENT_ID) return Promise.reject(new Error('Drive is not connected yet'));
+      if (!window.google || !google.accounts || !google.accounts.oauth2) return Promise.reject(new Error('Google sign-in did not load — reload the page'));
+      return new Promise((resolve, reject) => {
+        if (!driveTokenClient) driveTokenClient = google.accounts.oauth2.initTokenClient({ client_id: DRIVE_CLIENT_ID, scope: 'https://www.googleapis.com/auth/drive', callback: () => {} });
+        driveTokenClient.callback = r => {
+          if (r.error) return reject(new Error(r.error_description || r.error));
+          driveToken = r.access_token; driveTokenExp = Date.now() + (r.expires_in || 3600) * 1000;
+          resolve(driveToken);
+        };
+        driveTokenClient.error_callback = e => reject(new Error(e.type === 'popup_closed' ? 'Sign-in window closed' : (e.message || 'Sign-in failed')));
+        driveTokenClient.requestAccessToken({ prompt: '' });
+      });
+    }
+    async function driveFetch(url, opts = {}) {
+      const token = await driveAuth();
+      const res = await fetch(url, { ...opts, headers: { ...(opts.headers || {}), Authorization: 'Bearer ' + token } });
+      if (res.status === 401) { driveToken = null; }
+      if (!res.ok) {
+        let msg = res.status + '';
+        try { msg = (await res.json()).error.message || msg; } catch (e) {}
+        throw new Error(msg);
+      }
+      return res;
+    }
+    function driveListJSON() {
+      const q = encodeURIComponent("'" + DRIVE_FOLDER_ID + "' in parents and trashed = false and (mimeType = 'application/json' or name contains '.json')");
+      return driveFetch(DRIVE_API + '?q=' + q + '&orderBy=modifiedTime desc&pageSize=100&fields=files(id,name,modifiedTime,lastModifyingUser(displayName))&supportsAllDrives=true&includeItemsFromAllDrives=true')
+        .then(r => r.json()).then(d => d.files || []);
+    }
+    async function driveSave() {
+      if (!people().length) { toast('Nothing to save in this view'); return; }
+      const v = activeView();
+      const body = JSON.stringify({ exportedAt: new Date().toISOString(), view: v.name, theme: v.theme || 'neutral', people: people() }, null, 2);
+      const name = viewSlug() + '-' + new Date().toISOString().slice(0,10) + '.json';
+      toast('Saving to Drive...');
+      try {
+        // same chart saved again the same day → update that file instead of stacking copies
+        const existing = (await driveListJSON()).find(f => f.name === name);
+        const meta = existing ? { name } : { name, mimeType: 'application/json', parents: [DRIVE_FOLDER_ID] };
+        const boundary = 'orgchart' + Date.now();
+        const multipart = '--' + boundary + '\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n' + JSON.stringify(meta) +
+          '\r\n--' + boundary + '\r\nContent-Type: application/json\r\n\r\n' + body + '\r\n--' + boundary + '--';
+        const url = 'https://www.googleapis.com/upload/drive/v3/files' + (existing ? '/' + existing.id : '') + '?uploadType=multipart&supportsAllDrives=true';
+        await driveFetch(url, { method: existing ? 'PATCH' : 'POST', headers: { 'Content-Type': 'multipart/related; boundary=' + boundary }, body: multipart });
+        toast((existing ? 'Updated ' : 'Saved ') + name + ' in Drive');
+      } catch (err) { toast('Drive save failed: ' + err.message); }
+    }
+    async function openDrive() {
+      document.getElementById('driveFolderLink').href = DRIVE_FOLDER_URL;
+      const list = document.getElementById('drive-list');
+      list.innerHTML = '<div class="color-empty">Loading...</div>';
+      document.getElementById('driveOverlay').classList.add('open');
+      try {
+        const files = await driveListJSON();
+        list.innerHTML = files.length ? files.map(f => '<div class="dir-row"><div class="dir-meta"><div class="dir-nm">' + esc(f.name.replace(/\.json$/i, '')) +
+          '</div><div class="dir-sub">' + esc(new Date(f.modifiedTime).toLocaleString([], { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' }) +
+          (f.lastModifyingUser ? ' · ' + f.lastModifyingUser.displayName : '')) + '</div></div><button class="rowbtn add" onclick="driveOpenFile(\'' + f.id + '\', this)">Open</button></div>').join('')
+          : '<div class="color-empty">No charts in the folder yet — use Save to Drive.</div>';
+      } catch (err) {
+        list.innerHTML = '<div class="color-empty">Could not reach Drive: ' + esc(err.message) + '</div>';
+      }
+    }
+    async function driveOpenFile(id, btn) {
+      const name = btn.closest('.dir-row').querySelector('.dir-nm').textContent;
+      btn.disabled = true; btn.textContent = '...';
+      try {
+        const text = await (await driveFetch(DRIVE_API + '/' + id + '?alt=media&supportsAllDrives=true')).text();
+        closeDrive();
+        loadChartText(text, name);
+      } catch (err) { toast('Could not open: ' + err.message); btn.disabled = false; btn.textContent = 'Open'; }
+    }
+    function closeDrive() { document.getElementById('driveOverlay').classList.remove('open'); }
 
     // Keyboard: Esc closes modal
     document.addEventListener('keydown', e => {
@@ -2392,7 +2489,7 @@
       }
       if (e.key !== 'Escape') return;
       const anyOpen = document.querySelector('.modal-overlay.open, .color-overlay.open');
-      closeModal(); closeDirectory(); closePdf(); closeHead(); closeShare(); closeInsights(); closeRollup(); closeReview();
+      closeModal(); closeDirectory(); closeDrive(); closePdf(); closeHead(); closeShare(); closeInsights(); closeRollup(); closeReview();
       if (!anyOpen && document.body.classList.contains('focus')) toggleFocus(false);
     });
 
