@@ -333,6 +333,7 @@
     .person:hover .add-under, .add-under:focus { opacity: 1; }
     @media (hover: none) { .add-under { opacity: 0.85; } }
     .exporting .add-under { display: none; }
+    .person.context { opacity: 0.45; }
     .collapse-toggle:hover { border-color: #2a4a3e; color: #2a4a3e; }
 
     /* -- Modal ------------------------- */
@@ -710,7 +711,7 @@
     <div class="modal">
       <h2>Export <em>PDF</em></h2>
       <button class="pdf-opt" onclick="runPdf('fit')"><strong>One letter page</strong><span>The whole chart shrunk onto a single page. Best for small charts.</span></button>
-      <button class="pdf-opt" onclick="runPdf('teams')"><strong>One page per team</strong><span>A leadership page first, then a page for each leader's team with the top person repeated above it. Best for printing a big chart.</span></button>
+      <button class="pdf-opt" onclick="runPdf('teams')"><strong>One page per department</strong><span>An executive page first, then a page each for Sales, Production, Coordination and the rest. Each department's boss is shown faded above it for context.</span></button>
       <button class="pdf-opt" onclick="runPdf('poster')"><strong>Poster</strong><span>One large page at full size. Best for zooming in on screen or sending to a large-format printer.</span></button>
       <div class="modal-actions"><button class="m-btn cancel" onclick="closePdf()">Cancel</button></div>
     </div>
@@ -810,6 +811,8 @@
     if (!Array.isArray(store.directory)) store.directory = [];
     let collapsed = new Set();
     let pageFilter = null;        // Set of ids while a PDF page is being drawn, else null
+    let pageContext = null;       // ids on that page drawn faded (bosses from outside the department)
+    let pageTitle = null;         // department name shown in the band on that page
     let editingId = null;         // null = adding new
     let zoom = 1;
 
@@ -1262,7 +1265,7 @@
       const ppl = people();
       const q = document.getElementById('search').value.trim().toLowerCase();
       const onPage = p => !pageFilter || pageFilter.has(p.id);   // PDF "page per team" draws a slice
-      const roots = ppl.filter(p => (!p.managerId || !byId(p.managerId)) && onPage(p));
+      const roots = ppl.filter(p => onPage(p) && (!p.managerId || !byId(p.managerId) || !onPage(byId(p.managerId))));
 
       // Count how many tiles each named person occupies (for the dual-seat marker)
       const nameCounts = {};
@@ -1285,6 +1288,7 @@
         if (kids.length) cls.push('has-kids');
         if (q) cls.push(match ? 'hit' : 'dim');
         if (p.group) cls.push('group-card');
+        if (pageContext && pageContext.has(p.id)) cls.push('context');
         const titleBlock = p.group
           ? '<div class="g-label">Governing body</div><div class="p-name">' + esc(displayName(p) || 'Board') + '</div>' +
             (!p.titleOnly && p.title ? '<div class="p-title">' + esc(p.title) + '</div>' : '') +
@@ -1350,11 +1354,12 @@
 
       const inner = document.getElementById('chartInner');
       const t = theme();
-      const band = themeKey() === 'neutral' ? '' :
-        t.cleanTitle ? '<div class="brand-band"><span class="bb-name">' + esc(activeView().name) + '</span></div>' :
+      const viewTitle = activeView().name + (pageTitle ? ' · ' + pageTitle : '');
+      const band = themeKey() === 'neutral' ? (pageTitle ? '<div class="brand-band"><span class="bb-name">' + esc(viewTitle) + '</span></div>' : '') :
+        t.cleanTitle ? '<div class="brand-band"><span class="bb-name">' + esc(viewTitle) + '</span></div>' :
         '<div class="brand-band"><span class="bb-mark">' + esc(t.mark) + '</span>' +
         '<span class="bb-name">' + esc(t.label) + '</span>' +
-        '<span class="bb-sub">' + esc(activeView().name) + '</span></div>';
+        '<span class="bb-sub">' + esc(viewTitle) + '</span></div>';
       const hasDotted = ppl.some(p => p.dottedManagerId && byId(p.dottedManagerId));
       const legend = hasDotted
         ? '<div class="dotted-legend">' +
@@ -1367,7 +1372,8 @@
           ? '<div class="empty-note">This roll-up has nothing feeding it yet. Click <strong>Sources</strong> and tick the charts to combine.</div>'
           : '<div class="empty-note">This view is empty. Click <strong>+ Add Person</strong> to start building "' + esc(activeView().name) + '".</div>');
       } else {
-        const hs = headStats(ppl);
+        // on a department page, count only that department (not the faded bosses above it)
+        const hs = headStats(pageFilter ? ppl.filter(p => pageFilter.has(p.id) && !(pageContext && pageContext.has(p.id))) : ppl);
         const countLine = '<div class="count-line"><strong>' + hs.people + '</strong> ' + (hs.people === 1 ? 'person' : 'people') +
           (hs.open ? ' &nbsp;·&nbsp; <strong>' + hs.open + '</strong> open ' + (hs.open === 1 ? 'seat' : 'seats') : '') + '</div>';
         const rollLine = isRollup() ? '<div class="count-line" style="margin-bottom:0.5rem">Roll-up of ' +
@@ -2270,22 +2276,55 @@
       toast('Rendering PDF...');
       try {
         const pdf = await buildPdf(mode);
-        pdf.save(viewSlug() + (mode === 'fit' ? '' : '-' + mode) + '-' + new Date().toISOString().slice(0,10) + '.pdf');
+        pdf.save(viewSlug() + (mode === 'fit' ? '' : '-' + (mode === 'teams' ? 'departments' : mode)) + '-' + new Date().toISOString().slice(0,10) + '.pdf');
         toast('PDF downloaded');
       } catch (e) { toast('Export failed: ' + e.message); }
     }
-    // Leadership page, then one page per direct report who runs a team (top person repeated above)
-    function teamPages() {
-      const subtree = id => [id].concat(...childrenOf(id).map(k => subtree(k.id)));
-      const pages = [];
-      people().filter(p => !p.managerId || !byId(p.managerId)).forEach(r => {
-        const kids = childrenOf(r.id);
-        const leads = kids.filter(k => childrenOf(k.id).length);
-        if (!leads.length) { pages.push({ label: displayName(r), ids: new Set(subtree(r.id)) }); return; }
-        pages.push({ label: displayName(r) + ' — leadership', ids: new Set([r.id].concat(kids.map(k => k.id))) });
-        leads.forEach(m => pages.push({ label: displayName(m) + "'s team", ids: new Set([r.id].concat(subtree(m.id))) }));
+    // Executive page, then one page per department (largest first).
+    // A department's members are drawn in full; whoever they report to outside it is drawn faded for context.
+    function deptPages() {
+      const ppl = people();
+      const key = p => (p.dept || '').trim().toLowerCase() || 'other';
+      const label = {}, members = {};
+      ppl.forEach(p => {
+        const k = key(p);
+        if (!members[k]) { members[k] = []; label[k] = (p.dept || '').trim() || 'Other'; }
+        members[k].push(p);
       });
+      const isLead = k => /board|exec/.test(k);   // "Leadership" alone is often a working team, so it gets its own page
+      const pages = [];
+      const lead = Object.keys(members).filter(isLead);
+      if (lead.length) {
+        const ids = new Set();
+        lead.forEach(k => members[k].forEach(p => ids.add(p.id)));
+        // the heads of every function report into leadership — show them too
+        const execIds = new Set(ids);
+        ppl.forEach(p => { if (p.managerId && execIds.has(p.managerId)) ids.add(p.id); });
+        const ctx = new Set();
+        connect(ids, ctx);
+        pages.push({ label: 'Executive team', ids, ctx });
+      }
+      Object.keys(members).filter(k => !isLead(k))
+        .sort((a, b) => members[b].length - members[a].length || label[a].localeCompare(label[b]))
+        .forEach(k => {
+          const ids = new Set(members[k].map(p => p.id)), ctx = new Set();
+          connect(ids, ctx);
+          pages.push({ label: label[k], ids, ctx });
+        });
       return pages;
+      // Members whose boss is outside the set: walk up to the next member so the tree stays joined,
+      // else bring in just the direct boss. Everyone added this way is context, drawn faded.
+      function connect(ids, ctx) {
+        [...ids].forEach(id => {
+          const p = byId(id);
+          if (!p.managerId || !byId(p.managerId) || ids.has(p.managerId)) return;
+          const chain = [];
+          let m = byId(p.managerId);
+          while (m && !ids.has(m.id) && chain.length < 12) { chain.push(m.id); m = m.managerId ? byId(m.managerId) : null; }
+          (m ? chain : chain.slice(0, 1)).forEach(c => ctx.add(c));
+        });
+        ctx.forEach(c => ids.add(c));
+      }
     }
     function pdfLetterPage(pdf, canvas, label) {
       const landscape = canvas.width >= canvas.height;
@@ -2306,17 +2345,17 @@
       const { jsPDF } = window.jspdf;
       const name = activeView().name;
       if (mode === 'teams') {
-        const pages = teamPages();
+        const pages = deptPages();
         const savedCollapsed = collapsed;
         collapsed = new Set();               // every team prints fully opened
         let pdf = null;
         try {
           for (let i = 0; i < pages.length; i++) {
             toast('Rendering page ' + (i + 1) + ' of ' + pages.length + '...');
-            pageFilter = pages[i].ids; render();
+            pageFilter = pages[i].ids; pageContext = pages[i].ctx; pageTitle = pages[i].label; render();
             pdf = pdfLetterPage(pdf, await capture(), name + ' · ' + pages[i].label);
           }
-        } finally { pageFilter = null; collapsed = savedCollapsed; render(); }
+        } finally { pageFilter = null; pageContext = null; pageTitle = null; collapsed = savedCollapsed; render(); }
         return pdf;
       }
       const canvas = await capture();
