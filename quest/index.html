@@ -1,0 +1,959 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#2e3b23">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Quest">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%AD%90%3C/text%3E%3C/svg%3E">
+<style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Stelter Character Quest</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;700&family=Work+Sans:wght@500;600;700&display=swap">
+<style>
+/* Layout: a scouting field guide — forest header band, a red troop-goal ribbon, stitched merit badges per kid,
+   and a forest thumb bar of tabs. One deliberate khaki look for both themes. */
+:root{
+  color-scheme:light;
+  --ground:#dcd6b4; --paper:#f3efdc; --forest:#2e3b23; --forest-2:#45563a;
+  --ink:#2e3b23; --muted:#4f5640; --line:rgba(46,59,35,.28);
+  --red:#b23a22; --gold:#d9a524; --gold-text:#7a5200; --plus:#2f6b2a; --minus:#a3311f; --on-forest:#f3efdc; --on-forest-2:#d4d8bd;
+  --radius:12px;
+  --font-display:'Zilla Slab',Rockwell,Georgia,serif;
+  --font-body:'Work Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;font-family:var(--font-body);color:var(--ink);background:var(--ground);min-height:100vh;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:0 calc(110px + env(safe-area-inset-bottom,0px));
+  overflow-x:hidden;font-size:15px;line-height:1.4;
+}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;padding:0}
+input,select{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+h1,h2,h3{text-wrap:balance;margin:0;font-family:var(--font-display);font-weight:700}
+p{margin:0}
+.wrap{max-width:720px;margin:0 auto}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+
+/* header + troop ribbon */
+.masthead{background:var(--forest);color:var(--on-forest);border-radius:0 0 18px 18px;padding:20px 18px 30px;margin:0 -2px;display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.masthead .eyebrow{color:var(--gold)}
+.masthead h1{font-size:clamp(28px,8vw,36px);line-height:1}
+.masthead p.tag{color:var(--on-forest-2);font-size:14px;margin-top:4px}
+.status{font-size:12px;font-weight:700;padding:6px 10px;border-radius:999px;background:var(--forest-2);color:var(--on-forest)}
+.status:empty{display:none}
+.status.warn{background:var(--red)}
+.ribbon{margin:-16px 10px 16px;background:var(--red);color:#fff;border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;box-shadow:0 3px 0 rgba(46,59,35,.35);position:relative}
+.ribbon .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.ribbon .big{font-family:var(--font-display);font-weight:700;font-size:22px;font-variant-numeric:tabular-nums}
+.ribbon .prize{font-size:13px;font-weight:600}
+.ribbon .track{height:12px;border-radius:6px;background:rgba(255,255,255,.28);overflow:hidden;border:1px solid rgba(255,255,255,.6)}
+.ribbon .track i{display:block;height:100%;background:var(--paper)}
+
+/* views */
+.view{display:none}
+.view.on{display:block}
+.sect{display:flex;flex-direction:column;gap:10px;margin-bottom:18px}
+.secthead{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:0 2px}
+.secthead h2{font-size:20px}
+.card{background:var(--paper);border-radius:var(--radius);border:2px dashed var(--line);padding:14px}
+.card.solid{border-style:solid;border-color:transparent;box-shadow:0 2px 0 rgba(46,59,35,.12)}
+.sub{color:var(--muted);font-size:14px}
+
+/* badge */
+.badge{--kc:#4c8a46;width:60px;height:60px;border-radius:50%;background:var(--kc);display:grid;place-items:center;flex:none;box-shadow:0 0 0 3px var(--paper),0 0 0 5px var(--forest)}
+.badge span{width:48px;height:48px;border-radius:50%;border:2px dashed rgba(255,255,255,.8);display:grid;place-items:center;font-size:26px;line-height:1}
+.badge.xl{width:112px;height:112px;box-shadow:0 0 0 5px var(--paper),0 0 0 8px var(--forest)}
+.badge.xl span{width:92px;height:92px;font-size:50px;border-width:3px}
+
+/* kid rows on Troop */
+.kidrow{display:flex;align-items:center;gap:10px;background:var(--paper);border-radius:var(--radius);border:2px dashed var(--line);padding:10px}
+.kidmain{flex:1;min-width:0;display:flex;align-items:center;gap:12px;text-align:left;border-radius:10px;padding:2px;min-height:64px}
+.kidmain .info{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.kidmain .l1{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.kidmain .kname{font-family:var(--font-display);font-weight:700;font-size:20px}
+.pts{font-family:var(--font-display);font-weight:700;font-size:22px;color:var(--red);font-variant-numeric:tabular-nums;white-space:nowrap}
+.kidmain .l2{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:12px;font-weight:600;color:var(--muted)}
+.rankbar{height:9px;border-radius:5px;background:rgba(46,59,35,.12);border:1px solid rgba(46,59,35,.45);overflow:hidden}
+.rankbar i{display:block;height:100%;background:var(--gold)}
+.wk{font-size:12px;font-weight:700;color:var(--plus)}
+.wk.zero{color:var(--muted);font-weight:600}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 16px;border-radius:10px;font-weight:700;font-size:15px;background:var(--forest);color:var(--on-forest)}
+.btn:active{transform:translateY(1px)}
+.btn.red{background:var(--red);color:#fff}
+.btn.gold{background:var(--gold);color:var(--forest)}
+.btn.ghost{background:transparent;color:var(--ink);border:2px solid var(--line)}
+.btn.sq{min-width:44px;padding:0 10px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.ro .writeonly{display:none!important}
+.kidmode .parentonly{display:none!important}
+.mhside{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.modebtn{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;border-radius:999px;background:var(--forest-2);color:var(--on-forest);font-size:13px;font-weight:700}
+.kidmode .modebtn{background:var(--gold);color:var(--forest)}
+.pinin{letter-spacing:.4em;text-align:center;font-size:26px!important;font-family:var(--font-display)}
+.sheet .bad{color:var(--minus);font-weight:700;min-height:20px;margin-bottom:8px}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap}
+
+/* feed */
+.feed{list-style:none;margin:0;padding:0}
+.feed li{display:flex;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px dashed var(--line)}
+.feed li:last-child{border-bottom:none}
+.feed .e{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:20px;flex:none;background:#fff;border:2px solid var(--line)}
+.feed .t{flex:1;min-width:0;overflow-wrap:anywhere}
+.feed .note{color:var(--muted);font-size:13px;font-style:italic}
+.feed .when{color:var(--muted);font-size:12px}
+.amt{font-family:var(--font-display);font-weight:700;font-size:18px;white-space:nowrap;font-variant-numeric:tabular-nums;text-align:right}
+.amt.plus{color:var(--plus)} .amt.minus{color:var(--minus)}
+.amt small{display:block;font-family:var(--font-body);font-size:11px;font-weight:600;color:var(--muted)}
+.undo{min-height:44px;min-width:44px;padding:0 10px;border-radius:8px;font-size:13px;font-weight:700;color:var(--minus);text-decoration:underline}
+.day{font-family:var(--font-display);font-weight:700;color:var(--muted);font-size:15px;border:none!important;padding:14px 2px 2px!important}
+.empty{color:var(--muted);text-align:center;padding:16px;font-weight:600}
+
+/* chips + category pills */
+.who{display:flex;gap:8px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px 0 6px;border-radius:999px;background:var(--paper);border:2px solid var(--line);font-weight:700}
+.chip .dot{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--kc,var(--forest-2));font-size:17px}
+.chip[aria-pressed="true"]{background:var(--forest);color:var(--on-forest);border-color:var(--forest)}
+.cats{display:flex;gap:6px;overflow-x:auto;padding:2px 2px 8px;scrollbar-width:thin}
+.cat{flex:none;min-height:44px;padding:0 14px;border-radius:999px;font-weight:700;font-size:14px;background:var(--paper);border:2px solid var(--line);white-space:nowrap}
+.cat[aria-pressed="true"]{background:var(--forest);color:var(--on-forest);border-color:var(--forest)}
+
+/* tiles */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.tile{background:var(--paper);border-radius:var(--radius);padding:12px 10px;text-align:center;border:2px solid var(--line);display:flex;flex-direction:column;align-items:center;gap:6px;min-height:132px}
+.tile:hover{border-color:var(--forest)}
+.tile .te{font-size:34px;line-height:1.1}
+.tile .tn{font-weight:700;font-size:14px;line-height:1.25;flex:1;display:flex;align-items:center}
+.tile .tp{font-family:var(--font-display);font-weight:700;font-size:16px;color:var(--gold-text)}
+.tile .tag{font-size:12px;font-weight:700;color:var(--muted)}
+.tile.can{border:2px solid var(--plus);box-shadow:0 0 0 3px rgba(47,107,42,.18)}
+.tile.can .tag{color:var(--plus)}
+.tile.locked .te{opacity:.4}
+.tile.add{border-style:dashed;background:transparent}
+
+/* kid page */
+.hero{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;padding:18px 14px}
+.hero h2{font-size:30px}
+.hero .rank{font-weight:700;color:var(--muted)}
+.hero .wallet{display:flex;gap:18px;justify-content:center;flex-wrap:wrap}
+.stat{display:flex;flex-direction:column;align-items:center}
+.stat b{font-family:var(--font-display);font-size:30px;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat span{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.news{background:var(--forest);color:var(--on-forest);border-radius:var(--radius);padding:12px 14px;font-weight:700;text-align:center}
+.virtues{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.vb{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;font-size:12px;font-weight:700}
+.vb .disk{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;font-size:26px;background:var(--gold);box-shadow:0 0 0 3px var(--paper),0 0 0 5px var(--forest)}
+.vb.none .disk{background:transparent;box-shadow:none;border:2px dashed rgba(46,59,35,.5)}
+.vb.none .disk span{opacity:.45}
+.vb .n{color:var(--muted);font-weight:600}
+.back{min-height:44px;display:inline-flex;align-items:center;gap:6px;font-weight:700;color:var(--ink);padding:0 4px;margin-bottom:6px}
+
+/* setup rows */
+.rows{display:flex;flex-direction:column;gap:8px}
+.row{display:flex;align-items:center;gap:8px;background:var(--paper);border-radius:10px;padding:8px;flex-wrap:wrap;border:2px dashed var(--line)}
+.row input,.row select{background:#fff;border:2px solid var(--line);border-radius:8px;padding:0 10px;min-height:44px;min-width:0;font-weight:600;font-size:15px}
+.row input:focus,.row select:focus{border-color:var(--forest);outline:none}
+.row .em{width:54px;text-align:center;font-size:20px;padding:0}
+.row .nmi{flex:1 1 150px}
+.row .num{width:76px;text-align:center}
+.row .col{width:50px;padding:2px}
+.row select{max-width:160px}
+.row .x{min-width:44px;min-height:44px;border-radius:8px;font-weight:700;color:var(--minus)}
+.lbl{font-size:12px;font-weight:700;color:var(--muted)}
+
+/* sheet */
+.scrim{position:fixed;inset:0;background:rgba(30,38,22,.55);z-index:40;display:none;align-items:flex-end;justify-content:center;
+  padding:16px max(16px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.scrim.on{display:flex}
+@media(min-width:640px){.scrim{align-items:center}}
+.sheet{background:var(--paper);border-radius:18px;width:min(440px,100%);padding:20px 18px 18px;text-align:center;max-height:calc(100dvh - 32px);overflow:auto;overscroll-behavior:contain;border:3px solid var(--forest)}
+.sheet .se{font-size:52px;line-height:1.1}
+.sheet h3{font-size:24px;margin:6px 0 4px}
+.sheet h3:focus{outline:none}
+.sheet p{color:var(--muted);margin-bottom:12px}
+.sheet .warn{background:#fff3cf;color:var(--gold-text);border-radius:8px;padding:8px 10px;font-weight:700;font-size:14px;margin-bottom:12px}
+.field{text-align:left;margin-bottom:12px}
+.field label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin:0 0 4px 2px;text-transform:uppercase;letter-spacing:.06em}
+.field input,.field select{width:100%;background:#fff;border:2px solid var(--line);border-radius:10px;padding:0 12px;min-height:48px;font-weight:600}
+.field input:focus,.field select:focus{border-color:var(--forest);outline:none}
+.two{display:grid;grid-template-columns:72px 1fr;gap:8px}
+.stepper{display:flex;align-items:center;justify-content:center;gap:10px;margin:2px 0 6px}
+.stepper button{width:48px;height:48px;border-radius:50%;background:#fff;border:2px solid var(--line);font-size:24px;font-weight:700}
+.stepper input{width:96px;min-height:56px;text-align:center;font-family:var(--font-display);font-weight:700;font-size:30px;border:2px solid var(--line);border-radius:12px;background:#fff}
+.split{font-size:13px;font-weight:600;color:var(--muted);margin-bottom:12px}
+.sheet .btnrow{justify-content:center}
+.sheet .btnrow .btn{flex:1}
+.hold{position:relative;overflow:hidden}
+.hold i{position:absolute;inset:0 auto 0 0;width:0;background:rgba(255,255,255,.35)}
+
+/* tabs */
+nav.tabs{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:20;
+  display:flex;gap:4px;background:var(--forest);padding:6px;border-radius:16px;width:min(600px,calc(100% - 24px));box-shadow:0 8px 24px rgba(30,38,22,.3)}
+nav.tabs button{flex:1;min-width:0;min-height:54px;border-radius:11px;color:var(--on-forest-2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;font-weight:700;line-height:1.1;text-align:center}
+nav.tabs button[aria-current="page"]{background:var(--gold);color:var(--forest)}
+
+/* toast + confetti */
+.toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translate(-50%,calc(-100% - 60px));z-index:60;visibility:hidden;
+  background:var(--forest);color:var(--on-forest);border-radius:14px;padding:8px 8px 8px 16px;font-weight:700;box-shadow:0 10px 28px rgba(30,38,22,.35);
+  transition:transform .3s ease;width:max-content;max-width:calc(100% - 32px);display:flex;align-items:center;gap:10px}
+.toast.on{transform:translate(-50%,0);visibility:visible}
+.toast .msg{padding:6px 0}
+.toast button{min-height:40px;padding:0 12px;border-radius:9px;background:var(--gold);color:var(--forest);font-weight:700;flex:none}
+#fx{position:fixed;inset:0;pointer-events:none;z-index:55;width:100%;height:100%}
+
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+@media (max-width:380px){.virtues{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.vb .disk{width:48px;height:48px;font-size:22px}}
+</style>
+</head>
+<body>
+<canvas id="fx" aria-hidden="true"></canvas>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<div class="wrap" id="app">
+  <header class="masthead">
+    <div>
+      <p class="eyebrow">Stelter Family Troop</p>
+      <h1>Character Quest</h1>
+      <p class="tag" id="tagline">Earn your badges. Honor your word.</p>
+    </div>
+    <div class="mhside"><span class="status" id="status">Loading…</span><button class="modebtn" id="modeBtn" hidden></button></div>
+  </header>
+  <section class="ribbon" id="ribbon" aria-label="Troop goal this week"></section>
+
+  <!-- TROOP -->
+  <section class="view on" id="v-home">
+    <div class="sect">
+      <div class="secthead"><h2>The troop</h2><span class="sub">Tap a badge to open it</span></div>
+      <div class="sect" style="margin:0" id="kidRows"></div>
+    </div>
+    <div class="sect">
+      <div class="secthead"><h2>Today’s good deeds</h2></div>
+      <div class="card solid"><ul class="feed" id="recentFeed"></ul></div>
+    </div>
+  </section>
+
+  <!-- ONE KID -->
+  <section class="view" id="v-kid">
+    <button class="back" data-go="home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>The troop</button>
+    <div id="kidPage"></div>
+  </section>
+
+  <!-- AWARD -->
+  <section class="view" id="v-award">
+    <div class="sect">
+      <div class="secthead"><h2>Who showed great character?</h2></div>
+      <div class="who" id="awardWho"></div>
+    </div>
+    <div class="sect" id="quickSect">
+      <div class="secthead"><h2>Your usual deeds</h2></div>
+      <div class="grid" id="quickGrid"></div>
+    </div>
+    <div class="sect">
+      <div class="secthead"><h2>All good deeds</h2></div>
+      <div class="cats" id="awardCats" role="group" aria-label="Filter deeds"></div>
+      <div class="grid" id="deedGrid"></div>
+    </div>
+  </section>
+
+  <!-- TRADING POST -->
+  <section class="view" id="v-store">
+    <div class="sect">
+      <div class="secthead"><h2>Trading Post</h2><span class="sub" id="walletLine"></span></div>
+      <div class="who" id="storeWho"></div>
+    </div>
+    <div class="grid" id="rewardGrid"></div>
+  </section>
+
+  <!-- LOGBOOK -->
+  <section class="view" id="v-log">
+    <div class="sect">
+      <div class="secthead"><h2>Logbook</h2><button class="btn ghost writeonly" id="fixBtn">Fix a mistake</button></div>
+      <div class="who" id="histWho"></div>
+    </div>
+    <div class="card solid"><ul class="feed" id="histFeed"></ul></div>
+  </section>
+
+  <!-- SETUP -->
+  <section class="view" id="v-setup">
+    <div class="sect">
+      <div class="secthead"><h2>Parent PIN</h2></div>
+      <div class="row" style="justify-content:space-between"><span class="sub" id="pinLine" style="flex:1 1 220px"></span><button class="btn writeonly" id="pinBtn">Set PIN</button></div>
+    </div>
+    <div class="sect">
+      <div class="secthead"><h2>Troop goal</h2></div>
+      <div class="rows" id="setTroop"></div>
+    </div>
+    <div class="sect">
+      <div class="secthead"><h2>Kids</h2></div>
+      <p class="sub">Rank speed lets the little ones earn new ranks as often as the big kids do.</p>
+      <div class="rows" id="setKids"></div>
+      <div class="btnrow writeonly"><button class="btn" id="addKid">Add a kid</button></div>
+    </div>
+    <div class="sect">
+      <div class="secthead"><h2>Good deeds</h2></div>
+      <p class="sub">Chores pay their full points to spend. Character deeds (kindness, honesty, courage and the rest) count fully toward rank but pay half to spend, so character is honored, not bought.</p>
+      <div class="cats" id="setDeedCats" role="group" aria-label="Filter deeds"></div>
+      <div class="rows" id="setDeeds"></div>
+      <div class="btnrow writeonly"><button class="btn" id="addDeed">Add a deed</button></div>
+    </div>
+    <div class="sect">
+      <div class="secthead"><h2>Trading Post rewards</h2></div>
+      <div class="rows" id="setRewards"></div>
+      <div class="btnrow writeonly"><button class="btn" id="addReward">Add a reward</button></div>
+    </div>
+  </section>
+</div>
+
+<nav class="tabs" id="tabs" aria-label="Sections">
+  <button data-v="home" aria-current="page"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"></path></svg>Troop</button>
+  <button data-v="award" class="writeonly"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"></path></svg>Award</button>
+  <button data-v="store"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1 12H6z"></path><path d="M9 8V6a3 3 0 0 1 6 0v2"></path></svg>Trading Post</button>
+  <button data-v="log" class="parentonly"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4h12v16H6z"></path><path d="M9 9h6M9 13h6M9 17h4"></path></svg>Logbook</button>
+  <button data-v="setup" class="parentonly"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"></path></svg>Setup</button>
+</nav>
+
+<div class="scrim" id="scrim"><div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle"></div></div>
+
+<script>
+'use strict';
+/* Character Quest — the Stelter family's character points, styled as a merit-badge troop.
+
+   db collections: kids, deeds, rewards, log, settings/troop.
+   Every log entry carries two numbers:
+     rank  — counts toward the kid's rank (lifetime honor; spending never lowers it)
+     coins — what the kid can spend at the Trading Post
+   Chores pay coins = rank. Character deeds pay half their value as coins, so a
+   kid is honored for honesty or courage without being paid for it in full.
+   Balances are sums over the log; undo deletes an entry. */
+
+const CATS=[
+  {id:'chores',name:'Chores',e:'🧹',praise:n=>`Thanks for pitching in, ${n}. That’s responsibility.`},
+  {id:'kindness',name:'Kindness',e:'💛',praise:n=>`That was kind, ${n}. Someone felt loved.`},
+  {id:'honesty',name:'Honesty',e:'🦉',praise:n=>`That was honest, ${n}. Telling the truth takes courage.`},
+  {id:'respect',name:'Respect',e:'🎩',praise:n=>`Respect noticed, ${n}. Well done.`},
+  {id:'selfcontrol',name:'Self-control',e:'🌊',praise:n=>`You stayed in control, ${n}. That’s real strength.`},
+  {id:'courage',name:'Courage',e:'🦁',praise:n=>`That was brave, ${n}!`},
+  {id:'grit',name:'Hard work',e:'⛰️',praise:n=>`You kept going, ${n}. That’s grit.`},
+  {id:'generosity',name:'Generosity',e:'🎁',praise:n=>`What a generous heart, ${n}.`},
+];
+const catOf=id=>CATS.find(c=>c.id===id);
+const RANKS=[
+  {at:0,name:'Seedling',e:'🌱'},{at:50,name:'Sprout',e:'🌿'},{at:150,name:'Helper',e:'🤲'},
+  {at:300,name:'Brave Heart',e:'💛'},{at:500,name:'Hero',e:'🛡️'},{at:800,name:'Champion',e:'🏆'},
+  {at:1200,name:'Legend',e:'🌟'},{at:1800,name:'Mythic',e:'🐉'},{at:2600,name:'Hall of Honor',e:'👑'},
+];
+const PACES=[[1,'Standard'],[1.5,'1.5× faster'],[2,'2× faster'],[3,'3× faster'],[4,'4× faster']];
+const COLL=['kids','deeds','rewards','log','settings'];
+
+const S={kids:{},deeds:{},rewards:{},log:{},settings:{}};
+const loaded={kids:false,deeds:false,rewards:false,log:false,settings:false};
+let readOnly=false;
+/* ---------- server: /api/quest on micahstelter.ai ----------
+   Anyone with the link can read. Writes need a parent token, which the server
+   hands out for the right PIN. Kid mode is simply a device with no token. */
+const API='/api/quest';
+const mem={};   // falls back to memory when localStorage is unavailable
+const keep={get:k=>{ try{ return localStorage.getItem(k)??mem[k]??''; }catch(_){ return mem[k]||''; } },
+  set:(k,v)=>{ mem[k]=v; try{ localStorage.setItem(k,v); }catch(_){} }};
+let token=keep.get('cq-token'), parentWho=keep.get('cq-who'), pinSet=false, seq=0;
+const isKid=()=>!token;
+const ro=()=>readOnly||isKid();
+const authHdr=()=>token?{authorization:'Bearer '+token}:{};
+async function call(body){
+  const r=await fetch(API,{method:'POST',headers:{'content-type':'application/json',...authHdr()},body:JSON.stringify(body)});
+  let j={}; try{ j=await r.json(); }catch(_){}
+  if(!r.ok){ const e=new Error(j.error||'http_'+r.status); e.code=j.error||'http_'+r.status; e.body=j; throw e; }
+  return j;
+}
+const send=ops=>call({action:'write',ops});
+const db={collection:c=>({doc:id=>({
+  set:d=>send([{op:'set',coll:c,id,data:d}]),
+  update:d=>send([{op:'update',coll:c,id,data:d}]),
+  delete:()=>send([{op:'delete',coll:c,id}]),
+})})};
+let pulling=null;
+function pull(){
+  if(pulling) return pulling;
+  pulling=(async()=>{
+    try{
+      const r=await fetch(API+'?since='+seq,{headers:authHdr(),cache:'no-store'});
+      if(!r.ok) throw new Error('http_'+r.status);
+      const j=await r.json();
+      for(const d of j.docs){ if(!S[d.coll]) continue; if(d.deleted) delete S[d.coll][d.id]; else S[d.coll][d.id]={...d.data,id:d.id}; }
+      seq=j.seq; pinSet=!!j.pinSet;
+      COLL.forEach(c=>loaded[c]=true);
+      if(token&&!j.parent) signOut();   // this device's parent sign-in was revoked or expired
+      setStatus(''); applyMode(); renderAll();
+    }catch(_){ setStatus('Offline. Retrying…',true); }
+    finally{ pulling=null; }
+  })();
+  return pulling;
+}
+/* After a failed write the screen may show something the server never saved,
+   so throw the local copy away and reload everything. */
+function resync(){ COLL.forEach(c=>S[c]={}); seq=0; pull(); }
+function saveToken(t,who){ token=t; parentWho=who||''; keep.set('cq-token',t); keep.set('cq-who',parentWho); applyMode(); renderAll(); }
+function signOut(){ token=''; parentWho=''; keep.set('cq-token',''); applyMode(); renderAll(); }
+const names={};   // user id -> display name, resolved per render
+
+/* ---------- derived ---------- */
+const byOrder=(a,b)=>(a.order??0)-(b.order??0)||String(a.name).localeCompare(String(b.name));
+const kids=()=>Object.values(S.kids).filter(k=>!k.hidden).sort(byOrder);
+const catIdx=c=>{ const i=CATS.findIndex(x=>x.id===c); return i<0?99:i; };
+const deeds=()=>Object.values(S.deeds).sort((a,b)=>catIdx(a.cat)-catIdx(b.cat)||byOrder(a,b));
+const rewards=()=>Object.values(S.rewards).sort((a,b)=>(a.cost-b.cost)||byOrder(a,b));
+const logs=()=>Object.values(S.log);
+const entries=()=>logs().sort((a,b)=>b.at-a.at);
+const coinsOf=e=>Number(e.coins??e.pts)||0;
+const rankOf=e=>Number(e.rank??(e.type==='earn'?e.pts:0))||0;
+const balance=k=>logs().reduce((n,e)=>e.kid===k?n+coinsOf(e):n,0);
+const lifetime=(k,before)=>logs().reduce((n,e)=>e.kid===k&&(!before||e.at<=before)?n+rankOf(e):n,0);
+function weekStart(){ const d=new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate()-((d.getDay()+6)%7)); return d.getTime(); }
+const thisWeek=k=>{ const w=weekStart(); return logs().reduce((n,e)=>e.at>=w&&(!k||e.kid===k)?n+rankOf(e):n,0); };
+const pace=k=>Number(S.kids[k]?.pace)||1;
+function rankFor(k,before){
+  const total=lifetime(k,before)*pace(k);
+  let i=0; while(i+1<RANKS.length&&total>=RANKS[i+1].at) i++;
+  const cur=RANKS[i], nxt=RANKS[i+1];
+  return {i,cur,nxt,pct:nxt?Math.round((total-cur.at)/(nxt.at-cur.at)*100):100,toGo:nxt?Math.ceil((nxt.at-total)/pace(k)):0};
+}
+const troop=()=>({goal:300,prize:'Pizza night',...(S.settings.troop||{})});
+const splitCoins=(cat,pts)=>cat==='chores'||!cat?pts:Math.ceil(pts/2);
+
+/* ---------- helpers ---------- */
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=p=>p+'-'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const signed=n=>(n>0?'+':n<0?'−':'')+Math.abs(n);
+const sameDay=(a,b)=>a.toDateString()===b.toDateString();
+function dayLabel(t){
+  const d=new Date(t), now=new Date(), y=new Date(now); y.setDate(now.getDate()-1);
+  if(sameDay(d,now)) return 'Today'; if(sameDay(d,y)) return 'Yesterday';
+  return d.toLocaleDateString([],{weekday:'long',month:'long',day:'numeric'});
+}
+const clock=t=>new Date(t).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
+const store={get(k){ try{ return localStorage.getItem(k); }catch(_){ return null; } },set(k,v){ try{ localStorage.setItem(k,v); }catch(_){} }};
+function setStatus(t,warn){ const s=$('status'); s.textContent=t; s.classList.toggle('warn',!!warn); }
+const badge=(k,cls='')=>`<span class="badge ${cls}" style="--kc:${esc(k.color)}" aria-hidden="true"><span>${esc(k.e)}</span></span>`;
+
+let toastTimer, toastUndo=null;
+function toast(msg,undoFn){
+  const t=$('toast'); toastUndo=undoFn||null;
+  t.innerHTML=`<span class="msg">${msg}</span>${undoFn?'<button id="toastUndo">Undo</button>':''}`;
+  t.classList.add('on'); clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>{ t.classList.remove('on'); toastUndo=null; },undoFn?8000:3200);
+  if(undoFn) $('toastUndo').onclick=()=>{ const f=toastUndo; toastUndo=null; t.classList.remove('on'); f&&f(); };
+}
+
+/* ---------- writes ---------- */
+async function write(fn){
+  if(ro()){ toast('Only parents can change points'); return false; }
+  try{ await fn(); pull(); return true; }
+  catch(e){
+    if(e&&e.code==='unauthorized'){ signOut(); toast('Parent sign-in expired. Tap Parent to unlock again.'); }
+    else toast('That didn’t save. Check your connection and try again.');
+    resync();
+    return false;
+  }
+}
+const put=(c,id,d)=>write(()=>db.collection(c).doc(id).set(d));
+const patch=(c,id,d)=>write(()=>db.collection(c).doc(id).update(d));
+const drop=(c,id)=>write(()=>db.collection(c).doc(id).delete());
+function goReadOnly(){ readOnly=true; applyMode(); renderAll(); }
+const LOCK_SVG='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>';
+function applyMode(){
+  document.body.classList.toggle('ro',ro());
+  document.body.classList.toggle('kidmode',isKid());
+  const b=$('modeBtn');
+  b.hidden=!ready();
+  b.innerHTML=isKid()?`${LOCK_SVG} Parent`:`${LOCK_SVG} Kid mode`;
+  b.setAttribute('aria-label',isKid()?'Unlock parent mode':'Switch to kid mode');
+  if(ro()&&['award','log','setup'].includes(UI.view)) show('home');
+}
+
+/* ---------- UI state ---------- */
+const UI={view:'home',kid:null,awardKids:new Set(),awardCat:'all',storeKid:null,histKid:'all',setCat:'all'};
+const ready=()=>COLL.every(c=>loaded[c]);
+
+/* ---------- render: troop ---------- */
+function renderRibbon(){
+  const t=troop(), wk=thisWeek(), goal=Math.max(1,Number(t.goal)||300);
+  $('ribbon').innerHTML=`<div class="top"><span class="eyebrow">Troop goal this week</span><span class="big">${wk} / ${goal}</span></div>
+    <div class="track" role="progressbar" aria-label="Troop goal" aria-valuemin="0" aria-valuemax="${goal}" aria-valuenow="${Math.min(wk,goal)}"><i style="width:${Math.min(100,wk/goal*100)}%"></i></div>
+    <span class="prize">${wk>=goal?`Goal reached! Time for ${esc(t.prize)}.`:`${goal-wk} more points as a family for ${esc(t.prize)}.`} Everyone’s deeds count.</span>`;
+}
+function renderHome(){
+  const ks=kids();
+  if(!ks.length){
+    $('kidRows').innerHTML=`<div class="card" style="text-align:center;padding:24px">
+      <h3>${ready()?'Add your kids to start the troop':'Getting the troop ready…'}</h3>
+      <p class="sub" style="margin-top:6px">${ready()?'Go to Setup and add each kid.':'Loading badges, deeds and rewards.'}</p></div>`;
+  }else{
+    $('kidRows').innerHTML=ks.map(k=>{
+      const R=rankFor(k.id), w=thisWeek(k.id);
+      return `<div class="kidrow">
+        <button class="kidmain" data-kid="${k.id}" aria-label="Open ${esc(k.name)}’s badge">
+          ${badge(k)}
+          <span class="info">
+            <span class="l1"><span class="kname">${esc(k.name)}</span><span class="pts">${balance(k.id)}</span></span>
+            <span class="l2"><span>${R.cur.e} ${esc(R.cur.name)}</span><span>${R.nxt?`${R.toGo} to ${esc(R.nxt.name)}`:'Top rank'}</span></span>
+            <span class="rankbar"><i style="width:${R.pct}%"></i></span>
+            <span class="wk ${w?'':'zero'}">${w?`+${w} this week`:'0 this week'}</span>
+          </span>
+        </button>
+        <button class="btn red sq writeonly" data-award="${k.id}" aria-label="Award ${esc(k.name)}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"></path></svg></button>
+      </div>`;
+    }).join('');
+  }
+  const today=entries().filter(e=>sameDay(new Date(e.at),new Date()));
+  $('recentFeed').innerHTML=feedHtml(today.slice(0,12),{undo:true,days:false})||`<li class="empty">No deeds logged yet today. Catch someone showing great character.</li>`;
+}
+
+function feedHtml(list,{undo,days}){
+  let html='', last='';
+  for(const e of list){
+    const k=S.kids[e.kid]; if(!k) continue;
+    if(days){ const dl=dayLabel(e.at); if(dl!==last){ html+=`<li class="day">${esc(dl)}</li>`; last=dl; } }
+    const c=coinsOf(e), r=rankOf(e);
+    const verb=e.type==='spend'?'traded for':e.type==='fix'?'· fix:':'·';
+    const by=e.by?` · by ${esc(e.by)}`:'';
+    const amt=e.type==='earn'?`<span class="amt plus">+${r}${c!==r?`<small>+${c} to spend</small>`:''}</span>`
+      :`<span class="amt ${c>=0?'plus':'minus'}">${signed(c)}<small>to spend</small></span>`;
+    html+=`<li><span class="e" aria-hidden="true">${esc(e.e||'⭐')}</span>
+      <div class="t"><div><b>${esc(k.name)}</b> ${verb} <b>${esc(e.label)}</b></div>
+        ${e.note?`<div class="note">“${esc(e.note)}”</div>`:''}<div class="when">${days?clock(e.at):clock(e.at)}${by}</div></div>
+      ${amt}
+      ${undo?`<button class="undo writeonly" data-undo="${e.id}" aria-label="Undo ${esc(k.name)}: ${esc(e.label)}">Undo</button>`:''}</li>`;
+  }
+  return html;
+}
+
+/* ---------- render: one kid (the kid's own view) ---------- */
+function openKid(id){
+  UI.kid=id; const k=S.kids[id]; if(!k) return;
+  const key='cq-seen-'+id, seen=Number(store.get(key))||0, now=Date.now();
+  let news='';
+  if(seen){
+    const fresh=logs().filter(e=>e.kid===id&&e.at>seen&&e.type==='earn');
+    const gained=fresh.reduce((n,e)=>n+rankOf(e),0);
+    const before=rankFor(id,seen), after=rankFor(id);
+    if(after.i>before.i){ news=`New rank unlocked: ${after.cur.e} ${esc(after.cur.name)}!`; setTimeout(()=>burst(after.cur.e,true),300); }
+    else if(gained){ news=`+${gained} since you last looked. Nice work!`; setTimeout(()=>burst('⭐'),300); }
+  }
+  store.set(key,String(now));
+  UI.kidNews=news;
+  renderKid(); show('kid');
+}
+function renderKid(){
+  const k=UI.kid&&S.kids[UI.kid]; if(!k){ $('kidPage').innerHTML=''; return; }
+  const R=rankFor(k.id), bal=balance(k.id);
+  const counts={}; logs().forEach(e=>{ if(e.kid===k.id&&e.type==='earn'&&e.cat) counts[e.cat]=(counts[e.cat]||0)+1; });
+  const rs=rewards(), canGet=rs.filter(r=>bal>=r.cost), next=rs.find(r=>r.cost>bal);
+  const mine=entries().filter(e=>e.kid===k.id).slice(0,8);
+  $('kidPage').innerHTML=`
+    <div class="card solid hero">
+      ${badge(k,'xl')}
+      <h2>${esc(k.name)}</h2>
+      <div class="rank">${R.cur.e} Rank ${R.i+1} · ${esc(R.cur.name)}</div>
+      <div style="width:min(320px,100%)"><div class="rankbar" role="progressbar" aria-label="Progress to next rank" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${R.pct}"><i style="width:${R.pct}%"></i></div>
+        <p class="sub" style="margin-top:6px">${R.nxt?`${R.toGo} more points to ${R.nxt.e} ${esc(R.nxt.name)}`:'You reached the top rank!'}</p></div>
+      <div class="wallet">
+        <div class="stat"><b>${bal}</b><span>to spend</span></div>
+        <div class="stat"><b>${thisWeek(k.id)}</b><span>this week</span></div>
+      </div>
+    </div>
+    ${UI.kidNews?`<div class="news" style="margin-top:12px">${UI.kidNews}</div>`:''}
+    <div class="sect" style="margin-top:18px">
+      <div class="secthead"><h2>Merit badges</h2></div>
+      <div class="card"><div class="virtues">${CATS.map(c=>{ const n=counts[c.id]||0;
+        return `<div class="vb ${n?'':'none'}"><span class="disk" aria-hidden="true"><span>${c.e}</span></span>${esc(c.name)}<span class="n">${n?`×${n}`:'not yet'}</span></div>`; }).join('')}</div></div>
+    </div>
+    <div class="sect">
+      <div class="secthead"><h2>Trading Post</h2></div>
+      <div class="card solid">
+        ${canGet.length?`<p style="font-weight:700;color:var(--plus);margin-bottom:8px">You can trade for ${canGet.length} reward${canGet.length>1?'s':''} right now.</p>`:''}
+        ${next?`<div style="display:flex;align-items:center;gap:12px"><span style="font-size:36px" aria-hidden="true">${esc(next.e)}</span>
+          <div style="flex:1;min-width:0"><b>Saving for: ${esc(next.name)}</b><div class="rankbar" style="margin:6px 0 4px"><i style="width:${Math.min(100,bal/next.cost*100)}%"></i></div>
+          <span class="sub">${next.cost-bal} more to go</span></div></div>`:'<p class="sub">You can afford everything in the Trading Post!</p>'}
+        <div class="btnrow" style="margin-top:12px"><button class="btn gold" data-shop="${k.id}">Visit the Trading Post</button></div>
+      </div>
+    </div>
+    <div class="sect">
+      <div class="secthead"><h2>My logbook</h2></div>
+      <div class="card solid"><ul class="feed">${feedHtml(mine,{undo:false,days:true})||'<li class="empty">No deeds yet. Your first badge is waiting!</li>'}</ul></div>
+    </div>`;
+}
+
+/* ---------- render: award ---------- */
+function kidChips(isOn,attr){
+  return kids().map(k=>`<button class="chip" aria-pressed="${isOn(k.id)}" style="--kc:${esc(k.color)}" data-${attr}="${k.id}"><span class="dot" aria-hidden="true">${esc(k.e)}</span>${esc(k.name)}</button>`).join('');
+}
+function catChips(cur,attr){
+  return `<button class="cat" aria-pressed="${cur==='all'}" data-${attr}="all">All</button>`+
+    CATS.map(c=>`<button class="cat" aria-pressed="${cur===c.id}" data-${attr}="${c.id}"><span aria-hidden="true">${c.e}</span> ${c.name}</button>`).join('');
+}
+const deedTile=d=>{ const c=splitCoins(d.cat,Number(d.pts)||0);
+  return `<button class="tile" data-deed="${d.id}"><span class="te" aria-hidden="true">${esc(d.e)}</span><span class="tn">${esc(d.name)}</span>
+    <span class="tp">+${Number(d.pts)||0}</span>${c!==Number(d.pts)?`<span class="tag">${c} to spend</span>`:''}</button>`; };
+function renderAward(){
+  const ks=kids();
+  $('awardWho').innerHTML=ks.length?kidChips(id=>UI.awardKids.has(id),'pick')+(ks.length>1?`<button class="chip" data-pickall="1" aria-pressed="${UI.awardKids.size===ks.length}"><span class="dot" aria-hidden="true">👨‍👩‍👧‍👦</span>Everyone</button>`:''):`<p class="sub">Add kids in Setup first.</p>`;
+  const use={}; logs().forEach(e=>{ if(e.type==='earn'&&e.deed&&S.deeds[e.deed]) use[e.deed]=(use[e.deed]||0)+1; });
+  const quick=Object.keys(use).sort((a,b)=>use[b]-use[a]).slice(0,6).map(id=>S.deeds[id]);
+  $('quickSect').hidden=!quick.length;
+  $('quickGrid').innerHTML=quick.map(deedTile).join('');
+  $('awardCats').innerHTML=catChips(UI.awardCat,'acat');
+  $('deedGrid').innerHTML=deeds().filter(d=>UI.awardCat==='all'||d.cat===UI.awardCat).map(deedTile).join('')+
+    `<button class="tile add" data-deed="custom"><span class="te" aria-hidden="true">✏️</span><span class="tn">Something else awesome</span><span class="tp">Custom</span></button>`;
+}
+
+/* ---------- render: trading post ---------- */
+function renderStore(){
+  const ks=kids();
+  if(!UI.storeKid||!ks.some(k=>k.id===UI.storeKid)) UI.storeKid=ks[0]?ks[0].id:null;
+  $('storeWho').innerHTML=kidChips(id=>id===UI.storeKid,'shopper');
+  const k=UI.storeKid&&S.kids[UI.storeKid], bal=k?balance(k.id):0;
+  $('walletLine').textContent=k?`${k.name} has ${bal} to spend`:'';
+  $('rewardGrid').innerHTML=rewards().map(r=>{
+    const cost=Number(r.cost)||0, ok=k&&bal>=cost;
+    return `<button class="tile ${ok?'can':'locked'}" data-reward="${r.id}">
+      <span class="te" aria-hidden="true">${esc(r.e)}</span><span class="tn">${esc(r.name)}</span><span class="tp">${cost}</span>
+      <span class="tag">${!k?'':ok?'You can get this!':`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg> ${cost-bal} more to go`}</span></button>`;
+  }).join('')||`<p class="empty" style="grid-column:1/-1">No rewards yet. Add some in Setup.</p>`;
+}
+
+/* ---------- render: logbook ---------- */
+function renderLog(){
+  $('histWho').innerHTML=`<button class="chip" aria-pressed="${UI.histKid==='all'}" data-hist="all"><span class="dot" aria-hidden="true">👨‍👩‍👧‍👦</span>Everyone</button>`+kidChips(id=>id===UI.histKid,'hist');
+  $('histFeed').innerHTML=feedHtml(entries().filter(e=>UI.histKid==='all'||e.kid===UI.histKid).slice(0,300),{undo:true,days:true})||`<li class="empty">Nothing in the logbook yet.</li>`;
+}
+
+/* ---------- render: setup ---------- */
+const editing=()=>{ const a=document.activeElement; return !!(a&&a.closest&&a.closest('#v-setup .row')); };
+function renderSetup(){
+  $('pinLine').textContent='Kids see their badges with no PIN. Awarding, trading and setup need it. Changing it signs every other device out.';
+  $('pinBtn').textContent='Change PIN';
+  if(editing()) return;
+  const dis=ro()?'disabled':'', t=troop();
+  $('setTroop').innerHTML=`<div class="row" data-kind="settings" data-id="troop">
+      <label class="lbl" for="tGoal">Weekly goal</label><input id="tGoal" class="num" type="number" min="10" max="99999" data-f="goal" value="${Number(t.goal)||300}" ${dis}>
+      <label class="lbl" for="tPrize">Prize</label><input id="tPrize" class="nmi" data-f="prize" value="${esc(t.prize)}" ${dis}></div>`;
+  $('setKids').innerHTML=kids().map(k=>`<div class="row" data-kind="kids" data-id="${k.id}">
+      <input class="em" data-f="e" value="${esc(k.e)}" aria-label="${esc(k.name)}’s avatar" ${dis}>
+      <input class="nmi" data-f="name" value="${esc(k.name)}" aria-label="${esc(k.name)}’s name" ${dis}>
+      <input class="col" type="color" data-f="color" value="${esc(k.color)}" aria-label="${esc(k.name)}’s badge color" ${dis}>
+      <select data-f="pace" aria-label="${esc(k.name)}’s rank speed" ${dis}>${PACES.map(([v,l])=>`<option value="${v}" ${Number(k.pace||1)===v?'selected':''}>${l}</option>`).join('')}</select>
+      <button class="x writeonly" data-del="1" aria-label="Remove ${esc(k.name)}">✕</button></div>`).join('')||`<p class="sub">No kids yet.</p>`;
+  $('setDeedCats').innerHTML=catChips(UI.setCat,'scat');
+  $('setDeeds').innerHTML=deeds().filter(d=>UI.setCat==='all'||d.cat===UI.setCat).map(d=>`<div class="row" data-kind="deeds" data-id="${d.id}">
+      <input class="em" data-f="e" value="${esc(d.e)}" aria-label="Emoji for ${esc(d.name)}" ${dis}>
+      <input class="nmi" data-f="name" value="${esc(d.name)}" aria-label="Deed name" ${dis}>
+      <select data-f="cat" aria-label="Category for ${esc(d.name)}" ${dis}>${CATS.map(c=>`<option value="${c.id}" ${c.id===d.cat?'selected':''}>${c.name}</option>`).join('')}</select>
+      <input class="num" type="number" min="1" max="999" data-f="pts" value="${Number(d.pts)||0}" aria-label="Points for ${esc(d.name)}" ${dis}>
+      <button class="x writeonly" data-del="1" aria-label="Remove ${esc(d.name)}">✕</button></div>`).join('')||`<p class="sub">No deeds in this group yet.</p>`;
+  $('setRewards').innerHTML=rewards().map(r=>`<div class="row" data-kind="rewards" data-id="${r.id}">
+      <input class="em" data-f="e" value="${esc(r.e)}" aria-label="Emoji for ${esc(r.name)}" ${dis}>
+      <input class="nmi" data-f="name" value="${esc(r.name)}" aria-label="Reward name" ${dis}>
+      <input class="num" type="number" min="1" max="99999" data-f="cost" value="${Number(r.cost)||0}" aria-label="Cost of ${esc(r.name)}" ${dis}>
+      <button class="x writeonly" data-del="1" aria-label="Remove ${esc(r.name)}">✕</button></div>`).join('')||`<p class="sub">No rewards yet.</p>`;
+}
+
+let raf=0;
+function renderAll(){
+  if(raf) return;
+  raf=requestAnimationFrame(async()=>{
+    raf=0;
+    renderRibbon(); renderHome(); renderKid(); renderAward(); renderStore(); renderLog(); renderSetup();
+  });
+}
+
+/* ---------- actions ---------- */
+function addEntry(d){
+  const id=uid('l'), doc={id,note:'',at:Date.now(),...d}; if(parentWho) doc.by=parentWho;
+  S.log[id]=doc; put('log',id,doc); return id;
+}
+function undoIds(ids){ ids.forEach(id=>{ delete S.log[id]; drop('log',id); }); renderAll(); toast('Undone'); }
+
+function award(deed,kidIds,note){
+  const before=Object.fromEntries(kidIds.map(id=>[id,rankFor(id).i]));
+  const rank=Number(deed.pts)||0, coins=splitCoins(deed.cat,rank);
+  const ids=kidIds.map(kid=>addEntry({kid,type:'earn',label:deed.name,e:deed.e,cat:deed.cat||'',deed:deed.id||'',rank,coins,note}));
+  UI.awardKids=new Set(); UI.awardCat='all';
+  renderAll(); burst(deed.e);
+  const ks=kidIds.map(id=>S.kids[id].name);
+  const who=ks.length>2?ks.slice(0,-1).join(', ')+' and '+ks.at(-1):ks.join(' and ');
+  const c=catOf(deed.cat);
+  toast(`${esc(c?c.praise(who):`Great character, ${who}!`)} +${rank}`,()=>undoIds(ids));
+  const up=kidIds.find(id=>rankFor(id).i>before[id]);
+  if(up){ const k=S.kids[up], R=rankFor(up);
+    setTimeout(()=>{ burst(R.cur.e,true); openSheet(`<div class="se" aria-hidden="true">${R.cur.e}</div><h3 id="sheetTitle" tabindex="-1">New rank!</h3>
+      <p><b>${esc(k.name)}</b> is now a <b>${esc(R.cur.name)}</b>, Rank ${R.i+1}.</p>
+      <div class="btnrow"><button class="btn gold" data-close>Woo-hoo!</button></div>`); },700); }
+}
+
+function deedSheet(deed,opener){
+  const sel=[...UI.awardKids].filter(id=>S.kids[id]&&!S.kids[id].hidden);
+  if(!sel.length){ toast('First pick who showed great character'); $('awardWho').querySelector('button')?.focus(); return; }
+  const custom=deed==='custom';
+  const recent=custom?[]:logs().filter(e=>sel.includes(e.kid)&&e.label===deed.name&&Date.now()-e.at<15*60000);
+  const warn=recent.length?recent.map(e=>`${esc(S.kids[e.kid].name)} already got this ${Math.max(1,Math.round((Date.now()-e.at)/60000))} min ago${e.by?` (from ${esc(e.by)})`:''}.`).join(' '):'';
+  openSheet(`<div class="se" aria-hidden="true">${custom?'✏️':esc(deed.e)}</div>
+    <h3 id="sheetTitle" tabindex="-1">${custom?'Something else awesome':esc(deed.name)}</h3>
+    <p>For <b>${sel.map(id=>esc(S.kids[id].name)).join(', ')}</b></p>
+    ${warn?`<div class="warn">${warn}</div>`:''}
+    ${custom?`<div class="field"><label for="cName">What did they do?</label>
+      <div class="two"><input id="cE" value="🌟" aria-label="Emoji"><input id="cName" placeholder="Helped a neighbor with groceries" maxlength="60"></div></div>
+      <div class="field"><label for="cCat">Kind of deed</label><select id="cCat">${CATS.map(c=>`<option value="${c.id}" ${c.id==='kindness'?'selected':''}>${c.name}</option>`).join('')}</select></div>`:''}
+    <div class="stepper"><button data-step="-1" aria-label="Fewer points">−</button><input id="ptsV" type="number" inputmode="numeric" min="1" max="999" value="${custom?5:Number(deed.pts)||0}" aria-label="Points"><button data-step="1" aria-label="More points">+</button></div>
+    <p class="split" id="splitLine"></p>
+    <div class="field"><label for="cNote">What did you see? (optional)</label><input id="cNote" placeholder="Told me about the broken glass right away" maxlength="120"></div>
+    <div class="btnrow"><button class="btn ghost" data-close>Cancel</button><button class="btn red" id="doAward">Award points</button></div>`,opener);
+  const catNow=()=>custom?$('cCat').value:deed.cat;
+  const val=()=>Math.max(1,Math.min(999,Math.round(Number($('ptsV').value)||1)));
+  const paint=()=>{ const v=val(), c=splitCoins(catNow(),v); $('splitLine').textContent=c===v?`+${v} toward rank and to spend`:`+${v} toward rank · +${c} to spend (character deed)`; };
+  $('sheet').querySelectorAll('[data-step]').forEach(b=>b.onclick=()=>{ $('ptsV').value=Math.max(1,Math.min(999,val()+Number(b.dataset.step))); paint(); });
+  $('ptsV').oninput=paint; if(custom) $('cCat').onchange=paint; paint();
+  if(custom) setTimeout(()=>$('cName').focus(),40);
+  $('doAward').onclick=e=>{
+    const d=custom?{name:$('cName').value.trim(),e:$('cE').value.trim()||'🌟',cat:$('cCat').value}:{id:deed.id,name:deed.name,e:deed.e,cat:deed.cat};
+    if(!d.name){ $('cName').focus(); return; }
+    e.currentTarget.disabled=true;
+    const note=$('cNote').value.trim(); closeSheet(); award({...d,pts:val()},sel,note);
+  };
+}
+
+function rewardSheet(r,opener){
+  const k=UI.storeKid&&S.kids[UI.storeKid]; if(!k||!r) return;
+  const bal=balance(k.id), cost=Number(r.cost)||0;
+  if(bal<cost||ro()){
+    openSheet(`<div class="se" aria-hidden="true">${esc(r.e)}</div><h3 id="sheetTitle" tabindex="-1">${esc(r.name)}</h3>
+      <p>${bal<cost?`${esc(k.name)} needs <b>${cost-bal} more points</b> for this one. Keep showing great character!`:'Ask Mom or Dad to make this trade with you.'}</p>
+      <div class="rankbar" style="margin:0 10px 16px"><i style="width:${Math.min(100,bal/cost*100)}%"></i></div>
+      <div class="btnrow"><button class="btn" data-close>Okay</button></div>`,opener);
+    return;
+  }
+  openSheet(`<div class="se" aria-hidden="true">${esc(r.e)}</div><h3 id="sheetTitle" tabindex="-1">${esc(r.name)}</h3>
+    <p><b>${esc(k.name)}</b> trades <b>${cost} points</b> and keeps <b>${bal-cost}</b>. Their rank stays the same.</p>
+    <p style="font-weight:700;color:var(--ink)">Parent: press and hold to confirm.</p>
+    <div class="btnrow"><button class="btn ghost" data-close>Not yet</button><button class="btn gold hold" id="doBuy"><i></i><span>Hold to trade</span></button></div>`,opener);
+  const b=$('doBuy'), bar=b.querySelector('i'); let t0=0, raf2=0;
+  const step=()=>{ const p=Math.min(1,(performance.now()-t0)/900); bar.style.width=(p*100)+'%';
+    if(p>=1){ cancel(); closeSheet(); const id=addEntry({kid:k.id,type:'spend',label:r.name,e:r.e,rank:0,coins:-cost});
+      renderAll(); burst(r.e); toast(`Enjoy it, ${esc(k.name)}! −${cost}`,()=>undoIds([id])); return; }
+    raf2=requestAnimationFrame(step); };
+  const start=e=>{ if(e.type==='keydown'&&(e.repeat||(e.key!==' '&&e.key!=='Enter'))) return; e.preventDefault(); t0=performance.now(); cancelAnimationFrame(raf2); raf2=requestAnimationFrame(step); };
+  const cancel=()=>{ cancelAnimationFrame(raf2); raf2=0; bar.style.width='0'; };
+  b.addEventListener('pointerdown',start); b.addEventListener('keydown',start);
+  ['pointerup','pointerleave','pointercancel','keyup','blur'].forEach(ev=>b.addEventListener(ev,cancel));
+}
+
+function fixSheet(opener){
+  const ks=kids(); if(!ks.length) return;
+  openSheet(`<div class="se" aria-hidden="true">🧭</div><h3 id="sheetTitle" tabindex="-1">Fix a mistake</h3>
+    <p>Corrects points to spend. Rank is never touched.</p>
+    <div class="field"><label for="aKid">Kid</label><select id="aKid">${ks.map(k=>`<option value="${k.id}">${esc(k.name)} (${balance(k.id)} to spend)</option>`).join('')}</select></div>
+    <div class="field"><label for="aPts">Points (use a minus sign to take away)</label><input id="aPts" type="number" inputmode="numeric" value="5"></div>
+    <div class="field"><label for="aWhy">Reason (required)</label><input id="aWhy" placeholder="Awarded to the wrong kid" maxlength="60"></div>
+    <div class="btnrow"><button class="btn ghost" data-close>Cancel</button><button class="btn" id="doFix">Save fix</button></div>`,opener);
+  $('doFix').onclick=()=>{
+    const n=Math.round(Number($('aPts').value)||0), why=$('aWhy').value.trim();
+    if(!n){ $('aPts').focus(); return; } if(!why){ $('aWhy').focus(); return; }
+    addEntry({kid:$('aKid').value,type:'fix',label:why,e:'🧭',rank:0,coins:n}); closeSheet(); renderAll(); toast('Fix saved');
+  };
+}
+
+function undoSheet(id,opener){
+  const e=S.log[id]; if(!e) return; const k=S.kids[e.kid];
+  openSheet(`<div class="se" aria-hidden="true">↩️</div><h3 id="sheetTitle" tabindex="-1">Undo this?</h3>
+    <p>${esc(k?k.name:'')} · ${esc(e.label)}</p>
+    <div class="btnrow"><button class="btn ghost" data-close>Keep it</button><button class="btn red" id="doUndo">Undo</button></div>`,opener);
+  $('doUndo').onclick=()=>{ closeSheet(); undoIds([id]); };
+}
+
+function removeSheet(kind,id,opener){
+  const it=S[kind][id]; if(!it) return;
+  const what=kind==='kids'?`${it.name}’s badge will be hidden. Their logbook history stays.`:`“${it.name}” will be removed.`;
+  openSheet(`<div class="se" aria-hidden="true">${esc(it.e)}</div><h3 id="sheetTitle" tabindex="-1">Remove ${esc(it.name)}?</h3><p>${esc(what)}</p>
+    <div class="btnrow"><button class="btn ghost" data-close>Cancel</button><button class="btn red" id="doDel">Remove</button></div>`,opener);
+  $('doDel').onclick=()=>{ closeSheet();
+    if(kind==='kids'){ S.kids[id]={...it,hidden:true}; UI.awardKids.delete(id); patch('kids',id,{hidden:true}); }
+    else { delete S[kind][id]; drop(kind,id); }
+    renderAll(); };
+}
+
+function addItem(kind){
+  const id=uid(kind[0]), order=Object.keys(S[kind]).length+100;
+  const doc=kind==='kids'?{id,order,name:'New kid',e:'🐣',color:pick(['#6a4c93','#1f6f8b','#8a3b5c','#4c6b22']),pace:1}
+    :kind==='deeds'?{id,order,name:'New good deed',e:'🌟',pts:5,cat:UI.setCat==='all'?'kindness':UI.setCat}
+    :{id,order,name:'New reward',e:'🎉',cost:40};
+  S[kind][id]=doc; put(kind,id,doc); renderAll();
+  setTimeout(()=>{ const el=document.querySelector(`.row[data-id="${id}"] .nmi`); if(el){ el.focus(); el.select(); } },80);
+}
+function editField(kind,id,f,raw){
+  if(kind==='settings'){
+    const t=troop(); let v=f==='goal'?Math.max(10,Math.round(Number(raw)||300)):String(raw).trim()||t.prize;
+    if(v===t[f]) return; const next={...t,[f]:v}; S.settings.troop=next; put('settings','troop',next); renderAll(); return;
+  }
+  const it=S[kind][id]; if(!it) return;
+  let v=raw;
+  if(f==='pts'||f==='cost') v=Math.max(1,Math.round(Number(raw)||1));
+  else if(f==='pace') v=Number(raw)||1;
+  else { v=String(raw).trim(); if(!v) v=it[f]; }
+  if(v===it[f]) return;
+  S[kind][id]={...it,[f]:v}; patch(kind,id,{[f]:v}); renderAll();
+}
+
+/* ---------- parent PIN (checked by the server) ---------- */
+const bad=t=>{ const b=$('pinBad'); if(b) b.textContent=t; };
+const pinInput=(id,label)=>`<div class="field"><label for="${id}">${label}</label><input id="${id}" class="pinin" type="password" inputmode="numeric" autocomplete="off" maxlength="8"></div>`;
+const whoPicker=cur=>`<div class="who" style="justify-content:center;margin-bottom:12px" role="group" aria-label="Who is this?">
+  ${['Dad','Mom'].map(w=>`<button class="chip" style="padding:0 18px" data-whopick="${w}" aria-pressed="${cur===w}">${w}</button>`).join('')}</div>`;
+function wireWho(state){ $('sheet').querySelectorAll('[data-whopick]').forEach(b=>b.onclick=()=>{ state.who=b.dataset.whopick;
+  $('sheet').querySelectorAll('[data-whopick]').forEach(x=>x.setAttribute('aria-pressed',String(x===b))); }); }
+const netMsg=e=>e&&e.code==='locked_out'?`Too many tries. Wait ${Math.max(1,Math.ceil((e.body.wait||60)/60))} minutes.`:'Couldn’t reach the server. Check your connection.';
+function pinSheet(opener){
+  const first=!pinSet, st={who:parentWho||'Dad'};
+  openSheet(`<div class="se" aria-hidden="true">🔐</div><h3 id="sheetTitle" tabindex="-1">${first?'Set a parent PIN':'Change parent PIN'}</h3>
+    <p>${first?'Kids can see their badges and points. Only someone with this PIN can award points, trade, or change setup.':'Every other device will need the new PIN.'}</p>
+    ${first?whoPicker(st.who):''}
+    ${pinInput('pin1','New PIN (4 to 8 numbers)')}${pinInput('pin2','Type it again')}
+    <p class="bad" id="pinBad" aria-live="polite"></p>
+    <div class="btnrow"><button class="btn ghost" data-close>Cancel</button><button class="btn" id="doPin">Save PIN</button></div>`,opener);
+  wireWho(st);
+  const go=async()=>{
+    const a=$('pin1').value.trim(), b=$('pin2').value.trim();
+    if(!/^\d{4,8}$/.test(a)){ bad('Use 4 to 8 numbers.'); $('pin1').focus(); return; }
+    if(a!==b){ bad('Those don’t match.'); $('pin2').value=''; $('pin2').focus(); return; }
+    $('doPin').disabled=true;
+    try{ const j=await call({action:'setpin',pin:a,who:first?st.who:parentWho}); pinSet=true; saveToken(j.token,j.who); closeSheet(); toast(first?`PIN set. You’re in parent mode, ${esc(j.who)}.`:'PIN changed'); }
+    catch(e){ $('doPin').disabled=false; if(e.code==='unauthorized'){ closeSheet(); signOut(); toast('Unlock with the current PIN first.'); } else bad(netMsg(e)); }
+  };
+  $('doPin').onclick=go;
+  $('sheet').onkeydown=e=>{ if(e.key==='Enter'&&e.target.matches('.pinin')){ e.preventDefault(); go(); } };
+}
+function unlockSheet(opener){
+  if(!pinSet){ pinSheet(opener); return; }
+  const st={who:parentWho||keep.get('cq-who')||'Dad'};
+  openSheet(`<div class="se" aria-hidden="true">🔑</div><h3 id="sheetTitle" tabindex="-1">Parent unlock</h3>
+    <p>Enter your PIN to award points and make changes. This device stays unlocked until you tap Kid mode.</p>
+    ${whoPicker(st.who)}
+    ${pinInput('pinU','PIN')}
+    <p class="bad" id="pinBad" aria-live="polite"></p>
+    <div class="btnrow"><button class="btn ghost" data-close>Cancel</button><button class="btn" id="doUnlock">Unlock</button></div>`,opener);
+  wireWho(st);
+  const go=async()=>{
+    const v=$('pinU').value.trim(); if(!v){ $('pinU').focus(); return; }
+    $('doUnlock').disabled=true;
+    try{ const j=await call({action:'unlock',pin:v,who:st.who}); saveToken(j.token,j.who); closeSheet(); toast(`Parent mode, ${esc(j.who)}. Award away!`); }
+    catch(e){ $('doUnlock').disabled=false; $('pinU').value=''; $('pinU').focus(); bad(e.code==='wrong_pin'?'Not quite. Try again.':netMsg(e)); }
+  };
+  $('doUnlock').onclick=go;
+  $('sheet').onkeydown=e=>{ if(e.key==='Enter'&&e.target.id==='pinU'){ e.preventDefault(); go(); } };
+}
+
+/* ---------- sheet: focus kept inside, background inert ---------- */
+let sheetOpener=null;
+function openSheet(html,opener){
+  sheetOpener=opener||document.activeElement;
+  $('sheet').onkeydown=null;
+  $('sheet').innerHTML=html; $('scrim').classList.add('on');
+  $('app').inert=true; $('tabs').inert=true;
+  requestAnimationFrame(()=>{ const f=$('sheet').querySelector('input:not([type=hidden])')||$('sheetTitle'); f&&f.focus(); });
+}
+function closeSheet(){
+  if(!$('scrim').classList.contains('on')) return;
+  $('scrim').classList.remove('on'); $('app').inert=false; $('tabs').inert=false;
+  const o=sheetOpener; sheetOpener=null; if(o&&document.contains(o)) o.focus();
+}
+$('scrim').addEventListener('click',e=>{ if(e.target.id==='scrim'||e.target.closest('[data-close]')) closeSheet(); });
+document.addEventListener('keydown',e=>{
+  if(!$('scrim').classList.contains('on')) return;
+  if(e.key==='Escape'){ closeSheet(); return; }
+  if(e.key==='Tab'){
+    const f=[...$('sheet').querySelectorAll('button,input,select,[tabindex="-1"]')].filter(x=>!x.disabled);
+    const first=f[0], last=f[f.length-1];
+    if(e.shiftKey&&document.activeElement===first){ e.preventDefault(); last.focus(); }
+    else if(!e.shiftKey&&document.activeElement===last){ e.preventDefault(); first.focus(); }
+  }
+});
+
+/* ---------- navigation + events ---------- */
+const VIEWS=['home','kid','award','store','log','setup'];
+function show(v){
+  if(!VIEWS.includes(v)||(v==='award'&&ro())||(isKid()&&(v==='log'||v==='setup'))||(v==='kid'&&!UI.kid)) v='home';
+  UI.view=v;
+  document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
+  const tab=v==='kid'?'home':v;
+  document.querySelectorAll('#tabs button').forEach(b=>b.setAttribute('aria-current',b.dataset.v===tab?'page':'false'));
+  window.scrollTo({top:0});
+}
+$('tabs').addEventListener('click',e=>{ const b=e.target.closest('button'); if(b) show(b.dataset.v); });
+document.addEventListener('click',e=>{
+  const t=e.target.closest('button'); if(!t||t.closest('#tabs')||t.closest('#toast')) return;
+  const d=t.dataset;
+  if(d.go){ show(d.go); }
+  else if(d.kid){ openKid(d.kid); }
+  else if(d.award){ UI.awardKids=new Set([d.award]); renderAward(); show('award'); }
+  else if(d.shop){ UI.storeKid=d.shop; renderStore(); show('store'); }
+  else if(d.pick){ UI.awardKids.has(d.pick)?UI.awardKids.delete(d.pick):UI.awardKids.add(d.pick); renderAward(); }
+  else if(d.pickall){ const all=kids().map(k=>k.id); UI.awardKids=UI.awardKids.size===all.length?new Set():new Set(all); renderAward(); }
+  else if(d.acat){ UI.awardCat=d.acat; renderAward(); }
+  else if(d.deed){ deedSheet(d.deed==='custom'?'custom':S.deeds[d.deed],t); }
+  else if(d.shopper){ UI.storeKid=d.shopper; renderStore(); }
+  else if(d.reward){ rewardSheet(S.rewards[d.reward],t); }
+  else if(d.hist){ UI.histKid=d.hist; renderLog(); }
+  else if(d.undo){ undoSheet(d.undo,t); }
+  else if(d.scat){ UI.setCat=d.scat; renderSetup(); }
+  else if(d.del){ const row=t.closest('.row'); removeSheet(row.dataset.kind,row.dataset.id,t); }
+});
+document.addEventListener('change',e=>{ const el=e.target, row=el.closest&&el.closest('#v-setup .row'); if(row&&el.dataset.f) editField(row.dataset.kind,row.dataset.id,el.dataset.f,el.value); });
+document.addEventListener('focusout',()=>setTimeout(()=>{ if(!editing()) renderSetup(); },0));
+$('addKid').onclick=()=>addItem('kids');
+$('addDeed').onclick=()=>addItem('deeds');
+$('addReward').onclick=()=>addItem('rewards');
+$('fixBtn').onclick=e=>fixSheet(e.currentTarget);
+$('pinBtn').onclick=e=>pinSheet(e.currentTarget);
+$('modeBtn').onclick=e=>{
+  if(isKid()){ unlockSheet(e.currentTarget); return; }
+  call({action:'lock'}).catch(()=>{});
+  signOut(); toast('Kid mode is on. Tap Parent to unlock.');
+};
+
+/* ---------- confetti ---------- */
+const fx=$('fx'), ctx=fx.getContext('2d'); let parts=[], fxRaf=0;
+function sizeFx(){ fx.width=innerWidth*devicePixelRatio; fx.height=innerHeight*devicePixelRatio; }
+addEventListener('resize',sizeFx); sizeFx();
+function burst(emoji,big){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const colors=['#d9a524','#b23a22','#2e3b23','#6f97c4','#f3efdc','#4c8a46'];
+  const n=big?130:70, cx=innerWidth/2, cy=innerHeight*.4;
+  for(let i=0;i<n;i++){ const a=Math.random()*Math.PI*2, s=4+Math.random()*(big?10:7);
+    parts.push({x:cx,y:cy,vx:Math.cos(a)*s,vy:Math.sin(a)*s-5,r:Math.random()*6.28,vr:(Math.random()-.5)*.3,life:1,c:colors[i%colors.length],e:i%9===0?emoji:null,w:6+Math.random()*6}); }
+  if(!fxRaf) fxRaf=requestAnimationFrame(tick);
+}
+function tick(){
+  const dpr=devicePixelRatio; ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,innerWidth,innerHeight);
+  parts=parts.filter(p=>p.life>0&&p.y<innerHeight+40);
+  for(const p of parts){ p.vy+=.25; p.vx*=.99; p.x+=p.vx; p.y+=p.vy; p.r+=p.vr; p.life-=.009;
+    ctx.save(); ctx.globalAlpha=Math.max(0,Math.min(1,p.life*1.5)); ctx.translate(p.x,p.y); ctx.rotate(p.r);
+    if(p.e){ ctx.font='26px serif'; ctx.textAlign='center'; ctx.fillText(p.e,0,8); } else { ctx.fillStyle=p.c; ctx.fillRect(-p.w/2,-p.w/4,p.w,p.w/2); }
+    ctx.restore(); }
+  fxRaf=parts.length?requestAnimationFrame(tick):0;
+}
+
+/* ---------- boot ---------- */
+const hr=new Date().getHours();
+$('tagline').textContent=(hr<12?'Good morning':hr<17?'Good afternoon':'Good evening')+', troop. Earn your badges. Honor your word.';
+try{ const v=location.hash.slice(1); if(VIEWS.includes(v)&&v!=='kid') show(v); }catch(_){}
+applyMode(); renderAll(); pull();
+setInterval(()=>{ if(document.visibilityState==='visible') pull(); },15000);
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible') pull(); });
+</script>
+</body>
+</html>

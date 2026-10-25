@@ -8,13 +8,14 @@
  * it did before; this only handles paths no asset claims.
  *
  * Routes /api/bpc to the BPC Momentum sync API and /api/spot to the SPOTTED
- * photo reader, /api/babble to the Beza Babble Translator; everything else is
- * the site.
+ * photo reader, /api/babble to the Beza Babble Translator, /api/quest to the
+ * Stelter kids' Character Quest; everything else is the site.
  */
 
 import { handleBpc } from './bpc.js';
 import { handleSpot } from './spot.js';
 import { handleBabble } from './babble.js';
+import { handleQuest } from './quest.js';
 
 const json = (body, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -36,6 +37,10 @@ export default {
 
     if (url.pathname === '/api/babble') {
       return handleBabble(request, env);
+    }
+
+    if (url.pathname === '/api/quest') {
+      return handleQuest(request, env);
     }
 
     if (url.pathname === '/api/health') {
