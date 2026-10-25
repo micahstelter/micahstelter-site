@@ -95,7 +95,8 @@ p{margin:0}
 .mhside{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .modebtn{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;border-radius:999px;background:var(--forest-2);color:var(--on-forest);font-size:13px;font-weight:700}
 .kidmode .modebtn{background:var(--gold);color:var(--forest)}
-.pinin{letter-spacing:.4em;text-align:center;font-size:26px!important;font-family:var(--font-display)}
+/* A text field drawn as dots: password managers ignore it, so the family iPad never offers to save the PIN. */
+.pinin{-webkit-text-security:disc;text-security:disc;letter-spacing:.4em;text-align:center;font-size:26px!important;font-family:var(--font-display)}
 .sheet .bad{color:var(--minus);font-weight:700;min-height:20px;margin-bottom:8px}
 .btnrow{display:flex;gap:8px;flex-wrap:wrap}
 
@@ -811,7 +812,7 @@ function editField(kind,id,f,raw){
 
 /* ---------- parent PIN (checked by the server) ---------- */
 const bad=t=>{ const b=$('pinBad'); if(b) b.textContent=t; };
-const pinInput=(id,label)=>`<div class="field"><label for="${id}">${label}</label><input id="${id}" class="pinin" type="password" inputmode="numeric" autocomplete="off" maxlength="8"></div>`;
+const pinInput=(id,label)=>`<div class="field"><label for="${id}">${label}</label><input id="${id}" class="pinin" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" autocorrect="off" spellcheck="false" data-1p-ignore data-lpignore="true" data-bwignore maxlength="8"></div>`;
 const whoPicker=cur=>`<div class="who" style="justify-content:center;margin-bottom:12px" role="group" aria-label="Who is this?">
   ${['Dad','Mom'].map(w=>`<button class="chip" style="padding:0 18px" data-whopick="${w}" aria-pressed="${cur===w}">${w}</button>`).join('')}</div>`;
 function wireWho(state){ $('sheet').querySelectorAll('[data-whopick]').forEach(b=>b.onclick=()=>{ state.who=b.dataset.whopick;
