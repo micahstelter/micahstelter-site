@@ -106,7 +106,7 @@ label.fld > span{display:block;font-size:.66rem;letter-spacing:.11em;text-transf
   color:#fff;background:var(--dom);padding:.24rem .55rem;border-radius:4px;
 }
 .age{font-size:.63rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);font-weight:700}
-.sig-top .spacer{flex:1}
+.sig-top .spacer,.quiet .spacer{flex:1}
 .sig-actions{display:flex;gap:.3rem}
 .mini{
   font:inherit;font-size:.68rem;padding:.28rem .6rem;border:1px solid var(--line);
@@ -134,6 +134,10 @@ label.fld > span{display:block;font-size:.66rem;letter-spacing:.11em;text-transf
 .hint{font-size:.75rem;color:var(--muted);margin:-.2rem 0 .45rem;line-height:1.45}
 
 /* ---- the parts that push back ---- */
+.via{font-size:.63rem;letter-spacing:.08em;text-transform:uppercase;color:var(--dom);font-weight:700;border:1px solid var(--dom);border-radius:20px;padding:.1rem .5rem}
+.quiet{display:flex;align-items:center;gap:.6rem;padding:.55rem .9rem;margin-bottom:.6rem;border:1px dashed #d8d5ce;border-left:3px solid var(--dom);border-radius:10px;font-size:.8rem;color:var(--faint)}
+.quiet.long{display:block;border-style:solid;background:#fdf7e8;border-color:#ecdcb0;border-left-color:var(--dom);color:#5a4a20}
+.quiet.long .qask{margin:.4rem 0 .55rem;line-height:1.5}
 .nag{border-radius:8px;padding:.7rem .85rem;line-height:1.5;font-size:.8rem}
 .nag.inline{margin-bottom:.8rem}
 .nag.hard{background:#fbf0ee;border:1px solid #e0b9b0;color:#7a3a2c}
@@ -359,7 +363,7 @@ td.slot .lbl{
     <div>
       <h1>BPC <em>Momentum</em></h1>
       <p class="hero-sub">
-        Name the <b>three signals only you can move</b> — one in Brand, one in People, one in Customer.
+        Name the <b>signals only you can move</b> — and why. Brand, People, Customer is the lens you look through, not a quota to fill.
       </p>
     </div>
     <div class="weekpick">
@@ -386,8 +390,8 @@ td.slot .lbl{
     <div id="dumpPanel"></div>
     <div class="sig-head" id="secSignals">
       <div>
-        <h2>This Week's Three</h2>
-        <div class="sub">One move per domain. Not the outcome — the move only you can make this week.</div>
+        <h2>This Week's Signals</h2>
+        <div class="sub">Wherever the real signal is. Not the outcome — the move only you can make, why it matters, and what it costs if you don't.</div>
       </div>
       <button class="mini" id="addOff">+ Off-domain signal</button>
     </div>
@@ -453,11 +457,11 @@ let bakAt = 0;                        // when the backup copy was last refreshed
 
 const DOMAINS = [
   { id:'brand', label:'Brand', color:'#2a4a3e',
-    ask:'What one message, positioning, or craft-standard move can only I make? Not marketing’s job — mine.' },
+    ask:'What message, positioning, or craft-standard move can only I make? Not marketing’s job — mine.' },
   { id:'people', label:'People', color:'#8a6236',
-    ask:'What one leadership move compounds? Hiring, values reinforcement, or making someone’s path clear.' },
+    ask:'What leadership move compounds? Hiring, values reinforcement, or making someone’s path clear.' },
   { id:'customer', label:'Customer', color:'#3f5f7d',
-    ask:'Are we delivering the promise the brand makes? What one move closes the gap between what we say and what they feel?' }
+    ask:'Are we delivering the promise the brand makes? What move closes the gap between what we say and what they feel?' }
 ];
 const DOM = Object.fromEntries(DOMAINS.map(d=>[d.id,d]));
 const OFFDOM = { id:'off', label:'Off-domain', color:'#6b6b67',
@@ -475,6 +479,14 @@ const msDone   = s => msLive(s).filter(m=>m.done).length;
    on a signal he is visibly working through. */
 const evidence = s => movesAll(s) + msDone(s);
 function nagFor(s){
+  const n=nagBase(s);
+  // The pushback lands harder in his own words. "Week 4, open" is easy to ignore;
+  // the cost he wrote down himself is not (2026-10-28).
+  const cost=String((s&&s.ifnot)||'').trim();
+  if(n && cost) n.text+=` You said if you don't: “${cost.length>140?cost.slice(0,140)+'…':cost}”`;
+  return n;
+}
+function nagBase(s){
   if(!s || s.status==='done') return null;
   const age=s.age||1, moves=evidence(s);
   if(age>=3 && moves===0) return {level:'hard',
@@ -487,7 +499,7 @@ function nagFor(s){
 }
 
 const STAGES = [
-  { id:'sketch',  day:'Monday PM',        name:'Sketch',   note:'Draft the three. Rough is fine.', dow:1 },
+  { id:'sketch',  day:'Monday PM',        name:'Sketch',   note:'Draft the signals. Rough is fine.', dow:1 },
   { id:'refine',  day:'Tuesday PM',       name:'Refine',   note:'Lock them. Define what done means.', dow:2 },
   { id:'execute', day:'Wednesday–Thursday',name:'Execute', note:'The two days that are actually yours.', dow:3 },
   { id:'reflect', day:'Friday PM',        name:'Reflect',  note:'What moved? What carries forward?', dow:5 }
@@ -534,7 +546,7 @@ const mtime  = o => (o && Number.isFinite(o.mtime)) ? o.mtime : 0;
 /* Per-field stamps. Object-level stamps lose a whole signal to a one-word edit:
    type into `currentState` on the laptop while the phone edits `deps`, and one
    side's paragraph vanishes. Fields merge independently. */
-const TEXTF  = ['currentState','signal','done','deps','logDraft','msDraft'];
+const TEXTF  = ['currentState','signal','why','ifnot','via','done','deps','logDraft','msDraft'];
 function touchField(s,f){
   if(!s) return;
   if(!s.fs || typeof s.fs!=='object') s.fs={};
@@ -732,7 +744,7 @@ function normWeek(w){
     st.sketch[k]=st.sketch[k].filter(x=>typeof x==='string' && x.trim()).map(x=>x.trim());
   });
   st.refine.notes=String(st.refine.notes==null?'':st.refine.notes);
-  ['moved','didnt','emerging'].forEach(f=>st.reflect[f]=String(st.reflect[f]==null?'':st.reflect[f]));
+  ['moved','didnt','picture','emerging'].forEach(f=>st.reflect[f]=String(st.reflect[f]==null?'':st.reflect[f]));
   return w;
 }
 
@@ -1255,9 +1267,9 @@ function renderDump(){
     const it=dumpFind(b.dataset.duse); if(!it) return;
     const sel=host.querySelector(`select[data-ddom="${it.id}"]`);
     const dom=sel?sel.value:it.domain;
-    // The framework is ONE per domain. A second is allowed, but not silently.
-    const taken=w.signals.some(s=>s.domain===dom && s.status!=='done');
-    if(taken && dom!=='off' && !confirm(`You already have a ${domOf(dom).label} signal open this week.\n\nAdd a second one? Three is the whole point.`)) return;
+    // No quota per domain (his call, 2026-10-28): Brand/People/Customer is the lens,
+    // and a week that is all People is a true read, not a gap. Balance is checked
+    // over a month by quietWeeks(), not by refusing a second signal here.
     w.signals.push({id:uid(),domain:dom,status:'open',age:1,currentState:'',signal:it.text,done:'',deps:'',log:[],ms:[]});
     touch(w.signals[w.signals.length-1]);
     it.status='picked'; it.domain=dom; it.mt=bump(it.mt);
@@ -1285,7 +1297,7 @@ function renderRefine(){
   const w=week(curWeek), st=w.stages;
   if(!w.signals.length){ host.innerHTML=''; return; }
   host.innerHTML=`<div class="lockbar">
-    <button class="btn ${st.refine.done?'ghost':''}" id="refineDone">${st.refine.done?'✓ Locked':'Lock the three'}</button>
+    <button class="btn ${st.refine.done?'ghost':''}" id="refineDone">${st.refine.done?'✓ Locked':'Lock the week'}</button>
     <details class="fold" ${String(st.refine.notes||'').trim()?'open':''}>
       <summary>What changed since Monday</summary>
       <label class="fld"><textarea rows="3" id="refineNotes"
@@ -1320,7 +1332,7 @@ function renderClose(){
   const done=sigs.filter(x=>x.status==='done').length;
   const moved=sigs.filter(x=>x.status==='moved').length;
   const untouched=sigs.filter(x=>x.status==='open' && !evidence(x));
-  const written=['moved','didnt','emerging'].some(f=>String(st.reflect[f]||'').trim());
+  const written=['moved','didnt','picture','emerging'].some(f=>String(st.reflect[f]||'').trim());
   const dow=new Date().getDay();
   const isThisWeek = curWeek===iso(mondayOf(new Date()));
   const open = written || st.reflect.done || !isThisWeek || dow===5 || dow===6;
@@ -1343,6 +1355,8 @@ function renderClose(){
       <textarea rows="3" id="rMoved" placeholder="Be specific. What's different now that wasn't Monday?">${esc(st.reflect.moved||'')}</textarea></label>
     <label class="fld"><span>What didn't — and honestly, why</span>
       <textarea rows="3" id="rDidnt" placeholder="Ran out of time is a symptom. What actually got in the way?">${esc(st.reflect.didnt||'')}</textarea></label>
+    <label class="fld"><span>Did anything change the picture?</span>
+      <textarea rows="2" id="rPicture" placeholder="A new risk, an opportunity, something that should change the 3-year picture or this year's plan.">${esc(st.reflect.picture||'')}</textarea></label>
     <label class="fld"><span>What's emerging for next week</span>
       <textarea rows="3" id="rEmerging" placeholder="What you're already sensing. Goes back on the pile.">${esc(st.reflect.emerging||'')}</textarea></label>
     <button class="btn ${st.reflect.done?'ghost':''}" id="reflectDone">${st.reflect.done?'✓ Week closed':'Close the week'}</button>
@@ -1351,6 +1365,7 @@ function renderClose(){
 
   document.getElementById('rMoved').oninput=e=>{ st.reflect.moved=e.target.value; touch(st.reflect); save(); };
   document.getElementById('rDidnt').oninput=e=>{ st.reflect.didnt=e.target.value; touch(st.reflect); save(); };
+  document.getElementById('rPicture').oninput=e=>{ st.reflect.picture=e.target.value; touch(st.reflect); save(); };
   document.getElementById('rEmerging').oninput=e=>{ st.reflect.emerging=e.target.value; touch(st.reflect); save(); };
   document.getElementById('reflectDone').onclick=()=>{ st.reflect.done=!st.reflect.done; touch(st.reflect); save(); renderWeek(); };
   document.getElementById('carryFwd').onclick=carryForward;
@@ -1425,15 +1440,30 @@ function renderSignals(){
       <button class="btn ghost" id="loadExample">See an example week</button>
     </div>`:'') +
     ordered.map(s=>sigCard(s)).join('') +
-    missing.map(d=>`<div class="sig" style="--dom:${d.color}">
+    (bare ? missing.map(d=>`<div class="sig" style="--dom:${d.color}">
       <div class="sig-top"><span class="dom-tag">${d.label}</span><span class="spacer"></span>
-        <button class="mini go" data-new="${esc(d.id)}">Name this week's ${d.label} signal</button></div>
+        <button class="mini go" data-new="${esc(d.id)}">Name a ${d.label} signal</button></div>
       <div class="empty">${esc(d.ask)}</div>
-    </div>`).join('');
+    </div>`).join('') : missing.map(d=>{
+      /* A quiet domain is a choice, not a hole (his call, 2026-10-28). One line,
+         no nag — until it has been quiet a month. Then the question is not "name a
+         signal" but what SHOULD be happening there, which is often delegated work. */
+      const q=quietWeeks(d.id);
+      return q>=QUIET_WEEKS
+        ? `<div class="quiet long" style="--dom:${d.color}">
+            <div><span class="dom-tag">${d.label}</span> · quiet ${q} weeks</div>
+            <div class="qask">What <b>should</b> be happening in ${d.label} right now — and who's moving it? If it's someone else's work, name it as a signal moving through them.</div>
+            <button class="mini go" data-new="${esc(d.id)}">Name a ${d.label} signal</button>
+          </div>`
+        : `<div class="quiet" style="--dom:${d.color}">
+            <span class="dom-tag">${d.label}</span><span class="qtxt">quiet this week</span>
+            <span class="spacer"></span><button class="mini" data-new="${esc(d.id)}">+ ${d.label}</button>
+          </div>`;
+    }).join(''));
 
   const ex=host.querySelector('#loadExample');
   if(ex) ex.onclick=()=>{
-    if(!confirm('Load an example week?\n\nIt fills the three slots with worked signals you can edit over or delete.')) return;
+    if(!confirm('Load an example week?\n\nIt fills in worked signals you can edit over or delete.')) return;
     exampleWeek().signals.forEach(sig=>w.signals.push(normWeek({signals:[sig],stages:{}}).signals[0]));
     save(); renderWeek();
   };
@@ -1445,6 +1475,20 @@ function renderSignals(){
   wireSignalCard(host,w);
 }
 
+/* Weeks since a domain last carried a signal, counted Monday to Monday, with the
+   current week included. History shorter than the threshold never trips it, so
+   a new user isn't told off for a month they haven't lived yet. */
+const QUIET_WEEKS = 4;
+function quietWeeks(dom){
+  const keys=Object.keys(S.weeks||{}).filter(k=>k<=curWeek).sort();
+  if(!keys.length) return 0;
+  const has=k=>((S.weeks[k]||{}).signals||[]).some(x=>x.domain===dom);
+  const last=[...keys].reverse().find(has);
+  const from=last || keys[0];
+  const span=Math.round((new Date(curWeek+'T12:00:00')-new Date(from+'T12:00:00'))/(7*864e5));
+  return last ? span : span+1;
+}
+
 function sigCard(s){
   const d=domOf(s.domain);
   const off=!DOM[s.domain];
@@ -1454,6 +1498,7 @@ function sigCard(s){
     <div class="sig-top">
       <span class="dom-tag">${d.label}</span>
       ${s.age>1?`<span class="age">Week ${s.age}</span>`:''}
+      ${String(s.via||'').trim()?`<span class="via">via ${esc(String(s.via).trim())}</span>`:''}
       ${ms.length?`<span class="mscount ${mdone===ms.length?'all':''}">${mdone}/${ms.length} milestones</span>`:''}
       <span class="spacer"></span>
       <div class="sig-actions">
@@ -1469,14 +1514,20 @@ function sigCard(s){
     ${off?`<div class="flagnote"><b>Doesn't map to Brand, People, or Customer.</b> ${esc(OFFDOM.ask)}</div>`:''}
     ${(()=>{ const n=nagFor(s); return n?`<div class="nag ${n.level} inline">${esc(n.text)}</div>`:''; })()}
     <div class="sig-grid">
-      <label class="fld full sig-move"><span>The signal — the one move only you can make</span>
+      <label class="fld full sig-move"><span>The signal — the move only you can make</span>
         <textarea rows="2" data-f="signal" data-id="${esc(s.id)}" placeholder="${esc(d.ask)}">${esc(s.signal||'')}</textarea></label>
+      <label class="fld"><span>Why this, why now</span>
+        <textarea rows="2" data-f="why" data-id="${esc(s.id)}" placeholder="What part of the picture this moves.">${esc(s.why||'')}</textarea></label>
+      <label class="fld"><span>If I don't…</span>
+        <textarea rows="2" data-f="ifnot" data-id="${esc(s.id)}" placeholder="What it costs — the business and you. Be honest, not optimistic.">${esc(s.ifnot||'')}</textarea></label>
       <label class="fld"><span>Current state</span>
         <textarea rows="3" data-f="currentState" data-id="${esc(s.id)}" placeholder="Where this actually stands today.">${esc(s.currentState||'')}</textarea></label>
       <label class="fld"><span>Done looks like</span>
         <textarea rows="3" data-f="done" data-id="${esc(s.id)}" placeholder="How you'll know Friday that it moved.">${esc(s.done||'')}</textarea></label>
-      <label class="fld full"><span>Dependencies — what has to happen first</span>
+      <label class="fld"><span>Dependencies — what has to happen first</span>
         <textarea rows="2" data-f="deps" data-id="${esc(s.id)}" placeholder="Prep, data, a conversation. Put it in Monday or Tuesday.">${esc(s.deps||'')}</textarea></label>
+      <label class="fld"><span>Moving through (optional)</span>
+        <textarea rows="1" data-f="via" data-id="${esc(s.id)}" placeholder="If someone else carries it, who. Your move is getting it moving.">${esc(s.via||'')}</textarea></label>
     </div>
     <div class="msbox">
       ${ms.length?'<div class="mslabel">Milestones — the checkpoints on the way</div>':''}
