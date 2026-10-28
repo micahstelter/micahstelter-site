@@ -51,21 +51,6 @@ body{
 .view{display:none}
 .view.on{display:block}
 
-/* ---------- rhythm rail ---------- */
-.rail{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-bottom:1.6rem}
-.stage{
-  background:var(--card);border:1px solid var(--line);border-radius:10px;padding:.85rem .9rem;
-  cursor:pointer;transition:.15s;position:relative;text-align:left;font:inherit;
-}
-.stage:hover{border-color:var(--accent)}
-.stage.on{border-color:var(--accent);box-shadow:0 0 0 2px rgba(42,74,62,.12)}
-.stage.today{background:linear-gradient(180deg,#fff,#f7f9f7)}
-.stage-day{font-size:.6rem;letter-spacing:.13em;text-transform:uppercase;color:var(--faint)}
-.stage-name{font-family:var(--font-head);font-size:1.25rem;font-weight:400;margin:.15rem 0 .1rem;color:var(--ink)}
-.stage-note{font-size:.7rem;color:var(--muted);line-height:1.4}
-.stage .tick{position:absolute;top:.7rem;right:.75rem;font-size:.85rem;color:var(--accent)}
-.stage .nowdot{position:absolute;top:.75rem;right:.75rem;width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 3px rgba(184,148,77,.2)}
-
 /* ---------- panels ---------- */
 .panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:1.35rem 1.4rem;margin-bottom:1.2rem}
 .panel h2{font-family:var(--font-head);font-size:1.5rem;font-weight:400;margin-bottom:.2rem}
@@ -346,7 +331,6 @@ td.slot .lbl{
   .cal-wrap table.cal{min-width:520px}
   body{padding:1.25rem 1rem 3rem}
   .hero h1{font-size:2rem}
-  .rail{grid-template-columns:1fr 1fr}
   .sig-grid{grid-template-columns:1fr}
   .hero{flex-direction:column;align-items:flex-start}
   .weekpick{text-align:left}
@@ -385,7 +369,6 @@ td.slot .lbl{
 
   <!-- ============ THIS WEEK ============ -->
   <section class="view on" id="v-week">
-    <div class="rail" id="rail"></div>
     <div id="carryBanner"></div>
     <div id="dumpPanel"></div>
     <div class="sig-head" id="secSignals">
@@ -1104,33 +1087,10 @@ function paintSync(){
 /* =====================================================================
    RENDER — this week
    ===================================================================== */
-function renderRail(){
-  const w=week(curWeek), today=stageForToday();
-  const isThisWeek = curWeek===iso(mondayOf(new Date()));
-  document.getElementById('rail').innerHTML = STAGES.map(st=>{
-    const done = st.id==='execute'
-      ? w.signals.some(s=>(s.log||[]).length)
-      : !!(w.stages[st.id]&&w.stages[st.id].done);
-    const now = isThisWeek && st.id===today;
-    return `<button class="stage ${now?'today':''}" data-stage="${st.id}">
-      ${done?'<span class="tick">✓</span>':(now?'<span class="nowdot"></span>':'')}
-      <div class="stage-day">${st.day}</div>
-      <div class="stage-name">${st.name}</div>
-      <div class="stage-note">${st.note}</div>
-    </button>`;
-  }).join('');
-  /* The rail used to SWAP four separate panels, which meant three-quarters of the
-     week was always hidden behind a click. His call on 2026-08-25: "I need a one
-     page vs. four separate views." It is now a position indicator — it says where
-     you are in the rhythm and scrolls you there. Nothing hides. */
-  const JUMP={sketch:'secDump', refine:'secSignals', execute:'secSignals', reflect:'secClose'};
-  document.querySelectorAll('.stage').forEach(b=>{
-    b.onclick=()=>{
-      const el=document.getElementById(JUMP[b.dataset.stage]);
-      if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
-    };
-  });
-}
+/* The four-button rhythm rail (Sketch / Refine / Execute / Reflect) came off the
+   page 2026-10-28. His call: "feels like too much overloaded functionality — I think
+   that is a calendar you manage, not built in the tool." STAGES and stageForToday()
+   stay: they still open the log on execute days and fold Friday's close. */
 
 /* =====================================================================
    THE DUMP
@@ -1661,7 +1621,7 @@ function carryForward(){
 
 function renderWeek(){
   document.getElementById('wkLabel').textContent=prettyWeek(curWeek);
-  renderRail(); renderCarryBanner(); renderDump(); renderSignals(); renderRefine(); renderClose(); growAll();
+  renderCarryBanner(); renderDump(); renderSignals(); renderRefine(); renderClose(); growAll();
 }
 
 /* =====================================================================
