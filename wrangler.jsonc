@@ -22,6 +22,14 @@
   // exception — they are stored separately and survive deploys.
   // Cloudflare Workers AI — lets /api/babble run with no API key at all.
   "ai": { "binding": "AI" },
+  // Cloudflare Access app "The CEO Seat" (created 2026-10-28) guards /bpc and
+  // /api/bpc. None of these are secrets: the team domain and AUD are public in
+  // every Access redirect, and the allow-list is enforced by Access first.
+  "vars": {
+    "ACCESS_TEAM_DOMAIN": "little-field-0077.cloudflareaccess.com",
+    "ACCESS_AUD": "52caf20dbe71f183a9bc1c0987d09de5d11627f41db27805e883469d682d96b8",
+    "ACCESS_ALLOWED_EMAILS": "micah@aleph-mgmt.com,micahstelter@gmail.com"
+  },
   "d1_databases": [
     {
       "binding": "BPC_DB",
