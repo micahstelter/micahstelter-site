@@ -407,7 +407,7 @@ td.slot .lbl{
     </div>
     <div class="panel">
       <h2>Your Data</h2>
-      <p class="lede">Everything lives in this browser. Export a backup, or move it to another device.</p>
+      <p class="lede">Your weeks sync to your other signed-in devices and are also kept in this browser. A backup file is extra insurance.</p>
       <div class="datarow">
         <button class="btn ghost" id="expJson">Export backup (.json)</button>
         <button class="btn ghost" id="impJson">Import backup</button>
@@ -951,7 +951,7 @@ const isLocalOnly = d => d && (d.error==='access_unconfigured' || d.error==='sto
 function explain(status,data){
   const e=data&&data.error;
   if(e==='signin_required')     return 'Sign in again to sync';
-  if(e==='forbidden')           return 'That Google account isn’t permitted';
+  if(e==='forbidden')           return 'That email isn’t permitted';
   if(status===401)              return 'Sign in again to sync';
   return (data&&data.message)||('Server error '+status);
 }
@@ -1063,11 +1063,11 @@ function paintSync(){
       <div class="syncrow"><button class="btn" id="syncResume">Resume syncing</button></div>`;
     document.getElementById('syncResume').onclick=()=>{ setSyncOn(true); setSync('busy','Checking…'); pull(); paintSync(); };
   }else if(needsSignIn()){
-    box.innerHTML=`<p class="lede">Your sign-in expired. Reload and Google will sign you back in.</p>
+    box.innerHTML=`<p class="lede">Your sign-in expired. Reload to sign back in — with Cloudflare or a code sent to your email.</p>
       <div class="syncrow"><button class="btn" id="syncSignin">Sign in again</button></div>`;
     document.getElementById('syncSignin').onclick=()=>location.reload();
   }else{
-    box.innerHTML=`<p class="lede">Signed in with Google, so this device shares one copy with your others.
+    box.innerHTML=`<p class="lede">Signed in, so this device shares one copy with your others.
       Edits sync a second or two after you stop typing, and it keeps working offline — anything typed with
       no connection goes up when the connection returns.</p>
       <div class="syncrow">
