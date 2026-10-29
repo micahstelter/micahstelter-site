@@ -174,6 +174,21 @@ label.fld > span{display:block;font-size:.66rem;letter-spacing:.11em;text-transf
 .fold > summary:hover{color:var(--accent)}
 .fold[open] > summary{margin-bottom:.5rem}
 
+/* ---- pill folds: the dump's three extras read as buttons, not loose text
+   (his call 2026-10-29, "clean it up"). Closed ones sit side by side; the open
+   one takes the full row so its contents have room. ---- */
+.pills{display:flex;flex-wrap:wrap;gap:.5rem;align-items:flex-start;margin-top:.9rem}
+.pills > .fold{margin:0}
+.pills > .fold[open]{flex-basis:100%}
+.fold.pill > summary{
+  display:inline-block;padding:.38rem .8rem;line-height:1.4;
+  border:1px solid var(--line);border-radius:999px;background:var(--card);
+  font-size:.74rem;letter-spacing:.02em;color:var(--ink);
+}
+.fold.pill > summary .hint{color:var(--faint)}
+.fold.pill > summary:hover{border-color:var(--accent);color:var(--accent)}
+.fold.pill[open] > summary{border-color:var(--accent);background:#f3f6f4;margin-bottom:.6rem}
+
 /* ---- candidates → proposed signals ---- */
 .propcount{font-size:.72rem;color:var(--muted);margin:.5rem 0 .6rem}
 .propcount b{color:var(--accent)}
@@ -187,7 +202,7 @@ label.fld > span{display:block;font-size:.66rem;letter-spacing:.11em;text-transf
   font:inherit;font-size:.68rem;padding:.25rem .35rem;border:1px solid var(--line);
   border-radius:5px;background:#fff;color:var(--muted);
 }
-.cutlist{margin-top:.6rem}
+.cutlist{margin-top:0}
 .cutlist .row{font-size:.78rem;color:var(--muted);padding:.25rem 0;display:flex;gap:.6rem;align-items:center}
 .cutlist .row span{flex:1;text-decoration:line-through}
 .cutlist .row button{font:inherit;font-size:.68rem;background:none;border:none;color:var(--accent);cursor:pointer;padding:0}
@@ -1185,11 +1200,12 @@ function renderDump(){
         <button class="mini" data-dcut="${esc(it.id)}" title="Defer, delegate, or stop — a decision, not a shrug">Cut</button>
       </div>`).join('')}</div>
     ${open.length?'':'<div class="empty">Nothing waiting. Dump the pile whenever it shows up — you do not have to wait for Monday.</div>'}
-    ${cut.length?`<details class="fold cutlist"><summary>${cut.length} cut</summary>
+    <div class="pills">
+    ${cut.length?`<details class="fold pill cutlist"><summary>Cut lines <span class="hint">· ${cut.length}</span></summary>
         ${cut.map(it=>`<div class="row"><span>${esc(it.text)}</span>
           <button data-dback="${esc(it.id)}">put it back</button></div>`).join('')}
       </details>`:''}
-    <details class="fold"><summary>Show the filter (5 questions)</summary>
+    <details class="fold pill"><summary>The filter <span class="hint">· 5 questions before you pull a line in</span></summary>
       <ul class="prompts">
         <li><b>Only me?</b> Does this drive an outcome only I can steward — or is it a manager's job done well?</li>
         <li><b>Avoiding it?</b> Is there something important I'm dodging that would move the needle if I took it on?</li>
@@ -1198,10 +1214,11 @@ function renderDump(){
         <li><b>Regret test.</b> In three years, which move will I wish I'd made this week?</li>
       </ul>
     </details>
-    <details class="fold" ${String(st.sketch.notes||'').trim()?'open':''}><summary>Notes on the week</summary>
+    <details class="fold pill" ${String(st.sketch.notes||'').trim()?'open':''}><summary>Week notes <span class="hint">· this week only</span></summary>
       <label class="fld"><textarea rows="4" id="sketchNotes"
         placeholder="What's stuck. What's working. What surprised you. Who needs something from you.">${esc(st.sketch.notes||'')}</textarea></label>
     </details>
+    </div>
   </div>`;
 
   const inp=document.getElementById('dumpIn');
@@ -1258,7 +1275,7 @@ function renderRefine(){
   if(!w.signals.length){ host.innerHTML=''; return; }
   host.innerHTML=`<div class="lockbar">
     <button class="btn ${st.refine.done?'ghost':''}" id="refineDone">${st.refine.done?'✓ Locked':'Lock the week'}</button>
-    <details class="fold" ${String(st.refine.notes||'').trim()?'open':''}>
+    <details class="fold pill" ${String(st.refine.notes||'').trim()?'open':''}>
       <summary>What changed since Monday</summary>
       <label class="fld"><textarea rows="3" id="refineNotes"
         placeholder="New data, a conversation that shifted things, a signal you're swapping out.">${esc(st.refine.notes||'')}</textarea></label>
