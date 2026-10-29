@@ -748,6 +748,7 @@ function normWeek(w){
     if(!s || typeof s!=='object'){ w.signals.splice(i,1); continue; }
     if(typeof s.id!=='string' || !/^[A-Za-z0-9_-]+$/.test(s.id)) s.id=uid();
     if(typeof s.src!=='string' || !/^[A-Za-z0-9_-]+$/.test(s.src)) delete s.src;
+    if(typeof s.dump!=='string' || !/^[A-Za-z0-9_-]+$/.test(s.dump)) delete s.dump;
     if(!DOM[s.domain] && s.domain!=='off') s.domain='off';
     if(!['open','moved','done'].includes(s.status)) s.status='open';
     s.age = (Number.isFinite(s.age) && s.age>0) ? Math.floor(s.age) : 1;
@@ -1311,13 +1312,17 @@ function renderDump(){
     // No quota per domain (his call, 2026-10-28): Brand/People/Customer is the lens,
     // and a week that is all People is a true read, not a gap. Balance is checked
     // over a month by quietWeeks(), not by refusing a second signal here.
-    w.signals.push({id:uid(),domain:dom,status:'open',age:1,currentState:'',signal:it.text,done:'',deps:'',log:[],ms:[]});
+    // `dump` remembers the line it came from, so removing the signal puts the line back.
+    w.signals.push({id:uid(),dump:it.id,domain:dom,status:'open',age:1,currentState:'',signal:it.text,done:'',deps:'',log:[],ms:[]});
     touch(w.signals[w.signals.length-1]);
     it.status='picked'; it.domain=dom; it.mt=bump(it.mt);
     return it;
   };
   host.querySelectorAll('[data-duse]').forEach(b=>b.onclick=()=>{
-    if(pullTo(b.dataset.duse,curWeek)){ save(); renderWeek(); }
+    /* 2026-10-29: "just created a dump line - nothing happened." The new card lands
+       up in Signals, off-screen from the dump, so say where it went. */
+    const it=pullTo(b.dataset.duse,curWeek);
+    if(it){ dumpFlash=`“${it.text.slice(0,60)}” is on ${onNow?'this week':'the week of '+prettyWeek(curWeek)} - it's up top under Signals.`; save(); renderWeek(); }
   });
   host.querySelectorAll('[data-dnext]').forEach(b=>b.onclick=()=>{
     const it=pullTo(b.dataset.dnext,nextWk);
@@ -1653,6 +1658,12 @@ function wireSignalCard(host,w){
     if(confirm('Remove this signal from the week?')){
       w.signals=w.signals.filter(x=>x.id!==s.id);
       (w.removed=w.removed||[]).push({id:s.id,at:Date.now()});   // tombstone: stays deleted across tabs
+      /* A signal pulled from the dump goes back to the dump when removed. Before this
+         the line stayed "pulled" and vanished from both places (2026-10-29). Older
+         signals carry no `dump` id, so fall back to the picked line with the same text. */
+      const back=(s.dump && dumpFind(s.dump)) || dumpAll().find(i=>i.status==='picked' && i.text===s.signal);
+      if(back && back.status==='picked'){ back.status='open'; back.mt=bump(back.mt);
+        dumpFlash=`“${back.text.slice(0,60)}” is back in the dump.`; }
       save(); renderWeek();
     }});
   host.querySelectorAll('input[data-log]').forEach(inp=>{
