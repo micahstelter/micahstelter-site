@@ -1221,12 +1221,20 @@ function dumpMove(id,dir){
   a.ord=bo; b.ord=ao; a.mt=bump(a.mt); b.mt=bump(b.mt);
 }
 
+let dumpFlash='';
 function renderDump(){
   const host=document.getElementById('dumpPanel');
   if(!host) return;
   const w=week(curWeek), st=w.stages;
   const open=dumpOpen(), cut=dumpCut();
   const picked=dumpAll().filter(i=>i.status==='picked').length;
+  /* Friday's question (2026-10-29): "what if I want to put it in next week?" On
+     the current week each line gets a "Next week" button; on any other week the
+     pull button names the week you're looking at instead of saying "this week". */
+  const nowWk=iso(mondayOf(new Date())), onNow=curWeek===nowWk;
+  const nextWk=iso(addDays(new Date(nowWk+'T00:00:00'),7));
+  const pullLabel=onNow?'Pull into this week':'Pull into week of '+prettyWeek(curWeek);
+  const flash=dumpFlash; dumpFlash='';
 
   host.innerHTML=`<div class="panel" id="secDump">
     <h2>The Dump</h2>
@@ -1236,6 +1244,7 @@ function renderDump(){
       <textarea rows="2" id="dumpIn" placeholder="What's on your mind? One per line, then Add."></textarea>
       <button class="btn" id="dumpAddBtn">Add to the pile</button>
     </div>
+    ${flash?`<div class="drafted">${esc(flash)}</div>`:''}
     ${open.length||cut.length||picked?`<div class="propcount"><b>${open.length}</b> still to decide
       · <b>${picked}</b> pulled into a week · <b>${cut.length}</b> cut</div>`:''}
     <div class="props" id="dumpList">${open.map((it,i)=>`
@@ -1249,7 +1258,8 @@ function renderDump(){
           ${DOMAINS.map(d=>`<option value="${esc(d.id)}" ${it.domain===d.id?'selected':''}>${d.label}</option>`).join('')}
           <option value="off" ${!DOM[it.domain]?'selected':''}>Off-domain</option>
         </select>
-        <button class="mini go" data-duse="${esc(it.id)}">Pull into this week</button>
+        <button class="mini go" data-duse="${esc(it.id)}">${esc(pullLabel)}</button>
+        ${onNow?`<button class="mini" data-dnext="${esc(it.id)}" title="Make it a signal for the week of ${esc(prettyWeek(nextWk))}">Next week</button>`:''}
         <button class="mini" data-dcut="${esc(it.id)}" title="Defer, delegate, or stop — a decision, not a shrug">Cut</button>
       </div>`).join('')}</div>
     ${open.length?'':'<div class="empty">Nothing waiting. Dump the pile whenever it shows up — you do not have to wait for Monday.</div>'}
@@ -1293,17 +1303,25 @@ function renderDump(){
   host.querySelectorAll('[data-dup]').forEach(b=>b.onclick=()=>{ dumpMove(b.dataset.dup,-1); save(); renderDump(); });
   host.querySelectorAll('[data-ddn]').forEach(b=>b.onclick=()=>{ dumpMove(b.dataset.ddn, 1); save(); renderDump(); });
 
-  host.querySelectorAll('[data-duse]').forEach(b=>b.onclick=()=>{
-    const it=dumpFind(b.dataset.duse); if(!it) return;
+  const pullTo=(id,wk)=>{
+    const it=dumpFind(id); if(!it) return null;
     const sel=host.querySelector(`select[data-ddom="${it.id}"]`);
     const dom=sel?sel.value:it.domain;
+    const w=week(wk);
     // No quota per domain (his call, 2026-10-28): Brand/People/Customer is the lens,
     // and a week that is all People is a true read, not a gap. Balance is checked
     // over a month by quietWeeks(), not by refusing a second signal here.
     w.signals.push({id:uid(),domain:dom,status:'open',age:1,currentState:'',signal:it.text,done:'',deps:'',log:[],ms:[]});
     touch(w.signals[w.signals.length-1]);
     it.status='picked'; it.domain=dom; it.mt=bump(it.mt);
-    save(); renderWeek();
+    return it;
+  };
+  host.querySelectorAll('[data-duse]').forEach(b=>b.onclick=()=>{
+    if(pullTo(b.dataset.duse,curWeek)){ save(); renderWeek(); }
+  });
+  host.querySelectorAll('[data-dnext]').forEach(b=>b.onclick=()=>{
+    const it=pullTo(b.dataset.dnext,nextWk);
+    if(it){ dumpFlash=`“${it.text.slice(0,60)}” is on next week (${prettyWeek(nextWk)}).`; save(); renderWeek(); }
   });
   host.querySelectorAll('[data-dcut]').forEach(b=>b.onclick=()=>{
     const it=dumpFind(b.dataset.dcut); if(!it) return;
