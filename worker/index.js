@@ -15,6 +15,7 @@
 import { handleBpc } from './bpc.js';
 import { handleSpot } from './spot.js';
 import { handleBabble } from './babble.js';
+import { handleBpcDraft } from './bpcdraft.js';
 import { handleQuest } from './quest.js';
 
 const json = (body, status = 200) =>
@@ -29,6 +30,10 @@ export default {
 
     if (url.pathname === '/api/bpc') {
       return handleBpc(request, env);
+    }
+
+    if (url.pathname === '/api/bpc/draft') {
+      return handleBpcDraft(request, env);
     }
 
     if (url.pathname === '/api/spot') {
@@ -51,6 +56,7 @@ export default {
         accessConfigured: Boolean(env.ACCESS_TEAM_DOMAIN && env.ACCESS_AUD),
         spotReader: Boolean(env.ANTHROPIC_API_KEY),
         babble: Boolean(env.ANTHROPIC_API_KEY || env.AI),
+        bpcDraft: Boolean(env.ANTHROPIC_API_KEY || env.AI),
         time: new Date().toISOString(),
       });
     }

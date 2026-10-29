@@ -351,6 +351,55 @@ td.slot .lbl{
   .weekpick{text-align:left}
   .weekpick .nav{justify-content:flex-start}
 }
+
+/* ---- AI drafts: proposals he accepts one at a time, never auto-applied ---- */
+.sig-headbtns{display:flex;gap:.5rem;flex-wrap:wrap;justify-content:flex-end}
+.aibox{background:#f6f8f6;border:1px dashed var(--accent);border-radius:12px;padding:1rem 1.1rem;margin-bottom:1.1rem}
+.aibox .aihead{display:flex;align-items:baseline;gap:.6rem;margin-bottom:.6rem}
+.aibox .aihead b{font-size:.85rem}
+.aibox .aihead .sub{font-size:.72rem;color:var(--muted)}
+.aibox .aihead .spacer{flex:1}
+.aiprop{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--dom);border-radius:9px;padding:.7rem .85rem;margin-bottom:.55rem}
+.aiprop .sigtxt{font-weight:600;font-size:.9rem;margin:.3rem 0 .35rem;color:var(--ink)}
+.aiprop dl{display:grid;grid-template-columns:7.5rem 1fr;gap:.2rem .6rem;font-size:.78rem;color:var(--muted);margin:0 0 .55rem}
+.aiprop dt{color:var(--faint);text-transform:uppercase;letter-spacing:.08em;font-size:.62rem;padding-top:.15rem}
+.aiprop dd{margin:0;color:var(--ink)}
+.aiprop .row{display:flex;gap:.45rem}
+.aimsg{font-size:.8rem;color:var(--muted)}
+.aimsg.err{color:#9b3b2e}
+.sig .fold.more{margin:.8rem 0 .3rem}
+.closebtns{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.4rem}
+.drafted{font-size:.74rem;color:var(--accent);margin:.2rem 0 .7rem}
+
+/* ---- the weekly report: built off-screen, printed to PDF ---- */
+.report{display:none}
+@media print{
+  @page{size:letter;margin:.55in .6in}
+  body{background:#fff!important;padding:0!important}
+  body > *:not(#report){display:none!important}
+  .report{display:block;color:#1c1c1a;font-size:10pt;line-height:1.36}
+  .report h1{font-family:var(--font-head);font-weight:400;font-size:22pt;margin:0}
+  .report .rp-sub{font-size:9pt;letter-spacing:.12em;text-transform:uppercase;color:#77756f;margin:.1rem 0 .9rem}
+  .report .rp-score{display:flex;gap:1.4rem;border-top:1px solid #d9d6cf;border-bottom:1px solid #d9d6cf;padding:.45rem 0;margin-bottom:.8rem}
+  .report .rp-score b{font-size:15pt;font-weight:600;margin-right:.25rem}
+  .report .rp-score span{font-size:9pt;color:#5d5b56}
+  .report h2{font-size:8.5pt;letter-spacing:.14em;text-transform:uppercase;color:#77756f;margin:.75rem 0 .35rem}
+  .report .rp-sig{border-left:3px solid var(--dom);padding:.05rem 0 .05rem .7rem;margin-bottom:.55rem;break-inside:avoid}
+  .report .rp-top{display:flex;gap:.6rem;align-items:baseline;font-size:8.5pt;letter-spacing:.1em;text-transform:uppercase;color:#5d5b56}
+  .report .rp-stamp{font-weight:700;letter-spacing:.12em}
+  .report .rp-stamp.st-closed,.report .rp-stamp.st-moved{color:#2a4a3e}
+  .report .rp-stamp.st-stalled{color:#9b3b2e}
+  .report .rp-move{font-weight:600;font-size:10.5pt;margin:.1rem 0 .2rem}
+  .report .rp-kv{display:grid;grid-template-columns:7.2rem 1fr;gap:.12rem .6rem;font-size:9.5pt}
+  .report .rp-kv dt{color:#77756f}
+  .report .rp-kv dd{margin:0}
+  .report ul{margin:.2rem 0 0 1.1rem;padding:0;font-size:9.5pt}
+  .report .rp-close{display:grid;grid-template-columns:11rem 1fr;gap:.3rem .8rem;margin:0}
+  .report .rp-close dt{font-weight:600;color:#1c1c1a}
+  .report .rp-close dd{margin:0;white-space:pre-wrap}
+  .report .rp-foot{margin-top:.9rem;font-size:8pt;color:#9a978f;border-top:1px solid #e3e0d9;padding-top:.4rem}
+  .report .rp-none{color:#9a978f;font-style:italic}
+}
 </style>
 </head>
 <body>
@@ -391,8 +440,12 @@ td.slot .lbl{
         <h2>This Week's Signals</h2>
         <div class="sub">Wherever the real signal is. Not the outcome — the move only you can make, why it matters, and what it costs if you don't.</div>
       </div>
-      <button class="mini" id="addOff">+ Off-domain signal</button>
+      <div class="sig-headbtns">
+        <button class="mini go" id="aiDraft" hidden>✦ Draft signals for me</button>
+        <button class="mini" id="addOff">+ Off-domain signal</button>
+      </div>
     </div>
+    <div id="aiBox"></div>
     <div id="signals"></div>
     <div id="refineBox"></div>
     <div id="closePanel"></div>
@@ -1328,6 +1381,8 @@ function renderClose(){
         Say why below. "Ran out of time" is a symptom, not a reason.</div>`
         :(sigs.length?'<div class="score-ok">Every signal has something logged against it.</div>':'')}
     </div>
+    ${aiOK&&sigs.length?`<div class="closebtns" style="margin:0 0 .6rem"><button class="mini go" id="aiFriday">✦ Draft from the week</button></div>`:''}
+    ${st.reflect.drafted?`<div class="drafted">✦ ${st.reflect.drafted} box${st.reflect.drafted===1?'':'es'} drafted from what you logged — read and make them yours.</div>`:''}
     <label class="fld"><span>What moved</span>
       <textarea rows="3" id="rMoved" placeholder="Be specific. What's different now that wasn't Monday?">${esc(st.reflect.moved||'')}</textarea></label>
     <label class="fld"><span>What didn't — and honestly, why</span>
@@ -1336,16 +1391,22 @@ function renderClose(){
       <textarea rows="2" id="rPicture" placeholder="A new risk, an opportunity, something that should change the 3-year picture or this year's plan.">${esc(st.reflect.picture||'')}</textarea></label>
     <label class="fld"><span>What's emerging for next week</span>
       <textarea rows="3" id="rEmerging" placeholder="What you're already sensing. Goes back on the pile.">${esc(st.reflect.emerging||'')}</textarea></label>
-    <button class="btn ${st.reflect.done?'ghost':''}" id="reflectDone">${st.reflect.done?'✓ Week closed':'Close the week'}</button>
-    <button class="btn ghost" id="carryFwd">Carry open signals to next week →</button>
+    <div class="closebtns">
+      <button class="btn ${st.reflect.done?'ghost':''}" id="reflectDone">${st.reflect.done?'✓ Week closed':'Close the week'}</button>
+      <button class="btn ghost" id="carryFwd">Carry open signals to next week →</button>
+      <button class="btn ghost" id="reportPdf">Weekly report (PDF)</button>
+    </div>
   </details>`;
 
-  document.getElementById('rMoved').oninput=e=>{ st.reflect.moved=e.target.value; touch(st.reflect); save(); };
-  document.getElementById('rDidnt').oninput=e=>{ st.reflect.didnt=e.target.value; touch(st.reflect); save(); };
-  document.getElementById('rPicture').oninput=e=>{ st.reflect.picture=e.target.value; touch(st.reflect); save(); };
-  document.getElementById('rEmerging').oninput=e=>{ st.reflect.emerging=e.target.value; touch(st.reflect); save(); };
+  document.getElementById('rMoved').oninput=e=>{ st.reflect.moved=e.target.value; delete st.reflect.drafted; touch(st.reflect); save(); };
+  document.getElementById('rDidnt').oninput=e=>{ st.reflect.didnt=e.target.value; delete st.reflect.drafted; touch(st.reflect); save(); };
+  document.getElementById('rPicture').oninput=e=>{ st.reflect.picture=e.target.value; delete st.reflect.drafted; touch(st.reflect); save(); };
+  document.getElementById('rEmerging').oninput=e=>{ st.reflect.emerging=e.target.value; delete st.reflect.drafted; touch(st.reflect); save(); };
   document.getElementById('reflectDone').onclick=()=>{ st.reflect.done=!st.reflect.done; touch(st.reflect); save(); renderWeek(); };
   document.getElementById('carryFwd').onclick=carryForward;
+  document.getElementById('reportPdf').onclick=()=>printReport(curWeek);
+  const ad=document.getElementById('aiFriday');
+  if(ad) ad.onclick=()=>draftFriday(ad);
 }
 
 /* Weeks you were away are the most important thing that happened. The tool used
@@ -1466,6 +1527,19 @@ function quietWeeks(dom){
   return last ? span : span+1;
 }
 
+/* The card shows three things up front — the move, why / if I don't, and what
+   done looks like (his call 2026-10-29: make it great, not a form). Everything
+   else folds behind "More detail", and the fold says what's already in it so
+   nothing written there goes out of sight unnoticed. */
+function moreHint(s,ms){
+  const has=[];
+  if(String(s.currentState||'').trim()) has.push('current state');
+  if(String(s.deps||'').trim()) has.push('dependencies');
+  if(String(s.via||'').trim()) has.push('moving through');
+  if(ms.length) has.push(ms.length+' checkpoint'+(ms.length===1?'':'s'));
+  return has.length ? has.join(', ') : 'current state, dependencies, checkpoints';
+}
+
 function sigCard(s){
   const d=domOf(s.domain);
   const off=!DOM[s.domain];
@@ -1497,10 +1571,14 @@ function sigCard(s){
         <textarea rows="2" data-f="why" data-id="${esc(s.id)}" placeholder="What part of the picture this moves.">${esc(s.why||'')}</textarea></label>
       <label class="fld"><span>If I don't…</span>
         <textarea rows="2" data-f="ifnot" data-id="${esc(s.id)}" placeholder="What it costs — the business and you. Be honest, not optimistic.">${esc(s.ifnot||'')}</textarea></label>
+      <label class="fld full"><span>Done looks like</span>
+        <textarea rows="2" data-f="done" data-id="${esc(s.id)}" placeholder="How you'll know Friday that it moved.">${esc(s.done||'')}</textarea></label>
+    </div>
+    <details class="fold pill more">
+      <summary>More detail <span class="hint">· ${esc(moreHint(s,ms))}</span></summary>
+    <div class="sig-grid">
       <label class="fld"><span>Current state</span>
         <textarea rows="3" data-f="currentState" data-id="${esc(s.id)}" placeholder="Where this actually stands today.">${esc(s.currentState||'')}</textarea></label>
-      <label class="fld"><span>Done looks like</span>
-        <textarea rows="3" data-f="done" data-id="${esc(s.id)}" placeholder="How you'll know Friday that it moved.">${esc(s.done||'')}</textarea></label>
       <label class="fld"><span>Dependencies — what has to happen first</span>
         <textarea rows="2" data-f="deps" data-id="${esc(s.id)}" placeholder="Prep, data, a conversation. Put it in Monday or Tuesday.">${esc(s.deps||'')}</textarea></label>
       <label class="fld"><span>Moving through (optional)</span>
@@ -1520,6 +1598,7 @@ function sigCard(s){
         <input type="date" data-msat="${esc(s.id)}" title="Optional — when it should be hit">
       </div>
     </div>
+    </details>
     <details class="logfold" ${(stageForToday()==='execute'||String(s.logDraft||'').trim())?'open':''}>
       <summary>${(s.log||[]).length?`${s.log.length} move${s.log.length===1?'':'s'} logged`:'Log a move'}</summary>
       <div class="logbox">
@@ -1638,7 +1717,7 @@ function carryForward(){
 
 function renderWeek(){
   document.getElementById('wkLabel').textContent=prettyWeek(curWeek);
-  renderCarryBanner(); renderDump(); renderSignals(); renderRefine(); renderClose(); growAll();
+  renderCarryBanner(); renderDump(); renderSignals(); renderAi(); renderRefine(); renderClose(); growAll();
 }
 
 /* =====================================================================
@@ -1867,6 +1946,165 @@ function growAll(root){
 document.addEventListener('input',e=>{ if(e.target && e.target.tagName==='TEXTAREA') autoGrow(e.target); });
 window.addEventListener('resize',()=>growAll());
 
+/* =====================================================================
+   AI DRAFTING — an extra, never a dependency (his call 2026-10-29: "many
+   don't have that setup — so should have manual version too"). The buttons
+   only appear when /api/health says the drafter exists; every box still
+   works by hand. A draft is a proposal he accepts one at a time.
+   ===================================================================== */
+const DRAFT_URL='/api/bpc/draft';
+let aiOK=false, aiProps=null, aiState='', aiMsg='';
+function checkAi(){
+  fetch('/api/health',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(d=>{
+    aiOK=!!(d&&d.bpcDraft); renderWeek();
+  }).catch(()=>{});
+}
+async function draftCall(kind,input){
+  const res=await fetch(DRAFT_URL,{method:'POST',headers:{'content-type':'application/json'},
+    body:JSON.stringify({kind,input}),cache:'no-store',credentials:'same-origin'});
+  const ct=res.headers.get('content-type')||'';
+  if(!ct.includes('application/json')) throw new Error('Sign in again, then try the draft.');
+  const data=await res.json().catch(()=>null);
+  if(res.status===401) throw new Error('Sign in again, then try the draft.');
+  if(!res.ok||!data) throw new Error((data&&data.message)||'The drafter is unavailable. Fill it in by hand.');
+  return data.draft;
+}
+function prevWeekKey(k){ return iso(addDays(new Date(k+'T00:00:00'),-7)); }
+function mondayInput(){
+  const w=week(curWeek), pk=prevWeekKey(curWeek), pw=S.weeks[pk]?week(pk):null;
+  const r=pw?pw.stages.reflect:{};
+  return {
+    dump: dumpOpen().slice(0,40).map(i=>({id:i.id,text:i.text,domain:i.domain||null})),
+    alreadyThisWeek: w.signals.map(x=>({domain:x.domain,signal:x.signal,status:x.status})),
+    lastFriday: pw?{emerging:r.emerging||'',didnt:r.didnt||'',picture:r.picture||''}:null
+  };
+}
+function fridayInput(){
+  const w=week(curWeek);
+  return { signals: w.signals.map(x=>({
+    domain:domOf(x.domain).label, signal:x.signal||'', why:x.why||'', ifnot:x.ifnot||'',
+    done:x.done||'', status:x.status, movingThrough:x.via||'',
+    loggedThisWeek:(x.log||[]).map(e=>e.text),
+    checkpoints:msLive(x).map(m=>({text:m.text,done:!!m.done})) })),
+    weekNotes:(w.stages.sketch.notes||''), changedSinceMonday:(w.stages.refine.notes||'') };
+}
+async function draftMonday(){
+  aiState='busy'; aiProps=null; renderAi();
+  try{
+    const props=await draftCall('monday',mondayInput());
+    aiProps=(props||[]).map(p=>({...p,key:uid()}));
+    aiState=aiProps.length?'ready':'empty';
+  }catch(e){ aiState='error'; aiMsg=e.message; }
+  renderAi();
+}
+function renderAi(){
+  const btn=document.getElementById('aiDraft');
+  if(btn) btn.hidden=!aiOK;
+  const host=document.getElementById('aiBox');
+  if(!host) return;
+  if(!aiState){ host.innerHTML=''; return; }
+  const head=`<div class="aihead"><b>✦ Drafts for this week</b>
+    <span class="sub">Proposals, not decisions — use what fits, edit after.</span><span class="spacer"></span>
+    <button class="mini" id="aiClose">Close</button></div>`;
+  let body='';
+  if(aiState==='busy') body='<div class="aimsg">Reading your dump and last Friday…</div>';
+  else if(aiState==='error') body=`<div class="aimsg err">${esc(aiMsg)}</div>`;
+  else if(aiState==='empty'||!aiProps.length) body='<div class="aimsg">Nothing left to propose. Name the week by hand below.</div>';
+  else body=aiProps.map(p=>{ const d=domOf(p.domain); return `<div class="aiprop" style="--dom:${d.color}">
+      <span class="dom-tag">${d.label}</span>
+      <div class="sigtxt">${esc(p.signal)}</div>
+      <dl>${p.why?`<dt>Why</dt><dd>${esc(p.why)}</dd>`:''}${p.ifnot?`<dt>If I don't</dt><dd>${esc(p.ifnot)}</dd>`:''}${p.done?`<dt>Done looks like</dt><dd>${esc(p.done)}</dd>`:''}</dl>
+      <div class="row"><button class="mini go" data-aiuse="${esc(p.key)}">Use this</button>
+        <button class="mini" data-aiskip="${esc(p.key)}">Skip</button></div></div>`; }).join('');
+  host.innerHTML=`<div class="aibox">${head}${body}</div>`;
+  document.getElementById('aiClose').onclick=()=>{ aiState=''; aiProps=null; renderAi(); };
+  host.querySelectorAll('[data-aiuse]').forEach(b=>b.onclick=()=>{
+    const p=aiProps.find(x=>x.key===b.dataset.aiuse); if(!p) return;
+    const w=week(curWeek);
+    const sig={id:uid(),domain:p.domain,status:'open',age:1,currentState:'',signal:p.signal,
+      why:p.why,ifnot:p.ifnot,done:p.done,deps:'',log:[],ms:[]};
+    w.signals.push(sig); touch(sig);
+    const src=p.from&&dumpFind(p.from);
+    if(src&&src.status==='open'){ src.status='picked'; src.domain=p.domain; src.mt=bump(src.mt); }
+    aiProps=aiProps.filter(x=>x!==p); if(!aiProps.length) aiState='empty';
+    save(); renderWeek();
+  });
+  host.querySelectorAll('[data-aiskip]').forEach(b=>b.onclick=()=>{
+    aiProps=aiProps.filter(x=>x.key!==b.dataset.aiskip); if(!aiProps.length) aiState='empty'; renderAi();
+  });
+}
+/* Friday: fills only the boxes he hasn't written in. What he wrote is his. */
+async function draftFriday(btn){
+  const w=week(curWeek), r=w.stages.reflect;
+  const F=['moved','didnt','picture','emerging'];
+  const empty=F.filter(f=>!String(r[f]||'').trim());
+  if(!empty.length){ alert('All four boxes already have your words in them. Clear one to draft it.'); return; }
+  btn.disabled=true; btn.textContent='Drafting…';
+  try{
+    const d=await draftCall('friday',fridayInput());
+    let n=0; empty.forEach(f=>{ if(d&&d[f]){ r[f]=d[f]; n++; } });
+    if(n){ touch(r); w.stages.reflect.drafted=n; }
+    save(); renderWeek();
+  }catch(e){ btn.disabled=false; btn.textContent='✦ Draft from the week'; alert(e.message); }
+}
+
+/* =====================================================================
+   WEEKLY REPORT — one page, printed to PDF (his call 2026-10-29: "the
+   output for report being a PDF would be great"). Built from the same data
+   on the page, so it works with or without the drafter. The PDF is also the
+   sharing story: no second-person view, he sends the file.
+   ===================================================================== */
+function stampOf(s){
+  if(s.status==='done') return ['CLOSED','st-closed'];
+  if(s.status==='moved') return ['MOVED','st-moved'];
+  return evidence(s) ? ['IN MOTION','st-moved'] : ['STALLED','st-stalled'];
+}
+function buildReport(k){
+  const w=week(k), st=w.stages, sigs=w.signals;
+  const done=sigs.filter(x=>x.status==='done').length;
+  const moved=sigs.filter(x=>x.status==='moved').length;
+  const stalled=sigs.filter(x=>x.status==='open'&&!evidence(x)).length;
+  const counts=DOMAINS.map(d=>({d,n:sigs.filter(x=>x.domain===d.id).length}));
+  const off=sigs.filter(x=>!DOM[x.domain]).length;
+  const prevCur=curWeek; curWeek=k;
+  const quiet=counts.filter(c=>!c.n).map(c=>({d:c.d,q:quietWeeks(c.d.id)}));
+  curWeek=prevCur;
+  const kv=(label,v)=>String(v||'').trim()?`<dt>${label}</dt><dd>${esc(String(v).trim())}</dd>`:'';
+  const r=st.reflect;
+  const closeRows=[['What moved',r.moved],["What didn't, and why",r.didnt],['Changed the picture?',r.picture],["What's emerging",r.emerging]]
+    .map(([l,v])=>`<dt>${l}</dt><dd>${String(v||'').trim()?esc(String(v).trim()):'<span class="rp-none">Not written.</span>'}</dd>`).join('');
+  return `<h1>The CEO Seat</h1>
+  <div class="rp-sub">Weekly report · week of ${esc(prettyWeek(k))}${st.refine.done?' · locked':''}${r.done?' · closed':''}</div>
+  <div class="rp-score"><div><b>${sigs.length}</b><span>signals</span></div><div><b>${done}</b><span>closed</span></div>
+    <div><b>${moved}</b><span>moved</span></div><div><b>${stalled}</b><span>stalled</span></div></div>
+  <h2>The signals</h2>
+  ${sigs.length?sigs.map(s=>{ const d=domOf(s.domain), [stamp,cls]=stampOf(s), ms=msLive(s);
+    return `<div class="rp-sig" style="--dom:${d.color}">
+      <div class="rp-top"><span>${esc(d.label)}</span>${s.age>1?`<span>week ${s.age}</span>`:''}<span class="rp-stamp ${cls}">${stamp}</span></div>
+      <div class="rp-move">${esc(s.signal||'(unnamed)')}</div>
+      <dl class="rp-kv">${kv('Why',s.why)}${kv("If I don't",s.ifnot)}${kv('Done looks like',s.done)}${kv('Moving through',s.via)}
+        ${ms.length?`<dt>Checkpoints</dt><dd>${msDone(s)} of ${ms.length} done</dd>`:''}</dl>
+      ${(s.log||[]).length?`<ul>${s.log.map(e=>`<li>${esc(fmtDay(e.at))} — ${esc(e.text)}</li>`).join('')}</ul>`:''}
+    </div>`; }).join(''):'<p class="rp-none">No signals named this week.</p>'}
+  <h2>Where the week went</h2>
+  <p>${counts.map(c=>`${esc(c.d.label)} ${c.n}`).join(' · ')}${off?` · Off-domain ${off}`:''}${
+    quiet.filter(x=>x.q>=QUIET_WEEKS).length?`<br>Quiet a month or more: ${quiet.filter(x=>x.q>=QUIET_WEEKS).map(x=>`${esc(x.d.label)} (${x.q} weeks)`).join(', ')}. What should be happening there?`:''}</p>
+  <h2>Close the week</h2>
+  <dl class="rp-close">${closeRows}</dl>
+  <div class="rp-foot">The CEO Seat · micahstelter.ai/bpc · made ${esc(new Date().toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}))}</div>`;
+}
+function printReport(k){
+  const el=document.getElementById('report');
+  el.innerHTML=buildReport(k);
+  const was=document.title;
+  // The PDF's file name comes from the title.
+  document.title=`CEO Seat - week of ${prettyWeek(k)}`;
+  const restore=()=>{ document.title=was; window.removeEventListener('afterprint',restore); };
+  window.addEventListener('afterprint',restore);
+  window.print();
+  setTimeout(restore,4000);
+}
+
 function renderAll(){ renderWeek(); renderCal(); renderHist(); }   // renderCal is a no-op while the grid is parked
 
 function init(){
@@ -1897,6 +2135,8 @@ function init(){
   document.getElementById('wkNext').onclick=()=>{ curWeek=iso(addDays(new Date(curWeek+'T00:00:00'),7)); renderAll(); };
   document.getElementById('wkToday').onclick=()=>{ curWeek=iso(mondayOf(new Date())); curStage=stageForToday(); renderAll(); };
 
+  document.getElementById('aiDraft').onclick=draftMonday;
+  checkAi();
   document.getElementById('addOff').onclick=()=>{
     week(curWeek).signals.push({id:uid(),domain:'off',status:'open',age:1,currentState:'',signal:'',done:'',deps:'',log:[]});
     save(); renderWeek();
@@ -1981,5 +2221,6 @@ function init(){
 }
 document.addEventListener('DOMContentLoaded',init);
 </script>
+<div id="report" class="report" aria-hidden="true"></div>
 </body>
 </html>
